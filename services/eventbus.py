@@ -80,9 +80,13 @@ class RoxyEventBus:
         }
         
         msg = json.dumps(payload).encode()
-        ack = await self.js.publish(subject, msg, headers=headers)
-        logger.debug(f"Published to {subject}: seq={ack.seq}")
-        return ack
+        try:
+            ack = await self.js.publish(subject, msg, headers=headers)
+            logger.debug(f"Published to {subject}: seq={ack.seq}")
+            return ack
+        except Exception as e:
+            logger.warning(f"Failed to publish to {subject}: {e}")
+            return None
     
     async def subscribe(self, subject: str, callback: Callable, durable: str = None):
         """Subscribe to events with optional durable consumer"""

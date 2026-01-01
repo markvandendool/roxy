@@ -1,0 +1,52 @@
+#!/bin/bash
+# JARVIS Command - Quick access to the resident AI
+# Usage: jarvis [command] [args]
+
+JARVIS_SERVICE="jarvis.service"
+JARVIS_INTERFACE="/opt/roxy/services/jarvis_interface.py"
+
+case "${1:-chat}" in
+    chat|talk|converse)
+        cd /opt/roxy && source venv/bin/activate
+        python3 "$JARVIS_INTERFACE.py"
+        ;;
+    status)
+        sudo systemctl status "$JARVIS_SERVICE" --no-pager
+        ;;
+    start)
+        sudo systemctl start "$JARVIS_SERVICE"
+        echo "✅ JARVIS starting..."
+        ;;
+    stop)
+        sudo systemctl stop "$JARVIS_SERVICE"
+        echo "✅ JARVIS stopped"
+        ;;
+    restart)
+        sudo systemctl restart "$JARVIS_SERVICE"
+        echo "✅ JARVIS restarted"
+        ;;
+    logs)
+        sudo journalctl -u "$JARVIS_SERVICE" -f "${@:2}"
+        ;;
+    memory)
+        echo "📚 JARVIS Memory Stats:"
+        sqlite3 /opt/roxy/data/jarvis_memory.db "SELECT COUNT(*) as conversations FROM conversations; SELECT COUNT(*) as facts FROM learned_facts;" 2>/dev/null || echo "Memory database not initialized yet"
+        ;;
+    *)
+        echo "JARVIS - Resident AI Assistant"
+        echo ""
+        echo "Usage: jarvis [command]"
+        echo ""
+        echo "Commands:"
+        echo "  chat, talk, converse  - Start interactive chat with JARVIS"
+        echo "  status                - Show JARVIS service status"
+        echo "  start                 - Start JARVIS service"
+        echo "  stop                  - Stop JARVIS service"
+        echo "  restart              - Restart JARVIS service"
+        echo "  logs                 - View JARVIS logs"
+        echo "  memory               - Show memory statistics"
+        echo ""
+        echo "JARVIS is always learning and remembering!"
+        ;;
+esac
+
