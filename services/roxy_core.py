@@ -494,6 +494,65 @@ class RoxyCore:
         except Exception as e:
             logger.warning(f"⚠️ System managers unavailable: {e}")
     
+    async def _init_scheduler_systems(self):
+        """Initialize task scheduling systems"""
+        try:
+            from scheduler.task_scheduler import TaskScheduler
+            from scheduler.nightly_tasks import NightlyTaskSystem
+            from scheduler.recurring_tasks import RecurringTaskManager
+            
+            self.services['task_scheduler'] = TaskScheduler()
+            self.services['nightly_tasks'] = NightlyTaskSystem()
+            self.services['recurring_tasks'] = RecurringTaskManager()
+            
+            logger.info("✅ Scheduler systems initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Scheduler systems unavailable: {e}")
+    
+    async def _init_email_systems(self):
+        """Initialize email integration"""
+        try:
+            from email.classifier import EmailClassifier
+            from email.summarizer import EmailSummarizer
+            from email.priority_detector import EmailPriorityDetector
+            
+            self.services['email_classifier'] = EmailClassifier()
+            self.services['email_summarizer'] = EmailSummarizer()
+            self.services['email_priority'] = EmailPriorityDetector()
+            
+            logger.info("✅ Email systems initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Email systems unavailable: {e}")
+    
+    async def _init_agent_framework(self):
+        """Initialize autonomous agent framework"""
+        try:
+            from agents.framework.agent_orchestrator import AgentOrchestrator
+            from agents.framework.communication import get_communication_bus
+            
+            orchestrator = AgentOrchestrator()
+            self.services['agent_orchestrator'] = orchestrator
+            self.services['agent_bus'] = get_communication_bus()
+            
+            logger.info("✅ Agent framework initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Agent framework unavailable: {e}")
+    
+    async def _init_autonomous_systems(self):
+        """Initialize autonomous systems"""
+        try:
+            from autonomous.problem_detection import ProblemDetector
+            from autonomous.response_system import ResponseSystem
+            from autonomous.planning import PlanningSystem
+            
+            self.services['problem_detector'] = ProblemDetector()
+            self.services['response_system'] = ResponseSystem()
+            self.services['planning'] = PlanningSystem()
+            
+            logger.info("✅ Autonomous systems initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Autonomous systems unavailable: {e}")
+    
     def get_status(self) -> Dict[str, Any]:
         """Get ROXY status"""
         uptime = (datetime.now() - self.start_time).total_seconds() if self.start_time else 0
