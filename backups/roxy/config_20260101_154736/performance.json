@@ -1,0 +1,7 @@
+{
+  "max_workers": 20,
+  "memory_limit": "8G",
+  "cpu_limit": null,
+  "cache_enabled": true,
+  "async_processing": true
+}

@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "roxy-browser": {
+      "command": "python3",
+      "args": [
+        "/opt/roxy/mcp-servers/browser/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/opt/roxy"
+      }
+    },
+    "roxy-desktop": {
+      "command": "python3",
+      "args": [
+        "/opt/roxy/mcp-servers/desktop/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/opt/roxy"
+      }
+    },
+    "roxy-voice": {
+      "command": "python3",
+      "args": [
+        "/opt/roxy/mcp-servers/voice/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/opt/roxy"
+      }
+    },
+    "roxy-obs": {
+      "command": "python3",
+      "args": [
+        "/opt/roxy/mcp-servers/obs/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/opt/roxy"
+      }
+    },
+    "roxy-content": {
+      "command": "python3",
+      "args": [
+        "/opt/roxy/mcp-servers/content/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/opt/roxy"
+      }
+    }
+  }
+}

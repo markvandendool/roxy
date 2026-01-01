@@ -518,9 +518,9 @@ class RoxyCore:
     async def _init_email_systems(self):
         """Initialize email integration"""
         try:
-            from email.classifier import EmailClassifier
-            from email.summarizer import EmailSummarizer
-            from email.priority_detector import EmailPriorityDetector
+            from services.email_services.classifier import EmailClassifier
+            from services.email_services.summarizer import EmailSummarizer
+            from services.email_services.priority_detector import EmailPriorityDetector
             
             self.services['email_classifier'] = EmailClassifier()
             self.services['email_summarizer'] = EmailSummarizer()

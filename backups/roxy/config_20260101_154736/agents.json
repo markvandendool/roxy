@@ -1,0 +1,27 @@
+{
+  "enabled_agents": [
+    "code-analysis",
+    "code-review",
+    "refactoring",
+    "documentation",
+    "testing",
+    "bug-detection",
+    "dependency",
+    "performance",
+    "security",
+    "git",
+    "monitor",
+    "issue-resolver",
+    "ci",
+    "code-generator",
+    "architecture",
+    "migration",
+    "api-docs",
+    "compliance",
+    "metrics",
+    "release"
+  ],
+  "max_concurrent": 10,
+  "auto_assign": true,
+  "learning_enabled": true
+}

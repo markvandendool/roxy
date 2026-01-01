@@ -3,7 +3,7 @@
 # Usage: roxy [command] [args]
 
 ROXY_SERVICE="roxy.service"
-ROXY_INTERFACE="/opt/roxy/services/roxy_interface.py"
+ROXY_INTERFACE="/opt/roxy/services/roxy_interface"
 
 case "${1:-chat}" in
     chat|talk|converse)

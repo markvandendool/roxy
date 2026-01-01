@@ -3,9 +3,12 @@
 ROXY Email Attachment Handler - Process email attachments
 """
 import logging
-import email
+import sys
 from typing import List, Dict, Optional
 from pathlib import Path
+
+# Import standard library email module explicitly to avoid conflict with services/email/
+import email.message as email_message
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('roxy.email.attachment')
@@ -17,12 +20,12 @@ class AttachmentHandler:
         self.download_dir = Path(download_dir)
         self.download_dir.mkdir(parents=True, exist_ok=True)
     
-    def extract_attachments(self, email_message: email.message.Message) -> List[Dict]:
+    def extract_attachments(self, email_message_obj: email_message.Message) -> List[Dict]:
         """Extract attachments from email"""
         attachments = []
         
-        if email_message.is_multipart():
-            for part in email_message.walk():
+        if email_message_obj.is_multipart():
+            for part in email_message_obj.walk():
                 if part.get_content_disposition() == 'attachment':
                     filename = part.get_filename()
                     if filename:

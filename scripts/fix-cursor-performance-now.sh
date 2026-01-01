@@ -8,10 +8,10 @@ echo "🔧 FIXING CURSOR PERFORMANCE - COMPREHENSIVE FIX"
 echo "================================================"
 echo ""
 
-# 1. Kill any runaway Cursor processes (>80% CPU for >5 minutes)
-echo "1️⃣  Checking for runaway processes..."
+# 1. Monitor runaway Cursor processes (>80% CPU for >5 minutes) - LOG ONLY, DO NOT KILL
+echo "1️⃣  Monitoring for high CPU processes (logging only, not killing)..."
 CURSOR_PIDS=$(pgrep -f cursor 2>/dev/null || true)
-KILLED=0
+HIGH_CPU_COUNT=0
 
 for pid in $CURSOR_PIDS; do
     if kill -0 "$pid" 2>/dev/null; then
@@ -23,19 +23,17 @@ for pid in $CURSOR_PIDS; do
             CPU_TIME_INT=${CPU_TIME:-0}
             
             if [ "$CPU_USAGE_INT" -gt 80 ] && [ "$CPU_TIME_INT" -gt 5 ]; then
-                echo "   ⚠️  Killing runaway process: PID $pid (${CPU_USAGE}% CPU, ${CPU_TIME} min)"
-                kill -9 "$pid" 2>/dev/null || true
-                KILLED=$((KILLED + 1))
-                sleep 1
+                echo "   ⚠️  High CPU process detected: PID $pid (${CPU_USAGE}% CPU, ${CPU_TIME} min) - LOGGING ONLY"
+                HIGH_CPU_COUNT=$((HIGH_CPU_COUNT + 1))
             fi
         fi
     fi
 done
 
-if [ $KILLED -eq 0 ]; then
-    echo "   ✅ No runaway processes found"
+if [ $HIGH_CPU_COUNT -eq 0 ]; then
+    echo "   ✅ No high CPU processes detected"
 else
-    echo "   ✅ Killed $KILLED runaway process(es)"
+    echo "   ℹ️  Found $HIGH_CPU_COUNT high CPU process(es) (logged, not killed)"
 fi
 echo ""
 

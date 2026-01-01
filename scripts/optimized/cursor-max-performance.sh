@@ -76,7 +76,9 @@ while [ $ITERATION -lt $MAX_ITERATIONS ]; do
     done
     
     ITERATION=$((ITERATION + 1))
-    sleep 2
+    # Increased sleep interval to reduce interruptions (30 seconds instead of 2)
+    # This prevents constant process modifications that can cause crashes
+    sleep 30
 done
 
 log "Maximum iterations reached, exiting"

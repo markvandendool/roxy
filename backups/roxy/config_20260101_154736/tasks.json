@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "nightly-backup",
+      "name": "Nightly Backup",
+      "cron": "0 2 * * *",
+      "enabled": true
+    },
+    {
+      "id": "health-check",
+      "name": "Health Check",
+      "cron": "0 * * * *",
+      "enabled": true
+    },
+    {
+      "id": "memory-consolidation",
+      "name": "Memory Consolidation",
+      "cron": "0 3 * * *",
+      "enabled": true
+    },
+    {
+      "id": "repo-monitor",
+      "name": "Repository Monitor",
+      "cron": "*/5 * * * *",
+      "enabled": true
+    }
+  ]
+}

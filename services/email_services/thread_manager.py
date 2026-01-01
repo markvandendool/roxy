@@ -3,7 +3,8 @@
 ROXY Email Thread Manager - Track email conversations
 """
 import logging
-import email
+# Import standard library email module explicitly to avoid conflict
+import email as stdlib_email
 from typing import Dict, List, Optional
 from datetime import datetime
 
