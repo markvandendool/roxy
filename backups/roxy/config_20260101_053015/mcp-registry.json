@@ -1,0 +1,119 @@
+{
+  "servers": {
+    "browser": {
+      "name": "browser",
+      "path": "/opt/roxy/mcp-servers/browser/server.py",
+      "description": "Web browsing and automation",
+      "tools": [
+        "browse_and_extract",
+        "search_web",
+        "fill_form",
+        "screenshot_page"
+      ],
+      "status": "ready",
+      "port": null,
+      "pid": null
+    },
+    "desktop": {
+      "name": "desktop",
+      "path": "/opt/roxy/mcp-servers/desktop/server.py",
+      "description": "Desktop control via ydotool",
+      "tools": [
+        "type_text",
+        "press_key",
+        "mouse_move",
+        "mouse_click",
+        "get_clipboard",
+        "set_clipboard",
+        "take_screenshot",
+        "hotkey",
+        "run_command"
+      ],
+      "status": "ready",
+      "port": null,
+      "pid": null
+    },
+    "voice": {
+      "name": "voice",
+      "path": "/opt/roxy/mcp-servers/voice/server.py",
+      "description": "Text-to-speech with Piper",
+      "tools": [
+        "speak",
+        "synthesize_audio",
+        "list_voices",
+        "test_speaker"
+      ],
+      "status": "ready",
+      "port": null,
+      "pid": null
+    },
+    "obs": {
+      "name": "obs",
+      "path": "/opt/roxy/mcp-servers/obs/server.py",
+      "description": "OBS Studio control",
+      "tools": [
+        "obs_get_status",
+        "obs_start_recording",
+        "obs_stop_recording",
+        "obs_pause_recording",
+        "obs_resume_recording",
+        "obs_get_scenes",
+        "obs_switch_scene",
+        "obs_get_record_directory",
+        "obs_take_screenshot"
+      ],
+      "status": "ready",
+      "port": null,
+      "pid": null
+    },
+    "content": {
+      "name": "content",
+      "path": "/opt/roxy/mcp-servers/content/server.py",
+      "description": "Content pipeline control",
+      "tools": [
+        "content_status",
+        "transcribe_video",
+        "detect_viral_moments",
+        "extract_clips",
+        "queue_video",
+        "run_full_pipeline"
+      ],
+      "status": "ready",
+      "port": null,
+      "pid": null
+    }
+  },
+  "total_tools": 32,
+  "status": {
+    "browser": {
+      "status": "ready",
+      "path": "/opt/roxy/mcp-servers/browser/server.py",
+      "tools": 4,
+      "description": "Web browsing and automation"
+    },
+    "desktop": {
+      "status": "ready",
+      "path": "/opt/roxy/mcp-servers/desktop/server.py",
+      "tools": 9,
+      "description": "Desktop control via ydotool"
+    },
+    "voice": {
+      "status": "ready",
+      "path": "/opt/roxy/mcp-servers/voice/server.py",
+      "tools": 4,
+      "description": "Text-to-speech with Piper"
+    },
+    "obs": {
+      "status": "ready",
+      "path": "/opt/roxy/mcp-servers/obs/server.py",
+      "tools": 9,
+      "description": "OBS Studio control"
+    },
+    "content": {
+      "status": "ready",
+      "path": "/opt/roxy/mcp-servers/content/server.py",
+      "tools": 6,
+      "description": "Content pipeline control"
+    }
+  }
+}

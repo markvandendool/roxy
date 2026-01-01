@@ -1,0 +1,6 @@
+{
+  "health_check_interval": 60,
+  "metrics_collection": true,
+  "log_retention_days": 30,
+  "alert_on_errors": true
+}
