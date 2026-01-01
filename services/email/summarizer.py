@@ -47,3 +47,11 @@ class EmailSummarizer:
         key_points = [s.strip() for s in sentences[:5] if len(s.strip()) > 20]
         return key_points
 
+
+
+
+
+
+
+
+

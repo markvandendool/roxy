@@ -52,3 +52,11 @@ class ErrorLearning:
         """Find similar past errors"""
         return [e for e in self.errors if e['type'] == error_type]
 
+
+
+
+
+
+
+
+

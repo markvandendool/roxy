@@ -57,3 +57,11 @@ class AdaptiveBehavior:
         
         return adapted
 
+
+
+
+
+
+
+
+

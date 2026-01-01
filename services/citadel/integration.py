@@ -40,3 +40,11 @@ class CitadelIntegration:
         }
         return {'status': 'integrated', 'phase': phase}
 
+
+
+
+
+
+
+
+

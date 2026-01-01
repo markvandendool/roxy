@@ -42,3 +42,11 @@ class GoalPlanner:
         
         return {'plan_executed': True, 'results': results}
 
+
+
+
+
+
+
+
+

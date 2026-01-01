@@ -200,3 +200,11 @@ async def terminal_chat():
 if __name__ == "__main__":
     asyncio.run(terminal_chat())
 
+
+
+
+
+
+
+
+

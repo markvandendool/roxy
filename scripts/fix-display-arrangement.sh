@@ -71,3 +71,11 @@ echo "   xrandr --output RIGHT_OUTPUT --right-of $SAMSUNG_OUTPUT"
 echo ""
 echo "   Or use GNOME Settings > Displays for GUI arrangement"
 
+
+
+
+
+
+
+
+

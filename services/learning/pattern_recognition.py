@@ -33,3 +33,11 @@ class PatternRecognizer:
         
         return patterns
 
+
+
+
+
+
+
+
+

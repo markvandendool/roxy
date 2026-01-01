@@ -22,3 +22,11 @@ echo "  sudo systemctl stop jarvis     # Stop JARVIS"
 echo "  sudo systemctl status jarvis   # Check status"
 echo "  sudo journalctl -u jarvis -f   # View logs"
 
+
+
+
+
+
+
+
+

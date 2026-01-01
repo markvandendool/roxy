@@ -165,3 +165,11 @@ async def search_emails(query: str, folder: str = 'INBOX', limit: int = 10) -> s
 if __name__ == "__main__":
     mcp.run()
 
+
+
+
+
+
+
+
+

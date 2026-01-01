@@ -60,3 +60,11 @@ class DependencyResolver:
         deps = self.dependencies.get(task_id, [])
         return all(dep in completed_tasks for dep in deps)
 
+
+
+
+
+
+
+
+

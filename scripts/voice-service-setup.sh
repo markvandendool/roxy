@@ -22,3 +22,11 @@ echo "  sudo systemctl stop roxy-voice     # Stop voice pipeline"
 echo "  sudo systemctl status roxy-voice   # Check status"
 echo "  sudo journalctl -u roxy-voice -f   # View logs"
 
+
+
+
+
+
+
+
+

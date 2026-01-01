@@ -37,3 +37,11 @@ echo "🔧 TO FORCE ALL NEW APPS:"
 echo "   Run this script, then start apps from this terminal"
 
 
+
+
+
+
+
+
+
+

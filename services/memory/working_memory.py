@@ -76,3 +76,11 @@ class WorkingMemory:
         """Get current conversation context"""
         return self.current_context.copy()
 
+
+
+
+
+
+
+
+

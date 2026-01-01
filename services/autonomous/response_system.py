@@ -32,3 +32,11 @@ class AutomatedResponseSystem:
         
         return {'status': 'no_response_rule'}
 
+
+
+
+
+
+
+
+

@@ -196,6 +196,9 @@ class RoxyCore:
         logger.info("🤖 ROXY - PERMANENT RESIDENT AI STARTING")
         logger.info("=" * 70)
         
+        # AUTOMATIC MAXIMUM POWER - NO MANUAL STEPS REQUIRED
+        await self._ensure_maximum_power()
+        
         # Initialize core services
         await self._init_event_bus()
         await self._init_knowledge_index()

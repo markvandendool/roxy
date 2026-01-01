@@ -195,3 +195,11 @@ sudo systemctl restart jarvis
 sudo systemctl restart roxy-voice
 ```
 
+
+
+
+
+
+
+
+

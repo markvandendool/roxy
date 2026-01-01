@@ -61,3 +61,11 @@ class ContextManager:
         truncated = context[-max_chars:]
         return "...[context truncated]...\n" + truncated
 
+
+
+
+
+
+
+
+

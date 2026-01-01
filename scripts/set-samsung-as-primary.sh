@@ -55,3 +55,11 @@ echo "   Right:  HDMI-1"
 echo ""
 echo "✅ Done! The 'home stuff' should now be on Samsung (center)"
 
+
+
+
+
+
+
+
+

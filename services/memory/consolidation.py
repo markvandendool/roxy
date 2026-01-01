@@ -64,3 +64,11 @@ class MemoryConsolidator:
         self.last_consolidation = datetime.now()
         logger.info("Memory consolidation complete")
 
+
+
+
+
+
+
+
+

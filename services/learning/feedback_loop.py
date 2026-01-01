@@ -71,3 +71,11 @@ class FeedbackLoop:
             'average_rating': round(avg_rating, 2) if avg_rating else None
         }
 
+
+
+
+
+
+
+
+

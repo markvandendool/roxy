@@ -1,0 +1,74 @@
+# ROXY Workspace Exclusions
+# Workspace is 51GB - these exclusions are ESSENTIAL for performance
+
+# Git directory (7.7GB)
+.git/
+.git/**/*
+
+# Node modules
+**/node_modules/
+node_modules/
+
+# Python virtual environments
+venv/
+venv-*/
+**/venv/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Build and cache directories
+**/build/
+**/dist/
+**/.cache/
+**/.next/
+**/.nuxt/
+**/.output/
+
+# Large data directories
+**/data/
+**/logs/
+**/backups/
+
+# Mindsong Juke Hub - exclude entire directory
+mindsong-juke-hub/
+**/mindsong-juke-hub/
+mindsong-juke-hub/**
+**/mindsong-juke-hub/**
+
+# Media files (large)
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.mkv
+**/*.wav
+**/*.flac
+
+# Archives
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.rar
+**/*.7z
+
+# Database files
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# Large model files
+**/*.onnx
+**/*.pth
+**/*.pt
+**/*.h5
+**/*.ckpt
+
+# Temporary files
+**/tmp/
+**/temp/
+**/*.tmp
+**/*.log
+**/*.swp
+**/*.swo
+**/*~
+

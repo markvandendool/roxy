@@ -46,3 +46,11 @@ Generate an appropriate response:"""
             logger.error(f"Failed to generate response: {e}")
             return None
 
+
+
+
+
+
+
+
+

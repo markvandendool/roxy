@@ -89,3 +89,11 @@ class EmailRulesEngine:
                 logger.info(f"Rule '{rule.name}' matched, applying actions: {rule.actions}")
         return applied_actions
 
+
+
+
+
+
+
+
+

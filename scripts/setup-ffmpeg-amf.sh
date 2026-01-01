@@ -43,3 +43,11 @@ echo ""
 echo "📝 Note: GPU encoding presets are configured in encoding_presets.py"
 echo "   They will use AMF when available, fallback to software encoding"
 
+
+
+
+
+
+
+
+

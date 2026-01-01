@@ -76,3 +76,11 @@ class NetworkManager:
             logger.error(f"Failed to get network stats: {e}")
             return {}
 
+
+
+
+
+
+
+
+

@@ -70,3 +70,11 @@ bluetoothctl show
 
 
 
+
+
+
+
+
+
+
+

@@ -68,3 +68,11 @@ class PackageManager:
             logger.error(f"Failed to upgrade packages: {e}")
             return False
 
+
+
+
+
+
+
+
+
