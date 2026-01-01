@@ -1,0 +1,52 @@
+{
+  "name": "Auto-Encode for Platforms",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/opt/roxy/content-pipeline/clips",
+        "options": {
+          "fileExtension": ".mp4"
+        }
+      },
+      "name": "Watch for Clips",
+      "type": "n8n-nodes-base.watchFile",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform tiktok --output /opt/roxy/content-pipeline/encoded/tiktok/",
+        "options": {}
+      },
+      "name": "Encode TikTok",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform youtube-shorts --output /opt/roxy/content-pipeline/encoded/youtube-shorts/",
+        "options": {}
+      },
+      "name": "Encode YouTube Shorts",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform instagram-reels --output /opt/roxy/content-pipeline/encoded/instagram-reels/",
+        "options": {}
+      },
+      "name": "Encode Instagram",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [450, 400]
+    }
+  ],
+  "connections": {
+    "Watch for Clips": {
+      "main": [[
+        {"node": "Encode TikTok", "type": "main", "index": 0},
+        {"node": "Encode YouTube Shorts", "type": "main", "index": 0},
+        {"node": "Encode Instagram", "type": "main", "index": 0}
+      ]]
+    }
+  }
+}

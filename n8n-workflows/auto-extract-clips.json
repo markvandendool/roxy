@@ -1,0 +1,42 @@
+{
+  "name": "Auto-Extract Clips",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/opt/roxy/content-pipeline/transcripts",
+        "options": {
+          "fileExtension": ".json"
+        }
+      },
+      "name": "Watch for Transcript",
+      "type": "n8n-nodes-base.watchFile",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/clip_extractor.py --input {{ $json.recording_path }} --transcript {{ $json.path }} --output /opt/roxy/content-pipeline/clips/ --platform all",
+        "options": {}
+      },
+      "name": "Extract Clips",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/viral_detector.py --input /opt/roxy/content-pipeline/clips/ --transcript {{ $json.path }}",
+        "options": {}
+      },
+      "name": "Score Clips",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Watch for Transcript": {
+      "main": [[{"node": "Extract Clips", "type": "main", "index": 0}]]
+    },
+    "Extract Clips": {
+      "main": [[{"node": "Score Clips", "type": "main", "index": 0}]]
+    }
+  }
+}

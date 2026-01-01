@@ -1,0 +1,95 @@
+{
+  "name": "ROXY Content Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/opt/roxy/content-pipeline/input",
+        "events": ["add"],
+        "options": {
+          "usePolling": true,
+          "interval": 5000
+        }
+      },
+      "id": "watch-input",
+      "name": "Watch Input Directory",
+      "type": "n8n-nodes-base.localFileTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "python3 /opt/roxy/content-pipeline/transcriber.py \"{{ $json.path }}\" /opt/roxy/content-pipeline/work"
+      },
+      "id": "transcribe",
+      "name": "Transcribe Video",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "command": "python3 /opt/roxy/content-pipeline/viral_detector.py \"/opt/roxy/content-pipeline/work/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}.json\" \"/opt/roxy/content-pipeline/work/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}_clips.json\" 10"
+      },
+      "id": "detect-viral",
+      "name": "Detect Viral Moments",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "command": "python3 /opt/roxy/content-pipeline/clip_extractor.py \"{{ $json.path }}\" \"/opt/roxy/content-pipeline/work/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}_clips.json\" \"/opt/roxy/content-pipeline/output/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}/clips/landscape\""
+      },
+      "id": "extract-landscape",
+      "name": "Extract Landscape Clips",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "command": "python3 /opt/roxy/content-pipeline/clip_extractor.py \"{{ $json.path }}\" \"/opt/roxy/content-pipeline/work/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}_clips.json\" \"/opt/roxy/content-pipeline/output/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}/clips/vertical\" --vertical"
+      },
+      "id": "extract-vertical",
+      "name": "Extract Vertical Clips",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:4222",
+        "method": "POST",
+        "body": "{\"subject\": \"roxy.content.complete\", \"data\": {\"video\": \"{{ $json.filename }}\", \"output\": \"/opt/roxy/content-pipeline/output/{{ $json.filename.replace(/\\.[^/.]+$/, '') }}\"}}"
+      },
+      "id": "notify-nats",
+      "name": "Notify NATS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Watch Input Directory": {
+      "main": [[{"node": "Transcribe Video", "type": "main", "index": 0}]]
+    },
+    "Transcribe Video": {
+      "main": [[{"node": "Detect Viral Moments", "type": "main", "index": 0}]]
+    },
+    "Detect Viral Moments": {
+      "main": [
+        [
+          {"node": "Extract Landscape Clips", "type": "main", "index": 0},
+          {"node": "Extract Vertical Clips", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Extract Landscape Clips": {
+      "main": [[{"node": "Notify NATS", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["roxy", "content", "pipeline"]
+}

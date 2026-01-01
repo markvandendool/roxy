@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""
+ROXY Content Pipeline - Transcription Service
+Uses faster-whisper for high-quality transcription with timestamps
+"""
+import os
+import json
+import logging
+from pathlib import Path
+from typing import List, Dict, Optional
+from datetime import timedelta
+from faster_whisper import WhisperModel
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Model configuration
+MODEL_SIZE = 'large-v3'  # Options: tiny, base, small, medium, large-v2, large-v3
+DEVICE = 'cpu'  # Use 'cuda' for GPU
+COMPUTE_TYPE = 'float32'  # Use 'float16' for GPU
+
+class Transcriber:
+    def __init__(self, model_size: str = MODEL_SIZE):
+        logger.info(f'Loading Whisper model: {model_size}...')
+        self.model = WhisperModel(
+            model_size,
+            device=DEVICE,
+            compute_type=COMPUTE_TYPE
+        )
+        logger.info('Model loaded')
+    
+    def transcribe(self, audio_path: str, language: str = 'en') -> Dict:
+        """
+        Transcribe audio file and return structured result.
+        
+        Returns:
+            {
+                'text': full transcript,
+                'segments': [{start, end, text, words: [{start, end, word}]}],
+                'language': detected language,
+                'duration': audio duration
+            }
+        """
+        logger.info(f'Transcribing: {audio_path}')
+        
+        segments, info = self.model.transcribe(
+            audio_path,
+            language=language,
+            word_timestamps=True,
+            vad_filter=True,
+            vad_parameters=dict(
+                min_silence_duration_ms=500,
+                speech_pad_ms=400
+            )
+        )
+        
+        result = {
+            'text': '',
+            'segments': [],
+            'language': info.language,
+            'language_probability': info.language_probability,
+            'duration': info.duration
+        }
+        
+        full_text = []
+        for segment in segments:
+            seg_data = {
+                'id': len(result['segments']),
+                'start': segment.start,
+                'end': segment.end,
+                'text': segment.text.strip(),
+                'words': []
+            }
+            
+            if segment.words:
+                for word in segment.words:
+                    seg_data['words'].append({
+                        'word': word.word,
+                        'start': word.start,
+                        'end': word.end,
+                        'probability': word.probability
+                    })
+            
+            result['segments'].append(seg_data)
+            full_text.append(segment.text.strip())
+        
+        result['text'] = ' '.join(full_text)
+        logger.info(f'Transcription complete: {len(result["segments"])} segments, {info.duration:.1f}s')
+        
+        return result
+    
+    def to_srt(self, result: Dict) -> str:
+        """Convert transcription result to SRT format."""
+        srt_lines = []
+        
+        for i, seg in enumerate(result['segments'], 1):
+            start = self._format_timestamp(seg['start'], srt=True)
+            end = self._format_timestamp(seg['end'], srt=True)
+            srt_lines.append(f'{i}')
+            srt_lines.append(f'{start} --> {end}')
+            srt_lines.append(seg['text'])
+            srt_lines.append('')
+        
+        return '\n'.join(srt_lines)
+    
+    def to_vtt(self, result: Dict) -> str:
+        """Convert transcription result to WebVTT format."""
+        vtt_lines = ['WEBVTT', '']
+        
+        for seg in result['segments']:
+            start = self._format_timestamp(seg['start'], srt=False)
+            end = self._format_timestamp(seg['end'], srt=False)
+            vtt_lines.append(f'{start} --> {end}')
+            vtt_lines.append(seg['text'])
+            vtt_lines.append('')
+        
+        return '\n'.join(vtt_lines)
+    
+    def _format_timestamp(self, seconds: float, srt: bool = True) -> str:
+        """Format seconds to timestamp string."""
+        td = timedelta(seconds=seconds)
+        hours = int(td.total_seconds() // 3600)
+        minutes = int((td.total_seconds() % 3600) // 60)
+        secs = int(td.total_seconds() % 60)
+        ms = int((td.total_seconds() % 1) * 1000)
+        
+        if srt:
+            return f'{hours:02d}:{minutes:02d}:{secs:02d},{ms:03d}'
+        else:
+            return f'{hours:02d}:{minutes:02d}:{secs:02d}.{ms:03d}'
+    
+    def save_results(self, result: Dict, output_dir: str, base_name: str):
+        """Save transcription in multiple formats."""
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # JSON (full data)
+        json_path = output_path / f'{base_name}.json'
+        with open(json_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        logger.info(f'Saved: {json_path}')
+        
+        # SRT
+        srt_path = output_path / f'{base_name}.srt'
+        with open(srt_path, 'w') as f:
+            f.write(self.to_srt(result))
+        logger.info(f'Saved: {srt_path}')
+        
+        # VTT
+        vtt_path = output_path / f'{base_name}.vtt'
+        with open(vtt_path, 'w') as f:
+            f.write(self.to_vtt(result))
+        logger.info(f'Saved: {vtt_path}')
+        
+        # Plain text
+        txt_path = output_path / f'{base_name}.txt'
+        with open(txt_path, 'w') as f:
+            f.write(result['text'])
+        logger.info(f'Saved: {txt_path}')
+        
+        return {
+            'json': str(json_path),
+            'srt': str(srt_path),
+            'vtt': str(vtt_path),
+            'txt': str(txt_path)
+        }
+
+
+def transcribe_file(audio_path: str, output_dir: str = None, language: str = 'en') -> Dict:
+    """
+    Convenience function to transcribe a file and save all outputs.
+    """
+    transcriber = Transcriber()
+    result = transcriber.transcribe(audio_path, language)
+    
+    if output_dir is None:
+        output_dir = os.path.dirname(audio_path)
+    
+    base_name = Path(audio_path).stem
+    files = transcriber.save_results(result, output_dir, base_name)
+    
+    return {
+        'transcript': result,
+        'files': files
+    }
+
+
+if __name__ == '__main__':
+    import sys
+    
+    if len(sys.argv) < 2:
+        print('Usage: python transcriber.py <audio_file> [output_dir]')
+        sys.exit(1)
+    
+    audio_file = sys.argv[1]
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else None
+    
+    result = transcribe_file(audio_file, output_dir)
+    print(f'\nTranscription complete!')
+    print(f'Files saved: {json.dumps(result["files"], indent=2)}')
+    print(f'\nPreview (first 500 chars):\n{result["transcript"]["text"][:500]}...')

@@ -1,0 +1,54 @@
+#===============================================================================
+# LUNA-002: Infisical Secrets Manager
+# Self-hosted secrets management with dynamic secret rotation
+#===============================================================================
+
+version: "3.8"
+
+services:
+  infisical:
+    image: infisical/infisical:latest
+    container_name: roxy-infisical
+    restart: unless-stopped
+    environment:
+      - ENCRYPTION_KEY=${INFISICAL_ENCRYPTION_KEY:?INFISICAL_ENCRYPTION_KEY required}
+      - JWT_SIGNUP_SECRET=${INFISICAL_JWT_SECRET:?INFISICAL_JWT_SECRET required}
+      - JWT_REFRESH_SECRET=${INFISICAL_JWT_REFRESH:?INFISICAL_JWT_REFRESH required}
+      - JWT_AUTH_SECRET=${INFISICAL_JWT_AUTH:?INFISICAL_JWT_AUTH required}
+      - MONGO_URL=mongodb://mongo:27017/infisical
+      - REDIS_URL=redis://redis:6379
+      - SITE_URL=https://${INFISICAL_HOST:-secrets.jarvis.local}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_FROM_ADDRESS=${SMTP_FROM:-noreply@jarvis.local}
+      - SMTP_FROM_NAME=Roxy Secrets
+    ports:
+      - "8080:8080"
+    networks:
+      - roxy-network
+    depends_on:
+      - mongo
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=security"
+      - "roxy.service=infisical"
+
+  mongo:
+    image: mongo:6
+    container_name: roxy-infisical-mongo
+    restart: unless-stopped
+    volumes:
+      - infisical_mongo_data:/data/db
+    networks:
+      - roxy-network
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=security"
+      - "roxy.service=infisical-mongo"
+
+networks:
+  roxy-network:
+    external: true
+
+volumes:
+  infisical_mongo_data:

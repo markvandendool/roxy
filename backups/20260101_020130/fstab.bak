@@ -1,0 +1,4 @@
+# /etc/fstab - ORION Linux on Mac Pro 2019
+UUID=63e50236-2a2a-414f-a4fd-96591b2c931e  /         ext4   defaults,noatime  0  1
+UUID=442F-30D2   /boot/efi vfat   umask=0077        0  1
+tmpfs            /tmp      tmpfs  defaults          0  0

@@ -1,0 +1,246 @@
+#===============================================================================
+# LUNA-S1: Foundation Infrastructure
+# Services: PostgreSQL, Redis, n8n, MinIO, ChromaDB, NATS
+# Target: JARVIS-1 (Ubuntu 24.04)
+#===============================================================================
+
+version: "3.8"
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-labels: &labels
+  labels:
+    - "roxy.project=citadel"
+    - "roxy.domain=infrastructure"
+
+networks:
+  roxy-net:
+    driver: bridge
+    name: roxy-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  minio_data:
+  chromadb_data:
+  nats_data:
+  caddy_data:
+  caddy_config:
+
+services:
+  #=============================================================================
+  # PostgreSQL - Shared Database
+  #=============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: roxy-postgres
+    <<: [*common, *labels]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-roxy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: roxy
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - roxy-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-roxy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=postgres"
+
+  #=============================================================================
+  # Redis - Queue & Cache
+  #=============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: roxy-redis
+    <<: [*common, *labels]
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - roxy-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=redis"
+
+  #=============================================================================
+  # n8n - Workflow Automation (160K stars)
+  #=============================================================================
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: roxy-n8n
+    <<: [*common, *labels]
+    environment:
+      - N8N_HOST=${N8N_HOST:-n8n.jarvis.local}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${N8N_HOST:-n8n.jarvis.local}/
+      - GENERIC_TIMEZONE=America/Los_Angeles
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-roxy}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - EXECUTIONS_MODE=queue
+      - N8N_METRICS=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - /opt/roxy/data/n8n/files:/files
+    ports:
+      - "5678:5678"
+    networks:
+      - roxy-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=n8n"
+      - "roxy.url=https://n8n.jarvis.local"
+
+  #=============================================================================
+  # MinIO - S3-Compatible Object Storage
+  #=============================================================================
+  minio:
+    image: minio/minio:latest
+    container_name: roxy-minio
+    <<: [*common, *labels]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
+      MINIO_BROWSER_REDIRECT_URL: https://${MINIO_HOST:-minio.jarvis.local}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - roxy-net
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=minio"
+      - "roxy.url=https://minio.jarvis.local"
+
+  #=============================================================================
+  # ChromaDB - Vector Store for AI Memory
+  #=============================================================================
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: roxy-chromadb
+    <<: [*common, *labels]
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+    volumes:
+      - chromadb_data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    networks:
+      - roxy-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/api/v1/heartbeat || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=chromadb"
+
+  #=============================================================================
+  # NATS - Event Bus with JetStream
+  #=============================================================================
+  nats:
+    image: nats:2-alpine
+    container_name: roxy-nats
+    <<: [*common, *labels]
+    command:
+      - "--js"
+      - "--sd=/data"
+      - "--http_port=8222"
+      - "-c=/etc/nats/nats.conf"
+    volumes:
+      - nats_data:/data
+      - ./configs/nats.conf:/etc/nats/nats.conf:ro
+    ports:
+      - "4222:4222"   # Client
+      - "8222:8222"   # Monitoring
+    networks:
+      - roxy-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8222/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=nats"
+
+  #=============================================================================
+  # Caddy - Reverse Proxy with Auto-SSL
+  #=============================================================================
+  caddy:
+    image: caddy:2-alpine
+    container_name: roxy-caddy
+    <<: [*common, *labels]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./configs/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - roxy-net
+    depends_on:
+      - n8n
+      - minio
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=caddy"
