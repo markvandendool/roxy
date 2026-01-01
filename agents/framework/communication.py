@@ -4,7 +4,7 @@ ROXY Agent Communication Protocol - Inter-agent communication
 """
 import logging
 import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime
 from collections import defaultdict
 
