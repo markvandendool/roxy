@@ -66,6 +66,7 @@ class RoxyMaximizer:
         
         # 12. Performance tuning
         self.optimize_performance()
+        self.optimize_gpu()
         
         # Print summary
         self.print_summary()
@@ -369,6 +370,37 @@ class RoxyMaximizer:
         print("  ✅ Performance settings optimized")
         self.fixes_applied.append("Performance tuning applied")
     
+    def optimize_gpu(self):
+        """Configure GPU for maximum performance"""
+        print("13. Optimizing GPU Configuration...")
+        
+        env_vars = self._read_env()
+        
+        # GPU settings for RX 6900 XT (ROCm)
+        gpu_config = {
+            'OLLAMA_GPU_LAYERS': '35',  # Use GPU for most layers
+            'OLLAMA_NUM_GPU': '1',
+            'ROXY_GPU_ENABLED': 'true',
+            'ROXY_GPU_DEVICE': 'cuda',  # ROCm uses CUDA API
+            'PYTORCH_CUDA_ALLOC_CONF': 'max_split_size_mb:512',
+            'ROCM_VISIBLE_DEVICES': '0',
+        }
+        
+        updated = False
+        for key, value in gpu_config.items():
+            if key not in env_vars or env_vars.get(key) != value:
+                env_vars[key] = value
+                updated = True
+                self.fixes_applied.append(f"GPU: {key}={value}")
+        
+        if updated:
+            with open(ENV_FILE, 'w') as f:
+                for k, v in sorted(env_vars.items()):
+                    f.write(f"{k}={v}\n")
+            print("  ✅ GPU configuration optimized")
+        else:
+            print("  ✅ GPU configuration already optimal")
+    
     def _read_env(self) -> Dict:
         """Read environment variables"""
         env_vars = {}
@@ -427,3 +459,23 @@ if __name__ == "__main__":
     maximizer = RoxyMaximizer()
     maximizer.run_full_optimization()
 
+
+    def optimize_gpu(self):
+        """Configure GPU for maximum performance"""
+        print("13. Optimizing GPU Configuration...")
+        
+        env_vars = self._read_env()
+        
+        # GPU settings
+        gpu_config = {
+            'OLLAMA_GPU_LAYERS': '35',
+            'OLLAMA_NUM_GPU': '1',
+            'ROXY_GPU_ENABLED': 'true',
+        }
+        
+        for key, value in gpu_config.items():
+            if key not in env_vars:
+                self._update_env(key, value)
+                self.fixes_applied.append(f"GPU: {key}={value}")
+        
+        print("  ✅ GPU configuration optimized")
