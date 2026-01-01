@@ -1,0 +1,34 @@
+{
+  "start_time": "2026-01-01T05:03:37.243649",
+  "tests": {
+    "service_health": "PASS",
+    "memory_pressure": "FAIL",
+    "concurrent_operations": "PASS",
+    "gpu_utilization": "FAIL",
+    "resource_usage": "PASS",
+    "learning_systems": "PASS",
+    "recovery_resilience": "FAIL",
+    "database_performance": "FAIL",
+    "sustained_load": "FAIL",
+    "system_integration": "PARTIAL"
+  },
+  "metrics": {
+    "concurrent_tasks": 100,
+    "concurrent_time": 0.011348247528076172,
+    "cpu_percent": 0.0,
+    "memory_mb": 52.75390625,
+    "num_threads": 56,
+    "facts_learned": 500,
+    "learning_time": 14.106635093688965,
+    "facts_recalled": 100,
+    "system_checks_passed": "2/4"
+  },
+  "errors": [
+    "RoxyMemory.remember_conversation() got multiple values for argument 'context'",
+    "No module named 'email.message'",
+    "database is locked",
+    "database is locked",
+    "database is locked"
+  ],
+  "end_time": "2026-01-01T05:04:13.218924"
+}
