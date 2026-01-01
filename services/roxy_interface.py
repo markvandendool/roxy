@@ -123,6 +123,17 @@ class RoxyInterface:
     
     async def _generate_response(self, user_input: str, memory) -> str:
         """Generate response using LLM with memory context and RAG - PROPER AGENT ARCHITECTURE"""
+        # PRIORITY 0: Check semantic cache
+        try:
+            from semantic_cache import get_semantic_cache
+            cache = get_semantic_cache()
+            cached_response = await cache.get(user_input)
+            if cached_response:
+                logger.info("✅ Cache hit - returning cached response")
+                return cached_response
+        except Exception as e:
+            logger.debug(f"Cache check failed: {e}")
+        
         # Get recent history and facts - ALWAYS use LLM for intelligent responses
         history = memory.get_conversation_history(limit=10)  # Get more history
         facts = memory.recall_facts(limit=10)
@@ -149,6 +160,18 @@ class RoxyInterface:
             actual_repo_path = repo_path
         elif os.path.exists(repo_path_nested):
             actual_repo_path = repo_path_nested
+        
+        # PRIORITY 0: Tool Calling Framework (BEFORE LLM)
+        # Check if this is a tool operation request
+        try:
+            from tool_caller import ToolCaller
+            tool_caller = ToolCaller()
+            tool_response = await tool_caller.process_with_tools(user_input)
+            if tool_response:
+                logger.info(f"🔧 Tool execution successful: {len(tool_response)} chars")
+                return tool_response
+        except Exception as e:
+            logger.debug(f"Tool calling not applicable or failed: {e}")
         
         # PRIORITY 0.5: File operations for "list" queries (BEFORE LLM)
         # Check for file operation requests FIRST - this prevents LLM hallucination

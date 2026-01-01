@@ -22,8 +22,8 @@ class RepositoryRAG:
     def _init_llm(self):
         """Initialize LLM service"""
         try:
-            from llm_service import get_llm_service
-            self.llm_service = get_llm_service()
+            from llm_wrapper import get_llm_service_safe
+            self.llm_service = get_llm_service_safe()
         except Exception as e:
             logger.warning(f"LLM service unavailable: {e}")
     
@@ -69,7 +69,7 @@ Provide a detailed, accurate answer based on the repository context. If the cont
                     # Add source attribution
                     if response:
                         return f"{response}\n\n📌 Source: RAG (Retrieval Augmented Generation) from {self.repo_path.name} repository\n📚 Context chunks used: {context_limit}"
-                    return response
+                    return response or ""
             except Exception as e:
                 logger.error(f"LLM generation error: {e}")
         
