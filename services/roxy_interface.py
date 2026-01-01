@@ -223,8 +223,35 @@ class RoxyInterface:
                     
                     if response and response.strip() and len(response.strip()) > 10:
                         logger.info(f"✅ LLM response received: {len(response)} chars")
+                        
+                        # PRIORITY 1.5: Validate response
+                        try:
+                            from validation_loop import ValidationLoop
+                            validator = ValidationLoop()
+                            validation = await validator.validate_response(
+                                user_input, response.strip(), 
+                                context={'session_id': 'roxy_terminal'}
+                            )
+                            
+                            if not validation['valid'] and validation.get('corrected_response'):
+                                response = validation['corrected_response']
+                                logger.info("✅ Response corrected via validation loop")
+                            elif not validation['valid']:
+                                logger.warning(f"⚠️ Response validation failed: {validation.get('issues', [])}")
+                        except Exception as e:
+                            logger.debug(f"Validation failed: {e}")
+                        
                         # Add source attribution for transparency
                         response_with_source = f"{response.strip()}\n\n📌 Source: LLM (Ollama llama3:8b)"
+                        
+                        # Cache the response
+                        try:
+                            from semantic_cache import get_semantic_cache
+                            cache = get_semantic_cache()
+                            await cache.set(user_input, response_with_source)
+                        except Exception as e:
+                            logger.debug(f"Cache storage failed: {e}")
+                        
                         return response_with_source
                     else:
                         logger.warning(f"⚠️ LLM returned empty/short response: {response}")
@@ -263,25 +290,46 @@ class RoxyInterface:
                 except Exception as e:
                     logger.warning(f"File listing error: {e}")
             
-            # SECOND: Use RAG for intelligent retrieval
+            # SECOND: Use Hybrid RAG for intelligent retrieval
             try:
-                from repository_rag import get_repo_rag
-                rag = get_repo_rag(actual_repo_path)
+                from hybrid_rag import HybridRAG
+                hybrid_rag = HybridRAG(actual_repo_path)
                 
                 # Check if indexed
-                stats = rag.indexer.get_stats()
+                stats = hybrid_rag.indexer.get_stats()
                 if stats.get('total_chunks', 0) > 0:
-                    # Use RAG for repository questions
-                    logger.info(f"📚 Using RAG with {stats.get('total_chunks', 0)} chunks")
-                    response = await rag.answer_question(user_input, context_limit=15)
+                    # Use Hybrid RAG for repository questions
+                    logger.info(f"📚 Using Hybrid RAG with {stats.get('total_chunks', 0)} chunks")
+                    response = await hybrid_rag.answer_question(user_input, context_limit=15)
                     if response and response.strip():
+                        # Validate hybrid RAG response
+                        try:
+                            from validation_loop import ValidationLoop
+                            validator = ValidationLoop()
+                            validation = await validator.validate_response(
+                                user_input, response.strip(),
+                                context={'repo': actual_repo_path}
+                            )
+                            if not validation['valid'] and validation.get('corrected_response'):
+                                response = validation['corrected_response']
+                        except:
+                            pass
+                        
+                        # Cache response
+                        try:
+                            from semantic_cache import get_semantic_cache
+                            cache = get_semantic_cache()
+                            await cache.set(user_input, response)
+                        except:
+                            pass
+                        
                         return response.strip()
                 else:
                     # Not indexed - trigger indexing and use file operations
                     logger.warning("Repository not indexed, using direct file operations")
                     return await self._list_repository_files(actual_repo_path, user_input)
             except Exception as e:
-                logger.error(f"RAG error: {e}")
+                logger.error(f"Hybrid RAG error: {e}")
                 import traceback
                 logger.error(traceback.format_exc())
                 # Fallback to file operations
