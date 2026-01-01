@@ -1,48 +1,41 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.egg-info/
-dist/
-build/
 
 # Database
+# Environment
+# GPU investigation files (large)
+# IDE
+# Node modules (if any)
+# OS
+# Python
+# Submodules
+# Temporary files
+*$py.class
 *.db
 *.db-journal
+*.egg-info/
+*.lock
+*.log
+*.py[cod]
+*.so
 *.sqlite
 *.sqlite3
-
-# Environment
-.env.local
-.env.*.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
 *.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Temporary files
-*.tmp
+*.swp
 *.temp
-*.log
-*.lock
-
-# Node modules (if any)
-node_modules/
-
-# Submodules
-mindsong-juke-hub/
-mindsong-juke-hub/
-
-# GPU investigation files (large)
+*.tmp
+*~
+.DS_Store
+.Python
+.env.*.local
+.env.local
+.idea/
+.vscode/
+GPU_FIX_SUMMARY.txt
 GPU_INVESTIGATION_REPORT.md
 GPU_OPTIMIZATION_COMPLETE.md
-GPU_FIX_SUMMARY.txt
+Thumbs.db
+__pycache__/
+build/
+dist/
+mindsong-juke-hub
+mindsong-juke-hub/
+node_modules/
