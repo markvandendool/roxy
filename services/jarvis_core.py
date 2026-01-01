@@ -292,10 +292,30 @@ class JarvisCore:
     async def _generate_response(self, user_input: str, history: List[Dict], 
                                 facts: List[Dict], context: Dict) -> str:
         """Generate response using LLM with memory context"""
-        # This would integrate with Ollama or Claude API
-        # For now, return a placeholder that shows learning
-        stats = self.memory.get_stats()
-        return f"I understand. I've had {stats['conversations']} conversations and learned {stats['learned_facts']} facts. How can I help?"
+        try:
+            # Import LLM service
+            from llm_service import get_llm_service
+            
+            llm_service = get_llm_service()
+            
+            if llm_service.is_available():
+                # Use LLM for intelligent response
+                response = await llm_service.generate_response(
+                    user_input=user_input,
+                    context=context,
+                    history=history,
+                    facts=facts
+                )
+                return response
+            else:
+                # Fallback to simple response
+                stats = self.memory.get_stats()
+                return f"I understand. I've had {stats['conversations']} conversations and learned {stats['learned_facts']} facts. How can I help? (LLM service not available)"
+        except Exception as e:
+            logger.warning(f"LLM service error: {e}, using fallback")
+            # Fallback response
+            stats = self.memory.get_stats()
+            return f"I understand. I've had {stats['conversations']} conversations and learned {stats['learned_facts']} facts. How can I help?"
     
     async def _extract_learning(self, user_input: str, response: str, 
                                 context: Dict) -> List[str]:

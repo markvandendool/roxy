@@ -1,0 +1,12 @@
+[Unit]
+Description=Force Cursor to Use All CPU Cores with Maximum Performance
+After=graphical.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'ALL_CORES=$(seq -s, 0 55); while true; do for pid in $(pgrep -f cursor 2>/dev/null); do taskset -acp $ALL_CORES $pid 2>/dev/null; renice -n -20 -p $pid 2>/dev/null; ionice -c 1 -n 0 -p $pid 2>/dev/null; for tid in $(ps -T -p $pid -o tid= 2>/dev/null); do taskset -acp $ALL_CORES $tid 2>/dev/null; renice -n -20 -t $tid 2>/dev/null; done; done; sleep 2; done'
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical.target

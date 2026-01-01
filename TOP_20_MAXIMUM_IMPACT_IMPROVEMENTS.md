@@ -367,3 +367,5 @@ echo "compute" | sudo tee /sys/class/drm/card*/device/power_dpm_force_performanc
 
 
 
+
+

@@ -16,18 +16,60 @@ logger = logging.getLogger(__name__)
 
 # Model configuration
 MODEL_SIZE = 'large-v3'  # Options: tiny, base, small, medium, large-v2, large-v3
-DEVICE = 'cpu'  # Use 'cuda' for GPU
-COMPUTE_TYPE = 'float32'  # Use 'float16' for GPU
+
+def _detect_device():
+    """Detect and return optimal device and compute type"""
+    device = 'cpu'
+    compute_type = 'float32'
+    
+    # Check for GPU availability
+    try:
+        import torch
+        if torch.cuda.is_available():
+            device = 'cuda'
+            compute_type = 'float16'  # Use float16 for GPU (ROCm compatible)
+            logger.info(f'GPU detected: {torch.cuda.get_device_name(0)}')
+        else:
+            logger.info('No GPU available, using CPU')
+    except ImportError:
+        logger.warning('PyTorch not available, using CPU')
+    except Exception as e:
+        logger.warning(f'Error detecting GPU: {e}, using CPU')
+    
+    # Check environment variable override
+    if os.getenv('ROXY_GPU_ENABLED', 'true').lower() == 'true' and device == 'cpu':
+        try:
+            import torch
+            if torch.cuda.is_available():
+                device = 'cuda'
+                compute_type = 'float16'
+        except:
+            pass
+    
+    return device, compute_type
+
+DEVICE, COMPUTE_TYPE = _detect_device()
 
 class Transcriber:
-    def __init__(self, model_size: str = MODEL_SIZE):
-        logger.info(f'Loading Whisper model: {model_size}...')
+    def __init__(self, model_size: str = MODEL_SIZE, device: str = None, compute_type: str = None):
+        """
+        Initialize transcriber
+        
+        Args:
+            model_size: Whisper model size
+            device: Override device (cuda/cpu), None for auto-detect
+            compute_type: Override compute type, None for auto-detect
+        """
+        use_device = device or DEVICE
+        use_compute_type = compute_type or COMPUTE_TYPE
+        
+        logger.info(f'Loading Whisper model: {model_size} on {use_device} (compute_type: {use_compute_type})...')
         self.model = WhisperModel(
             model_size,
-            device=DEVICE,
-            compute_type=COMPUTE_TYPE
+            device=use_device,
+            compute_type=use_compute_type
         )
-        logger.info('Model loaded')
+        logger.info(f'Model loaded on {use_device}')
     
     def transcribe(self, audio_path: str, language: str = 'en') -> Dict:
         """
