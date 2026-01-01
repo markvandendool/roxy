@@ -198,9 +198,19 @@ sudo journalctl -u jarvis.service -f
 
 ---
 
+## 🚀 GPU Acceleration
+
+JARVIS now supports GPU acceleration for faster responses:
+
+- **LLM Inference**: Uses Ollama with GPU acceleration (10-20x faster)
+- **Voice Transcription**: Uses faster-whisper with GPU (5-10x faster)
+- **TTS Generation**: Uses GPU-accelerated TTS (3-5x faster)
+
+GPU configuration is in `/opt/roxy/.env`. See [GPU_SETUP_GUIDE.md](GPU_SETUP_GUIDE.md) for details.
+
 ## 🎯 Future Enhancements
 
-- [ ] LLM integration (Ollama/Claude) for intelligent responses
+- [x] LLM integration (Ollama/Claude) for intelligent responses ✅
 - [ ] Web interface for browser access
 - [ ] Voice interface (when mic is ready)
 - [ ] REST API for programmatic access

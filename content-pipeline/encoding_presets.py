@@ -1,10 +1,30 @@
 #!/usr/bin/env python3
 """Platform-specific FFmpeg encoding presets - LUNA-S6"""
 
+import subprocess
+import os
+
+def _check_amf_available():
+    """Check if AMF encoder is available"""
+    try:
+        result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True, timeout=2)
+        return 'amf' in result.stdout.lower()
+    except:
+        return False
+
+AMF_AVAILABLE = _check_amf_available()
+
 PRESETS = {
     "generic": {
         "description": "Generic high-quality encoding",
         "video": "-c:v libx264 -crf 23 -preset medium",
+        "audio": "-c:a aac -b:a 192k",
+        "format": "mp4",
+        "resolution": None
+    },
+    "generic_gpu": {
+        "description": "Generic high-quality encoding (GPU-accelerated)",
+        "video": "-c:v h264_amf -quality quality -rc cqp -qp_i 23 -qp_p 23 -qp_b 23" if AMF_AVAILABLE else "-c:v libx264 -crf 23 -preset medium",
         "audio": "-c:a aac -b:a 192k",
         "format": "mp4",
         "resolution": None
@@ -32,7 +52,24 @@ PRESETS = {
     }
 }
 
-def get_ffmpeg_command(input_path: str, output_path: str, preset: str = "generic") -> str:
+def get_ffmpeg_command(input_path: str, output_path: str, preset: str = "generic", use_gpu: bool = None) -> str:
+    """
+    Get FFmpeg command for encoding
+    
+    Args:
+        input_path: Input video file
+        output_path: Output video file
+        preset: Preset name
+        use_gpu: Force GPU usage (None = auto-detect)
+    """
+    # Auto-detect GPU preference
+    if use_gpu is None:
+        use_gpu = os.getenv('ROXY_GPU_ENABLED', 'true').lower() == 'true'
+    
+    # Use GPU preset if available and requested
+    if use_gpu and preset == "generic" and "generic_gpu" in PRESETS:
+        preset = "generic_gpu"
+    
     p = PRESETS.get(preset, PRESETS["generic"])
     return f"ffmpeg -i {input_path} {p['video']} {p['audio']} {output_path}"
 
