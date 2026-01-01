@@ -39,3 +39,21 @@ dist/
 mindsong-juke-hub
 mindsong-juke-hub/
 node_modules/
+
+# Virtual environments
+venv/
+whisperx-venv/
+env/
+ENV/
+.venv/
+
+# Large test files
+random-write.*
+
+# Large libraries (should use pip, not git)
+*.so
+*.so.*
+
+# PyTorch/CUDA (too large for git)
+torch/
+nvidia/
