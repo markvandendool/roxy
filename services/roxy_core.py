@@ -219,6 +219,9 @@ class RoxyCore:
         # Start background tasks
         await self._start_background_tasks()
         
+        # Start growth optimizer
+        await self._start_growth_optimizer()
+        
         # Publish startup (non-blocking)
         if self.services.get('eventbus'):
             try:
@@ -388,6 +391,33 @@ class RoxyCore:
         """Save current state"""
         # Save preferences, settings, etc.
         pass
+    
+    async def _start_background_tasks(self):
+        """Start background task loops"""
+        # Start scheduler loop
+        if self.services.get('task_scheduler'):
+            scheduler = self.services['task_scheduler']
+            asyncio.create_task(scheduler.run_scheduler_loop())
+        
+        # Start nightly tasks checker
+        if self.services.get('nightly_tasks'):
+            async def nightly_loop():
+                while self.running:
+                    nightly = self.services['nightly_tasks']
+                    await nightly.run_due_tasks()
+                    await asyncio.sleep(3600)  # Check every hour
+            asyncio.create_task(nightly_loop())
+    
+    async def _start_growth_optimizer(self):
+        """Start growth optimization engine"""
+        try:
+            from growth_optimizer import GrowthOptimizer
+            optimizer = GrowthOptimizer(self)
+            self.services['growth_optimizer'] = optimizer
+            asyncio.create_task(optimizer.start())
+            logger.info("✅ Growth optimizer started")
+        except Exception as e:
+            logger.warning(f"⚠️ Growth optimizer unavailable: {e}")
     
     async def _init_health_monitor(self):
         """Initialize health monitoring"""
