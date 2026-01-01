@@ -30,3 +30,4 @@ echo "  sudo journalctl -u jarvis -f   # View logs"
 
 
 
+
