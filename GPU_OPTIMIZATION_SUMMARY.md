@@ -159,3 +159,4 @@ Your RX 6900 XT is sufficient. The issue was resource management, not hardware c
 
 
 
+

@@ -1,0 +1,380 @@
+openapi: 3.0.0
+info:
+  title: ROXY Core API
+  version: 1.0.0
+  description: |
+    AI assistant HTTP IPC API for ROXY Core service.
+    
+    Provides endpoints for command execution, batch processing, and streaming responses.
+    
+    Authentication is required for all endpoints except /health.
+  contact:
+    name: ROXY Support
+  license:
+    name: MIT
+
+servers:
+  - url: http://127.0.0.1:8766
+    description: Local development server
+  - url: http://localhost:8766
+    description: Localhost server
+
+security:
+  - TokenAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check if the service is healthy and running
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  service:
+                    type: string
+                    example: "roxy-core"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2026-01-02T12:00:00Z"
+  
+  /v1/health:
+    get:
+      summary: Health check (versioned)
+      description: Check if the service is healthy and running (versioned endpoint)
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  
+  /run:
+    post:
+      summary: Execute a single command
+      description: Execute a command and return the result
+      tags:
+        - Commands
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - command
+              properties:
+                command:
+                  type: string
+                  description: The command to execute
+                  example: "hello roxy"
+      responses:
+        '200':
+          description: Command executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
+        '403':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /v1/run:
+    post:
+      summary: Execute a single command (versioned)
+      description: Execute a command and return the result (versioned endpoint)
+      tags:
+        - Commands
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+      responses:
+        '200':
+          description: Command executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  
+  /batch:
+    post:
+      summary: Execute multiple commands
+      description: Execute multiple commands in batch
+      tags:
+        - Commands
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - commands
+              properties:
+                commands:
+                  type: array
+                  items:
+                    type: string
+                  example: ["hello roxy", "git status"]
+      responses:
+        '200':
+          description: Commands executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  
+  /v1/batch:
+    post:
+      summary: Execute multiple commands (versioned)
+      description: Execute multiple commands in batch (versioned endpoint)
+      tags:
+        - Commands
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequest'
+      responses:
+        '200':
+          description: Commands executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  
+  /stream:
+    get:
+      summary: Stream command response (SSE)
+      description: Execute a command and stream the response as Server-Sent Events
+      tags:
+        - Streaming
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: The command to execute
+          schema:
+            type: string
+            example: "hello roxy"
+      responses:
+        '200':
+          description: Streaming response
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          description: Bad request (missing command)
+  
+  /v1/stream:
+    get:
+      summary: Stream command response (SSE) (versioned)
+      description: Execute a command and stream the response as Server-Sent Events (versioned endpoint)
+      tags:
+        - Streaming
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: The command to execute
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Streaming response
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          description: Bad request (missing command)
+
+components:
+  securitySchemes:
+    TokenAuth:
+      type: apiKey
+      in: header
+      name: X-ROXY-Token
+      description: Authentication token (required for all endpoints except /health)
+  
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+        service:
+          type: string
+          example: "roxy-core"
+        timestamp:
+          type: string
+          format: date-time
+    
+    CommandRequest:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: The command to execute
+          example: "hello roxy"
+    
+    CommandResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        result:
+          type: string
+          description: The command result
+        response_time:
+          type: number
+          format: float
+          description: Response time in seconds
+        timestamp:
+          type: string
+          format: date-time
+    
+    BatchRequest:
+      type: object
+      required:
+        - commands
+      properties:
+        commands:
+          type: array
+          items:
+            type: string
+          example: ["hello roxy", "git status"]
+    
+    BatchResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        commands:
+          type: array
+          items:
+            type: object
+            properties:
+              command:
+                type: string
+              result:
+                type: string
+              status:
+                type: string
+        total_time:
+          type: number
+          format: float
+    
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "error"
+        message:
+          type: string
+          description: Error message
+        error_type:
+          type: string
+          example: "RateLimitExceeded"
+  
+  responses:
+    Forbidden:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: "error"
+            message: "Forbidden: Invalid or missing token"
+            error_type: "AuthenticationError"
+    
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: "error"
+            message: "Rate limit exceeded"
+            error_type: "RateLimitExceeded"
+    
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: "error"
+            message: "Internal server error"
+            error_type: "ServerError"
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Commands
+    description: Command execution endpoints
+  - name: Streaming
+    description: Server-Sent Events streaming endpoints
+

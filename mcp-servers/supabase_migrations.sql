@@ -164,3 +164,4 @@ COMMENT ON TABLE approval_requests IS 'Human-in-the-loop approval requests for A
 COMMENT ON VIEW social_analytics IS 'Aggregated social media analytics by platform and date';
 COMMENT ON VIEW approval_stats IS 'Statistics on approval request status and response times';
 
+

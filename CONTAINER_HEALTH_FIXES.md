@@ -77,3 +77,4 @@ test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\
 
 **Status**: ChromaDB fixed, n8n password verification needed
 
+

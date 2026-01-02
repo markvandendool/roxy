@@ -217,3 +217,4 @@ pip install supabase
 - `MINDSONG_API_INTEGRATIONS.md` - Existing API integrations
 - `CITADEL_COMPLETE.md` - Overall CITADEL status
 
+

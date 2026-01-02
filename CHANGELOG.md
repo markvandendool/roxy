@@ -8,30 +8,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- CI/CD pipeline with GitHub Actions
-- Pre-commit hooks for code quality
-- Test infrastructure with pytest
-- Architecture documentation
-- Contributing guidelines
-- Development dependencies
+- Comprehensive test suite with pytest
+- Prometheus metrics integration
+- Grafana dashboards for monitoring
+- Type hints throughout codebase
+- mypy configuration for type checking
+- Resource limits for Docker services
+- Health check script
+- Backup and restore scripts
+- Automated backup scheduling
+- Retry logic with exponential backoff
+- Circuit breaker pattern implementation
+- API versioning support (/v1/* endpoints)
+- OpenAPI 3.0 specification
+- Comprehensive documentation (architecture, runbooks, API docs)
+- Disaster recovery procedures
 
 ### Changed
-- Repository cleaned (7.7GB → 185MB)
-- Removed venv/ and large files from git history
-- Improved .gitignore
+- Authentication now mandatory (fail-fast if no token)
+- Rate limiting enabled by default
+- Security modules fail secure instead of silent
+- Observability errors now logged properly (not silent)
+- Enhanced error handling throughout
 
 ### Fixed
-- GPU optimization issues
-- Repository push issues
+- ChromaDB healthcheck (uses Python instead of curl)
+- n8n database initialization
+- Silent error handling in security modules
+- Duplicate function definitions in observability.py
+- Mutable default arguments in function signatures
 
-## [0.1.0] - 2026-01-01
+## [1.0.0] - 2026-01-02
 
 ### Added
-- Initial ROXY release
-- JARVIS permanent AI brain
-- Memory systems (episodic, semantic, working)
-- Learning systems
-- Voice services (TTS, transcription)
-- Agent framework
-- MCP server integration
-- GPU optimization
+- Initial release
+- ROXY Core HTTP IPC service
+- Command routing (git, OBS, RAG, system)
+- Security hardening (input sanitization, PII detection)
+- Rate limiting
+- Basic observability
+- ChromaDB integration for RAG
+- Ollama integration for LLM
+- Docker Compose infrastructure
+- Systemd service configuration
+
+[Unreleased]: https://github.com/yourusername/roxy/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/yourusername/roxy/releases/tag/v1.0.0

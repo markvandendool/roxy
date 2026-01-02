@@ -33,6 +33,8 @@ volumes:
   nats_data:
   caddy_data:
   caddy_config:
+  prometheus_data:
+  grafana_data:
 
 services:
   #=============================================================================
@@ -53,6 +55,14 @@ services:
       - "5432:5432"
     networks:
       - roxy-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-roxy}"]
       interval: 10s
@@ -77,6 +87,14 @@ services:
       - "6379:6379"
     networks:
       - roxy-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -111,6 +129,8 @@ services:
       - QUEUE_BULL_REDIS_PORT=6379
       - EXECUTIONS_MODE=queue
       - N8N_METRICS=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
     volumes:
       - n8n_data:/home/node/.n8n
       - /opt/roxy/data/n8n/files:/files
@@ -118,6 +138,14 @@ services:
       - "5678:5678"
     networks:
       - roxy-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     depends_on:
       postgres:
         condition: service_healthy
@@ -181,6 +209,14 @@ services:
       - "8000:8000"
     networks:
       - roxy-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     healthcheck:
       test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/api/v1/heartbeat\").read()' || exit 1"]
       interval: 30s
@@ -244,3 +280,68 @@ services:
       - "roxy.project=citadel"
       - "roxy.domain=infrastructure"
       - "roxy.service=caddy"
+
+  #=============================================================================
+  # Prometheus - Metrics Collection
+  #=============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: roxy-prometheus
+    <<: [*common, *labels]
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+    volumes:
+      - prometheus_data:/prometheus
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - roxy-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=prometheus"
+      - "roxy.url=http://localhost:9090"
+
+  #=============================================================================
+  # Grafana - Metrics Visualization
+  #=============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: roxy-grafana
+    <<: [*common, *labels]
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - roxy-net
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "roxy.project=citadel"
+      - "roxy.domain=infrastructure"
+      - "roxy.service=grafana"
+      - "roxy.url=http://localhost:3000"
