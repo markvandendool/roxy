@@ -42,14 +42,45 @@ class RoxyTTS:
         """Generate and play speech (synchronous wrapper)"""
         audio_file = asyncio.run(self.generate_speech(text, output_file))
         
-        # Play audio
-        try:
-            subprocess.run(["mpv", str(audio_file)], check=True, capture_output=True)
-            return audio_file
-        except subprocess.CalledProcessError as e:
-            raise Exception(f"Failed to play audio: {e}")
-        except FileNotFoundError:
-            raise Exception("mpv not found. Install with: sudo apt install mpv")
+        # Play audio - try multiple players
+        players = ["mpv", "paplay", "aplay"]
+        played = False
+        
+        for player in players:
+            try:
+                # For paplay/aplay, we need WAV format
+                if player in ["paplay", "aplay"] and audio_file.endswith('.mp3'):
+                    # Try to use ffmpeg to convert, or just skip
+                    try:
+                        import tempfile
+                        wav_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+                        wav_path = wav_file.name
+                        wav_file.close()
+                        subprocess.run(
+                            ["ffmpeg", "-i", audio_file, "-y", wav_path],
+                            check=True,
+                            capture_output=True,
+                            timeout=10
+                        )
+                        subprocess.run([player, wav_path], check=True, capture_output=True)
+                        Path(wav_path).unlink()
+                        played = True
+                        break
+                    except (FileNotFoundError, subprocess.CalledProcessError):
+                        continue
+                else:
+                    # Direct playback
+                    subprocess.run([player, audio_file], check=True, capture_output=True)
+                    played = True
+                    break
+            except (FileNotFoundError, subprocess.CalledProcessError):
+                continue
+        
+        if not played:
+            print(f"⚠️  No audio player found. Audio saved to: {audio_file}")
+            print("   Install one of: mpv, paplay, or aplay")
+        
+        return audio_file
 
 async def generate_and_play_speech(text: str, voice: str = VOICE, output_file: str = None):
     """Legacy function for backward compatibility"""
