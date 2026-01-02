@@ -156,7 +156,14 @@ class EnhancedRoxyInterface:
                         
                         # Add source attribution
                         file_list = self._add_source_attribution(
-                            file_list, 'filesystem', actual_repo_path
+                            file_list, 
+                            'filesystem', 
+                            context=actual_repo_path,
+                            metadata={
+                                'confidence': 0.95,
+                                'method': 'filesystem_scan',
+                                'files_accessed': [actual_repo_path]
+                            }
                         )
                         
                         # Quality check
