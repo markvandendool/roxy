@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 ROXY Business Automation MCP Server
-Phase 7: Business Automation - Twenty CRM, Plane, Chatwoot
+Phase 7: Business Automation - Supabase CRM, Plane, Chatwoot
+Uses Supabase (same as mindsong-juke-hub CRM)
 """
 import asyncio
 import json
@@ -16,25 +17,26 @@ logger = logging.getLogger(__name__)
 
 mcp = FastMCP('roxy-business')
 
-# Configuration
-TWENTY_API_URL = os.getenv('TWENTY_API_URL', 'http://localhost:3000/api')
+# Configuration - Supabase (same as mindsong-juke-hub)
+SUPABASE_URL = os.getenv('SUPABASE_URL', os.getenv('VITE_SUPABASE_URL', 'https://rlbltiuswhlzjvszhvsc.supabase.co'))
+SUPABASE_KEY = os.getenv('SUPABASE_ANON_KEY', os.getenv('VITE_SUPABASE_ANON_KEY', ''))
 PLANE_API_URL = os.getenv('PLANE_API_URL', 'http://localhost:8000/api/v1')
 CHATWOOT_API_URL = os.getenv('CHATWOOT_API_URL', 'http://localhost:3000/api/v1')
-TWENTY_API_KEY = os.getenv('TWENTY_API_KEY', '')
 PLANE_API_KEY = os.getenv('PLANE_API_KEY', '')
 CHATWOOT_ACCESS_TOKEN = os.getenv('CHATWOOT_ACCESS_TOKEN', '')
 
 
 @mcp.tool()
-async def twenty_create_contact(
+async def crm_create_contact(
     first_name: str,
     last_name: str,
     email: Optional[str] = None,
     phone: Optional[str] = None,
-    company: Optional[str] = None
+    company: Optional[str] = None,
+    stage: str = 'lead'
 ) -> str:
     """
-    Create a contact in Twenty CRM.
+    Create a contact in Supabase CRM (same as mindsong-juke-hub).
     
     Args:
         first_name: Contact first name
@@ -42,29 +44,58 @@ async def twenty_create_contact(
         email: Contact email
         phone: Contact phone number
         company: Company name
+        stage: Contact stage (subscriber, lead, marketing_qualified_lead, sales_qualified_lead, opportunity, customer)
     """
     try:
-        import requests
+        from supabase import create_client, Client
         
-        headers = {'Authorization': f'Bearer {TWENTY_API_KEY}'} if TWENTY_API_KEY else {}
-        response = requests.post(
-            f'{TWENTY_API_URL}/contacts',
-            json={
-                'firstName': first_name,
-                'lastName': last_name,
-                'email': email,
-                'phone': phone,
-                'company': company
-            },
-            headers=headers
-        )
+        if not SUPABASE_URL or not SUPABASE_KEY:
+            return json.dumps({'error': 'Supabase credentials not configured'})
         
-        if response.status_code in [200, 201]:
-            return json.dumps({'status': 'created', 'contact': response.json()})
-        return json.dumps({'error': f'Twenty API error: {response.text}'})
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         
+        response = supabase.table('crm_contacts').insert({
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'phone': phone,
+            'company': company,
+            'stage': stage
+        }).execute()
+        
+        if response.data:
+            return json.dumps({'status': 'created', 'contact': response.data[0]})
+        return json.dumps({'error': 'Failed to create contact'})
+        
+    except ImportError:
+        # Fallback to REST API if supabase-py not installed
+        try:
+            import requests
+            headers = {
+                'apikey': SUPABASE_KEY,
+                'Authorization': f'Bearer {SUPABASE_KEY}',
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            }
+            response = requests.post(
+                f'{SUPABASE_URL}/rest/v1/crm_contacts',
+                json={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email': email,
+                    'phone': phone,
+                    'company': company,
+                    'stage': stage
+                },
+                headers=headers
+            )
+            if response.status_code in [200, 201]:
+                return json.dumps({'status': 'created', 'contact': response.json()[0] if isinstance(response.json(), list) else response.json()})
+            return json.dumps({'error': f'Supabase API error: {response.text}'})
+        except Exception as e:
+            return json.dumps({'error': f'Error creating contact: {e}'})
     except Exception as e:
-        logger.error(f'Error creating Twenty contact: {e}')
+        logger.error(f'Error creating contact: {e}')
         return json.dumps({'error': str(e)})
 
 
@@ -154,14 +185,38 @@ async def chatwoot_send_message(
 
 @mcp.tool()
 async def business_get_contacts(limit: int = 50) -> str:
-    """Get contacts from Twenty CRM."""
+    """Get contacts from Supabase CRM (same as mindsong-juke-hub)."""
     try:
-        import requests
-        headers = {'Authorization': f'Bearer {TWENTY_API_KEY}'} if TWENTY_API_KEY else {}
-        response = requests.get(f'{TWENTY_API_URL}/contacts?limit={limit}', headers=headers)
-        if response.status_code == 200:
-            return json.dumps({'contacts': response.json()})
-        return json.dumps({'error': f'Twenty API error: {response.text}'})
+        from supabase import create_client, Client
+        
+        if not SUPABASE_URL or not SUPABASE_KEY:
+            return json.dumps({'error': 'Supabase credentials not configured'})
+        
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        
+        response = supabase.table('crm_contacts').select('*').limit(limit).order('created_at', desc=True).execute()
+        
+        if response.data:
+            return json.dumps({'contacts': response.data})
+        return json.dumps({'error': 'Failed to fetch contacts'})
+        
+    except ImportError:
+        # Fallback to REST API
+        try:
+            import requests
+            headers = {
+                'apikey': SUPABASE_KEY,
+                'Authorization': f'Bearer {SUPABASE_KEY}'
+            }
+            response = requests.get(
+                f'{SUPABASE_URL}/rest/v1/crm_contacts?limit={limit}&order=created_at.desc',
+                headers=headers
+            )
+            if response.status_code == 200:
+                return json.dumps({'contacts': response.json()})
+            return json.dumps({'error': f'Supabase API error: {response.text}'})
+        except Exception as e:
+            return json.dumps({'error': str(e)})
     except Exception as e:
         return json.dumps({'error': str(e)})
 
