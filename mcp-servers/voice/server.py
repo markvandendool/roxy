@@ -1,61 +1,85 @@
 #!/usr/bin/env python3
 """
 ROXY Voice MCP Server
-Exposes TTS and voice control capabilities
+Exposes TTS and voice control capabilities using Edge TTS
 """
 from mcp.server.fastmcp import FastMCP
-import subprocess
 import sys
-sys.path.insert(0, '/opt/roxy/voice')
+import os
+from pathlib import Path
 
-from tts.service import RoxyTTS, VOICES
+# Add voice directory to path
+sys.path.insert(0, '/opt/roxy')
+
+# Import Edge TTS service
+from voice.tts.service_edge import RoxyTTS
 
 mcp = FastMCP('roxy-voice')
-tts = RoxyTTS('roxy')
+tts = RoxyTTS()
+
+# Available Edge TTS voices (common ones)
+EDGE_VOICES = {
+    'aria': 'en-US-AriaNeural',
+    'jenny': 'en-US-JennyNeural',
+    'guy': 'en-US-GuyNeural',
+    'jane': 'en-US-JaneNeural',
+    'aria': 'en-US-AriaNeural',
+}
 
 @mcp.tool()
-async def speak(text: str, voice: str = 'roxy', speaker: int = 0) -> str:
-    """Speak text using Roxy's TTS voice.
+async def speak(text: str, voice: str = 'aria') -> str:
+    """Speak text using Edge TTS.
     
     Args:
         text: The text to speak
-        voice: Voice profile to use (roxy, amy, kusal)
-        speaker: Speaker ID for multi-speaker models (0-903 for roxy)
+        voice: Voice name (aria, jenny, guy, jane) - defaults to aria
     """
     try:
-        if voice != tts.voice_config.get('name', 'roxy'):
-            tts.set_voice(voice)
-        tts.speak(text, speaker=speaker)
-        return f'Spoke: "{text}" (voice: {voice}, speaker: {speaker})'
+        voice_id = EDGE_VOICES.get(voice.lower(), EDGE_VOICES['aria'])
+        tts.voice = voice_id
+        tts.speak(text)
+        return f'Spoke: "{text}" (voice: {voice})'
     except Exception as e:
         return f'Error: {str(e)}'
 
 @mcp.tool()
-async def synthesize_audio(text: str, output_path: str, voice: str = 'roxy', speaker: int = 0) -> str:
-    """Synthesize text to audio file."""
+async def synthesize_audio(text: str, output_path: str, voice: str = 'aria') -> str:
+    """Synthesize text to audio file using Edge TTS.
+    
+    Args:
+        text: The text to synthesize
+        output_path: Path to save the audio file
+        voice: Voice name (aria, jenny, guy, jane)
+    """
     try:
-        if voice != tts.voice_config.get('name', 'roxy'):
-            tts.set_voice(voice)
-        wav_path = tts.synthesize(text, output_path, speaker=speaker)
-        return f'Audio saved to: {wav_path}'
+        voice_id = EDGE_VOICES.get(voice.lower(), EDGE_VOICES['aria'])
+        tts.voice = voice_id
+        audio_file = await tts.generate_speech(text, output_path)
+        return f'Audio saved to: {audio_file}'
     except Exception as e:
         return f'Error: {str(e)}'
 
 @mcp.tool()
 async def list_voices() -> str:
-    """List available voice profiles."""
-    result = []
-    for name, config in VOICES.items():
-        result.append(f"- {name}: {config['description']}")
+    """List available Edge TTS voice profiles."""
+    result = ["Available voices:"]
+    for name, voice_id in EDGE_VOICES.items():
+        result.append(f"- {name}: {voice_id}")
     return '\n'.join(result)
 
 @mcp.tool()
-async def test_speaker(speaker_id: int, sample_text: str = 'Hello, this is a voice test.') -> str:
-    """Test a specific speaker ID (0-903 for roxy voice)."""
+async def test_voice(voice: str = 'aria', sample_text: str = 'Hello, this is a voice test.') -> str:
+    """Test a specific voice with sample text.
+    
+    Args:
+        voice: Voice name to test (aria, jenny, guy, jane)
+        sample_text: Text to speak for testing
+    """
     try:
-        tts.set_voice('roxy')
-        tts.speak(sample_text, speaker=speaker_id)
-        return f'Tested speaker {speaker_id}'
+        voice_id = EDGE_VOICES.get(voice.lower(), EDGE_VOICES['aria'])
+        tts.voice = voice_id
+        tts.speak(sample_text)
+        return f'Tested voice: {voice} ({voice_id})'
     except Exception as e:
         return f'Error: {str(e)}'
 

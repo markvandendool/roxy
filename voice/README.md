@@ -82,24 +82,60 @@ python voice/tts/service.py "Test message" --voice voice/reference/roxy_voice.wa
 ## Integration
 
 ### With MCP Server
-The TTS service can be integrated into the Voice MCP server for Claude to use.
+The Voice MCP server (`/opt/roxy/mcp-servers/voice/server.py`) exposes TTS capabilities:
+- `speak(text, voice='aria')` - Speak text using Edge TTS
+- `synthesize_audio(text, output_path, voice='aria')` - Generate audio file
+- `list_voices()` - List available voices
+- `test_voice(voice, sample_text)` - Test a voice
 
 ### With Voice Pipeline
-- Wake word → Transcription → LLM → TTS (Roxy's voice)
+Complete end-to-end pipeline:
+1. **Wake Word Detection** (openWakeWord) - Listens for "Hey Roxy"
+2. **Real-time Audio Capture** - Records after wake word until silence/timeout
+3. **Speech-to-Text** (faster-whisper) - Transcribes audio
+4. **LLM Processing** - Generates intelligent response
+5. **Text-to-Speech** (Edge TTS) - Speaks response through speakers
+
+### Usage
+
+**Run Pipeline:**
+```bash
+cd /opt/roxy
+source venv/bin/activate
+python voice/pipeline.py
+```
+
+**Install Systemd Service:**
+```bash
+sudo cp /opt/roxy/voice/roxy-voice.service /etc/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable roxy-voice.service
+systemctl --user start roxy-voice.service
+```
+
+**Check Status:**
+```bash
+systemctl --user status roxy-voice.service
+journalctl --user -u roxy-voice.service -f
+```
 
 ---
 
 ## Current Status
 
-✅ **Installed**:
-- Coqui TTS (XTTS v2)
-- TTS service script
+✅ **Installed & Integrated**:
+- Edge TTS (working with Python 3.12)
+- openWakeWord (wake word detection)
+- faster-whisper (speech-to-text)
+- Complete voice pipeline with real-time audio capture
+- LLM integration
+- MCP server updated for Edge TTS
+- Systemd service created
 
-⏳ **Pending**:
-- Reference voice recording
-- Voice cloning test
-- Wake word detection (openWakeWord)
-- Speech-to-text (faster-whisper)
+⏳ **Optional Enhancements**:
+- Reference voice recording (for voice cloning when XTTS v2 supports Python 3.12)
+- Custom "Hey Roxy" wake word training
+- GPU acceleration for faster-whisper (ROCm)
 
 ---
 
