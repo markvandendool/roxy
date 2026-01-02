@@ -156,3 +156,8 @@ print(f'Chunks: {coll.count():,}')
 The ChromaDB `upsert` mechanism ensures safe, automatic resuming. You won't lose the 12 hours of work - all 301,679 chunks are safely stored and will be updated/added to as needed.
 
 
+
+
+
+
+

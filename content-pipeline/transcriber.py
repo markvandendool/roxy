@@ -18,17 +18,37 @@ logger = logging.getLogger(__name__)
 MODEL_SIZE = 'large-v3'  # Options: tiny, base, small, medium, large-v2, large-v3
 
 def _detect_device():
-    """Detect and return optimal device and compute type"""
+    """Detect and return optimal device and compute type
+    
+    By default, uses CPU for Whisper to optimize GPU resources.
+    This allows LLM and TTS to use GPU while Whisper uses the powerful CPU.
+    Set ROXY_WHISPER_DEVICE=cuda to override and use GPU.
+    """
     device = 'cpu'
     compute_type = 'float32'
+    
+    # Check for explicit CPU override (for GPU optimization)
+    # This allows Whisper to use CPU while keeping LLM/TTS on GPU
+    force_cpu = os.getenv('ROXY_WHISPER_DEVICE', '').lower() == 'cpu'
+    force_gpu = os.getenv('ROXY_WHISPER_DEVICE', '').lower() == 'cuda'
+    
+    if force_cpu:
+        logger.info('Using CPU for Whisper (optimized for GPU resource management)')
+        return device, compute_type
     
     # Check for GPU availability
     try:
         import torch
         if torch.cuda.is_available():
-            device = 'cuda'
-            compute_type = 'float16'  # Use float16 for GPU (ROCm compatible)
-            logger.info(f'GPU detected: {torch.cuda.get_device_name(0)}')
+            if force_gpu:
+                device = 'cuda'
+                compute_type = 'float16'
+                logger.info(f'GPU forced via ROXY_WHISPER_DEVICE=cuda')
+            else:
+                # Default to CPU for better GPU resource management
+                device = 'cpu'
+                compute_type = 'float32'
+                logger.info('Using CPU for Whisper (GPU available but reserved for LLM/TTS)')
         else:
             logger.info('No GPU available, using CPU')
     except ImportError:
@@ -36,8 +56,8 @@ def _detect_device():
     except Exception as e:
         logger.warning(f'Error detecting GPU: {e}, using CPU')
     
-    # Check environment variable override
-    if os.getenv('ROXY_GPU_ENABLED', 'true').lower() == 'true' and device == 'cpu':
+    # Legacy: Check environment variable override (only if not forcing CPU)
+    if not force_cpu and os.getenv('ROXY_GPU_ENABLED', 'true').lower() == 'true' and device == 'cpu':
         try:
             import torch
             if torch.cuda.is_available():

@@ -49,13 +49,65 @@ class RoxyWakeWordListener:
         self.chunk = 4096
         self.format = pyaudio.paInt16
         self.channels = 1
-        self.rate = 16000
+        self.rate = 16000  # Target rate for openWakeWord
         
         # Initialize PyAudio
         self.audio = pyaudio.PyAudio()
         self.stream = None
+        self.input_device_index = None
+        
+        # Auto-detect working audio device and sample rate
+        self._detect_audio_device()
         
         print("✅ Wake word listener ready")
+    
+    def _detect_audio_device(self):
+        """Auto-detect a working audio input device"""
+        # Try to find a device that supports 16kHz or can be resampled
+        for i in range(self.audio.get_device_count()):
+            try:
+                info = self.audio.get_device_info_by_index(i)
+                if info['maxInputChannels'] > 0:
+                    # Try 16kHz first (preferred)
+                    try:
+                        test_stream = self.audio.open(
+                            format=self.format,
+                            channels=self.channels,
+                            rate=16000,
+                            input=True,
+                            input_device_index=i,
+                            frames_per_buffer=self.chunk
+                        )
+                        test_stream.close()
+                        self.input_device_index = i
+                        self.rate = 16000
+                        print(f"   ✅ Using device {i}: {info['name']} at 16kHz")
+                        return
+                    except:
+                        # Try device's default sample rate (will need resampling)
+                        default_rate = int(info['defaultSampleRate'])
+                        try:
+                            test_stream = self.audio.open(
+                                format=self.format,
+                                channels=self.channels,
+                                rate=default_rate,
+                                input=True,
+                                input_device_index=i,
+                                frames_per_buffer=self.chunk
+                            )
+                            test_stream.close()
+                            self.input_device_index = i
+                            self.rate = default_rate
+                            print(f"   ✅ Using device {i}: {info['name']} at {default_rate}Hz (will resample to 16kHz)")
+                            return
+                        except:
+                            continue
+            except:
+                continue
+        
+        # Fallback: use default device
+        print("   ⚠️  Could not auto-detect device, using default")
+        self.input_device_index = None
     
     def start_listening(self, callback=None):
         """
@@ -68,19 +120,47 @@ class RoxyWakeWordListener:
         print("   (Press Ctrl+C to stop)")
         
         try:
-            # Open audio stream
-            self.stream = self.audio.open(
-                format=self.format,
-                channels=self.channels,
-                rate=self.rate,
-                input=True,
-                frames_per_buffer=self.chunk
-            )
+            # Open audio stream with detected device
+            stream_kwargs = {
+                'format': self.format,
+                'channels': self.channels,
+                'rate': self.rate,
+                'input': True,
+                'frames_per_buffer': self.chunk
+            }
+            if self.input_device_index is not None:
+                stream_kwargs['input_device_index'] = self.input_device_index
+            
+            self.stream = self.audio.open(**stream_kwargs)
+            
+            # Resample if needed (openWakeWord needs 16kHz)
+            needs_resample = self.rate != 16000
+            if needs_resample:
+                try:
+                    import librosa
+                    self.resample = True
+                except ImportError:
+                    print("   ⚠️  librosa not available for resampling, may have issues")
+                    self.resample = False
+            else:
+                self.resample = False
             
             while True:
                 # Read audio chunk
                 audio_data = self.stream.read(self.chunk, exception_on_overflow=False)
                 audio_array = np.frombuffer(audio_data, dtype=np.int16)
+                
+                # Resample to 16kHz if needed
+                if self.resample and self.rate != 16000:
+                    try:
+                        import librosa
+                        # Convert to float32, resample, convert back to int16
+                        audio_float = audio_array.astype(np.float32) / 32768.0
+                        audio_resampled = librosa.resample(audio_float, orig_sr=self.rate, target_sr=16000)
+                        audio_array = (audio_resampled * 32768.0).astype(np.int16)
+                    except:
+                        # If resampling fails, skip this chunk
+                        continue
                 
                 # Predict wake words
                 prediction = self.owwModel.predict(audio_array)

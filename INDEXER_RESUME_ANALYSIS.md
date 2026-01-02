@@ -94,3 +94,8 @@ print(f'Files: {len(files)}')
 **NO DATA LOSS RISK** - ChromaDB `upsert` is safe for resuming!
 
 
+
+
+
+
+

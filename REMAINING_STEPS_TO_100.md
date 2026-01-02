@@ -337,3 +337,8 @@ python3 -c "import chromadb; c=chromadb.HttpClient(host='localhost', port=8000).
 ```
 
 
+
+
+
+
+

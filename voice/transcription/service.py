@@ -34,29 +34,41 @@ class RoxyTranscription:
         print(f"🎤 Initializing Whisper transcription (model: {model_size})...")
         
         try:
+            import os
+            
+            # Check for explicit CPU override (for GPU optimization)
+            # This allows Whisper to use CPU while keeping LLM/TTS on GPU
+            force_cpu = os.getenv("ROXY_WHISPER_DEVICE", "").lower() == "cpu"
+            
             # Auto-detect device if needed
             if device == "auto":
-                try:
-                    import torch
-                    if torch.cuda.is_available():
-                        device = "cuda"
-                        # Use float16 for GPU (ROCm compatible)
-                        if compute_type == "auto":
-                            compute_type = "float16"
-                        print(f"   GPU detected: {torch.cuda.get_device_name(0)}")
-                    else:
-                        device = "cpu"
-                        if compute_type == "auto":
-                            compute_type = "float32"
-                except Exception as e:
-                    print(f"   ⚠️  Could not detect GPU: {e}, using CPU")
+                if force_cpu:
+                    # Explicit CPU override for GPU optimization
                     device = "cpu"
                     if compute_type == "auto":
                         compute_type = "float32"
+                    print(f"   🖥️  Using CPU (optimized for GPU resource management)")
+                else:
+                    try:
+                        import torch
+                        if torch.cuda.is_available():
+                            device = "cuda"
+                            # Use float16 for GPU (ROCm compatible)
+                            if compute_type == "auto":
+                                compute_type = "float16"
+                            print(f"   GPU detected: {torch.cuda.get_device_name(0)}")
+                        else:
+                            device = "cpu"
+                            if compute_type == "auto":
+                                compute_type = "float32"
+                    except Exception as e:
+                        print(f"   ⚠️  Could not detect GPU: {e}, using CPU")
+                        device = "cpu"
+                        if compute_type == "auto":
+                            compute_type = "float32"
             
-            # Check environment variable override
-            import os
-            if os.getenv("ROXY_GPU_ENABLED", "true").lower() == "true" and device == "cpu":
+            # Legacy: Check environment variable override (only if not forcing CPU)
+            if not force_cpu and os.getenv("ROXY_GPU_ENABLED", "true").lower() == "true" and device == "cpu":
                 try:
                     import torch
                     if torch.cuda.is_available():
