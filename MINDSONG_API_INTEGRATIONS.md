@@ -5,13 +5,25 @@ This document catalogs all existing API integrations found in the mindsong-juke-
 ## Current API Integrations
 
 ### 1. **Supabase Integration**
-- **Location**: `src/integrations/supabase/
+- **Location**: `src/integrations/supabase/`
 - **Files**: 
   - `client.ts` - Client-side Supabase client
   - `server-client.ts` - Server-side Supabase client
-  - `types.ts` - TypeScript types
+  - `types.ts` - TypeScript types (comprehensive database schema)
 - **Usage**: Database operations, authentication, real-time subscriptions
-- **Relevant for CITADEL**: Can be used for storing CRM data, social media posts, business automation records
+- **Key Tables Found**:
+  - `ai_response_cache` - AI response caching
+  - `ai_usage_logs` - AI usage tracking
+  - `automation_logs` - Automation execution logs
+  - `automation_workflows` - Workflow definitions
+  - `automation_workflows_crm` - CRM-specific workflows
+  - `campaign_sends` - Campaign tracking
+  - `teacher_settings` - Teacher configuration (includes Calendly usernames)
+  - Many more tables for CRM, student management, etc.
+- **Relevant for CITADEL**: 
+  - Can be used for storing CRM data, social media posts, business automation records
+  - Existing automation tables can be leveraged for Phase 7 (Business Automation)
+  - AI usage logs can inform Phase 8 (AI Excellence)
 
 ### 2. **Calendly Integration**
 - **Location**: `src/lib/calendly.ts`
