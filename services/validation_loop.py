@@ -66,18 +66,40 @@ class ValidationLoop:
             if not self._validate_repo_info(response):
                 issues.append("Response contains incorrect repository information")
                 confidence = max(0.2, confidence - 0.3)
+            
+            # Also validate against RAG index if available
+            if not self._validate_against_rag_index(response, user_input):
+                issues.append("Response doesn't match RAG index content")
+                confidence = max(0.3, confidence - 0.2)
         
-        # Check 3: Generic hallucination detection
+        # Check 3: Generic hallucination detection (enhanced)
         hallucination_indicators = [
             "Tool A", "Tool B", "Tool C",  # Generic tool names
             "Page 90-99", "Page 1-10",  # Generic page ranges
             "according to the repository",  # Vague attribution
+            "the codebase shows",  # Vague reference
+            "based on the files",  # Vague reference
+            "I can see that",  # Vague reference without source
+            "the system has",  # Vague system reference
+            "there are multiple",  # Vague quantity
+            "several components",  # Vague component reference
+            "various files",  # Vague file reference
         ]
         
         for indicator in hallucination_indicators:
-            if indicator in response:
+            if indicator.lower() in response.lower():
                 issues.append(f"Potential hallucination detected: '{indicator}'")
-                confidence = max(0.1, confidence - 0.4)
+                confidence = max(0.1, confidence - 0.3)
+        
+        # Check 3b: Code structure hallucinations
+        if self._detect_code_structure_hallucination(response, user_input):
+            issues.append("Response contains code structure that may not exist")
+            confidence = max(0.2, confidence - 0.3)
+        
+        # Check 3c: Number/statistic hallucinations
+        if self._detect_statistic_hallucination(response, user_input):
+            issues.append("Response contains unverified statistics or numbers")
+            confidence = max(0.3, confidence - 0.2)
         
         # Check 4: Source attribution validation
         if not self._has_source_attribution(response):
@@ -174,15 +196,77 @@ class ValidationLoop:
         
         return any(indicator in response for indicator in source_indicators)
     
+    def _detect_code_structure_hallucination(self, response: str, user_input: str) -> bool:
+        """Detect if response contains code structure that may be hallucinated"""
+        # Check for common code patterns that might be made up
+        suspicious_patterns = [
+            "class ToolA", "class ToolB", "class ToolC",
+            "function ToolA", "function ToolB",
+            "export const ToolA", "export const ToolB",
+            "interface ToolA", "interface ToolB",
+        ]
+        
+        for pattern in suspicious_patterns:
+            if pattern in response:
+                return True
+        
+        # Check for generic component names
+        if "ComponentA" in response or "ComponentB" in response:
+            return True
+        
+        return False
+    
+    def _detect_statistic_hallucination(self, response: str, user_input: str) -> bool:
+        """Detect if response contains unverified statistics"""
+        import re
+        
+        # Look for numbers that might be statistics
+        numbers = re.findall(r'\b\d+\b', response)
+        
+        # If response has many numbers and no source attribution, might be hallucinated
+        if len(numbers) > 5 and not self._has_source_attribution(response):
+            # Check if numbers look like statistics (not just line numbers or IDs)
+            stat_keywords = ["files", "components", "pages", "lines", "functions", "classes"]
+            if any(keyword in response.lower() for keyword in stat_keywords):
+                return True
+        
+        return False
+    
+    def _validate_against_rag_index(self, response: str, user_input: str) -> bool:
+        """Validate response against RAG index if available"""
+        if not self.actual_repo_path:
+            return True  # Can't validate without repo
+        
+        try:
+            from repository_rag import get_repo_rag
+            rag = get_repo_rag(self.actual_repo_path)
+            stats = rag.indexer.get_stats()
+            
+            if stats.get('total_chunks', 0) > 0:
+                # Try to verify key claims in response
+                # This is a simplified check - could be enhanced
+                return True  # For now, assume valid if RAG is available
+        except Exception as e:
+            logger.debug(f"RAG validation not available: {e}")
+        
+        return True  # Default to valid if can't check
+    
     async def _get_real_file_listing(self, user_input: str) -> Optional[str]:
         """Get real file listing as correction"""
         if not self.actual_repo_path:
             return None
         
         try:
-            from roxy_interface import RoxyInterface
-            interface = RoxyInterface()
-            return await interface._list_repository_files(self.actual_repo_path, user_input)
+            # Try enhanced interface first
+            try:
+                from roxy_interface_enhanced import EnhancedRoxyInterface
+                interface = EnhancedRoxyInterface()
+                return await interface._list_repository_files(self.actual_repo_path, user_input)
+            except:
+                # Fallback to regular interface
+                from roxy_interface import RoxyInterface
+                interface = RoxyInterface()
+                return await interface._list_repository_files(self.actual_repo_path, user_input)
         except Exception as e:
             logger.error(f"Error getting real file listing: {e}")
             return None

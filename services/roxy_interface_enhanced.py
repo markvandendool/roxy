@@ -194,22 +194,32 @@ class EnhancedRoxyInterface:
                     )
                     
                     if response and response.strip() and len(response.strip()) > 10:
-                        # Validate LLM response
+                        # Validate LLM response (enhanced validation)
                         if self.validator:
                             validation = await self.validator.validate_response(
-                                user_input, response.strip(), {'source': 'llm'}
+                                user_input, response.strip(), {'source': 'llm', 'response_length': len(response)}
                             )
                             
-                            # Self-correct if needed
+                            # Log validation issues
+                            if not validation['valid']:
+                                logger.warning(f"⚠️ Validation issues detected: {validation.get('issues', [])}")
+                                logger.info(f"   Confidence: {validation.get('confidence', 0):.1%}")
+                            
+                            # Self-correct if needed (enhanced)
                             if self.self_correction and not validation['valid']:
                                 corrected = await self.self_correction.detect_and_correct(
-                                    user_input, response.strip(), validation
+                                    user_input, response.strip(), validation, {'original_source': 'llm'}
                                 )
                                 if corrected:
+                                    logger.info("✅ Self-correction applied")
                                     response = corrected
+                                    # Re-validate corrected response
                                     validation = await self.validator.validate_response(
-                                        user_input, corrected, {'source': 'corrected'}
+                                        user_input, corrected, {'source': 'corrected', 'original_source': 'llm'}
                                     )
+                                    # If still invalid, mark with lower confidence
+                                    if not validation['valid']:
+                                        logger.warning(f"⚠️ Corrected response still has issues: {validation.get('issues', [])}")
                         
                         # Add source attribution
                         response = self._add_source_attribution(
@@ -243,13 +253,28 @@ class EnhancedRoxyInterface:
                 if stats.get('total_chunks', 0) > 0:
                     response = await rag.answer_question(user_input, context_limit=15)
                     if response and response.strip():
-                        # Validate RAG response
+                        # Validate RAG response (enhanced)
                         if self.validator:
                             validation = await self.validator.validate_response(
-                                user_input, response.strip(), {'source': 'rag'}
+                                user_input, response.strip(), {'source': 'rag', 'rag_stats': stats}
                             )
-                            if not validation['valid'] and validation.get('corrected_response'):
-                                response = validation['corrected_response']
+                            
+                            if not validation['valid']:
+                                logger.warning(f"⚠️ RAG validation issues: {validation.get('issues', [])}")
+                                
+                                # Try corrected response from validation
+                                if validation.get('corrected_response'):
+                                    response = validation['corrected_response']
+                                    logger.info("✅ Using validation-corrected RAG response")
+                                
+                                # Also try self-correction
+                                elif self.self_correction:
+                                    corrected = await self.self_correction.detect_and_correct(
+                                        user_input, response.strip(), validation, {'original_source': 'rag'}
+                                    )
+                                    if corrected:
+                                        response = corrected
+                                        logger.info("✅ Self-corrected RAG response")
                         
                         # Add source attribution (already in RAG, but ensure it's there)
                         if '📌 Source:' not in response:
