@@ -208,3 +208,5 @@ The detection logic exists but runs AFTER the LLM, so the LLM makes up responses
 
 **Priority Fix**: Change response generation order to check for file operations BEFORE using LLM for repository questions.
 
+
+

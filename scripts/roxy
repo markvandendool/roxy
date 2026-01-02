@@ -1,60 +1,61 @@
 #!/bin/bash
-# ROXY Command - Quick access to the resident AI
-# Usage: roxy [command] [args]
+# ROXY Command - UNIFIED ENTRYPOINT (Fixed 2026-01-01)
+# Routes ALL commands to the WORKING stack (~/.roxy)
+# Legacy /opt/roxy stack is DEPRECATED
 
-ROXY_SERVICE="roxy.service"
-ROXY_INTERFACE="/opt/roxy/services/roxy_interface"
+GOOD_STACK_CLIENT="$HOME/.roxy/venv/bin/python"
+GOOD_STACK_SCRIPT="$HOME/.roxy/roxy_client.py"
 
 case "${1:-chat}" in
     chat|talk|converse)
-        cd /opt/roxy && source venv/bin/activate
-        python3 "$ROXY_INTERFACE.py"
+        echo "🤖 ROXY Interactive Chat (using ~/.roxy stack)"
+        exec "$GOOD_STACK_CLIENT" "$GOOD_STACK_SCRIPT"
         ;;
     status)
-        sudo systemctl status "$ROXY_SERVICE" --no-pager
+        systemctl --user status roxy-core --no-pager
         ;;
     start)
-        sudo systemctl start "$ROXY_SERVICE"
-        echo "✅ ROXY starting..."
+        systemctl --user start roxy-core
+        echo "✅ ROXY starting (user service)..."
         ;;
     stop)
-        sudo systemctl stop "$ROXY_SERVICE"
+        systemctl --user stop roxy-core
         echo "✅ ROXY stopped"
         ;;
     restart)
-        sudo systemctl restart "$ROXY_SERVICE"
+        systemctl --user restart roxy-core
         echo "✅ ROXY restarted"
         ;;
     logs)
-        sudo journalctl -u "$ROXY_SERVICE" -f "${@:2}"
+        journalctl --user -u roxy-core -f "${@:2}"
         ;;
-    memory)
-        echo "📚 ROXY Memory Stats:"
-        sqlite3 /opt/roxy/data/roxy_memory.db "SELECT COUNT(*) as conversations FROM conversations; SELECT COUNT(*) as facts FROM learned_facts;" 2>/dev/null || echo "Memory database not initialized yet"
+    test)
+        echo "Testing ROXY connectivity..."
+        TOKEN=$(cat ~/.roxy/secret.token)
+        curl -s -H "X-ROXY-Token: $TOKEN" \
+             -X POST http://127.0.0.1:8766/health | jq || echo "ROXY not responding"
+        ;;
+    legacy)
+        echo "⚠️  WARNING: Using DEPRECATED /opt/roxy stack"
+        echo "⚠️  This stack is known to hallucinate and has broken tool calling"
+        echo "⚠️  Press Ctrl+C to cancel, or Enter to continue..."
+        read
+        cd /opt/roxy && source venv/bin/activate
+        python3 /opt/roxy/services/roxy_interface.py
         ;;
     *)
-        echo "ROXY - Resident AI Assistant"
-        echo ""
-        echo "Usage: roxy [command]"
+        echo "ROXY - Resident AI Assistant (Unified Entrypoint)"
         echo ""
         echo "Commands:"
-        echo "  chat, talk, converse  - Start interactive chat with ROXY"
-        echo "  status                - Show ROXY service status"
-        echo "  start                 - Start ROXY service"
-        echo "  stop                  - Stop ROXY service"
-        echo "  restart              - Restart ROXY service"
-        echo "  logs                 - View ROXY logs"
-        echo "  memory               - Show memory statistics"
+        echo "  chat     - Interactive chat (Ctrl+Space also works)"
+        echo "  status   - Show service status"
+        echo "  start    - Start ROXY service"
+        echo "  stop     - Stop ROXY service"
+        echo "  restart  - Restart ROXY service"
+        echo "  logs     - View logs"
+        echo "  test     - Test connectivity"
+        echo "  legacy   - Use OLD stack (not recommended)"
         echo ""
-        echo "ROXY is always learning and remembering!"
+        echo "✅ Using: ~/.roxy (working stack with proven security)"
         ;;
 esac
-
-
-
-
-
-
-
-
-

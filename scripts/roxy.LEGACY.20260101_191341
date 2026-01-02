@@ -1,0 +1,60 @@
+#!/bin/bash
+# ROXY Command - Quick access to the resident AI
+# Usage: roxy [command] [args]
+
+ROXY_SERVICE="roxy.service"
+ROXY_INTERFACE="/opt/roxy/services/roxy_interface"
+
+case "${1:-chat}" in
+    chat|talk|converse)
+        cd /opt/roxy && source venv/bin/activate
+        python3 "$ROXY_INTERFACE.py"
+        ;;
+    status)
+        sudo systemctl status "$ROXY_SERVICE" --no-pager
+        ;;
+    start)
+        sudo systemctl start "$ROXY_SERVICE"
+        echo "✅ ROXY starting..."
+        ;;
+    stop)
+        sudo systemctl stop "$ROXY_SERVICE"
+        echo "✅ ROXY stopped"
+        ;;
+    restart)
+        sudo systemctl restart "$ROXY_SERVICE"
+        echo "✅ ROXY restarted"
+        ;;
+    logs)
+        sudo journalctl -u "$ROXY_SERVICE" -f "${@:2}"
+        ;;
+    memory)
+        echo "📚 ROXY Memory Stats:"
+        sqlite3 /opt/roxy/data/roxy_memory.db "SELECT COUNT(*) as conversations FROM conversations; SELECT COUNT(*) as facts FROM learned_facts;" 2>/dev/null || echo "Memory database not initialized yet"
+        ;;
+    *)
+        echo "ROXY - Resident AI Assistant"
+        echo ""
+        echo "Usage: roxy [command]"
+        echo ""
+        echo "Commands:"
+        echo "  chat, talk, converse  - Start interactive chat with ROXY"
+        echo "  status                - Show ROXY service status"
+        echo "  start                 - Start ROXY service"
+        echo "  stop                  - Stop ROXY service"
+        echo "  restart              - Restart ROXY service"
+        echo "  logs                 - View ROXY logs"
+        echo "  memory               - Show memory statistics"
+        echo ""
+        echo "ROXY is always learning and remembering!"
+        ;;
+esac
+
+
+
+
+
+
+
+
+

@@ -1,154 +1,85 @@
 #!/usr/bin/env python3
 """
-Roxy TTS Service - Edge TTS (Temporary until XTTS v2 supports Python 3.12)
-Uses Microsoft Edge TTS API (free, no installation needed)
+Roxy TTS Service - Edge TTS (Workaround for Python 3.12)
+LUNA-032: Install XTTS v2 (blocked by Python < 3.12 requirement)
+Using Edge TTS as temporary solution
 """
 
 import asyncio
-import sys
-import argparse
+import edge_tts
+import edge_tts.exceptions
+import os
+import subprocess
 from pathlib import Path
 
-try:
-    import edge_tts
-except ImportError:
-    print("❌ Missing edge-tts. Run: pip install edge-tts")
-    sys.exit(1)
+VOICE = "en-US-AriaNeural"  # A natural-sounding female voice
+OUTPUT_DIR = Path("/tmp")
 
 class RoxyTTS:
-    """Edge TTS service (temporary until XTTS v2 supports Python 3.12)"""
+    """Text-to-speech using Edge TTS"""
     
-    def __init__(self, voice="en-US-AriaNeural"):
-        """
-        Initialize Edge TTS
-        
-        Args:
-            voice: Voice name (default: AriaNeural - natural female voice)
-        """
+    def __init__(self, voice=VOICE):
+        """Initialize TTS service"""
         self.voice = voice
-        print(f"🎤 Initializing Roxy TTS (Edge TTS, voice: {voice})...")
+        self.output_dir = OUTPUT_DIR
+        self.output_dir.mkdir(exist_ok=True)
     
-    async def list_voices(self):
-        """List available voices"""
-        voices = await edge_tts.list_voices()
-        return voices
-    
-    async def speak_async(self, text, output_path=None, voice=None):
-        """
-        Generate speech from text (async)
-        
-        Args:
-            text: Text to speak
-            output_path: Output file path (if None, returns audio data)
-            voice: Voice name (uses default if None)
-        
-        Returns:
-            Path to output file
-        """
-        voice = voice or self.voice
-        
-        if output_path is None:
-            output_path = "/tmp/roxy_tts_output.mp3"
-        
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    async def generate_speech(self, text: str, output_file: str = None):
+        """Generate speech audio file"""
+        if output_file is None:
+            output_file = self.output_dir / "roxy_speech.mp3"
         
         try:
-            print(f"🎙️  Generating speech: '{text[:50]}...'")
-            communicate = edge_tts.Communicate(text, voice)
-            await communicate.save(str(output_path))
-            print(f"✅ Speech saved: {output_path}")
-            return output_path
+            communicate = edge_tts.Communicate(text, self.voice)
+            await communicate.save(str(output_file))
+            return str(output_file)
+        except edge_tts.exceptions.NoAudioReceived as e:
+            raise Exception(f"No audio received from Edge TTS: {e}")
         except Exception as e:
-            print(f"❌ TTS generation failed: {e}")
-            raise
+            raise Exception(f"TTS generation failed: {e}")
     
-    def speak(self, text, output_path=None, voice=None):
-        """Synchronous wrapper for speak_async"""
-        return asyncio.run(self.speak_async(text, output_path, voice))
-
-async def find_female_voice():
-    """Find a natural-sounding female voice"""
-    voices = await edge_tts.list_voices()
-    
-    # Prefer natural-sounding female voices
-    preferred = [
-        "en-US-AriaNeural",      # Natural, warm
-        "en-US-JennyNeural",      # Friendly
-        "en-US-MichelleNeural",   # Professional
-        "en-GB-SoniaNeural",     # British
-    ]
-    
-    for pref in preferred:
-        for voice in voices:
-            if voice["ShortName"] == pref:
-                return pref
-    
-    # Fallback: any English female voice
-    for voice in voices:
-        if "en" in voice["Locale"] and "Female" in voice.get("Gender", ""):
-            return voice["ShortName"]
-    
-    return "en-US-AriaNeural"  # Default
-
-def main():
-    """CLI interface for Roxy TTS"""
-    parser = argparse.ArgumentParser(description="Roxy TTS Service - Edge TTS")
-    parser.add_argument("text", help="Text to speak")
-    parser.add_argument("--output", "-o", help="Output file path")
-    parser.add_argument("--voice", "-v", help="Voice name (default: auto-select female)")
-    parser.add_argument("--list-voices", action="store_true", help="List available voices")
-    
-    args = parser.parse_args()
-    
-    if args.list_voices:
-        async def list():
-            voices = await edge_tts.list_voices()
-            print("\n🎤 Available Voices:")
-            for v in voices[:20]:  # Show first 20
-                print(f"  {v['ShortName']}: {v.get('Gender', 'N/A')} - {v.get('Locale', 'N/A')}")
-        asyncio.run(list())
-        return
-    
-    # Initialize TTS
-    if args.voice:
-        tts = RoxyTTS(voice=args.voice)
-    else:
-        # Auto-select natural female voice
-        voice = asyncio.run(find_female_voice())
-        print(f"🎤 Selected voice: {voice}")
-        tts = RoxyTTS(voice=voice)
-    
-    # Generate speech
-    try:
-        output = tts.speak(
-            text=args.text,
-            output_path=args.output
-        )
-        print(f"\n✅ Speech generated: {output}")
+    def speak(self, text: str, output_file: str = None):
+        """Generate and play speech (synchronous wrapper)"""
+        audio_file = asyncio.run(self.generate_speech(text, output_file))
         
-        # Play audio if paplay is available
-        import subprocess
+        # Play audio
         try:
-            subprocess.run(["paplay", str(output)], check=True)
-            print("🔊 Audio played")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            print(f"💡 Play audio with: paplay {output}")
+            subprocess.run(["mpv", str(audio_file)], check=True, capture_output=True)
+            return audio_file
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Failed to play audio: {e}")
+        except FileNotFoundError:
+            raise Exception("mpv not found. Install with: sudo apt install mpv")
+
+async def generate_and_play_speech(text: str, voice: str = VOICE, output_file: str = None):
+    """Legacy function for backward compatibility"""
+    if output_file is None:
+        output_file = OUTPUT_DIR / "roxy_edge_test.mp3"
+    
+    print(f"🎤 Selected voice: {voice}")
+    print(f"🎤 Initializing Roxy TTS (Edge TTS, voice: {voice})...")
+    
+    try:
+        communicate = edge_tts.Communicate(text, voice)
+        print(f"🎙️  Generating speech: '{text[:70]}...'")
+        await communicate.save(str(output_file))
+        print(f"✅ Speech saved: {output_file}")
+        
+        # Play the generated audio
+        print("🔊 Playing audio...")
+        subprocess.run(["mpv", str(output_file)], check=True)
+        print("✅ Audio played")
+        return True
+    except edge_tts.exceptions.NoAudioReceived as e:
+        print(f"❌ Error: No audio received from Edge TTS. {e}")
+        return False
     except Exception as e:
-        print(f"❌ Failed to generate speech: {e}")
-        sys.exit(1)
+        print(f"❌ An unexpected error occurred: {e}")
+        return False
+
+async def main():
+    text_to_speak = "Hello! I am Roxy, your omniscient control system. Audio is working perfectly! All systems are operational."
+    await generate_and_play_speech(text_to_speak)
 
 if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
-
-
-
-
+    asyncio.run(main())
