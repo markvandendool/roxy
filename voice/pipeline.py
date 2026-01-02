@@ -16,6 +16,9 @@ import threading
 from pathlib import Path
 from datetime import datetime
 
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 # Import components
 try:
     from voice.wakeword.listener import RoxyWakeWordListener
@@ -24,6 +27,8 @@ try:
 except ImportError as e:
     print(f"❌ Missing voice components: {e}")
     print("   Ensure all voice services are installed")
+    import traceback
+    traceback.print_exc()
     sys.exit(1)
 
 class RoxyVoicePipeline:
