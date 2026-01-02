@@ -109,7 +109,13 @@ class EnhancedRoxyInterface:
             if self.error_handler:
                 return self.error_handler._error_response("chat_terminal", e)
             
-            return f"ROXY: I encountered an error processing your request: {e}\n\n📌 Source: Error Handler (Fallback)"
+            error_response = f"ROXY: I encountered an error processing your request: {e}"
+            return self._add_source_attribution(
+                error_response, 
+                'error',
+                context=f"Error in {type(e).__name__}",
+                metadata={'confidence': 0.20, 'method': 'error_handler_fallback'}
+            )
     
     async def _generate_response_enhanced(self, user_input: str, memory) -> str:
         """Enhanced response generation with validation, quality checks, and self-correction"""
@@ -199,7 +205,14 @@ class EnhancedRoxyInterface:
                                     )
                         
                         # Add source attribution
-                        response = self._add_source_attribution(response.strip(), 'llm')
+                        response = self._add_source_attribution(
+                            response.strip(), 
+                            'llm',
+                            metadata={
+                                'confidence': 0.70,
+                                'method': 'llm_generation'
+                            }
+                        )
                         
                         # Quality check
                         if self.quality_checker:
@@ -233,7 +246,16 @@ class EnhancedRoxyInterface:
                         
                         # Add source attribution (already in RAG, but ensure it's there)
                         if '📌 Source:' not in response:
-                            response = self._add_source_attribution(response.strip(), 'rag', actual_repo_path)
+                            response = self._add_source_attribution(
+                                response.strip(), 
+                                'rag', 
+                                context=actual_repo_path,
+                                metadata={
+                                    'confidence': 0.85,
+                                    'method': 'rag_retrieval',
+                                    'chunks_retrieved': len(rag_results.get('chunks', [])) if isinstance(rag_results, dict) else 0
+                                }
+                            )
                         
                         return response
             except Exception as e:
@@ -242,36 +264,99 @@ class EnhancedRoxyInterface:
         # STEP 4: Pattern matching (with source attribution)
         pattern_response = self._pattern_matching_response(user_input, user_lower, memory)
         if pattern_response:
-            return self._add_source_attribution(pattern_response, 'pattern')
+            return self._add_source_attribution(
+                pattern_response, 
+                'pattern',
+                metadata={
+                    'confidence': 0.50,
+                    'method': 'pattern_matching'
+                }
+            )
         
         # STEP 5: Final fallback (with source attribution)
         fallback = f"I understand you said: '{user_input}'. I'm processing your request. (LLM service may need attention - check logs)"
-        return self._add_source_attribution(fallback, 'fallback')
+        return self._add_source_attribution(
+            fallback, 
+            'fallback',
+            metadata={
+                'confidence': 0.30,
+                'method': 'fallback_response'
+            }
+        )
     
     def _add_source_attribution(self, response: str, source: str, 
-                               context: str = None) -> str:
-        """Add source attribution to response"""
-        # Don't add if already present
-        if '📌 Source:' in response or '📌' in response:
+                               context: str = None, metadata: Dict = None) -> str:
+        """
+        Add comprehensive source attribution to response with confidence scores and metadata
+        
+        Args:
+            response: The response text
+            source: Source type (filesystem, rag, llm, pattern, fallback, error, corrected)
+            context: Optional context string
+            metadata: Optional metadata dict with:
+                - confidence: float (0-1)
+                - method: str (method used)
+                - chunks_retrieved: int (for RAG)
+                - files_accessed: List[str] (for file operations)
+                - timestamp: str (ISO format)
+        """
+        # Don't add if already present (unless we're enhancing it)
+        if '📌 Source:' in response and metadata is None:
             return response
         
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.now().isoformat()
         
+        # Source mapping with confidence levels
         source_map = {
-            'filesystem': '📁 Real Filesystem Scan',
-            'rag': '📚 RAG (Retrieval Augmented Generation)',
-            'llm': '🤖 LLM (Ollama llama3:8b)',
-            'pattern': '🔍 Pattern Matching',
-            'fallback': '⚠️ Fallback Response',
-            'corrected': '🔧 Self-Corrected Response'
+            'filesystem': {'name': '📁 Real Filesystem Scan', 'confidence': 0.95},
+            'rag': {'name': '📚 RAG (Retrieval Augmented Generation)', 'confidence': 0.85},
+            'llm': {'name': '🤖 LLM (Ollama llama3:8b)', 'confidence': 0.70},
+            'pattern': {'name': '🔍 Pattern Matching', 'confidence': 0.50},
+            'fallback': {'name': '⚠️ Fallback Response', 'confidence': 0.30},
+            'error': {'name': '❌ Error Handler', 'confidence': 0.20},
+            'corrected': {'name': '🔧 Self-Corrected Response', 'confidence': 0.80},
+            'quality_checked': {'name': '✅ Quality Checked', 'confidence': 0.90}
         }
         
-        source_text = source_map.get(source, f'Source: {source}')
+        source_info = source_map.get(source, {'name': f'Source: {source}', 'confidence': 0.50})
+        source_text = source_info['name']
+        default_confidence = source_info['confidence']
         
-        attribution = f"\n\n📌 Source: {source_text}"
+        # Use metadata confidence if provided, otherwise use default
+        confidence = metadata.get('confidence', default_confidence) if metadata else default_confidence
+        
+        # Build attribution block
+        attribution_parts = [f"\n\n📌 Source: {source_text}"]
+        
+        # Add confidence score
+        confidence_emoji = '✅' if confidence >= 0.8 else '⚠️' if confidence >= 0.5 else '❌'
+        attribution_parts.append(f"{confidence_emoji} Confidence: {confidence:.0%}")
+        
+        # Add context if provided
         if context:
-            attribution += f"\n📍 Context: {context}"
-        attribution += f"\n⏰ {timestamp}"
+            attribution_parts.append(f"📍 Context: {context}")
+        
+        # Add metadata if provided
+        if metadata:
+            if metadata.get('method'):
+                attribution_parts.append(f"🔧 Method: {metadata['method']}")
+            if metadata.get('chunks_retrieved'):
+                attribution_parts.append(f"📚 Chunks Retrieved: {metadata['chunks_retrieved']}")
+            if metadata.get('files_accessed'):
+                files = metadata['files_accessed']
+                if isinstance(files, list):
+                    file_count = len(files)
+                    if file_count <= 3:
+                        attribution_parts.append(f"📁 Files: {', '.join(files)}")
+                    else:
+                        attribution_parts.append(f"📁 Files Accessed: {file_count} files")
+                else:
+                    attribution_parts.append(f"📁 Files: {files}")
+        
+        # Add timestamp
+        attribution_parts.append(f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        attribution = "\n".join(attribution_parts)
         
         return response + attribution
     
@@ -302,7 +387,16 @@ class EnhancedRoxyInterface:
         try:
             repo = Path(repo_path)
             if not repo.exists():
-                return f"Repository not found at {repo_path}\n\n📌 Source: Filesystem Check"
+                error_msg = f"Repository not found at {repo_path}"
+                return self._add_source_attribution(
+                    error_msg,
+                    'error',
+                    context='filesystem_check',
+                    metadata={
+                        'confidence': 0.95,
+                        'method': 'filesystem_check'
+                    }
+                )
             
             user_lower = user_input.lower()
             files_found = []
@@ -341,11 +435,30 @@ class EnhancedRoxyInterface:
                 response_parts.append(f"\n✅ Verified: Real file listing from repository filesystem")
                 return "\n".join(response_parts)
             
-            return f"No files found matching your query in {repo.name}\n\n📌 Source: Filesystem Scan"
+            no_files_msg = f"No files found matching your query in {repo.name}"
+            return self._add_source_attribution(
+                no_files_msg,
+                'filesystem',
+                context=f'Repository: {repo.name}',
+                metadata={
+                    'confidence': 0.95,
+                    'method': 'filesystem_scan',
+                    'files_accessed': []
+                }
+            )
             
         except Exception as e:
             logger.error(f"Error listing files: {e}")
-            return f"Error listing files: {e}\n\n📌 Source: Error Handler"
+            error_msg = f"Error listing files: {e}"
+            return self._add_source_attribution(
+                error_msg,
+                'error',
+                context=f'Exception: {type(e).__name__}',
+                metadata={
+                    'confidence': 0.20,
+                    'method': 'error_handler'
+                }
+            )
     
     async def _extract_facts(self, user_input: str, response: str) -> List[str]:
         """Extract facts from conversation"""
