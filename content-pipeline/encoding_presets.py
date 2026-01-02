@@ -12,7 +12,16 @@ def _check_amf_available():
     except:
         return False
 
+def _check_vaapi_available():
+    """Check if VAAPI encoder is available"""
+    try:
+        result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True, timeout=2)
+        return 'h264_vaapi' in result.stdout.lower() and os.path.exists('/dev/dri/renderD128')
+    except:
+        return False
+
 AMF_AVAILABLE = _check_amf_available()
+VAAPI_AVAILABLE = _check_vaapi_available()
 
 PRESETS = {
     "generic": {
@@ -25,6 +34,13 @@ PRESETS = {
     "generic_gpu": {
         "description": "Generic high-quality encoding (GPU-accelerated)",
         "video": "-c:v h264_amf -quality quality -rc cqp -qp_i 23 -qp_p 23 -qp_b 23" if AMF_AVAILABLE else "-c:v libx264 -crf 23 -preset medium",
+        "audio": "-c:a aac -b:a 192k",
+        "format": "mp4",
+        "resolution": None
+    },
+    "generic_vaapi": {
+        "description": "Generic high-quality encoding (VAAPI hardware-accelerated)",
+        "video": "-hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -c:v h264_vaapi -b:v 10M" if VAAPI_AVAILABLE else "-c:v libx264 -crf 23 -preset medium",
         "audio": "-c:a aac -b:a 192k",
         "format": "mp4",
         "resolution": None
