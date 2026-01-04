@@ -1,0 +1,103 @@
+Loading test data...
+  Baseline: stress_test_20260102_025430.json
+  Infra:    stress_test_20260104_055818.json
+  Current:  stress_test_20260104_064921_post_ui.json
+
+================================================================================
+         🔬 SCIENTIFIC STRESS TEST COMPARISON - VERBATIM TESTS
+================================================================================
+
+Test Conditions: IDENTICAL stress_test_comprehensive.py
+Variables Changed: Infrastructure + UI additions only
+
+================================================================================
+                      📊 QUANTITATIVE RESULTS
+================================================================================
+
+                     BASELINE     POST-INFRA    POST-UI       DELTA
+                     (Jan 2)      (Jan 4 AM)    (Jan 4 NOW)   (from base)
+--------------------------------------------------------------------------------
+Tests Passed:         21/23          19/23          19/23         -2
+Warnings:              2              2              2
+Pass Rate:            91.3%         82.6%         82.6%       -8.7%
+
+================================================================================
+                       📋 TEST-BY-TEST ANALYSIS
+================================================================================
+
+✅ IMPROVEMENTS (0 tests now passing):
+   (none)
+
+❌ REGRESSIONS (2 tests now failing):
+   ⚠️  Concurrent Requests
+   ⚠️  Prompt Templates
+
+✓ MAINTAINED PASSING (19 tests consistently passing):
+   ✓ Batch Processing
+   ✓ Capabilities Query
+   ✓ Context Management
+   ✓ Error Recovery
+   ✓ Evaluation Metrics
+   ✓ Git Commands
+   ✓ Health Commands
+   ✓ Health Endpoint
+   ✓ Hybrid Search
+   ✓ LLM Routing
+   ✓ Model Info Query
+   ✓ OBS Commands
+   ✓ Observability
+   ✓ RAG Queries
+   ✓ Security Input Sanitization
+   ✓ Streaming Responses
+   ✓ Tool Direct Execution
+   ✓ Unavailable Capabilities Rejection
+   ✓ Validation Gates
+
+⚠️  WARNINGS (2 tests with warnings):
+   ⚠️  Rate Limiting
+   ⚠️  Semantic Caching
+
+✗ CONSISTENTLY FAILING (0 tests):
+
+================================================================================
+                       ⚡ PERFORMANCE METRICS
+================================================================================
+
+================================================================================
+                    🧪 SCIENTIFIC CONCLUSION
+================================================================================
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  ⚠️  ATTENTION NEEDED: Some regressions detected                     ║
+║     Review failed tests for root cause analysis                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+  Net Change:                -8.7% change
+  Tests Improved:            0
+  Tests Regressed:           2
+  Statistical Significance:  YES ✓ (>5% threshold)
+
+================================================================================
+                       📝 EXECUTIVE SUMMARY
+================================================================================
+
+  Test Protocol:     stress_test_comprehensive.py (VERBATIM - no modifications)
+  Test Environment:  ROXY @ http://127.0.0.1:8766
+  
+  Timeline:
+    • Baseline (Jan 2):   21/23 tests (91.3%) - Before improvements
+    • Post-Infra (Jan 4): 19/23 tests (82.6%) - After infrastructure
+    • Post-UI (NOW):      19/23 tests (82.6%) - After UI implementation
+  
+  Changes Since Baseline:
+    • Added: Redis, PostgreSQL, NATS infrastructure
+    • Added: Web UI (roxy_web_ui.py - 800+ lines)
+    • Added: Terminal UI (roxy_ui.py - 650+ lines)
+    • Added: Unified Launcher (roxy_launcher.py)
+    • Added: Voice system (realtime_talk.py, webrtc_voice_server.py)
+  
+  Verdict: ⚠️ REVIEW NEEDED
+
+================================================================================
+  Report generated: 2026-01-04T06:50:11.403604
+================================================================================
