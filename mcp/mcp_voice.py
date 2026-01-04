@@ -27,7 +27,7 @@ import base64
 from typing import Dict, Any, Optional
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 logger = logging.getLogger("roxy.mcp.voice")
@@ -137,13 +137,46 @@ def _http_post(url: str, data: Any, content_type: str = "application/json", time
         return {"error": str(e)}
 
 
-def _check_service(base_url: str) -> Dict[str, Any]:
-    """Check if a voice service is available"""
+def _check_service(base_url: str, port: int = None) -> Dict[str, Any]:
+    """Check if a voice service is available via Wyoming protocol"""
+    import asyncio
+    import socket
+    
+    # Extract port from URL if not provided
+    if port is None:
+        if "10300" in base_url:
+            port = 10300
+        elif "10200" in base_url:
+            port = 10200
+        elif "10400" in base_url:
+            port = 10400
+        else:
+            return {"status": "down", "response": None, "error": "Unknown port"}
+    
+    async def _check():
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection('localhost', port),
+                timeout=3
+            )
+            writer.write(b'{"type":"describe"}\n')
+            await writer.drain()
+            response = await asyncio.wait_for(reader.readline(), timeout=3)
+            writer.close()
+            await writer.wait_closed()
+            
+            import json as json_mod
+            data = json_mod.loads(response.decode())
+            return {"status": "up", "response": data, "protocol": "wyoming"}
+        except Exception as e:
+            return {"status": "down", "response": None, "error": str(e)}
+    
     try:
-        result = _http_get(f"{base_url}/health", timeout=5)
-        return {"status": "up" if "error" not in result else "down", "response": result}
-    except Exception:
-        return {"status": "down", "response": None}
+        return asyncio.run(_check())
+    except RuntimeError:
+        # Already in async context
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(_check())
 
 
 def handle_tool(name: str, params: Optional[Dict] = None) -> Dict[str, Any]:
@@ -349,7 +382,7 @@ def health_check() -> Dict[str, Any]:
         },
         "services_up": healthy_count,
         "services_total": 3,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 

@@ -1,0 +1,253 @@
+{
+  "model": "qwen3:8b",
+  "timestamp": "20260104_135805",
+  "benchmarks": {
+    "HumanEval": {
+      "benchmark": "HumanEval",
+      "model": "qwen3:8b",
+      "score": 0.0,
+      "passed": 0,
+      "total": 10,
+      "avg_latency": 26.010024881362916,
+      "details": [
+        {
+          "task_id": "HumanEval/0",
+          "passed": false,
+          "latency": 22.731772661209106,
+          "error": "SyntaxError: invalid character '\ud83d\udccc' (U+1F4CC) (<string>, line 24)"
+        },
+        {
+          "task_id": "HumanEval/1",
+          "passed": false,
+          "latency": 25.1291446685791,
+          "error": "NameError: name 'List' is not defined"
+        },
+        {
+          "task_id": "HumanEval/2",
+          "passed": false,
+          "latency": 23.965336084365845,
+          "error": "SyntaxError: invalid character '\ud83d\udccc' (U+1F4CC) (<string>, line 19)"
+        },
+        {
+          "task_id": "HumanEval/4",
+          "passed": false,
+          "latency": 26.445643186569214,
+          "error": "SyntaxError: 'return' outside function (<string>, line 15)"
+        },
+        {
+          "task_id": "HumanEval/5",
+          "passed": false,
+          "latency": 29.98742914199829,
+          "error": "SyntaxError: 'return' outside function (<string>, line 10)"
+        },
+        {
+          "task_id": "HumanEval/6",
+          "passed": false,
+          "latency": 20.123140335083008,
+          "error": "NameError: name 'List' is not defined"
+        },
+        {
+          "task_id": "HumanEval/7",
+          "passed": false,
+          "latency": 54.79212808609009,
+          "error": "SyntaxError: 'return' outside function (<string>, line 10)"
+        },
+        {
+          "task_id": "HumanEval/8",
+          "passed": false,
+          "latency": 13.41011905670166,
+          "error": "SyntaxError: 'return' outside function (<string>, line 11)"
+        },
+        {
+          "task_id": "HumanEval/10",
+          "passed": false,
+          "latency": 17.442887544631958,
+          "error": "SyntaxError: invalid character '\ud83d\udccc' (U+1F4CC) (<string>, line 31)"
+        },
+        {
+          "task_id": "HumanEval/11",
+          "passed": false,
+          "latency": 26.07264804840088,
+          "error": "SyntaxError: 'return' outside function (<string>, line 9)"
+        }
+      ]
+    },
+    "MMLU": {
+      "benchmark": "MMLU",
+      "model": "qwen3:8b",
+      "score": 25.0,
+      "correct": 3,
+      "total": 12,
+      "avg_latency": 24.41887331008911,
+      "details": [
+        {
+          "subject": "abstract_algebra",
+          "correct": false,
+          "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=20)",
+          "latency": 40.03394532203674
+        },
+        {
+          "subject": "abstract_algebra",
+          "correct": false,
+          "predicted": "A",
+          "expected": "D",
+          "latency": 19.372475385665894
+        },
+        {
+          "subject": "anatomy",
+          "correct": false,
+          "predicted": "A",
+          "expected": "B",
+          "latency": 13.266430377960205
+        },
+        {
+          "subject": "anatomy",
+          "correct": true,
+          "predicted": "A",
+          "expected": "A",
+          "latency": 35.964240312576294
+        },
+        {
+          "subject": "computer_science",
+          "correct": false,
+          "predicted": "A",
+          "expected": "C",
+          "latency": 10.557683944702148
+        },
+        {
+          "subject": "computer_science",
+          "correct": false,
+          "predicted": "A",
+          "expected": "B",
+          "latency": 16.11590814590454
+        },
+        {
+          "subject": "world_history",
+          "correct": false,
+          "predicted": "A",
+          "expected": "B",
+          "latency": 18.090290307998657
+        },
+        {
+          "subject": "world_history",
+          "correct": true,
+          "predicted": "C",
+          "expected": "C",
+          "latency": 34.40420961380005
+        },
+        {
+          "subject": "physics",
+          "correct": false,
+          "predicted": "A",
+          "expected": "B",
+          "latency": 16.031147956848145
+        },
+        {
+          "subject": "physics",
+          "correct": true,
+          "predicted": "C",
+          "expected": "C",
+          "latency": 34.88327360153198
+        },
+        {
+          "subject": "formal_logic",
+          "correct": false,
+          "predicted": "A",
+          "expected": "C",
+          "latency": 14.264235734939575
+        },
+        {
+          "subject": "formal_logic",
+          "correct": false,
+          "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=20)",
+          "latency": 40.0426390171051
+        }
+      ]
+    },
+    "GSM8K": {
+      "benchmark": "GSM8K",
+      "model": "qwen3:8b",
+      "score": 40.0,
+      "correct": 4,
+      "total": 10,
+      "avg_latency": 21.758038687705994,
+      "details": [
+        {
+          "problem": 1,
+          "correct": true,
+          "predicted": "18",
+          "expected": "18",
+          "latency": 19.599748373031616
+        },
+        {
+          "problem": 2,
+          "correct": true,
+          "predicted": "3",
+          "expected": "3",
+          "latency": 21.524216651916504
+        },
+        {
+          "problem": 3,
+          "correct": false,
+          "predicted": "50",
+          "expected": "70000",
+          "latency": 20.60848116874695
+        },
+        {
+          "problem": 4,
+          "correct": true,
+          "predicted": "540",
+          "expected": "540",
+          "latency": 21.636436223983765
+        },
+        {
+          "problem": 5,
+          "correct": false,
+          "predicted": "15",
+          "expected": "20",
+          "latency": 21.032886266708374
+        },
+        {
+          "problem": 6,
+          "correct": false,
+          "predicted": "104",
+          "expected": "64",
+          "latency": 23.303390741348267
+        },
+        {
+          "problem": 7,
+          "correct": false,
+          "predicted": "4",
+          "expected": "6",
+          "latency": 28.57125496864319
+        },
+        {
+          "problem": 8,
+          "correct": false,
+          "predicted": "5",
+          "expected": "15",
+          "latency": 25.668875694274902
+        },
+        {
+          "problem": 9,
+          "correct": false,
+          "predicted": "4",
+          "expected": "14",
+          "latency": 25.594910383224487
+        },
+        {
+          "problem": 10,
+          "correct": true,
+          "predicted": "7",
+          "expected": "7",
+          "latency": 10.040186405181885
+        }
+      ]
+    }
+  },
+  "aggregate": {
+    "average": 21.666666666666668,
+    "min": 0.0,
+    "max": 40.0
+  }
+}
