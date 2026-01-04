@@ -1,0 +1,11 @@
+=== 10x hi roxy (greeting test) ===
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []
+[ROXY] Routing to: greeting []

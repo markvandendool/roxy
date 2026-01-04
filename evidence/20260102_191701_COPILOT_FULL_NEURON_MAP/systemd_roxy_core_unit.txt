@@ -1,0 +1,15 @@
+# /home/mark/.config/systemd/user/roxy-core.service
+[Unit]
+Description=ROXY Core (always-on background service)
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.roxy
+ExecStart=%h/.roxy/venv/bin/python %h/.roxy/roxy_core.py
+Restart=on-failure
+RestartSec=2
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

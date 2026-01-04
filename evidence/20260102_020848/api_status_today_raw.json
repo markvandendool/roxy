@@ -1,0 +1,1 @@
+{"status": "success", "command": "what is new today", "result": "[ROXY] Processing: what is new today\n[ROXY] Routing to: rag ['what is new today']\n\nRAG query failed: Collection expecting embedding with dimension of 384, got 768\n\n\u26a0\ufe0f Confidence: low (63%)", "response_time": 2.155}

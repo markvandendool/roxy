@@ -1,0 +1,21 @@
+    # === OBS COMMANDS ===
+    obs_keywords = ["obs", "stream", "streaming", "record", "recording", "scene", 
+                   "brb", "live", "offline", "vcam", "virtual", "replay", "clip"]
+    if any(w in words for w in obs_keywords):
+        # Pass the full command to obs_skill.py for parsing
+        return ("obs", [text])
+    
+    # Also catch common OBS phrases
+    obs_phrases = [
+        "go live", "start stream", "stop stream", "end stream",
+        "start record", "stop record", "pause record", "resume record",
+        "switch to", "show scene", "next scene", "previous scene",
+        "mute mic", "unmute mic", "be right back", "starting soon",
+        "clip that", "save replay", "save that"
+    ]
+    if any(phrase in text_lower for phrase in obs_phrases):
+        return ("obs", [text])
+
+    # === SYSTEM HEALTH ===
+    # Only explicit health/monitoring requests
+    health_keywords = ["health", "temps", "temperature", "docker", "containers"]

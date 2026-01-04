@@ -1,0 +1,25 @@
+28:# Global tracking for Truth Gate evidence
+36:    mode: str = "unknown"  # rag, tool_direct, unavailable, info
+47:    """Track tool execution for Truth Gate validation"""
+74:def parse_command(text):
+116:        return ("launch_app", ["obs"])
+122:        return ("launch_app", [target_app])
+157:        return ("status_today", [])
+199:                return ("tool_direct", [tool_name, tool_args])
+215:            return ("tool_direct", [tool_name, tool_args])
+236:            return ("tool_preflight", ["list_files", {"path": "/home/mark/mindsong-juke-hub/docs/onboarding", "pattern": "*.md"}, text])
+240:            return ("tool_preflight", ["search_code", {"path": "/home/mark/mindsong-juke-hub", "pattern": filename}, text])
+243:            return ("tool_preflight", ["list_files", {"path": "/home/mark/mindsong-juke-hub"}, text])
+249:def execute_tool_direct(tool_name, tool_args):
+375:    elif cmd_type == "tool_direct":
+378:            return "ERROR: tool_direct requires [tool_name, tool_args]"
+384:        result = execute_tool_direct(tool_name, tool_args)
+390:    elif cmd_type == "status_today":
+447:    elif cmd_type == "launch_app":
+451:            return "ERROR: launch_app requires app name"
+543:    elif cmd_type == "tool_preflight":
+548:        tool_result = execute_tool_direct(tool_name, tool_args)
+640:            for i, (doc, metadata, distance) in enumerate(zip(
+660:            prompt = f"""You are ROXY, a concise and accurate AI assistant. Answer based on this context from the knowledge base:
+675:            "http://localhost:11434/api/generate",
+738:    print(f"[ROXY] Routing to: {cmd_type} {args}")

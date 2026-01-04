@@ -1,0 +1,1 @@
+Linux macpro-linux 6.18.2-1-t2-noble #1 SMP PREEMPT_DYNAMIC Thu Dec 18 17:50:20 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux

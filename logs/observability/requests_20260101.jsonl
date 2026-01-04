@@ -1,0 +1,476 @@
+{"timestamp": "2026-01-01T21:05:41.718143", "command": "ping", "response_length": 434, "response_time": 11.484, "metadata": {}}
+{"timestamp": "2026-01-01T21:05:47.202251", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"~/.roxy\"}}", "response_length": 2058, "response_time": 0.704, "metadata": {}}
+{"timestamp": "2026-01-01T21:05:58.753610", "command": "ping", "response_length": 475, "response_time": 2.468, "metadata": {}}
+{"timestamp": "2026-01-01T21:05:59.603966", "command": "what are your capabilities", "response_length": 711, "response_time": 0.834, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:00.322768", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2085, "response_time": 0.702, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:00.414574", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.076, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:01.121111", "command": "RUN_TOOL list_files {\"directory\": \"/home/mark/.roxy\"}", "response_length": 2073, "response_time": 0.69, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:01.213052", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.076, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:01.304310", "command": "run command: ls -la", "response_length": 324, "response_time": 0.075, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:04.207405", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 578, "response_time": 2.888, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:07.557077", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 1061, "response_time": 3.333, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:07.624153", "command": "what are your capabilities", "response_length": 711, "response_time": 0.031, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:10.979935", "command": "ping", "response_length": 603, "response_time": 3.349, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:11.670011", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2085, "response_time": 0.683, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:13.953091", "command": "ping", "response_length": 360, "response_time": 2.266, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:15.913156", "command": "ping", "response_length": 281, "response_time": 1.945, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:19.340551", "command": "ping", "response_length": 627, "response_time": 3.412, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:22.161134", "command": "ping", "response_length": 528, "response_time": 2.805, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:25.552052", "command": "ping", "response_length": 736, "response_time": 3.376, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:27.463590", "command": "ping", "response_length": 292, "response_time": 1.895, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:29.799753", "command": "ping", "response_length": 464, "response_time": 2.32, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:32.628064", "command": "ping", "response_length": 508, "response_time": 2.813, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:35.440632", "command": "ping", "response_length": 581, "response_time": 2.797, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:38.291297", "command": "ping", "response_length": 561, "response_time": 2.835, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:40.640407", "command": "ping", "response_length": 408, "response_time": 2.334, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:43.512787", "command": "ping", "response_length": 627, "response_time": 2.857, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:45.783941", "command": "ping", "response_length": 301, "response_time": 2.256, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:48.061142", "command": "ping", "response_length": 388, "response_time": 2.262, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:50.881974", "command": "ping", "response_length": 505, "response_time": 2.806, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:53.799044", "command": "ping", "response_length": 539, "response_time": 2.902, "metadata": {}}
+{"timestamp": "2026-01-01T21:06:56.705689", "command": "ping", "response_length": 552, "response_time": 2.891, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:00.014819", "command": "ping", "response_length": 714, "response_time": 3.293, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:02.343188", "command": "ping", "response_length": 375, "response_time": 2.313, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:04.738672", "command": "ping", "response_length": 442, "response_time": 2.38, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:07.124993", "command": "ping", "response_length": 459, "response_time": 2.371, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:10.482718", "command": "ping", "response_length": 636, "response_time": 3.342, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:13.346850", "command": "ping", "response_length": 637, "response_time": 2.849, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:16.672635", "command": "ping", "response_length": 736, "response_time": 3.311, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:19.026115", "command": "ping", "response_length": 320, "response_time": 2.338, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:21.916946", "command": "ping", "response_length": 650, "response_time": 2.875, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:25.827447", "command": "ping", "response_length": 886, "response_time": 3.895, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:29.238037", "command": "ping", "response_length": 637, "response_time": 3.395, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:32.090965", "command": "ping", "response_length": 610, "response_time": 2.837, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:34.860344", "command": "ping", "response_length": 486, "response_time": 2.753, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:37.679478", "command": "ping", "response_length": 570, "response_time": 2.804, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:41.054394", "command": "ping", "response_length": 766, "response_time": 3.359, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:44.862537", "command": "ping", "response_length": 850, "response_time": 3.792, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:48.184000", "command": "ping", "response_length": 686, "response_time": 3.306, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:52.054288", "command": "ping", "response_length": 951, "response_time": 3.855, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:55.890355", "command": "ping", "response_length": 849, "response_time": 3.821, "metadata": {}}
+{"timestamp": "2026-01-01T21:07:58.746259", "command": "ping", "response_length": 571, "response_time": 2.84, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:02.527537", "command": "ping", "response_length": 885, "response_time": 3.762, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:04.895608", "command": "ping", "response_length": 490, "response_time": 2.353, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:08.735330", "command": "ping", "response_length": 493, "response_time": 3.824, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:10.611756", "command": "ping", "response_length": 279, "response_time": 1.861, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:12.929871", "command": "ping", "response_length": 367, "response_time": 2.302, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:14.687371", "command": "ping", "response_length": 180, "response_time": 1.742, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:17.051247", "command": "ping", "response_length": 435, "response_time": 2.348, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:19.880248", "command": "ping", "response_length": 583, "response_time": 2.813, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:21.782178", "command": "ping", "response_length": 253, "response_time": 1.886, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:24.596018", "command": "ping", "response_length": 560, "response_time": 2.798, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:28.983704", "command": "ping", "response_length": 603, "response_time": 4.372, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:31.287770", "command": "ping", "response_length": 397, "response_time": 2.289, "metadata": {}}
+{"timestamp": "2026-01-01T21:08:34.616842", "command": "ping", "response_length": 707, "response_time": 3.313, "metadata": {}}
+{"timestamp": "2026-01-01T21:09:52.896695", "command": "What files are in the onboarding directory?", "response_length": 508, "response_time": 3.787, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:02.259643", "command": "Tell me about roxy_assistant.py", "response_length": 614, "response_time": 3.009, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:15.620840", "command": "ping", "response_length": 267, "response_time": 2.359, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:15.907741", "command": "what are your capabilities", "response_length": 737, "response_time": 0.27, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:16.696851", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2085, "response_time": 0.773, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:16.795903", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.081, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:17.554070", "command": "RUN_TOOL list_files {\"directory\": \"/home/mark/.roxy\"}", "response_length": 2073, "response_time": 0.74, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:17.645903", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.075, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:17.738409", "command": "run command: ls -la", "response_length": 324, "response_time": 0.076, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:20.855890", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 574, "response_time": 3.101, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:24.733817", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 1192, "response_time": 3.86, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:28.157949", "command": "ping", "response_length": 691, "response_time": 3.389, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:28.881877", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2085, "response_time": 0.716, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:28.889196", "command": "what are your capabilities", "response_length": 711, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:30.712707", "command": "ping", "response_length": 267, "response_time": 1.799, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:33.650778", "command": "ping", "response_length": 531, "response_time": 2.922, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:36.513912", "command": "ping", "response_length": 545, "response_time": 2.847, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:41.233806", "command": "ping", "response_length": 327, "response_time": 4.704, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:45.045895", "command": "ping", "response_length": 840, "response_time": 3.796, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:47.920758", "command": "ping", "response_length": 531, "response_time": 2.859, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:50.229955", "command": "ping", "response_length": 439, "response_time": 2.294, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:53.599689", "command": "ping", "response_length": 693, "response_time": 3.354, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:55.962526", "command": "ping", "response_length": 469, "response_time": 2.346, "metadata": {}}
+{"timestamp": "2026-01-01T21:10:58.320835", "command": "ping", "response_length": 403, "response_time": 2.342, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:00.674663", "command": "ping", "response_length": 444, "response_time": 2.338, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:03.542374", "command": "ping", "response_length": 628, "response_time": 2.852, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:05.892863", "command": "ping", "response_length": 360, "response_time": 2.332, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:08.795331", "command": "ping", "response_length": 560, "response_time": 2.887, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:10.701816", "command": "ping", "response_length": 309, "response_time": 1.89, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:13.095388", "command": "ping", "response_length": 371, "response_time": 2.378, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:15.430839", "command": "ping", "response_length": 474, "response_time": 2.319, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:18.853106", "command": "ping", "response_length": 673, "response_time": 3.406, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:21.253356", "command": "ping", "response_length": 474, "response_time": 2.384, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:24.125458", "command": "ping", "response_length": 595, "response_time": 2.856, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:26.524024", "command": "ping", "response_length": 392, "response_time": 2.382, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:28.390788", "command": "ping", "response_length": 246, "response_time": 1.845, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:30.687326", "command": "ping", "response_length": 374, "response_time": 2.281, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:33.018224", "command": "ping", "response_length": 365, "response_time": 2.315, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:35.389776", "command": "ping", "response_length": 398, "response_time": 2.355, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:37.778353", "command": "ping", "response_length": 393, "response_time": 2.372, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:39.634522", "command": "ping", "response_length": 223, "response_time": 1.84, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:42.087901", "command": "ping", "response_length": 459, "response_time": 2.435, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:44.472387", "command": "ping", "response_length": 406, "response_time": 2.368, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:48.247117", "command": "ping", "response_length": 504, "response_time": 3.759, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:51.095784", "command": "ping", "response_length": 603, "response_time": 2.832, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:53.409632", "command": "ping", "response_length": 429, "response_time": 2.297, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:56.760011", "command": "ping", "response_length": 659, "response_time": 3.334, "metadata": {}}
+{"timestamp": "2026-01-01T21:11:59.178665", "command": "ping", "response_length": 399, "response_time": 2.402, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:01.558043", "command": "ping", "response_length": 498, "response_time": 2.358, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:04.366341", "command": "ping", "response_length": 554, "response_time": 2.792, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:08.724338", "command": "ping", "response_length": 619, "response_time": 4.342, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:11.637427", "command": "ping", "response_length": 513, "response_time": 2.897, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:14.506314", "command": "ping", "response_length": 571, "response_time": 2.853, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:18.660797", "command": "ping", "response_length": 374, "response_time": 4.137, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:21.296653", "command": "ping", "response_length": 464, "response_time": 2.619, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:25.128410", "command": "ping", "response_length": 824, "response_time": 3.815, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:27.525969", "command": "ping", "response_length": 323, "response_time": 2.38, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:29.801295", "command": "ping", "response_length": 454, "response_time": 2.259, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:32.591808", "command": "ping", "response_length": 518, "response_time": 2.774, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:35.394634", "command": "ping", "response_length": 585, "response_time": 2.786, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:37.738808", "command": "ping", "response_length": 403, "response_time": 2.328, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:39.574922", "command": "ping", "response_length": 301, "response_time": 1.819, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:41.954007", "command": "ping", "response_length": 423, "response_time": 2.359, "metadata": {}}
+{"timestamp": "2026-01-01T21:12:45.315966", "command": "ping", "response_length": 795, "response_time": 3.345, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:55.944967", "command": "ping", "response_length": 414, "response_time": 11.251, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:57.794716", "command": "ping", "response_length": 317, "response_time": 1.839, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:57.812900", "command": "what are your capabilities", "response_length": 711, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:58.522097", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2106, "response_time": 0.692, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:58.609384", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.071, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:59.297640", "command": "RUN_TOOL list_files {\"directory\": \"/home/mark/.roxy\"}", "response_length": 2094, "response_time": 0.671, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:59.385384", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.071, "metadata": {}}
+{"timestamp": "2026-01-01T21:25:59.479465", "command": "run command: ls -la", "response_length": 324, "response_time": 0.077, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:02.321488", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 518, "response_time": 2.824, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:05.730096", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 1033, "response_time": 3.39, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:11.459742", "command": "ping", "response_length": 724, "response_time": 5.695, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:12.189884", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2106, "response_time": 0.722, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:12.197393", "command": "what are your capabilities", "response_length": 711, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:14.005772", "command": "ping", "response_length": 198, "response_time": 1.784, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:16.983780", "command": "ping", "response_length": 610, "response_time": 2.962, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:20.397818", "command": "ping", "response_length": 823, "response_time": 3.398, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:22.195353", "command": "ping", "response_length": 245, "response_time": 1.781, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:24.574546", "command": "ping", "response_length": 429, "response_time": 2.363, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:27.352652", "command": "ping", "response_length": 557, "response_time": 2.762, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:29.686149", "command": "ping", "response_length": 319, "response_time": 2.317, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:33.031728", "command": "ping", "response_length": 752, "response_time": 3.327, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:35.389317", "command": "ping", "response_length": 439, "response_time": 2.34, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:38.204235", "command": "ping", "response_length": 584, "response_time": 2.798, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:40.636118", "command": "ping", "response_length": 434, "response_time": 2.415, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:43.533480", "command": "ping", "response_length": 568, "response_time": 2.881, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:45.831960", "command": "ping", "response_length": 511, "response_time": 2.281, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:48.717052", "command": "ping", "response_length": 601, "response_time": 2.869, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:51.065418", "command": "ping", "response_length": 380, "response_time": 2.331, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:53.928712", "command": "ping", "response_length": 546, "response_time": 2.846, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:56.277192", "command": "ping", "response_length": 464, "response_time": 2.332, "metadata": {}}
+{"timestamp": "2026-01-01T21:26:58.608188", "command": "ping", "response_length": 462, "response_time": 2.315, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:01.416390", "command": "ping", "response_length": 513, "response_time": 2.792, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:04.280102", "command": "ping", "response_length": 569, "response_time": 2.848, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:06.661712", "command": "ping", "response_length": 429, "response_time": 2.365, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:08.976620", "command": "ping", "response_length": 501, "response_time": 2.298, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:11.374653", "command": "ping", "response_length": 431, "response_time": 2.381, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:13.745219", "command": "ping", "response_length": 471, "response_time": 2.354, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:16.095468", "command": "ping", "response_length": 473, "response_time": 2.334, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:20.006986", "command": "ping", "response_length": 843, "response_time": 3.895, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:22.414396", "command": "ping", "response_length": 464, "response_time": 2.39, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:25.271815", "command": "ping", "response_length": 638, "response_time": 2.841, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:28.103026", "command": "ping", "response_length": 638, "response_time": 2.814, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:30.957300", "command": "ping", "response_length": 572, "response_time": 2.837, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:33.764268", "command": "ping", "response_length": 502, "response_time": 2.79, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:37.644201", "command": "ping", "response_length": 871, "response_time": 3.861, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:39.983494", "command": "ping", "response_length": 491, "response_time": 2.322, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:42.533288", "command": "ping", "response_length": 466, "response_time": 2.533, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:45.453376", "command": "ping", "response_length": 657, "response_time": 2.902, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:48.298119", "command": "ping", "response_length": 665, "response_time": 2.828, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:51.268505", "command": "ping", "response_length": 501, "response_time": 2.953, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:53.689876", "command": "ping", "response_length": 353, "response_time": 2.405, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:56.471085", "command": "ping", "response_length": 529, "response_time": 2.765, "metadata": {}}
+{"timestamp": "2026-01-01T21:27:59.788594", "command": "ping", "response_length": 721, "response_time": 3.301, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:02.651830", "command": "ping", "response_length": 527, "response_time": 2.847, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:05.589015", "command": "ping", "response_length": 543, "response_time": 2.92, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:08.392677", "command": "ping", "response_length": 534, "response_time": 2.787, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:10.691498", "command": "ping", "response_length": 409, "response_time": 2.282, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:12.975082", "command": "ping", "response_length": 375, "response_time": 2.267, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:15.803349", "command": "ping", "response_length": 642, "response_time": 2.811, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:17.723578", "command": "ping", "response_length": 243, "response_time": 1.903, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:20.191717", "command": "ping", "response_length": 477, "response_time": 2.451, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:23.056515", "command": "ping", "response_length": 598, "response_time": 2.847, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:25.834996", "command": "ping", "response_length": 516, "response_time": 2.762, "metadata": {}}
+{"timestamp": "2026-01-01T21:28:27.245131", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 2106, "response_time": 0.726, "metadata": {}}
+{"timestamp": "2026-01-01T21:29:26.514944", "command": "List the exact onboarding document filenames and paths. Do not hedge. Be specific.", "response_length": 533, "response_time": 5.24, "metadata": {}}
+{"timestamp": "2026-01-01T21:29:27.264965", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/mindsong-juke-hub/docs\"}}", "response_length": 2152, "response_time": 0.729, "metadata": {}}
+{"timestamp": "2026-01-01T21:29:31.291112", "command": "Based on the files we just listed, which onboarding documents exist?", "response_length": 1015, "response_time": 4.01, "metadata": {}}
+{"timestamp": "2026-01-01T21:29:34.720497", "command": "What does the roxy_assistant.py file contain? Be specific about its functions.", "response_length": 778, "response_time": 3.411, "metadata": {}}
+{"timestamp": "2026-01-01T21:32:00.427142", "command": "List the exact onboarding document filenames and paths. Do not hedge. Be specific.", "response_length": 496, "response_time": 2.356, "metadata": {}}
+{"timestamp": "2026-01-01T21:32:01.217150", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/mindsong-juke-hub/docs\"}}", "response_length": 2152, "response_time": 0.766, "metadata": {}}
+{"timestamp": "2026-01-01T21:32:02.092429", "command": "Based on the files we just listed, which onboarding documents exist?", "response_length": 835, "response_time": 0.858, "metadata": {}}
+{"timestamp": "2026-01-01T21:32:02.146522", "command": "What does the roxy_assistant.py file contain? Be specific about its functions.", "response_length": 681, "response_time": 0.034, "metadata": {}}
+{"timestamp": "2026-01-01T21:32:58.818341", "command": "List the exact onboarding document filenames and paths. Do not hedge. Be specific.", "response_length": 634, "response_time": 2.313, "metadata": {}}
+{"timestamp": "2026-01-01T21:32:59.578825", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/mindsong-juke-hub/docs\"}}", "response_length": 2152, "response_time": 0.738, "metadata": {}}
+{"timestamp": "2026-01-01T21:33:00.467439", "command": "Based on the files we just listed, which onboarding documents exist?", "response_length": 835, "response_time": 0.871, "metadata": {}}
+{"timestamp": "2026-01-01T21:33:00.532382", "command": "What does the roxy_assistant.py file contain? Be specific about its functions.", "response_length": 681, "response_time": 0.044, "metadata": {}}
+{"timestamp": "2026-01-01T21:33:07.801917", "command": "Tell me about roxy_assistant.py", "response_length": 517, "response_time": 0.058, "metadata": {}}
+{"timestamp": "2026-01-01T21:50:14.207575", "command": "Which onboarding documents exist?", "response_length": 1070, "response_time": 4.52, "metadata": {}}
+{"timestamp": "2026-01-01T21:50:23.145965", "command": "List exact onboarding documents in docs/onboarding", "response_length": 1011, "response_time": 0.111, "metadata": {}}
+{"timestamp": "2026-01-01T21:51:11.967637", "command": "Which onboarding documents exist?", "response_length": 960, "response_time": 0.871, "metadata": {}}
+{"timestamp": "2026-01-01T21:51:40.184176", "command": "Which onboarding documents exist?", "response_length": 960, "response_time": 0.021, "metadata": {}}
+{"timestamp": "2026-01-01T21:52:34.215579", "command": "Which onboarding documents exist?", "response_length": 960, "response_time": 2.131, "metadata": {}}
+{"timestamp": "2026-01-01T21:53:34.081882", "command": "Which onboarding documents exist?", "response_length": 960, "response_time": 0.907, "metadata": {}}
+{"timestamp": "2026-01-01T21:54:58.305744", "command": "Which onboarding documents exist?", "response_length": 960, "response_time": 0.825, "metadata": {}}
+{"timestamp": "2026-01-01T21:55:34.608457", "command": "Which onboarding documents exist?", "response_length": 1419, "response_time": 0.794, "metadata": {}}
+{"timestamp": "2026-01-01T21:55:45.853760", "command": "List the exact onboarding document filenames and paths. Do not hedge. Be specific.", "response_length": 364, "response_time": 1.857, "metadata": {}}
+{"timestamp": "2026-01-01T21:55:46.013851", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/mindsong-juke-hub/docs\"}}", "response_length": 6510, "response_time": 0.139, "metadata": {}}
+{"timestamp": "2026-01-01T21:55:46.272653", "command": "Based on the files we just listed, which onboarding documents exist?", "response_length": 1524, "response_time": 0.241, "metadata": {}}
+{"timestamp": "2026-01-01T21:55:47.197616", "command": "What does the roxy_assistant.py file contain? Be specific about its functions.", "response_length": 1038, "response_time": 0.904, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:54.694763", "command": "ping", "response_length": 116, "response_time": 3.356, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:55.700180", "command": "what are your capabilities", "response_length": 733, "response_time": 0.984, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:55.788718", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 291, "response_time": 0.071, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:55.888730", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.083, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:55.996542", "command": "RUN_TOOL list_files {\"directory\": \"/home/mark/.roxy\"}", "response_length": 279, "response_time": 0.091, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:56.089841", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.076, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:56.186170", "command": "run command: ls -la", "response_length": 324, "response_time": 0.078, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:57.973015", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 202, "response_time": 1.768, "metadata": {}}
+{"timestamp": "2026-01-01T21:56:59.830742", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 552, "response_time": 1.839, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:02.201316", "command": "ping", "response_length": 116, "response_time": 2.335, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:02.285666", "command": "{\"tool\": \"list_files\", \"args\": {\"directory\": \"/home/mark/.roxy\"}}", "response_length": 291, "response_time": 0.075, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:02.293301", "command": "what are your capabilities", "response_length": 707, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:05.470322", "command": "ping", "response_length": 116, "response_time": 3.158, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:07.302339", "command": "ping", "response_length": 116, "response_time": 1.814, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:09.111072", "command": "ping", "response_length": 116, "response_time": 1.786, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:10.972406", "command": "ping", "response_length": 116, "response_time": 1.844, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:12.801882", "command": "ping", "response_length": 116, "response_time": 1.812, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:14.673039", "command": "ping", "response_length": 116, "response_time": 1.854, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:16.546298", "command": "ping", "response_length": 116, "response_time": 1.856, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:18.413244", "command": "ping", "response_length": 116, "response_time": 1.85, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:20.448099", "command": "ping", "response_length": 116, "response_time": 2.018, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:22.299548", "command": "ping", "response_length": 116, "response_time": 1.834, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:25.151231", "command": "ping", "response_length": 116, "response_time": 2.835, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:26.964631", "command": "ping", "response_length": 116, "response_time": 1.796, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:28.770302", "command": "ping", "response_length": 116, "response_time": 1.789, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:30.585533", "command": "ping", "response_length": 116, "response_time": 1.798, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:32.389197", "command": "ping", "response_length": 116, "response_time": 1.787, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:34.198326", "command": "ping", "response_length": 116, "response_time": 1.792, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:36.083555", "command": "ping", "response_length": 116, "response_time": 1.868, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:37.950903", "command": "ping", "response_length": 116, "response_time": 1.85, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:39.768272", "command": "ping", "response_length": 116, "response_time": 1.799, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:41.576349", "command": "ping", "response_length": 116, "response_time": 1.791, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:43.368485", "command": "ping", "response_length": 116, "response_time": 1.775, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:45.253151", "command": "ping", "response_length": 116, "response_time": 1.868, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:47.079219", "command": "ping", "response_length": 116, "response_time": 1.809, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:48.900340", "command": "ping", "response_length": 116, "response_time": 1.803, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:50.805992", "command": "ping", "response_length": 116, "response_time": 1.888, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:52.655952", "command": "ping", "response_length": 116, "response_time": 1.833, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:54.428022", "command": "ping", "response_length": 116, "response_time": 1.755, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:56.215250", "command": "ping", "response_length": 116, "response_time": 1.77, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:58.009015", "command": "ping", "response_length": 116, "response_time": 1.777, "metadata": {}}
+{"timestamp": "2026-01-01T21:57:59.811875", "command": "ping", "response_length": 116, "response_time": 1.786, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:01.626171", "command": "ping", "response_length": 116, "response_time": 1.797, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:06.971268", "command": "ping", "response_length": 116, "response_time": 5.328, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:08.839375", "command": "ping", "response_length": 116, "response_time": 1.857, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:10.669306", "command": "ping", "response_length": 116, "response_time": 1.813, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:12.518890", "command": "ping", "response_length": 116, "response_time": 1.833, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:14.874212", "command": "ping", "response_length": 116, "response_time": 2.338, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:16.694819", "command": "ping", "response_length": 116, "response_time": 1.804, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:18.439326", "command": "ping", "response_length": 116, "response_time": 1.728, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:20.420238", "command": "ping", "response_length": 116, "response_time": 1.964, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:22.238143", "command": "ping", "response_length": 116, "response_time": 1.801, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:24.147733", "command": "ping", "response_length": 116, "response_time": 1.892, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:26.041566", "command": "ping", "response_length": 116, "response_time": 1.877, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:27.897756", "command": "ping", "response_length": 116, "response_time": 1.839, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:29.673895", "command": "ping", "response_length": 116, "response_time": 1.759, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:31.454672", "command": "ping", "response_length": 116, "response_time": 1.764, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:33.273659", "command": "ping", "response_length": 116, "response_time": 1.802, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:36.419716", "command": "ping", "response_length": 116, "response_time": 3.127, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:38.228782", "command": "ping", "response_length": 116, "response_time": 1.792, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:40.100288", "command": "ping", "response_length": 116, "response_time": 1.854, "metadata": {}}
+{"timestamp": "2026-01-01T21:58:41.943008", "command": "ping", "response_length": 116, "response_time": 1.825, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:18.511410", "command": "ping", "response_length": 116, "response_time": 1.833, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:18.530210", "command": "what are your capabilities", "response_length": 707, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:19.138640", "command": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}", "response_length": 3788, "response_time": 0.59, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:19.237437", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.08, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:19.816889", "command": "RUN_TOOL list_files {\"path\": \"/home/mark/.roxy\"}", "response_length": 3776, "response_time": 0.561, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:19.904288", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.07, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:19.992843", "command": "run command: ls -la", "response_length": 324, "response_time": 0.071, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:21.951701", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 202, "response_time": 1.942, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:23.877614", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 552, "response_time": 1.907, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:25.769590", "command": "ping", "response_length": 116, "response_time": 1.857, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:25.782242", "command": "what are your capabilities", "response_length": 707, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:26.341646", "command": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}", "response_length": 3788, "response_time": 0.541, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:28.160182", "command": "ping", "response_length": 116, "response_time": 1.798, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:30.016938", "command": "ping", "response_length": 116, "response_time": 1.839, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:32.349832", "command": "ping", "response_length": 116, "response_time": 2.316, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:34.196998", "command": "ping", "response_length": 116, "response_time": 1.829, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:36.034093", "command": "ping", "response_length": 116, "response_time": 1.82, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:37.857706", "command": "ping", "response_length": 116, "response_time": 1.807, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:39.698911", "command": "ping", "response_length": 116, "response_time": 1.824, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:41.518702", "command": "ping", "response_length": 116, "response_time": 1.802, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:43.308345", "command": "ping", "response_length": 116, "response_time": 1.773, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:45.106895", "command": "ping", "response_length": 116, "response_time": 1.782, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:51.686781", "command": "ping", "response_length": 116, "response_time": 6.563, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:53.553379", "command": "ping", "response_length": 116, "response_time": 1.856, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:55.425380", "command": "ping", "response_length": 116, "response_time": 1.855, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:57.267453", "command": "ping", "response_length": 116, "response_time": 1.824, "metadata": {}}
+{"timestamp": "2026-01-01T21:59:59.162942", "command": "ping", "response_length": 116, "response_time": 1.878, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:00.994034", "command": "ping", "response_length": 116, "response_time": 1.813, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:02.846404", "command": "ping", "response_length": 116, "response_time": 1.835, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:04.633775", "command": "ping", "response_length": 116, "response_time": 1.77, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:06.440170", "command": "ping", "response_length": 116, "response_time": 1.789, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:08.258818", "command": "ping", "response_length": 116, "response_time": 1.802, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:10.158996", "command": "ping", "response_length": 116, "response_time": 1.879, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:11.950219", "command": "ping", "response_length": 116, "response_time": 1.774, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:13.788529", "command": "ping", "response_length": 116, "response_time": 1.821, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:15.578616", "command": "ping", "response_length": 116, "response_time": 1.773, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:17.350571", "command": "ping", "response_length": 116, "response_time": 1.755, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:19.146098", "command": "ping", "response_length": 116, "response_time": 1.779, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:20.998952", "command": "ping", "response_length": 116, "response_time": 1.836, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:22.933139", "command": "ping", "response_length": 116, "response_time": 1.917, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:24.795586", "command": "ping", "response_length": 116, "response_time": 1.845, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:26.571239", "command": "ping", "response_length": 116, "response_time": 1.758, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:28.392889", "command": "ping", "response_length": 116, "response_time": 1.805, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:30.669307", "command": "ping", "response_length": 116, "response_time": 2.259, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:32.520621", "command": "ping", "response_length": 116, "response_time": 1.834, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:34.369557", "command": "ping", "response_length": 116, "response_time": 1.832, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:36.242753", "command": "ping", "response_length": 116, "response_time": 1.856, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:38.154872", "command": "ping", "response_length": 116, "response_time": 1.894, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:39.991388", "command": "ping", "response_length": 116, "response_time": 1.819, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:41.832849", "command": "ping", "response_length": 116, "response_time": 1.824, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:43.616345", "command": "ping", "response_length": 116, "response_time": 1.766, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:45.438039", "command": "ping", "response_length": 116, "response_time": 1.804, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:48.239515", "command": "ping", "response_length": 116, "response_time": 2.783, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:50.072617", "command": "ping", "response_length": 116, "response_time": 1.816, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:51.876186", "command": "ping", "response_length": 116, "response_time": 1.785, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:53.731883", "command": "ping", "response_length": 116, "response_time": 1.839, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:55.940789", "command": "ping", "response_length": 116, "response_time": 2.192, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:57.789556", "command": "ping", "response_length": 116, "response_time": 1.832, "metadata": {}}
+{"timestamp": "2026-01-01T22:00:59.618485", "command": "ping", "response_length": 116, "response_time": 1.812, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:01.368998", "command": "ping", "response_length": 116, "response_time": 1.733, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:03.202437", "command": "ping", "response_length": 116, "response_time": 1.817, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:05.010410", "command": "ping", "response_length": 116, "response_time": 1.791, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:37.998633", "command": "Which onboarding documents exist?", "response_length": 1348, "response_time": 0.146, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:44.727072", "command": "Which onboarding documents exist?", "response_length": 1191, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:52.143812", "command": "Which onboarding documents exist?", "response_length": 1191, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T22:01:58.950302", "command": "Tell me about roxy_assistant.py", "response_length": 781, "response_time": 0.99, "metadata": {}}
+{"timestamp": "2026-01-01T22:31:14.888751", "command": "Tell me about roxy_assistant.py", "response_length": 754, "response_time": 0.988, "metadata": {}}
+{"timestamp": "2026-01-01T22:31:14.901298", "command": "hey roxy how you feeling today", "response_length": 168, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:20.613740", "command": "Which onboarding documents exist?", "response_length": 1301, "response_time": 0.131, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:20.776200", "command": "Which onboarding documents exist?", "response_length": 1301, "response_time": 0.135, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:27.644312", "command": "Which onboarding documents exist?", "response_length": 1301, "response_time": 0.121, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:28.773754", "command": "Which onboarding documents exist?", "response_length": 1301, "response_time": 0.113, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:37.825686", "command": "ping", "response_length": 116, "response_time": 1.751, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:37.865388", "command": "what are your capabilities", "response_length": 707, "response_time": 0.021, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:38.368831", "command": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}", "response_length": 3785, "response_time": 0.485, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:38.452136", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.067, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:39.070325", "command": "RUN_TOOL list_files {\"path\": \"/home/mark/.roxy\"}", "response_length": 3773, "response_time": 0.602, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:39.151914", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.066, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:39.233098", "command": "run command: ls -la", "response_length": 324, "response_time": 0.066, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:41.489589", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 202, "response_time": 2.241, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:43.331431", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 552, "response_time": 1.823, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:43.386978", "command": "what are your capabilities", "response_length": 707, "response_time": 0.02, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:45.228328", "command": "ping", "response_length": 116, "response_time": 1.832, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:45.801433", "command": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}", "response_length": 3785, "response_time": 0.564, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:48.194755", "command": "ping", "response_length": 116, "response_time": 2.371, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:49.962402", "command": "ping", "response_length": 116, "response_time": 1.751, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:51.769844", "command": "ping", "response_length": 116, "response_time": 1.791, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:53.533384", "command": "ping", "response_length": 116, "response_time": 1.747, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:55.315850", "command": "ping", "response_length": 116, "response_time": 1.766, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:57.241485", "command": "ping", "response_length": 116, "response_time": 1.908, "metadata": {}}
+{"timestamp": "2026-01-01T22:32:59.082284", "command": "ping", "response_length": 116, "response_time": 1.824, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:00.874272", "command": "ping", "response_length": 116, "response_time": 1.775, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:02.607686", "command": "ping", "response_length": 116, "response_time": 1.716, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:04.679509", "command": "ping", "response_length": 116, "response_time": 2.055, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:06.425678", "command": "ping", "response_length": 116, "response_time": 1.729, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:08.273628", "command": "ping", "response_length": 116, "response_time": 1.831, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:10.102304", "command": "ping", "response_length": 116, "response_time": 1.812, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:11.878773", "command": "ping", "response_length": 116, "response_time": 1.76, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:13.752015", "command": "ping", "response_length": 116, "response_time": 1.856, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:17.223671", "command": "ping", "response_length": 116, "response_time": 3.455, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:19.079781", "command": "ping", "response_length": 116, "response_time": 1.839, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:20.918742", "command": "ping", "response_length": 116, "response_time": 1.822, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:22.734110", "command": "ping", "response_length": 116, "response_time": 1.796, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:24.570534", "command": "ping", "response_length": 116, "response_time": 1.819, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:26.362341", "command": "ping", "response_length": 116, "response_time": 1.775, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:28.251109", "command": "ping", "response_length": 116, "response_time": 1.872, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:30.132050", "command": "ping", "response_length": 116, "response_time": 1.864, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:32.025027", "command": "ping", "response_length": 116, "response_time": 1.876, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:33.892518", "command": "ping", "response_length": 116, "response_time": 1.851, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:35.884615", "command": "ping", "response_length": 116, "response_time": 1.975, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:37.747005", "command": "ping", "response_length": 116, "response_time": 1.845, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:39.643594", "command": "ping", "response_length": 116, "response_time": 1.879, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:41.623488", "command": "ping", "response_length": 116, "response_time": 1.931, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:43.892374", "command": "ping", "response_length": 116, "response_time": 2.252, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:45.859754", "command": "ping", "response_length": 116, "response_time": 1.95, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:50.339521", "command": "ping", "response_length": 116, "response_time": 4.463, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:53.177968", "command": "ping", "response_length": 116, "response_time": 2.821, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:55.030763", "command": "ping", "response_length": 116, "response_time": 1.836, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:56.837053", "command": "ping", "response_length": 116, "response_time": 1.79, "metadata": {}}
+{"timestamp": "2026-01-01T22:33:58.631735", "command": "ping", "response_length": 116, "response_time": 1.777, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:00.542962", "command": "ping", "response_length": 116, "response_time": 1.894, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:02.367746", "command": "ping", "response_length": 116, "response_time": 1.808, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:04.116153", "command": "ping", "response_length": 116, "response_time": 1.731, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:05.942861", "command": "ping", "response_length": 116, "response_time": 1.81, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:07.692042", "command": "ping", "response_length": 116, "response_time": 1.732, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:09.576777", "command": "ping", "response_length": 116, "response_time": 1.868, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:12.848917", "command": "ping", "response_length": 116, "response_time": 3.255, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:14.621655", "command": "ping", "response_length": 116, "response_time": 1.756, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:18.418744", "command": "ping", "response_length": 116, "response_time": 3.78, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:20.313083", "command": "ping", "response_length": 116, "response_time": 1.877, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:22.076258", "command": "ping", "response_length": 116, "response_time": 1.746, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:23.919128", "command": "ping", "response_length": 116, "response_time": 1.826, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:25.651787", "command": "ping", "response_length": 116, "response_time": 1.716, "metadata": {}}
+{"timestamp": "2026-01-01T22:34:27.384137", "command": "ping", "response_length": 116, "response_time": 1.715, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:24.644290", "command": "ping", "response_length": 536, "response_time": 11.107, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:26.059969", "command": "what are your capabilities", "response_length": 750, "response_time": 1.404, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:26.981387", "command": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}", "response_length": 3827, "response_time": 0.905, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:27.084664", "command": "{\"tool\": \"read_file\", \"args\": {\"file_path\": \"/home/mark/.roxy/config.json\", \"max_lines\": 5}}", "response_length": 722, "response_time": 0.085, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:27.916267", "command": "RUN_TOOL list_files {\"path\": \"/home/mark/.roxy\"}", "response_length": 3815, "response_time": 0.811, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:28.014235", "command": "open firefox to google.com", "response_length": 333, "response_time": 0.079, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:28.121345", "command": "run command: ls -la", "response_length": 324, "response_time": 0.088, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:32.087905", "command": "echo \"hello world\" with <brackets> and $symbols", "response_length": 639, "response_time": 3.939, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:36.791660", "command": "This is a very long command intended to test the handling of large inputs with many words and characters to ensure the JSON encoding properly escapes everything without breaking the parser or causing ", "response_length": 1401, "response_time": 4.674, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:36.831228", "command": "what are your capabilities", "response_length": 724, "response_time": 0.0, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:37.787231", "command": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}", "response_length": 3827, "response_time": 0.947, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:41.637118", "command": "ping", "response_length": 472, "response_time": 3.841, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:45.332909", "command": "ping", "response_length": 292, "response_time": 3.675, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:48.519246", "command": "ping", "response_length": 430, "response_time": 3.163, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:52.123295", "command": "ping", "response_length": 604, "response_time": 3.587, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:55.286283", "command": "ping", "response_length": 426, "response_time": 3.146, "metadata": {}}
+{"timestamp": "2026-01-01T22:58:57.912157", "command": "ping", "response_length": 399, "response_time": 2.603, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:01.947882", "command": "ping", "response_length": 388, "response_time": 4.019, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:06.286673", "command": "ping", "response_length": 653, "response_time": 4.322, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:09.815227", "command": "ping", "response_length": 473, "response_time": 3.509, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:15.763424", "command": "ping", "response_length": 423, "response_time": 5.931, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:20.032551", "command": "ping", "response_length": 454, "response_time": 4.256, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:24.460448", "command": "ping", "response_length": 645, "response_time": 4.417, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:27.621919", "command": "ping", "response_length": 421, "response_time": 3.141, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:31.793610", "command": "ping", "response_length": 813, "response_time": 4.153, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:34.734597", "command": "ping", "response_length": 362, "response_time": 2.924, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:38.412641", "command": "ping", "response_length": 616, "response_time": 3.661, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:41.772187", "command": "ping", "response_length": 456, "response_time": 3.343, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:44.984948", "command": "ping", "response_length": 429, "response_time": 3.196, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:48.981514", "command": "ping", "response_length": 695, "response_time": 3.98, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:51.805252", "command": "ping", "response_length": 390, "response_time": 2.799, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:54.868543", "command": "ping", "response_length": 591, "response_time": 3.046, "metadata": {}}
+{"timestamp": "2026-01-01T22:59:58.041153", "command": "ping", "response_length": 484, "response_time": 3.149, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:00.207358", "command": "ping", "response_length": 276, "response_time": 2.149, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:03.653964", "command": "ping", "response_length": 527, "response_time": 3.43, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:06.214884", "command": "ping", "response_length": 386, "response_time": 2.54, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:08.826900", "command": "ping", "response_length": 321, "response_time": 2.595, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:12.689226", "command": "ping", "response_length": 612, "response_time": 3.845, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:15.828005", "command": "ping", "response_length": 278, "response_time": 3.122, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:20.644211", "command": "ping", "response_length": 789, "response_time": 4.799, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:26.345609", "command": "ping", "response_length": 816, "response_time": 5.653, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:34.714693", "command": "ping", "response_length": 741, "response_time": 8.338, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:39.735900", "command": "ping", "response_length": 815, "response_time": 5.01, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:43.398566", "command": "ping", "response_length": 451, "response_time": 3.645, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:48.008505", "command": "ping", "response_length": 402, "response_time": 4.599, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:54.627163", "command": "ping", "response_length": 615, "response_time": 6.59, "metadata": {}}
+{"timestamp": "2026-01-01T23:00:59.293668", "command": "ping", "response_length": 815, "response_time": 4.636, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:03.404285", "command": "ping", "response_length": 432, "response_time": 4.1, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:09.878796", "command": "ping", "response_length": 613, "response_time": 6.452, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:15.447848", "command": "ping", "response_length": 762, "response_time": 5.552, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:20.596369", "command": "ping", "response_length": 427, "response_time": 5.133, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:25.075094", "command": "ping", "response_length": 433, "response_time": 4.465, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:30.056208", "command": "ping", "response_length": 756, "response_time": 4.947, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:34.948262", "command": "ping", "response_length": 475, "response_time": 4.881, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:40.277893", "command": "ping", "response_length": 610, "response_time": 5.296, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:44.780075", "command": "ping", "response_length": 445, "response_time": 4.48, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:47.715313", "command": "ping", "response_length": 483, "response_time": 2.925, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:51.645276", "command": "ping", "response_length": 510, "response_time": 3.919, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:55.356003", "command": "ping", "response_length": 534, "response_time": 3.701, "metadata": {}}
+{"timestamp": "2026-01-01T23:01:58.223058", "command": "ping", "response_length": 303, "response_time": 2.812, "metadata": {}}
+{"timestamp": "2026-01-01T23:02:01.164661", "command": "ping", "response_length": 462, "response_time": 2.924, "metadata": {}}
+{"timestamp": "2026-01-01T23:02:05.873429", "command": "ping", "response_length": 693, "response_time": 4.692, "metadata": {}}
+{"timestamp": "2026-01-01T23:02:20.274592", "command": "RUN_TOOL list_files {\"path\":\"~/.roxy\",\"pattern\":\"*.py\"}", "response_length": 5497, "response_time": 0.362, "metadata": {}}

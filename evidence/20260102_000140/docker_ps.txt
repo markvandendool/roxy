@@ -1,0 +1,13 @@
+homeassistant	Up 2 hours	
+wyoming-whisper	Up 2 hours	0.0.0.0:10300->10300/tcp, [::]:10300->10300/tcp, 10400/tcp
+wyoming-piper	Up 2 hours	0.0.0.0:10200->10200/tcp, [::]:10200->10200/tcp, 10400/tcp
+wyoming-openwakeword	Up 2 hours	0.0.0.0:10400->10400/tcp, [::]:10400->10400/tcp
+roxy-n8n	Up 3 seconds (health: starting)	0.0.0.0:5678->5678/tcp, [::]:5678->5678/tcp
+roxy-minio	Up 2 hours (healthy)	0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+roxy-chromadb	Up 2 hours (unhealthy)	0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+roxy-postgres	Up 2 hours (healthy)	0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+roxy-infisical	Up 8 seconds	443/tcp, 0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+roxy-infisical-mongo	Up 2 hours	27017/tcp
+roxy-caddy	Up 2 hours	0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 443/udp, 2019/tcp
+roxy-redis	Up 2 hours (healthy)	0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+roxy-nats	Up 2 hours (healthy)	0.0.0.0:4222->4222/tcp, [::]:4222->4222/tcp, 0.0.0.0:8222->8222/tcp, [::]:8222->8222/tcp, 6222/tcp

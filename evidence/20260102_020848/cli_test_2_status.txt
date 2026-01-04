@@ -1,0 +1,15 @@
+[ROXY] Processing: what is new today
+[ROXY] Routing to: status_today []
+
+📝 **Git Activity**: No commits today
+
+📦 **Recent Evidence**:
+  - 20260102_013012_FINAL_FIX
+  - FINAL_EVIDENCE_WITH_CLI_PROOF_20260102_013813.tar.gz
+  - CHIEF_VALIDATION_20260102_013140.tar.gz
+
+🤖 **ROXY Core**: active
+
+⏰ **Current Time**: 2026-01-02 02:05:24
+
+⚠️ Confidence: low (63%)

@@ -1,0 +1,3 @@
+/home/mark/.roxy/evidence/20260102_020848/cli_test_1_greeting.txt:[ROXY] Routing to: greeting []
+/home/mark/.roxy/evidence/20260102_020848/cli_test_2_status.txt:[ROXY] Routing to: status_today []
+/home/mark/.roxy/evidence/20260102_020848/cli_test_3_rag.txt:[ROXY] Routing to: rag ['what is roxy']

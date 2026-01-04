@@ -1,0 +1,11 @@
+9458 dumb-init -- chroma run /config.yaml
+10307 chroma run /config.yaml
+11275 /home/mark/.roxy/venv/bin/python3 /home/mark/.roxy/mcp/mcp_server.py
+762751 bun /opt/roxy/mcp-servers-official/src/filesystem/dist/index.js
+763676 node /home/mark/.npm/_npx/3dfbf5a9eea4a1b3/node_modules/.bin/mcp-server-github
+809812 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+1203474 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_client.py
+3651674 /opt/roxy/venv/bin/python /opt/roxy/voice/pipeline.py
+4059772 /usr/bin/bash -O extglob -c snap=$(command cat <&3) && builtin shopt -s extglob && builtin eval -- "$snap" && { builtin set +u 2>/dev/null || true; builtin export PWD="$(builtin pwd)"; builtin eval "$1" < /dev/null; }; COMMAND_EXIT_CODE=$?; dump_bash_state >&4; builtin exit $COMMAND_EXIT_CODE -- cd /opt/roxy && python3 scripts/index_mindsong_repo_resume.py --yes > /tmp/indexing.log 2>&1 & echo "Indexing started in background (PID: $!)" echo "Monitor with: tail -f /tmp/indexing.log"
+4059773 python3 scripts/index_mindsong_repo_resume.py --yes
+4071624 /opt/roxy/venv/bin/python /opt/roxy/voice/pipeline.py

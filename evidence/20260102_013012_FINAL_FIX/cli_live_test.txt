@@ -1,0 +1,14 @@
+🤖 ROXY Interactive Chat (using ~/.roxy stack)
+============================================================
+ROXY TERMINAL CHAT
+============================================================
+
+✓ Connected to ROXY core
+
+Type your commands or questions.
+Type 'exit', 'quit', or press Ctrl+D to close.
+
+🎤 You: 🤖 ROXY: [ROXY] Processing: hi roxy
+[ROXY] Routing to: greeting []
+
+Hello! I'm ROXY, your local AI assistant. I can help with git operations, OBS streaming control, and knowledge base queries. What can I help you with?

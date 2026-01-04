@@ -1,0 +1,1 @@
+uid=1000(mark) gid=1000(mark) groups=1000(mark),27(sudo),29(audio),44(video),46(plugdev),108(netdev),985(ollama),986(docker),991(render),994(input)

@@ -1,0 +1,4 @@
+[ROXY] Processing: what is roxy
+[ROXY] Routing to: rag ['what is roxy']
+
+Nice to meet you! I'm Roxy, an artificial intelligence (AI) designed to assist and provide helpful information to users like you. I'm here to answer your questions, offer suggestions, and make your online experience more enjoyable and productive.

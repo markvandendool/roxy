@@ -1,0 +1,75 @@
+LISTEN 0      511                                      127.0.0.1:45975 0.0.0.0:* users:(("code",pid=761454,fd=95))            
+LISTEN 0      10                                      172.17.0.1:33849 0.0.0.0:* users:(("rygel",pid=757174,fd=31))           
+LISTEN 0      10                                       127.0.0.1:40138 0.0.0.0:* users:(("rygel",pid=757174,fd=15))           
+LISTEN 0      5                                        127.0.0.1:61209 0.0.0.0:*                                              
+LISTEN 0      10                                      172.19.0.1:35002 0.0.0.0:* users:(("rygel",pid=757174,fd=27))           
+LISTEN 0      10                                      172.18.0.1:46341 0.0.0.0:* users:(("rygel",pid=757174,fd=23))           
+LISTEN 0      4096                                     127.0.0.1:11434 0.0.0.0:*                                              
+LISTEN 0      511                                      127.0.0.1:9135  0.0.0.0:* users:(("node",pid=1434502,fd=18))           
+LISTEN 0      5                                        127.0.0.1:8766  0.0.0.0:* users:(("python",pid=809812,fd=4))           
+LISTEN 0      4096                                 127.0.0.53%lo:53    0.0.0.0:*                                              
+LISTEN 0      511                                      127.0.0.1:5332  0.0.0.0:* users:(("code",pid=764763,fd=44))            
+LISTEN 0      10                                       10.0.0.99:39693 0.0.0.0:* users:(("rygel",pid=757174,fd=19))           
+LISTEN 0      4096                                     127.0.0.1:631   0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:10300 0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:10400 0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:10200 0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:8222  0.0.0.0:*                                              
+LISTEN 0      5                                          0.0.0.0:8765  0.0.0.0:* users:(("python3",pid=11275,fd=3))           
+LISTEN 0      4096                                       0.0.0.0:9001  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:9000  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:8000  0.0.0.0:*                                              
+LISTEN 0      128                                        0.0.0.0:8123  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:8080  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:6379  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:5432  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:5678  0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:4222  0.0.0.0:*                                              
+LISTEN 0      4096                                    127.0.0.54:53    0.0.0.0:*                                              
+LISTEN 0      4096                                     127.0.0.1:18554 0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:22    0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:80    0.0.0.0:*                                              
+LISTEN 0      4096                                       0.0.0.0:443   0.0.0.0:*                                              
+LISTEN 0      10               [fe80::4865:c791:3eee:23d]%wlp2s0:48916    [::]:* users:(("rygel",pid=757174,fd=51))           
+LISTEN 0      10        [2604:3d09:8d7a:ffb0:ba4f:be48:331:b0d1]:47683    [::]:* users:(("rygel",pid=757174,fd=43))           
+LISTEN 0      10         [fe80::a085:5dff:fe64:f91b]%veth82f2c2b:50223    [::]:* users:(("rygel",pid=757174,fd=63))           
+LISTEN 0      10                     [2604:3d09:8d7a:ffb0::9750]:46290    [::]:* users:(("rygel",pid=757174,fd=39))           
+LISTEN 0      10         [fe80::b49e:e8ff:feae:ae93]%veth3ce5733:33238    [::]:* users:(("rygel",pid=757174,fd=112))          
+LISTEN 0      2                                            [::1]:3350     [::]:*                                              
+LISTEN 0      10         [fe80::30fa:d3ff:fe0a:2bd0]%veth4fea2c3:60717    [::]:* users:(("rygel",pid=757174,fd=67))           
+LISTEN 0      10         [fe80::d4df:1aff:fe1a:3f15]%veth0744803:48884    [::]:* users:(("rygel",pid=757174,fd=71))           
+LISTEN 0      4096                                         [::1]:631      [::]:*                                              
+LISTEN 0      10         [fe80::c897:c9ff:fe43:cbae]%veth097c0e1:52188    [::]:* users:(("rygel",pid=757174,fd=87))           
+LISTEN 0      10          [fe80::7861:27ff:fe47:f98]%vethd86ba3d:52503    [::]:* users:(("rygel",pid=757174,fd=79))           
+LISTEN 0      10         [fe80::b411:ccff:feaa:f88b]%veth5b7e442:39143    [::]:* users:(("rygel",pid=757174,fd=95))           
+LISTEN 0      10        [2604:3d09:8d7a:ffb0:9d2b:8895:4aa9:59d]:53096    [::]:* users:(("rygel",pid=757174,fd=47))           
+LISTEN 0      4096                                             *:18555       *:*                                              
+LISTEN 0      10                                           [::1]:43142    [::]:* users:(("rygel",pid=757174,fd=35))           
+LISTEN 0      10          [fe80::d499:b5ff:feca:dff]%veth520b385:52971    [::]:* users:(("rygel",pid=757174,fd=103))          
+LISTEN 0      4096                                          [::]:10300    [::]:*                                              
+LISTEN 0      4096                                          [::]:10400    [::]:*                                              
+LISTEN 0      4096                                          [::]:10200    [::]:*                                              
+LISTEN 0      4096                                          [::]:8222     [::]:*                                              
+LISTEN 0      4096                                          [::]:9001     [::]:*                                              
+LISTEN 0      4096                                          [::]:9000     [::]:*                                              
+LISTEN 0      4096                                             *:9100        *:*                                              
+LISTEN 0      4096                                             *:9090        *:*                                              
+LISTEN 0      10         [fe80::e875:a4ff:fe9b:2307]%vethbc467a6:48269    [::]:* users:(("rygel",pid=757174,fd=83))           
+LISTEN 0      4096                                          [::]:8000     [::]:*                                              
+LISTEN 0      128                                           [::]:8123     [::]:*                                              
+LISTEN 0      4096                                          [::]:8080     [::]:*                                              
+LISTEN 0      4096                                          [::]:6379     [::]:*                                              
+LISTEN 0      10         [fe80::78d3:e8ff:feba:d668]%vethbf7e05f:43890    [::]:* users:(("rygel",pid=757174,fd=91))           
+LISTEN 0      4096                                          [::]:5432     [::]:*                                              
+LISTEN 0      4096                                          [::]:5678     [::]:*                                              
+LISTEN 0      4096                                          [::]:4222     [::]:*                                              
+LISTEN 0      10     [fe80::e0ca:24ff:fe49:8e55]%br-0b5d1324bf3a:35021    [::]:* users:(("rygel",pid=757174,fd=55))           
+LISTEN 0      2                                                *:3389        *:*                                              
+LISTEN 0      10                                               *:3390        *:* users:(("gnome-remote-de",pid=1427357,fd=18))
+LISTEN 0      10     [fe80::c09a:64ff:fe26:bdd6]%br-7a8f95333408:59324    [::]:* users:(("rygel",pid=757174,fd=59))           
+LISTEN 0      4096                                             *:3000        *:*                                              
+LISTEN 0      10          [fe80::308f:cff:fe60:8816]%veth1b750d9:47469    [::]:* users:(("rygel",pid=757174,fd=99))           
+LISTEN 0      4096                                          [::]:22       [::]:*                                              
+LISTEN 0      4096                                          [::]:80       [::]:*                                              
+LISTEN 0      10         [fe80::9431:d3ff:fe31:b57d]%veth3e1999a:47904    [::]:* users:(("rygel",pid=757174,fd=75))           
+LISTEN 0      4096                                          [::]:443      [::]:*                                              

@@ -1,0 +1,35 @@
+=== PID 4059773 ===
+UID          PID    PPID  C STIME TTY          TIME CMD
+mark     4059773 4059772 99 02:12 ?        2-00:17:59 python3 scripts/index_mindsong_repo_resume.py --yes
+--- lsof (first 30 lines) ---
+COMMAND     PID USER   FD      TYPE             DEVICE SIZE/OFF       NODE NAME
+python3 4059773 mark  cwd       DIR              259,5     4096  109051909 /opt/roxy
+python3 4059773 mark  rtd       DIR              259,5     4096          2 /
+python3 4059773 mark  txt       REG              259,5  8016832   31458448 /usr/bin/python3.12
+python3 4059773 mark  mem       REG              259,5 10376544   94387773 /home/mark/.local/lib/python3.12/site-packages/tokenizers/tokenizers.abi3.so
+python3 4059773 mark  mem       REG              259,5 23268376   94384000 /home/mark/.local/lib/python3.12/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5  1468440   31493403 /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
+python3 4059773 mark  mem       REG              259,5 15398104   94382703 /home/mark/.local/lib/python3.12/site-packages/grpc/_cython/cygrpc.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5   290584   94381081 /home/mark/.local/lib/python3.12/site-packages/charset_normalizer/md__mypyc.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5 11552544   94374636 /home/mark/.local/lib/python3.12/site-packages/zstandard/backend_c.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5   827592   31478703 /usr/lib/python3/dist-packages/_brotli.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5  4883472   94382133 /home/mark/.local/lib/python3.12/site-packages/pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5   250985   94510720 /home/mark/.local/lib/python3.12/site-packages/numpy.libs/libquadmath-96973f99-934c22de.so.0.0.0
+python3 4059773 mark  mem       REG              259,5  1060936   94378584 /home/mark/.local/lib/python3.12/site-packages/rpds/rpds.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5  2833617   94510719 /home/mark/.local/lib/python3.12/site-packages/numpy.libs/libgfortran-040039e1-0352e75f.so.5.0.0
+python3 4059773 mark  mem       REG              259,5   144792   31487133 /usr/lib/python3.12/lib-dynload/_sqlite3.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5  2592224   31493412 /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+python3 4059773 mark  mem       REG              259,5    54664   31487129 /usr/lib/python3.12/lib-dynload/_multibytecodec.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5   401520   94378755 /home/mark/.local/lib/python3.12/site-packages/google/_upb/_message.abi3.so
+python3 4059773 mark  mem       REG              259,5   129016   31493550 /usr/lib/x86_64-linux-gnu/libyaml-0.so.2.0.9
+python3 4059773 mark  mem       REG              259,5 25034001   94510721 /home/mark/.local/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so
+python3 4059773 mark  mem       REG              259,5    14632   94383997 /home/mark/.local/lib/python3.12/site-packages/onnxruntime/capi/libonnxruntime_providers_shared.so
+python3 4059773 mark  mem       REG              259,5    18664   31493257 /usr/lib/x86_64-linux-gnu/libnss_mdns4_minimal.so.2
+python3 4059773 mark  mem       REG              259,5    23816   31487132 /usr/lib/python3.12/lib-dynload/_queue.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5   229216   31491645 /usr/lib/python3/dist-packages/yaml/_yaml.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5   202904   31493182 /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+python3 4059773 mark  mem       REG              259,5    78944   31492860 /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+python3 4059773 mark  mem       REG              259,5   372904   31487123 /usr/lib/python3.12/lib-dynload/_decimal.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5 10808937   94509789 /home/mark/.local/lib/python3.12/site-packages/numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so
+python3 4059773 mark  mem       REG              259,5    19432   31487150 /usr/lib/python3.12/lib-dynload/resource.cpython-312-x86_64-linux-gnu.so
+

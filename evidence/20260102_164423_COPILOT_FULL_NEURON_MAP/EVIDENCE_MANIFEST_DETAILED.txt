@@ -1,0 +1,134 @@
+# EVIDENCE MANIFEST - Complete File Inventory
+## Evidence Bundle: 20260102_164423_COPILOT_FULL_NEURON_MAP
+## Date: 2026-01-02 16:44:23 UTC
+## Total Files: 38
+
+### DELIVERABLE DOCUMENTS (6)
+  1. AUDIT_GAPS.md - What remains unknown + exact next tests
+  2. EMBEDDING_CONTRACT.md - All embedding sources + dimensions + enforcement
+  3. EVIDENCE_MANIFEST.txt - This file (every evidence file + purpose)
+  4. FINAL_REPORT.md - Executive summary + critical failures + fixes applied
+  5. ROUTING_GRAPH.md - Gate-by-gate decision map w/ line numbers
+  6. TOOL_SURFACE.md - Every cmd_type, handler, dead branch
+
+### SYSTEM CONTEXT (3)
+ 16. id.txt - User ID and groups (uid=1000 mark)
+ 37. time.txt - ISO timestamp (2026-01-02T16:44:32+00:00)
+ 38. uname.txt - Linux kernel info (6.18.2-1-t2-noble)
+
+### PORT & PROCESS PROOFS (8)
+ 23. phase0_running_processes.txt - All ROXY/MCP processes after zombie kill
+ 29. ports_ss_all.txt - All listening TCP ports (ss -H -lptn)
+ 28. ports_ss_8765_8766.txt - ROXY/MCP ports specifically
+ 24. port_8765_lsof.txt - Port 8765 ownership (PID 11275 python3)
+ 25. port_8765_owner_ps.txt - Full ps output for PID 11275 (mcp_server.py)
+ 26. port_8766_lsof.txt - Port 8766 ownership (PID 809812 python)
+ 27. port_8766_owner_ps.txt - Full ps output for PID 809812 (roxy_core.py)
+ 14. health_8765_verbose.txt - MCP health response (verbose curl, tool catalog)
+ 15. health_8766_verbose.txt - ROXY health response (verbose curl, cache_enabled=true)
+
+### SYSTEMD (3)
+ 35. systemd_roxy_core_status.txt - Service status (active, PID 809812, 13h uptime)
+ 36. systemd_roxy_core_unit.txt - Unit file contents (ExecStart, Restart policy)
+ 34. systemd_related_units.txt - All roxy/mcp/jarvis units
+
+### FILESYSTEM INVENTORY (4)
+ 32. roxy_dir_listing.txt - ~/.roxy directory listing (ls -la)
+ 31. py_file_index.txt - All Python files (119 total, excluding venv)
+ 33. sha256_all_py.txt - SHA256 hashes of core Python files
+ 30. py_compile_core.txt - Compilation verification (all pass)
+
+### ROUTING GRAPH (3)
+ 12. endpoints_scan.txt - HTTP endpoints (GET /health, POST /run, POST /batch)
+ 22. parse_command_returns.txt - All parse_command return statements (26 lines)
+ 13. handler_branches.txt - All cmd_type handler branches (11 branches)
+
+### EMBEDDING CONTRACT (3)
+ 11. embedding_surface_scan.txt - All embedding occurrences (50 matches)
+ 10. embedding_dim_proof.txt - Runtime dimension proof (384)
+  9. chroma_collections_proof.txt - Collection inventory (2 collections, 64 docs)
+
+### API TESTS (5)
+  5. api_hi_roxy.json - Greeting test (routes to RAG, not fastpath)
+  7. api_status_today.json - Status query test (routes to RAG)
+  8. api_what_is_roxy.json - RAG query test (working)
+  4. api_batch_ping_health.json - Batch endpoint test (2 commands, working)
+  6. api_open_obs.json - OBS launch test (FAILS - routes to WebSocket)
+
+### OBS LAUNCH VERIFICATION (3)
+ 20. obs_before.txt - OBS state before test (NOT_RUNNING)
+ 19. obs_after.txt - OBS state after test (NOT_RUNNING)
+ 21. obs_launch_diff.txt - Diff between before/after (empty - no launch occurred)
+
+### LOGS (2)
+ 17. journal_15m_raw.txt - Last 15 minutes of roxy-core logs
+ 18. journal_after_requests.txt - Logs after API test requests
+
+---
+
+## File Purposes Summary
+
+**PHASE 0 (Zombie Kill)**:
+- phase0_running_processes.txt - Verified no zombie processes, captured running PIDs
+
+**PHASE 1 (OS Truth)**:
+- ports_ss_* - Port inventory and verification
+- port_*_lsof.txt - Port ownership proofs
+- port_*_owner_ps.txt - Process details for port owners
+- health_*_verbose.txt - HTTP health endpoint responses
+
+**PHASE 2 (Systemd Truth)**:
+- systemd_roxy_core_* - Service status and configuration
+- systemd_related_units.txt - All related services
+
+**PHASE 3 (Filesystem Inventory)**:
+- roxy_dir_listing.txt - Directory structure
+- py_file_index.txt - Python file inventory
+- sha256_all_py.txt - File integrity hashes
+- py_compile_core.txt - Syntax verification
+
+**PHASE 4 (Routing Graph)**:
+- endpoints_scan.txt - HTTP method dispatch
+- parse_command_returns.txt - Parser return values
+- handler_branches.txt - Execute command handlers
+
+**PHASE 5 (Embedding Contract)**:
+- embedding_surface_scan.txt - All embedding sources
+- embedding_dim_proof.txt - Runtime dimension verification
+- chroma_collections_proof.txt - Collection metadata
+
+**PHASE 6 (Live Endpoint Proofs)**:
+- api_*.json - HTTP endpoint tests
+- journal_after_requests.txt - Request logging
+
+**PHASE 7 (OBS Launch Truth)**:
+- obs_before/after.txt - Process state comparison
+- obs_launch_diff.txt - Change detection (none found)
+
+---
+
+## Critical Findings from Evidence
+
+**✅ PROVEN**:
+- Both ports alive (8765 MCP, 8766 ROXY) - `port_*_lsof.txt`
+- 119 Python files indexed - `py_file_index.txt`
+- 384-dim embedding verified - `embedding_dim_proof.txt`
+- 2 collections, 64 total docs - `chroma_collections_proof.txt`
+- All HTTP endpoints respond - `health_*.txt`, `api_*.json`
+- Batch endpoint works - `api_batch_ping_health.json`
+
+**❌ CRITICAL BUGS**:
+- OBS launcher FAILS (routes to WebSocket) - `api_open_obs.json`, `obs_launch_diff.txt`
+- Greeting routes to RAG (not fastpath) - `api_hi_roxy.json`
+
+**⚠️ NEEDS VERIFICATION**:
+- CLI --once mode (not tested)
+- Cursor modules integration (files exist, imports unknown)
+- Truth Gate behavior (unclear role)
+- Rate limiting (not stress tested)
+
+---
+
+## Total Evidence: 38 Files
+## Compressed Size: TBD (tar.gz to be created)
+## Methodology: Zero-trust, every claim backed by captured artifact

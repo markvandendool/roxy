@@ -1,0 +1,30 @@
+# Virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Database files (regeneratable)
+chroma_db/
+*.db
+
+# Logs and temp files
+*.log
+*.tmp
+.DS_Store
+
+# Model files (too large)
+*.bin
+*.gguf
+whisper_models/
+
+# Audio temp files
+*.wav
+*.mp3
+
+# Environment
+.env
+
+# Embedded repos
+chatterbox/
+chatterbox-venv/

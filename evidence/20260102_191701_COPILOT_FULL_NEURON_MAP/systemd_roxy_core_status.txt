@@ -1,0 +1,20 @@
+● roxy-core.service - ROXY Core (always-on background service)
+     Loaded: loaded (/home/mark/.config/systemd/user/roxy-core.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-01-02 03:25:16 UTC; 15h ago
+   Main PID: 809812 (python)
+      Tasks: 114 (limit: 192980)
+     Memory: 64.7M (peak: 285.9M)
+        CPU: 1min 43.911s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/roxy-core.service
+             └─809812 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+
+Jan 02 16:47:53 macpro-linux python[809812]: 2026-01-02 16:47:53,037 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 16:47:57 macpro-linux python[809812]: 2026-01-02 16:47:57,541 [INFO] Executing batch: 2 commands
+Jan 02 16:48:01 macpro-linux python[809812]: 2026-01-02 16:48:01,194 [INFO] 127.0.0.1 - "POST /batch HTTP/1.1" 200 -
+Jan 02 16:48:19 macpro-linux python[809812]: 2026-01-02 16:48:19,375 [INFO] Executing command: open obs
+Jan 02 16:48:19 macpro-linux python[809812]: 2026-01-02 16:48:19,553 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 17:03:24 macpro-linux python[809812]: 2026-01-02 17:03:24,853 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 02 17:03:27 macpro-linux python[809812]: 2026-01-02 17:03:27,138 [INFO] 127.0.0.1 - "GET /stream?command=hi%20roxy HTTP/1.1" 200 -
+Jan 02 17:04:34 macpro-linux python[809812]: 2026-01-02 17:04:34,849 [INFO] Executing command: hi roxy
+Jan 02 17:04:36 macpro-linux python[809812]: 2026-01-02 17:04:36,986 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 19:18:10 macpro-linux python[809812]: 2026-01-02 19:18:10,311 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -

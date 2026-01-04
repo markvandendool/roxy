@@ -1,0 +1,13 @@
+Generated: 2025-12-29T07:00:29.304501
+
+"Good morning, Mark! I've got your daily briefing ready.
+
+First off, let's start with the positives - our MRR is up 8.5% this month, which is fantastic news. You're doing great things!
+
+Now, let's get to the numbers: we currently have 156 active students, and I'm keeping a close eye on the 8 at-risk ones. Our content team has got 14 clips ready to go and another 21 scheduled for the coming weeks.
+
+On the product side, we've got three open PRs that need attention, and our next release is looking like v0.4.0. That's all good stuff!
+
+Lastly, just a heads up on the calendar - you've got two meetings today, starting with the team sync at 10:00 AM.
+
+So, what would you like to focus on first?"

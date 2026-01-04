@@ -1,0 +1,4 @@
+PATH /home/mark/.roxy/chroma_db
+COLS ['roxy_cache', 'mindsong_docs']
+roxy_cache count= 24 meta= {'description': 'ROXY semantic cache'}
+mindsong_docs count= 40 meta= {'description': 'ROXY RAG (minimal onboarding)'}

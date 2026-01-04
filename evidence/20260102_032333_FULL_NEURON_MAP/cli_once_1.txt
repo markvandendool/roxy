@@ -1,0 +1,26 @@
+============================================================
+ROXY TERMINAL CHAT
+============================================================
+
+✓ Connected to ROXY core
+
+Type your commands or questions.
+Type 'exit', 'quit', or press Ctrl+D to close.
+
+🎤 You: 🤖 ROXY: ⚠️  FILE VERIFICATION FAILED
+
+I cannot make claims about specific files without verification.
+
+**Unverified file mentions:** `docs/governance/CANONICAL_GOVERNANCE.md`
+
+❌ **Why blocked:**
+- No list_files, search_code, or git_log tools executed
+- Cannot verify these files exist in your codebase
+- Prevents "roxy_assistant.py" style fabrications (Chief's requirement)
+
+✅ **What you can do:**
+- Ask me to list files first: "list files in ~/.roxy"
+- Then ask specific questions about verified files
+- Or use tool forcing: `{"tool": "list_files", "args": {"directory": "path"}}`
+
+🔒 **Truth Gate:** Blocked to prevent file fabrication hallucination.

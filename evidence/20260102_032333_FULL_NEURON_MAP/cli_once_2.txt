@@ -1,0 +1,10 @@
+============================================================
+ROXY TERMINAL CHAT
+============================================================
+
+✓ Connected to ROXY core
+
+Type your commands or questions.
+Type 'exit', 'quit', or press Ctrl+D to close.
+
+🎤 You: 🤖 ROXY: 

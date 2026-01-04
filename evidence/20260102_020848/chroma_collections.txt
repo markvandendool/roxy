@@ -1,0 +1,4 @@
+PATH: /home/mark/.roxy/chroma_db
+COLLECTIONS: ['mindsong_docs', 'roxy_cache']
+mindsong_docs: count=1028, metadata={'description': 'ROXY RAG knowledge base'}
+roxy_cache: count=8, metadata={'description': 'ROXY semantic cache'}

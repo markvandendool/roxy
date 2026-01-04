@@ -1,0 +1,50 @@
+/home/mark/.roxy/fix_embedding_dimension.py:4:Uses nomic-embed-text (768 dim) to match query-time embedder.
+/home/mark/.roxy/fix_embedding_dimension.py:43:# Step 3: Create new collection with 768-dim embedder (nomic-embed-text compatible)
+/home/mark/.roxy/fix_embedding_dimension.py:45:print("   NOTE: Using DefaultEmbeddingFunction (384-dim) for compatibility")
+/home/mark/.roxy/fix_embedding_dimension.py:51:    # Use DefaultEmbeddingFunction for simplicity and speed
+/home/mark/.roxy/fix_embedding_dimension.py:53:    ef = embedding_functions.DefaultEmbeddingFunction()
+/home/mark/.roxy/fix_embedding_dimension.py:58:        embedding_function=ef,
+/home/mark/.roxy/fix_embedding_dimension.py:66:        embedding_function=ef,
+/home/mark/.roxy/fix_embedding_dimension.py:91:print("1. Update roxy_commands.py to use DefaultEmbeddingFunction instead of Ollama embeddings")
+/home/mark/.roxy/roxy_cli_test.py:23:EMBED_MODEL = "nomic-embed-text"
+/home/mark/.roxy/cache.py:80:                # Get embedding for query using DefaultEmbeddingFunction (384-dim, matches collection)
+/home/mark/.roxy/cache.py:81:                from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/cache.py:82:                ef = DefaultEmbeddingFunction()
+/home/mark/.roxy/cache.py:128:                # Get embedding using DefaultEmbeddingFunction (384-dim, matches collection)
+/home/mark/.roxy/cache.py:129:                from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/cache.py:130:                ef = DefaultEmbeddingFunction()
+/home/mark/.roxy/roxy_commands.py:465:        # Get embedding using DefaultEmbeddingFunction (384-dim, matches collection)
+/home/mark/.roxy/roxy_commands.py:466:        from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/roxy_commands.py:467:        ef = DefaultEmbeddingFunction()
+/home/mark/.roxy/roxy_commands.py:472:        collection = client.get_collection("mindsong_docs", embedding_function=DefaultEmbeddingFunction())
+/home/mark/.roxy/mcp/mcp_chromadb.py:12:CHIEF FIX: Use DefaultEmbeddingFunction (384-dim) to match collection contract
+/home/mark/.roxy/mcp/mcp_chromadb.py:19:from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/mcp/mcp_chromadb.py:53:    """Get DefaultEmbeddingFunction (384-dim) - MUST match collection"""
+/home/mark/.roxy/mcp/mcp_chromadb.py:54:    return DefaultEmbeddingFunction()
+/home/mark/.roxy/mcp/mcp_chromadb.py:67:            collection = client.get_collection("mindsong_docs", embedding_function=embedding_fn)
+/home/mark/.roxy/mcp/mcp_chromadb.py:90:                embedding_function=embedding_fn
+/home/mark/.roxy/mcp/mcp_chromadb.py:99:        , embedding_function=embedding_fn
+/home/mark/.roxy/test_rag_quick.py:4:from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/test_rag_quick.py:8:embedding_fn = DefaultEmbeddingFunction()
+/home/mark/.roxy/test_rag_quick.py:15:print(f"2. DefaultEmbeddingFunction dimension: {len(test_vec)}")
+/home/mark/.roxy/test_rag_quick.py:24:    col = client.get_collection("mindsong_docs", embedding_function=embedding_fn)
+/home/mark/.roxy/bootstrap_rag.py:21:EMBED_MODEL = "nomic-embed-text"
+/home/mark/.roxy/rebuild_rag_index.py:28:    """Get embedding using DefaultEmbeddingFunction (384-dim)"""
+/home/mark/.roxy/rebuild_rag_index.py:29:    from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/rebuild_rag_index.py:30:    embedding_fn = DefaultEmbeddingFunction()
+/home/mark/.roxy/rebuild_rag_index.py:97:    # Create new collection with DefaultEmbeddingFunction (384-dim)
+/home/mark/.roxy/rebuild_rag_index.py:98:    from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/rebuild_rag_index.py:99:    embedding_fn = DefaultEmbeddingFunction()
+/home/mark/.roxy/rebuild_rag_index.py:103:        embedding_function=embedding_fn,
+/home/mark/.roxy/add_git_history_to_rag.py:20:EMBED_MODEL = "nomic-embed-text"
+/home/mark/.roxy/_debug_chroma_dims.py:48:# Test with DefaultEmbeddingFunction (384 dim)
+/home/mark/.roxy/_debug_chroma_dims.py:49:print("\n--- DefaultEmbeddingFunction (384 dim) ---")
+/home/mark/.roxy/_debug_chroma_dims.py:51:    ef_384 = embedding_functions.DefaultEmbeddingFunction()
+/home/mark/.roxy/_debug_chroma_dims.py:56:    col_384 = client.get_collection(name=NAME, embedding_function=ef_384)
+/home/mark/.roxy/_debug_chroma_dims.py:57:    print("✓ Collection retrieved with DefaultEmbeddingFunction")
+/home/mark/.roxy/_debug_chroma_dims.py:66:# Test with SentenceTransformer (768 dim) - if this is what's being used
+/home/mark/.roxy/_debug_chroma_dims.py:67:print("\n--- SentenceTransformerEmbeddingFunction (768 dim) ---")
+/home/mark/.roxy/_debug_chroma_dims.py:69:    from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+/home/mark/.roxy/_debug_chroma_dims.py:70:    ef_768 = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+/home/mark/.roxy/_debug_chroma_dims.py:75:    col_768 = client.get_collection(name=NAME, embedding_function=ef_768)
+/home/mark/.roxy/_debug_chroma_dims.py:76:    print("✓ Collection retrieved with SentenceTransformerEmbeddingFunction")

@@ -1,0 +1,20 @@
+● roxy-core.service - ROXY Core (always-on background service)
+     Loaded: loaded (/home/mark/.config/systemd/user/roxy-core.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-01-02 02:43:22 UTC; 40min ago
+   Main PID: 255843 (python)
+      Tasks: 114 (limit: 192980)
+     Memory: 66.4M (peak: 286.3M)
+        CPU: 19min 33.311s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/roxy-core.service
+             └─255843 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+
+Jan 02 02:54:25 macpro-linux python[255843]:   File "/usr/lib/python3.12/http/server.py", line 538, in end_headers
+Jan 02 02:54:25 macpro-linux python[255843]:     self.flush_headers()
+Jan 02 02:54:25 macpro-linux python[255843]:   File "/usr/lib/python3.12/http/server.py", line 542, in flush_headers
+Jan 02 02:54:25 macpro-linux python[255843]:     self.wfile.write(b"".join(self._headers_buffer))
+Jan 02 02:54:25 macpro-linux python[255843]:   File "/usr/lib/python3.12/socketserver.py", line 840, in write
+Jan 02 02:54:25 macpro-linux python[255843]:     self._sock.sendall(b)
+Jan 02 02:54:25 macpro-linux python[255843]: BrokenPipeError: [Errno 32] Broken pipe
+Jan 02 02:54:25 macpro-linux python[255843]: ----------------------------------------
+Jan 02 02:54:25 macpro-linux python[255843]: 2026-01-02 02:54:25,905 [INFO] Executing command: what is the architecture?
+Jan 02 02:54:30 macpro-linux python[255843]: 2026-01-02 02:54:30,649 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -

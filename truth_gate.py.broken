@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+"""
+Truth Gate - Enforce tool-backed claims only
+Prevents hallucinated actions and ensures response integrity
+"""
+import re
+from typing import List, Dict, Any
+
+
+class TruthGate:
+    """
+    Validates LLM responses against actual tool execution
+    Prevents hallucinations like "I opened Firefox" when no tool was called
+    """
+    
+    # Patterns that indicate the LLM is claiming an action
+    ACTION_CLAIM_PATTERNS = [
+        r'\bI (opened|started|launched|executed|ran|created|deleted|modified|installed|configured)\b',
+        r'\bHere is (Google|Firefox|Chrome|the file|the code|the application)\b',
+        r'\bI have (full control|access to|opened|started|configured|installed)\b',
+        r'\bI\'ve (opened|started|launched|created|executed|run|configured)\b',
+        r'\bSuccessfully (opened|started|launched|created|executed|configured|installed)\b',
+        r'\bThe (application|program|file|browser) is now (open|running|started|configured)\b',
+        r'\bI (can|will) (open|start|launch|execute|run|install|configure)\b',
+        r'\bLet me (open|start|launch|execute|run|install)\b',
+        # Chief's specific examples
+        r'\bwhoami\s*=\s*["\']?roxy["\']?\b',  # Fabricated whoami output
+        r'\bI (have|provide) cloud (integration|access)\b',
+        r'\b(AWS|Azure|GCP|cloud) (integration|access|control)\b',
+    ]
+    
+    # Patterns for uncertain/hedging language (allowed without tools)
+    UNCERTAINTY_PATTERNS = [
+        r'\b(I (can\'t|cannot|don\'t have)|unable to|not possible)\b',
+        r'\b(would need to|could|might|may be able to)\b',
+        r'\b(if you enable|if you have|with permission)\b',
+    ]
+    
+    def __init__(self):
+        self.action_patterns = [re.compile(p, re.IGNORECASE) for p in self.ACTION_CLAIM_PATTERNS]
+        self.uncertainty_patterns = [re.compile(p, re.IGNORECASE) for p in self.UNCERTAINTY_PATTERNS]
+    
+    def validate_response(self, llm_output: str, tools_executed: List[Dict[str, Any]]) -> str:
+        """
+        Validate LLM response against actual tool execution
+        
+        Args:
+            llm_output: Raw LLM response text
+            tools_executed: List of tools actually executed with results
+                           Format: [{'name': 'tool_name', 'args': {...}, 'result': '...'}]
+        
+        Returns:
+            Validated response (rewritten if hallucination detected)
+        """
+        # Check if response contains action claims
+        has_action_claims = any(pattern.search(llm_output) for pattern in self.action_patterns)
+        
+        # Check if response has uncertainty/hedging (allowed without tools)
+        has_uncertainty = any(pattern.search(llm_output) for pattern in self.uncertainty_patterns)
+        
+        # Check if tools were actually executed
+        has_tool_evidence = len(tools_executed) > 0
+        
+        # CASE 1: Action claims WITHOUT tool evidence = HALLUCINATION
+        if has_action_claims and not has_tool_evidence:
+            return self._rewrite_hallucination(llm_output)
+        
+        # CASE 2: Tool evidence exists - add citations
+        if has_tool_evidence:
+            return self._add_tool_citations(llm_output, tools_executed)
+        
+        # CASE 3: No claims, no tools - informational response (OK)
+        return llm_output
+    APABILITY ERROR - Action Not Performed**\n\n"
+            "I cannot perform that action. My **actual** capabilities are:\n\n"
+            "✅ **AVAILABLE:**\n"
+            "- Query knowledge base (RAG)\n"
+            "- Git operations (status, commit, push, pull, diff, log)\n"
+            "- OBS control (streaming, scenes, recording)\n"
+            "- System health monitoring\n"
+            "- Read files (within configured repo_roots only)\n\n"
+            "❌ **NOT AVAILABLE:**\n"
+            "- Execute shell commands (DISABLED for security)\n"
+            "- Open applications (Firefox, Chrome, etc.)\n"
+            "- Browser control or web navigation\n"
+            "- Cloud integrations (AWS/Azure/GCP)\n"
+            "- File modifications (read-only access)\n\n"
+            "💡 **To verify my capabilities:**\n"
+            "Ask: \"what are your capabilities?\" or \"list available tools\"\n\n"
+            "_This response was blocked by Truth Gate because it contained "
+            "unsubstantiated action claimsd and permitted)\n\n"
+            "To actually launch applications or modify files, you would need to:\n"
+            "1. Enable the appropriate tool (`execute_command`, etc.)\n"
+            "2. Grant me permission for that specific operation\n"
+            "3. Provide explicit file paths or commands\n\n"
+            "_Original response contained unsubstantiated claims. "
+            "This has been blocked by the Truth Gate._"
+        )
+    
+    def _add_tool_citations(self, response: str, tools_executed: List[Dict[str, Any]]) -> str:
+        """
+        Add citations showing which tools were actually executed
+        """
+        citations = "\n\n---\n**🔧 Actions Taken:**\n"
+        
+        for tool in tools_executed:
+            name = tool.get('name', 'unknown')
+            args = tool.get('args', {})
+            result = tool.get('result', '')
+            
+            # Format result (truncate if too long)
+            result_preview = str(result)[:200]
+            if len(str(result)) > 200:
+                result_preview += "... (truncated)"
+            
+            # Format args nicely
+            args_str = ", ".join(f"{k}={v}" for k, v in args.items())
+            
+            citations += f"- **{name}**({args_str})\n"
+            citations += f"  → {result_preview}\n\n"
+        
+        return response + citations
+    
+    def is_safe_response(self, response: str, tools_executed: List[Dict[str, Any]]) -> bool:
+        """
+        Quick check: Does response pass truth gate?
+        
+        Returns:
+            True if response is safe (no hallucination)
+            False if response should be blocked
+        """
+        has_action_claims = any(pattern.search(response) for pattern in self.action_patterns)
+        has_tool_evidence = len(tools_executed) > 0
+        
+        # Fail if claims without evidence
+        if has_action_claims and not has_tool_evidence:
+            return False
+        
+        return True
+
+
+# Singleton instance
+_truth_gate = None
+
+def get_truth_gate() -> TruthGate:
+    """Get or create TruthGate instance"""
+    global _truth_gate
+    if _truth_gate is None:
+        _truth_gate = TruthGate()
+    return _truth_gate

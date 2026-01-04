@@ -1,0 +1,16 @@
+total 371632
+drwxrwxr-x 14 mark mark      4096 Jan  2 02:09 .
+drwxrwxr-x 26 mark mark      4096 Jan  2 01:39 ..
+drwxrwxr-x  2 mark mark      4096 Jan  1 22:43 1f1b09f9-e2c1-4fea-a125-ef4a4dec15c3
+drwxrwxr-x  2 mark mark      4096 Jan  2 02:04 706dc4c5-8d9a-43f6-bfb9-00a7dc4ebcc3
+drwxrwxr-x  2 mark mark      4096 Jan  2 01:11 7d9b9458-f69d-4af1-ba4c-ecd0465c1ec4
+drwxrwxr-x  2 mark mark      4096 Jan  2 02:09 8b88ad1d-3f6e-4720-8f48-6642d5b18214
+drwxrwxr-x  2 mark mark      4096 Jan  2 00:59 8f887cb6-4f76-40da-a063-843de354176e
+drwxrwxr-x  2 mark mark      4096 Jan  2 00:59 96f15794-1ce2-49f8-b595-05f7c135c0c3
+drwxrwxr-x  2 mark mark      4096 Jan  2 01:22 bc001639-7999-4276-a134-806459f15d3a
+drwxrwxr-x  2 mark mark      4096 Jan  2 01:03 bee4aead-92b4-4750-bab6-4ac20bf2473c
+drwxrwxr-x  2 mark mark      4096 Jan  2 01:36 c23ceba6-e75c-4156-a877-53328aaeffa9
+-rw-r--r--  1 mark mark 380489728 Jan  2 02:09 chroma.sqlite3
+drwxrwxr-x  2 mark mark      4096 Jan  1 21:56 d3718062-6d23-47e2-9d4f-6a197d0b35cd
+drwxrwxr-x  2 mark mark      4096 Jan  1 23:21 ec11dd07-c648-4a18-ba72-42892b56d76b
+drwxrwxr-x  2 mark mark      4096 Jan  1 22:40 ed8d030b-5973-4934-9d14-e44e7d419def

@@ -1,0 +1,1 @@
+DefaultEmbeddingFunction dim: 384

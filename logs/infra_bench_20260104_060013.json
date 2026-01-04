@@ -1,0 +1,63 @@
+{
+  "passed": 6,
+  "total": 10,
+  "tests": [
+    {
+      "name": "1. Redis Cache Connected",
+      "passed": false,
+      "detail": "HTTPConnectionPool(host='127.0.0.1', port=8766): Read timed out."
+    },
+    {
+      "name": "2. PostgreSQL Memory Connected",
+      "passed": false,
+      "detail": "backend=memory",
+      "time_ms": 5006
+    },
+    {
+      "name": "3. NATS JetStream Connected",
+      "passed": true,
+      "detail": "jetstream=True",
+      "time_ms": 2
+    },
+    {
+      "name": "4. Expert Router (5+ models)",
+      "passed": true,
+      "detail": "5 experts available",
+      "time_ms": 1
+    },
+    {
+      "name": "5. GET /cache/stats",
+      "passed": false,
+      "detail": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "name": "6. POST /memory/recall",
+      "passed": true,
+      "detail": "HTTP 200",
+      "time_ms": 1
+    },
+    {
+      "name": "7. POST /feedback",
+      "passed": false,
+      "detail": "HTTPConnectionPool(host='127.0.0.1', port=8766): Read timed out. (read timeout=5)"
+    },
+    {
+      "name": "8. Code Query \u2192 code expert",
+      "passed": true,
+      "detail": "type=code, conf=0.85",
+      "time_ms": 1036
+    },
+    {
+      "name": "9. Math Query \u2192 math expert",
+      "passed": true,
+      "detail": "type=math, conf=0.85",
+      "time_ms": 11317
+    },
+    {
+      "name": "10. Cache Speedup",
+      "passed": true,
+      "detail": "cold=15.07s, warm=5.02s, speedup=3.0x",
+      "time_ms": 20088
+    }
+  ]
+}

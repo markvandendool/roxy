@@ -1,0 +1,72 @@
+═══════════════════════════════════════════════════════════════
+VOICE PIPELINE STATUS (CURSOR REPORT)
+═══════════════════════════════════════════════════════════════
+Report Date: 2026-01-02 01:31 UTC
+Service Path: /opt/roxy/voice/
+Systemd Unit: roxy-voice.service
+
+───────────────────────────────────────────────────────────────
+PHASE 4: VOICE CONTROL — COMPLETE AND READY
+───────────────────────────────────────────────────────────────
+
+✅ COMPONENTS INSTALLED:
+   - faster-whisper: Speech-to-text transcription (installed, working)
+   - openWakeWord: Wake word detection ("Hey Roxy")
+   - Edge TTS: Text-to-speech with fallback audio playback
+   - Voice pipeline: Real-time audio capture + processing
+   - LLM integration: Connected to ROXY LLM service
+   - MCP server: Updated for Edge TTS support
+
+✅ SYSTEMD SERVICE:
+   - Unit file: /etc/systemd/user/roxy-voice.service
+   - Status: Installed, ready to enable
+   - Not currently running (awaiting manual test + approval)
+
+✅ AUDIO PLAYBACK FALLBACK:
+   - Primary: paplay (available)
+   - Secondary: aplay (available)
+   - Conversion: ffmpeg (installed for MP3→WAV if needed)
+   - TTS will use first available player
+
+───────────────────────────────────────────────────────────────
+TESTING OPTIONS
+───────────────────────────────────────────────────────────────
+
+OPTION 1: Manual Test (RECOMMENDED FIRST)
+   cd /opt/roxy
+   source venv/bin/activate
+   python voice/pipeline.py
+
+   Expected flow:
+   1. Say "Hey Roxy" (wake word detection)
+   2. Speak your command (until silence or 10s timeout)
+   3. Pipeline transcribes with faster-whisper
+   4. Processes with LLM
+   5. Speaks response through speakers
+
+OPTION 2: Enable 24/7 Service
+   systemctl --user enable roxy-voice.service
+   systemctl --user start roxy-voice.service
+   systemctl --user status roxy-voice.service
+
+   Check logs:
+   journalctl --user -u roxy-voice.service -f
+
+───────────────────────────────────────────────────────────────
+NEXT STEPS (OPTIONAL)
+───────────────────────────────────────────────────────────────
+1. Test pipeline manually to verify end-to-end flow
+2. Enable systemd service for 24/7 operation
+3. Optional: Install GPU acceleration (ROCm) for faster transcription
+
+───────────────────────────────────────────────────────────────
+INTEGRATION STATUS
+───────────────────────────────────────────────────────────────
+✅ Voice pipeline complete
+✅ Audio playback configured with fallbacks
+✅ Wake word + STT + LLM + TTS integrated
+⏸️  Manual testing required before 24/7 deployment
+
+The voice pipeline is ready for testing with mic and speakers.
+Say "Hey Roxy" to activate the assistant.
+═══════════════════════════════════════════════════════════════

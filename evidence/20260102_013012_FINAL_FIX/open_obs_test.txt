@@ -1,0 +1,4 @@
+[ROXY] Processing: open obs
+[ROXY] Routing to: launch_app ['obs']
+
+✅ OBS already running (PID 3357688)

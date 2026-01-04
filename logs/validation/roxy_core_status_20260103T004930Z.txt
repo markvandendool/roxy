@@ -1,0 +1,20 @@
+● roxy-core.service - ROXY Core (always-on background service)
+     Loaded: loaded (/home/mark/.config/systemd/user/roxy-core.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-01-03 00:40:24 UTC; 10min ago
+   Main PID: 5185 (python)
+      Tasks: 116 (limit: 192980)
+     Memory: 115.2M (peak: 123.8M)
+        CPU: 6.177s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/roxy-core.service
+             └─5185 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] Using advanced observability from /opt/roxy/services
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ✓ Advanced observability enabled
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] Background tasks: ready
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ============================================================
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ROXY CORE RUNNING
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] Test with: curl http://127.0.0.1:8765/health
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ============================================================
+Jan 03 00:49:31 macpro-linux python[5185]: 2026-01-03 00:49:31,418 [INFO] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+Jan 03 00:49:31 macpro-linux python[5185]: 2026-01-03 00:49:31,534 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:50:14 macpro-linux python[5185]: 2026-01-03 00:50:14,519 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -

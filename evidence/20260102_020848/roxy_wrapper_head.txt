@@ -1,0 +1,60 @@
+#!/bin/bash
+# ROXY Command - UNIFIED ENTRYPOINT (Fixed 2026-01-01)
+# Routes ALL commands to the WORKING stack (~/.roxy)
+# Legacy /opt/roxy stack is DEPRECATED
+
+GOOD_STACK_CLIENT="$HOME/.roxy/venv/bin/python"
+GOOD_STACK_SCRIPT="$HOME/.roxy/roxy_client.py"
+
+case "${1:-chat}" in
+    chat|talk|converse)
+        echo "🤖 ROXY Interactive Chat (using ~/.roxy stack)"
+        exec "$GOOD_STACK_CLIENT" "$GOOD_STACK_SCRIPT"
+        ;;
+    status)
+        systemctl --user status roxy-core --no-pager
+        ;;
+    start)
+        systemctl --user start roxy-core
+        echo "✅ ROXY starting (user service)..."
+        ;;
+    stop)
+        systemctl --user stop roxy-core
+        echo "✅ ROXY stopped"
+        ;;
+    restart)
+        systemctl --user restart roxy-core
+        echo "✅ ROXY restarted"
+        ;;
+    logs)
+        journalctl --user -u roxy-core -f "${@:2}"
+        ;;
+    test)
+        echo "Testing ROXY connectivity..."
+        TOKEN=$(cat ~/.roxy/secret.token)
+        curl -s -H "X-ROXY-Token: $TOKEN" \
+             -X POST http://127.0.0.1:8766/health | jq || echo "ROXY not responding"
+        ;;
+    legacy)
+        echo "⚠️  WARNING: Using DEPRECATED /opt/roxy stack"
+        echo "⚠️  This stack is known to hallucinate and has broken tool calling"
+        echo "⚠️  Press Ctrl+C to cancel, or Enter to continue..."
+        read
+        cd /opt/roxy && source venv/bin/activate
+        python3 /opt/roxy/services/roxy_interface.py
+        ;;
+    *)
+        echo "ROXY - Resident AI Assistant (Unified Entrypoint)"
+        echo ""
+        echo "Commands:"
+        echo "  chat     - Interactive chat (Ctrl+Space also works)"
+        echo "  status   - Show service status"
+        echo "  start    - Start ROXY service"
+        echo "  stop     - Stop ROXY service"
+        echo "  restart  - Restart ROXY service"
+        echo "  logs     - View logs"
+        echo "  test     - Test connectivity"
+        echo "  legacy   - Use OLD stack (not recommended)"
+        echo ""
+        echo "✅ Using: ~/.roxy (working stack with proven security)"
+        ;;

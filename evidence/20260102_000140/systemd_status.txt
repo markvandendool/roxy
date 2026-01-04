@@ -1,0 +1,20 @@
+● roxy-core.service - ROXY Core (always-on background service)
+     Loaded: loaded (/home/mark/.config/systemd/user/roxy-core.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2026-01-01 22:30:06 UTC; 1h 31min ago
+   Main PID: 122032 (python)
+      Tasks: 170 (limit: 192980)
+     Memory: 111.9M (peak: 235.0M)
+        CPU: 11min 56.320s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/roxy-core.service
+             └─122032 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+
+Jan 01 23:01:51 macpro-linux python[122032]: 2026-01-01 23:01:51,654 [INFO] Executing command: ping
+Jan 01 23:01:55 macpro-linux python[122032]: 2026-01-01 23:01:55,382 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 01 23:01:55 macpro-linux python[122032]: 2026-01-01 23:01:55,410 [INFO] Executing command: ping
+Jan 01 23:01:58 macpro-linux python[122032]: 2026-01-01 23:01:58,232 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 01 23:01:58 macpro-linux python[122032]: 2026-01-01 23:01:58,240 [INFO] Executing command: ping
+Jan 01 23:02:01 macpro-linux python[122032]: 2026-01-01 23:02:01,173 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 01 23:02:01 macpro-linux python[122032]: 2026-01-01 23:02:01,181 [INFO] Executing command: ping
+Jan 01 23:02:05 macpro-linux python[122032]: 2026-01-01 23:02:05,882 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 01 23:02:19 macpro-linux python[122032]: 2026-01-01 23:02:19,912 [INFO] Executing command: RUN_TOOL list_files {"path":"~/.roxy","pattern":"*.py"}
+Jan 01 23:02:20 macpro-linux python[122032]: 2026-01-01 23:02:20,281 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -

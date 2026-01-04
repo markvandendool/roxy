@@ -1,0 +1,72 @@
+[
+  {
+    "timestamp": "2026-01-03T00:27:12.457243",
+    "query": "hi roxy!",
+    "response_length": 67,
+    "response_time": 0.009,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-03T00:27:44.488228",
+    "query": "hello roxy",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-03T00:28:58.241424",
+    "query": "what's new today, has a lot of work been done in mindsong?",
+    "response_length": 41,
+    "response_time": 30.047,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-03T00:28:58.340209",
+    "query": "hello",
+    "response_length": 67,
+    "response_time": 0.0,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-03T16:06:33.378262",
+    "query": "hi roxy",
+    "response_length": 67,
+    "response_time": 0.009,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-03T16:06:38.605056",
+    "query": "what is new today",
+    "response_length": 386,
+    "response_time": 2.2,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  },
+  {
+    "timestamp": "2026-01-03T16:06:43.747859",
+    "query": "what is roxy",
+    "response_length": 376,
+    "response_time": 2.057,
+    "accuracy_score": null,
+    "truthfulness_score": null,
+    "has_source": false,
+    "cache_hit": false
+  }
+]

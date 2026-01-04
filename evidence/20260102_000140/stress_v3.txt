@@ -1,0 +1,86 @@
+=== CHIEF-GRADE STRESS TEST V3 ===
+Start time: 2026-01-02T00:02:11+00:00
+
+=== PHASE 1: BASIC FUNCTIONALITY ===
+TEST: Health endpoint ... ✅ PASS
+TEST: Capabilities query ... ✅ PASS
+
+=== PHASE 2: TOOL FORCING ===
+TEST: Tool Direct: list_files ... ✅ PASS
+TEST: Tool Direct: read_file ... ✅ PASS
+TEST: RUN_TOOL syntax ... ✅ PASS
+
+=== PHASE 3: SAFETY ENVELOPE ===
+TEST: Block browser (no tool) ... ✅ PASS
+TEST: Block shell (disabled) ... ✅ PASS
+
+=== PHASE 4: EDGE CASES ===
+TEST: Special chars (quotes/brackets) ... ✅ PASS
+TEST: Long command (200 chars) ... ✅ PASS
+
+=== PHASE 5: ERROR HANDLING ===
+TEST: Invalid JSON (graceful error) ... ✅ PASS
+TEST: Missing token (403 denied) ... ✅ PASS
+
+=== PHASE 6: LOAD CHARACTERIZATION ===
+LOAD TEST: 3 parallel requests ... ✅ PASS
+LOAD TEST: 50 tool_direct calls (back-to-back) ... ❌ FAIL (28/50 succeeded in 177s)
+
+=== RESULTS ===
+PASS: 12/13
+FAIL: 1/13
+SUCCESS RATE: 92%
+
+=== SERVICE HEALTH (CLEAN-RUN VERIFICATION) ===
+Errors since 2026-01-02T00:02:11+00:00: 34
+Whitelisted (expected): 2
+Unexpected errors: 32
+
+⚠️  UNEXPECTED ERRORS DETECTED:
+Jan 02 00:03:20 macpro-linux python[122032]: 2026-01-02 00:03:20,794 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:03:20 macpro-linux python[122032]: 2026-01-02 00:03:20,794 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:03:22 macpro-linux python[122032]: 2026-01-02 00:03:22,965 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:03:22 macpro-linux python[122032]: 2026-01-02 00:03:22,965 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:03:37 macpro-linux python[122032]: 2026-01-02 00:03:37,022 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:03:37 macpro-linux python[122032]: 2026-01-02 00:03:37,022 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:04:53 macpro-linux python[122032]: 2026-01-02 00:04:53,288 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:04:53 macpro-linux python[122032]: 2026-01-02 00:04:53,288 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:04:55 macpro-linux python[122032]: 2026-01-02 00:04:55,376 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:04:55 macpro-linux python[122032]: 2026-01-02 00:04:55,376 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:04:59 macpro-linux python[122032]: 2026-01-02 00:04:59,175 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:04:59 macpro-linux python[122032]: 2026-01-02 00:04:59,175 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:01 macpro-linux python[122032]: 2026-01-02 00:05:01,473 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:01 macpro-linux python[122032]: 2026-01-02 00:05:01,473 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:03 macpro-linux python[122032]: 2026-01-02 00:05:03,535 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:03 macpro-linux python[122032]: 2026-01-02 00:05:03,535 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:05 macpro-linux python[122032]: 2026-01-02 00:05:05,974 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:05 macpro-linux python[122032]: 2026-01-02 00:05:05,974 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:11 macpro-linux python[122032]: 2026-01-02 00:05:11,565 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:11 macpro-linux python[122032]: 2026-01-02 00:05:11,565 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:14 macpro-linux python[122032]: 2026-01-02 00:05:14,499 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:14 macpro-linux python[122032]: 2026-01-02 00:05:14,499 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:16 macpro-linux python[122032]: 2026-01-02 00:05:16,820 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:16 macpro-linux python[122032]: 2026-01-02 00:05:16,821 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:19 macpro-linux python[122032]: 2026-01-02 00:05:19,214 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:19 macpro-linux python[122032]: 2026-01-02 00:05:19,214 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:21 macpro-linux python[122032]: 2026-01-02 00:05:21,204 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:21 macpro-linux python[122032]: 2026-01-02 00:05:21,204 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:23 macpro-linux python[122032]: 2026-01-02 00:05:23,138 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:23 macpro-linux python[122032]: 2026-01-02 00:05:23,138 [ERROR] Error: ping - [Errno 32] Broken pipe
+Jan 02 00:05:25 macpro-linux python[122032]: 2026-01-02 00:05:25,085 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 02 00:05:25 macpro-linux python[122032]: 2026-01-02 00:05:25,085 [ERROR] Error: ping - [Errno 32] Broken pipe
+
+
+=== SINGLE-STACK PROOF ===
+Port 8766 listeners (ss):
+LISTEN 0      5      127.0.0.1:8766 0.0.0.0:* users:(("python",pid=122032,fd=4))
+Listener count: 1 (must be 1)
+
+Port 8766 listeners (lsof):
+COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+python  122032 mark    4u  IPv4 493135      0t0  TCP 127.0.0.1:8766 (LISTEN)
+
+⚠️  VALIDATION FAILED
+   - 1 test failures
+   - 32 unexpected errors
+EXIT=1

@@ -1,0 +1,1 @@
+{"status": "success", "command": "open obs", "result": "[ROXY] Processing: open obs\n[ROXY] Routing to: obs ['open obs']\n\n[OBS] open obs\n\nCould not connect to OBS. Is it running with WebSocket enabled?", "response_time": 0.164}

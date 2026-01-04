@@ -1,0 +1,8 @@
+103:    def do_GET(self):
+105:        if self.path == "/health":
+183:    def do_POST(self):
+185:        if self.path == "/run":
+187:        elif self.path == "/batch":
+204:                    if not rate_limiter.check_rate_limit(client_ip, "/run"):
+338:                if not rate_limiter.check_rate_limit(client_ip, "/batch"):
+665:        logger.info("Test with: curl http://127.0.0.1:8765/health")

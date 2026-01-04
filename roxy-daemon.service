@@ -1,0 +1,27 @@
+[Unit]
+Description=ROXY Persistent AI Assistant Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=mark
+WorkingDirectory=/home/mark/.roxy
+ExecStart=/home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_daemon.py
+Restart=always
+RestartSec=10
+
+# Environment
+Environment="PATH=/home/mark/.roxy/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roxy-daemon
+
+# Security (optional - adjust as needed)
+# PrivateTmp=yes
+# NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

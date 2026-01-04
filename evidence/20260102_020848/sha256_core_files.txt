@@ -1,0 +1,3 @@
+2e3ac22820117331577fea1bddb112a01b7cc120e0d197cb4d6328435414ad2b  /home/mark/.roxy/roxy_core.py
+6dbd576940230a6220c747c4846810a049157dbbecd085bd0fc84e0dff5122b9  /home/mark/.roxy/roxy_commands.py
+125a5d635925d9b1329c68620f9041788eba9757250ee3dff37791b9f4034961  /home/mark/.roxy/roxy_client.py

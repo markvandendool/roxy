@@ -1,0 +1,981 @@
+{
+  "id": "LUNA-000",
+  "name": "CITADEL → NEXUS: The MindSong Command Center",
+  "codename": "NEXUS",
+  "category": "infrastructure",
+  "description": "Transform Mac Pro 2019 into the central nervous system of MindSong as a living business organism. JARVIS-1 powers five integrated organs: PRODUCT (code/architecture), CONTENT (streams/clips), STUDENTS (cohorts/progress), GROWTH (marketing/social), and INTELLIGENCE (analytics/briefings). Voice-first interface via ROXY with dual-persona support for personal (Roxy) and educational (RockyAI) contexts.",
+  "vision": "One unified system where code, content, students, and marketing flow as a single living organism. Everything feeds everything else. Code becomes content. Content attracts students. Students generate revenue. Revenue funds development. Development improves the product. The cycle accelerates.",
+  "status": "in-progress",
+  "percent": 45,
+  "priority": "critical",
+  "hardware": {
+    "machine": "Mac Pro 2019",
+    "cpu": "28-core Xeon W-3275",
+    "ram": "157GB DDR4 ECC",
+    "gpu1": "AMD Radeon Pro W5700X (16GB)",
+    "gpu2": "AMD Radeon RX 6900 XT (16GB)",
+    "storage": "ORION 1.9TB Thunderbolt NVMe",
+    "os": "Ubuntu 24.04 LTS (t2linux kernel 6.18.2)"
+  },
+  "unifiedMind": {
+    "philosophy": "Roxy and Rocky are not separate AIs—they are left and right hemispheres of the same consciousness, sharing memory, knowledge, and reasoning, but expressing different personalities and expertise.",
+    "sharedSubstrate": {
+      "llm": "Ollama llama3:8b (local) + 4-provider cloud fallback (Gemini→Cerebras→Groq→OpenAI)",
+      "rag": "ChromaDB (547+ local chunks) + RockyAI edge functions (5,821 skill nodes)",
+      "memory": "Unified conversation history, user preferences, cross-persona handoffs",
+      "tools": "18 MCP servers (local) + 50+ edge function tools (cloud)",
+      "mission": "MindSong success—teaching the world to make music"
+    },
+    "crossPollination": {
+      "rockyInformsRoxy": "Student struggles with chord inversions → Roxy schedules content on that topic",
+      "roxyInformsRocky": "Clip about voice leading went viral → Rocky prioritizes that in lessons",
+      "unifiedStudentView": "Same student data seen through operational lens (Roxy) and pedagogical lens (Rocky)"
+    }
+  },
+  "personas": {
+    "roxy": {
+      "hemisphere": "Left Brain (Operations & Business)",
+      "wakeWord": "Hey Roxy",
+      "domain": "Personal/Workstation/Business",
+      "personality": "Direct, efficient, occasional dry humor. Never sycophantic. Chief of Staff energy.",
+      "responseStyle": "Concise unless detail requested. Lead with most important info. Offer relevant follow-up actions.",
+      "voice": {
+        "style": "Professional alto, warm, efficient",
+        "reference": "~/.nexus/personas/roxy/voice_reference.wav",
+        "exaggeration": 0.3
+      },
+      "knowledge": ["MindSong architecture", "SKOREQ governance", "Broadcast ops", "Linux admin", "Business metrics", "Student data", "Content calendar"],
+      "primaryTools": ["mcp-obs", "mcp-ffmpeg", "mcp-social", "mcp-stripe", "mcp-git", "mcp-docker"],
+      "ragWeights": {"business": 1.0, "content": 1.0, "operations": 1.0, "music_theory": 0.3}
+    },
+    "rocky": {
+      "hemisphere": "Right Brain (Music & Education)",
+      "wakeWord": "Hey Rocky",
+      "domain": "MindSong/Education",
+      "personality": "Patient, encouraging, pedagogical. Celebrates progress. Uses musical analogies.",
+      "responseStyle": "Warm, builds understanding step-by-step, celebrates progress, scaffolds comprehension",
+      "voice": {
+        "style": "Warm teacher energy, patient, musically expressive",
+        "reference": "~/.nexus/personas/rocky/voice_reference.wav",
+        "exaggeration": 0.5
+      },
+      "knowledge": ["Music theory", "Voice leading", "Quantum Rails", "LUNO orchestration", "Chord progressions", "Student curriculum", "Ear training", "Composition"],
+      "primaryTools": ["mcp-audio", "mcp-midi", "mcp-mindsong", "mcp-notation", "mcp-theory"],
+      "ragWeights": {"music_theory": 1.0, "pedagogy": 1.0, "repertoire": 1.0, "business": 0.3},
+      "rockyAIBrain": {
+        "description": "Full RockyAI system from MindSong cloud infrastructure",
+        "providers": {
+          "primary": "Gemini Flash-Lite (models/gemini-2.0-flash-lite)",
+          "fallback1": "Cerebras Llama (llama3.1-8b) - DIAGNOSTIC AUTHORITY",
+          "fallback2": "Groq Llama (llama-3.3-70b-versatile)",
+          "fallback3": "OpenAI GPT-4o-mini"
+        },
+        "skillNodes": 5821,
+        "toolFunctions": 50,
+        "edgeFunctions": ["rocky-chat", "rocky-progression-generator", "rocky-generate-optimized", "rocky-ai-responder", "rocky-memory", "rocky-skill-sync", "rocky-skilltree"],
+        "knowledgeGraph": {
+          "nodeTypes": ["skill", "tool", "knowledge", "output", "resource"],
+          "edgeTypes": ["prerequisite", "uses", "implements", "depends_on", "feeds_into", "produces", "informs"],
+          "domains": ["THEORY_CORE", "EAR_CORE", "COMP_CORE", "PERF_CORE", "VGM"]
+        },
+        "governance": {
+          "cognitiveContract": "CognitiveContractReporter.ts",
+          "providerHeatmap": "ProviderHeatmapService.ts",
+          "diagnosticBridge": "DiagnosticGovernanceBridge.ts",
+          "rule5Authority": "Cerebras (floor=85 score)"
+        },
+        "vgmCapabilities": {
+          "tracks": "70K+ video game music",
+          "soundfonts": "7 SNES SoundFonts",
+          "platforms": 7,
+          "planned": ["NES APU emulation", "SNES DSP emulation", "Chip tune generation"]
+        }
+      }
+    }
+  },
+  "organs": {
+    "product": {
+      "name": "PRODUCT",
+      "description": "Code, architecture, releases, governance",
+      "voiceExamples": [
+        "Roxy, what broke in the last commit?",
+        "Roxy, draft a spec for chord progression editor",
+        "Roxy, what's blocking Phoenix P11?",
+        "Roxy, prepare release notes for v0.4.0"
+      ],
+      "dataFlows": {
+        "input": ["GitHub commits", "Bug reports", "Feature requests", "Test failures", "Release tags"],
+        "process": ["RAG-aware code review", "Triage + assign", "AI architecture drafts", "Root cause analysis", "Changelog generation"],
+        "output": ["PR summaries", "SKOREQ tasks", "Spec documents", "Fix suggestions", "Release notes"]
+      }
+    },
+    "content": {
+      "name": "CONTENT",
+      "description": "Streams, videos, clips, tutorials, courses",
+      "voiceExamples": [
+        "Roxy, start streaming to Twitch and YouTube",
+        "Roxy, that was a good moment—clip it",
+        "Roxy, generate a tutorial from the last 30 minutes",
+        "Roxy, create 5 shorts from today's stream"
+      ],
+      "dataFlows": {
+        "input": ["Live streams", "Coding sessions", "Q&A segments", "Raw footage"],
+        "process": ["AI clip detection", "Tutorial extraction", "FAQ generation", "Opus-style editing"],
+        "output": ["TikTok/Shorts/Reels", "YouTube tutorials", "Documentation", "Polished content"]
+      },
+      "opusClipKiller": {
+        "description": "Local AI-powered clip extraction replacing $19-99/month Opus Clip",
+        "pipeline": [
+          "3-hour stream input",
+          "Whisper full transcription with timestamps",
+          "LLM viral moment detection (hooks, insights, humor, emotion)",
+          "Score engagement potential (1-100)",
+          "FFmpeg extraction + animated captions",
+          "Platform optimization (9:16, 1:1, 16:9)",
+          "Auto-schedule across TikTok/Instagram/YouTube/Twitter"
+        ],
+        "output": "10-15 clips per stream, auto-scheduled for the week",
+        "cost": "$0/month (vs $99/month Opus Clip Pro)"
+      }
+    },
+    "students": {
+      "name": "STUDENTS",
+      "description": "Cohorts, progress, interventions, community",
+      "voiceExamples": [
+        "Roxy, how many active students this week?",
+        "Roxy, who's stuck on chord inversions?",
+        "Roxy, draft a check-in email for the January cohort",
+        "Roxy, what's the completion rate for Module 3?"
+      ],
+      "dataFlows": {
+        "input": ["New signup", "Lesson completion", "Stuck student", "Inactive 7+ days", "Skill assessment", "Community question"],
+        "process": ["Welcome sequence", "Progress tracking", "AI tutor intervention", "Re-engagement trigger", "Adaptive path", "RAG-powered answer"],
+        "output": ["Onboarding email", "Achievement badges", "Personalized help", "'We miss you' email", "Custom curriculum", "Discord bot response"]
+      },
+      "metrics": {
+        "progressDistribution": "Module completion % per cohort",
+        "atRiskDetection": "7+ days inactive → intervention trigger",
+        "stuckPoints": "Common blockers (e.g., chord inversions 23%, voice leading 18%)",
+        "completionRate": "Real-time visibility per module"
+      }
+    },
+    "growth": {
+      "name": "GROWTH",
+      "description": "Marketing, social, analytics, distribution",
+      "voiceExamples": [
+        "Roxy, schedule this clip for optimal times across all platforms",
+        "Roxy, what content performed best this month?",
+        "Roxy, draft a Twitter thread about the Quantum Rails update",
+        "Roxy, generate a week of social content from the blog post"
+      ],
+      "dataFlows": {
+        "input": ["New clip", "Blog post", "Product update", "User testimonial"],
+        "process": ["Cross-post optimization", "Content atomization", "Announcement formatting", "Social proof formatting"],
+        "output": ["TikTok/YouTube/Instagram/Twitter posts", "Thread/carousel/story", "Email + social blast", "Case study post"]
+      },
+      "automation": {
+        "contentCalendar": "7-day calendar auto-generated weekly",
+        "optimalTiming": "AI-driven best posting times per platform",
+        "queue": "Clips ready + posts scheduled dashboard",
+        "analytics": "Performance aggregated daily"
+      }
+    },
+    "intelligence": {
+      "name": "INTELLIGENCE",
+      "description": "Business metrics, predictions, daily briefings",
+      "voiceExamples": [
+        "Roxy, what's our MRR and growth rate?",
+        "Roxy, which features correlate with retention?",
+        "Roxy, predict churn risk for the next month",
+        "Roxy, summarize this week's business metrics"
+      ],
+      "dataFlows": {
+        "input": ["Revenue data", "Churn signals", "Feature usage", "Support tickets", "Competitor moves"],
+        "process": ["Trend analysis", "Early warning", "Product insights", "Pattern detection", "Market intelligence"],
+        "output": ["Growth projections", "Intervention triggers", "Roadmap priorities", "FAQ/doc updates", "Strategic response"]
+      },
+      "dailyBriefing": {
+        "time": "7:00 AM",
+        "sections": ["Business (MRR, students, churn)", "Product (SKOREQ, PRs, blockers)", "Content (views, clips, queue)", "Calendar (today's schedule)", "Suggested focus"],
+        "delivery": "Spoken by Roxy + visual dashboard"
+      }
+    }
+  },
+  "phases": [
+    {
+      "id": "LUNA-000-P0",
+      "name": "Pre-Flight",
+      "status": "complete",
+      "percent": 100,
+      "description": "Ubuntu boot, GPU detection, base infrastructure"
+    },
+    {
+      "id": "LUNA-000-P1",
+      "name": "Voice Stack Core",
+      "status": "in-progress",
+      "percent": 85,
+      "description": "Whisper STT, Piper/ChatterBox TTS, OpenWakeWord, voice loop",
+      "notes": "Whisper (CPU), Piper TTS, OpenWakeWord installed. roxy_assistant.py deployed. Pending: speakers, ChatterBox venv, voice cloning"
+    },
+    {
+      "id": "LUNA-000-P2",
+      "name": "RAG Brain",
+      "status": "complete",
+      "percent": 100,
+      "description": "ChromaDB, embeddings, jarvis-ingest/jarvis-ask, codebase ingestion"
+    },
+    {
+      "id": "LUNA-000-P3",
+      "name": "Home Assistant + Integration",
+      "status": "in-progress",
+      "percent": 80,
+      "description": "HA + Wyoming stack, Tailscale remote access, systemd services",
+      "notes": "HA + Wyoming deployed. Pending: HA onboarding, Tailscale auth, voice pipeline config"
+    },
+    {
+      "id": "LUNA-000-P4",
+      "name": "Voice Personality",
+      "status": "pending",
+      "percent": 0,
+      "description": "Voice cloning, emotion detection, multi-room audio, interrupt handling"
+    },
+    {
+      "id": "LUNA-000-P5",
+      "name": "Knowledge Omniscience",
+      "status": "pending",
+      "percent": 0,
+      "description": "All docs ingestion, calendar/email RAG, codebase live-sync, git history awareness"
+    },
+    {
+      "id": "LUNA-000-P6",
+      "name": "MCP Architecture",
+      "status": "pending",
+      "percent": 0,
+      "description": "Full MCP server ecosystem for all five organs"
+    },
+    {
+      "id": "LUNA-000-P7",
+      "name": "Content Pipeline (Opus Killer)",
+      "status": "pending",
+      "percent": 0,
+      "description": "OBS automation, Whisper transcription, clip detection, FFmpeg extraction, social scheduling"
+    },
+    {
+      "id": "LUNA-000-P8",
+      "name": "Student Intelligence",
+      "status": "pending",
+      "percent": 0,
+      "description": "LMS integration, progress tracking, at-risk detection, automated interventions"
+    },
+    {
+      "id": "LUNA-000-P9",
+      "name": "Marketing Automation",
+      "status": "pending",
+      "percent": 0,
+      "description": "Social APIs, content calendar, optimal timing, analytics aggregation"
+    },
+    {
+      "id": "LUNA-000-P10",
+      "name": "Business Intelligence",
+      "status": "pending",
+      "percent": 0,
+      "description": "Stripe integration, daily briefings, churn prediction, growth forecasting"
+    },
+    {
+      "id": "LUNA-000-P11",
+      "name": "Broadcast Stack",
+      "status": "pending",
+      "percent": 0,
+      "description": "DeckLink drivers, OBS WebSocket, NDI streaming, voice-controlled broadcast"
+    },
+    {
+      "id": "LUNA-000-P12",
+      "name": "Monitoring & Observability",
+      "status": "pending",
+      "percent": 0,
+      "description": "Grafana dashboards, proactive alerts, session journaling, system health HUD"
+    }
+  ],
+  "mcpServers": {
+    "core": [
+      {"name": "mcp-filesystem", "purpose": "Read/write files"},
+      {"name": "mcp-git", "purpose": "Commits, branches, PRs"},
+      {"name": "mcp-github", "purpose": "Issues, PRs, Actions"},
+      {"name": "mcp-chromadb", "purpose": "RAG queries"},
+      {"name": "mcp-docker", "purpose": "Container management"}
+    ],
+    "content": [
+      {"name": "mcp-obs", "purpose": "Streaming control"},
+      {"name": "mcp-ffmpeg", "purpose": "Video processing, clip extraction"},
+      {"name": "mcp-whisper", "purpose": "Transcription, captioning"},
+      {"name": "mcp-media", "purpose": "File management, metadata"}
+    ],
+    "social": [
+      {"name": "mcp-twitter", "purpose": "Post, schedule, analytics"},
+      {"name": "mcp-youtube", "purpose": "Upload, metadata, analytics"},
+      {"name": "mcp-tiktok", "purpose": "Post, schedule, analytics"},
+      {"name": "mcp-instagram", "purpose": "Post, schedule, analytics"}
+    ],
+    "business": [
+      {"name": "mcp-stripe", "purpose": "Revenue, subscriptions, invoices"},
+      {"name": "mcp-email", "purpose": "Send, receive, templates"},
+      {"name": "mcp-calendar", "purpose": "Events, scheduling"},
+      {"name": "mcp-analytics", "purpose": "Plausible/Posthog integration"}
+    ],
+    "education": [
+      {"name": "mcp-lms", "purpose": "Student progress, assessments"},
+      {"name": "mcp-discord", "purpose": "Community management, bot"},
+      {"name": "mcp-notion", "purpose": "Course content, wikis"}
+    ]
+  },
+  "sprints": [
+    {
+      "id": "LUNA-000-S1",
+      "name": "Foundation Sprint",
+      "description": "Ubuntu boot, GPU detection, Ollama, ChromaDB, Claude Code",
+      "status": "complete",
+      "startDate": "2025-12-22",
+      "endDate": "2025-12-22"
+    },
+    {
+      "id": "LUNA-000-S2",
+      "name": "Voice Stack Sprint",
+      "description": "Whisper ROCm, ChatterBox TTS, OpenWakeWord, basic voice loop",
+      "status": "in-progress",
+      "startDate": "2025-12-22",
+      "endDate": "2025-12-25",
+      "notes": "Whisper on CPU (ROCm arch mismatch), Piper fallback for TTS"
+    },
+    {
+      "id": "LUNA-000-S3",
+      "name": "Integration Sprint",
+      "description": "Home Assistant, Tailscale, MCP servers, phone access",
+      "status": "in-progress",
+      "startDate": "2025-12-22",
+      "endDate": "2025-12-28",
+      "notes": "HA + Wyoming deployed. Tailscale needs browser auth"
+    },
+    {
+      "id": "LUNA-000-S4",
+      "name": "Voice Personality Sprint",
+      "description": "Voice cloning, emotion detection, multi-room audio",
+      "status": "pending",
+      "startDate": "2025-12-29",
+      "endDate": "2026-01-05"
+    },
+    {
+      "id": "LUNA-000-S5",
+      "name": "Content Pipeline Sprint",
+      "description": "OBS WebSocket, Whisper real-time, clip detection, FFmpeg, social scheduling",
+      "status": "pending",
+      "startDate": "2026-01-06",
+      "endDate": "2026-01-19"
+    },
+    {
+      "id": "LUNA-000-S6",
+      "name": "Student Intelligence Sprint",
+      "description": "LMS data ingestion, progress dashboard, at-risk detection, Discord bot",
+      "status": "pending",
+      "startDate": "2026-01-20",
+      "endDate": "2026-02-02"
+    },
+    {
+      "id": "LUNA-000-S7",
+      "name": "Marketing Automation Sprint",
+      "description": "Social APIs, content calendar, optimal timing, analytics aggregation",
+      "status": "pending",
+      "startDate": "2026-02-03",
+      "endDate": "2026-02-16"
+    },
+    {
+      "id": "LUNA-000-S8",
+      "name": "Business Intelligence Sprint",
+      "description": "Stripe integration, unified dashboard, daily briefings, churn prediction",
+      "status": "pending",
+      "startDate": "2026-02-17",
+      "endDate": "2026-03-02"
+    }
+  ],
+  "stories": [
+    {
+      "id": "LUNA-000-STORY-001",
+      "title": "Ubuntu Thunderbolt Boot",
+      "description": "Configure Ubuntu 24.04 to boot from ORION Thunderbolt NVMe drive on Mac Pro 2019 with T2 chip",
+      "status": "complete",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P0",
+      "sprintId": "LUNA-000-S1",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-002",
+      "title": "Ollama + ROCm Installation",
+      "description": "Install Ollama with ROCm GPU acceleration for local LLM inference",
+      "status": "complete",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P0",
+      "sprintId": "LUNA-000-S1",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-003",
+      "title": "ChromaDB + RAG Pipeline",
+      "description": "Set up ChromaDB vector database with jarvis-ingest and jarvis-ask scripts",
+      "status": "complete",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P2",
+      "sprintId": "LUNA-000-S1",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-004",
+      "title": "Whisper Installation",
+      "description": "Install OpenAI Whisper with PyTorch for speech-to-text",
+      "status": "complete",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P1",
+      "sprintId": "LUNA-000-S2",
+      "storyPoints": 5,
+      "notes": "Running on CPU due to ROCm gfx mismatch"
+    },
+    {
+      "id": "LUNA-000-STORY-005",
+      "title": "TTS Installation (Piper + ChatterBox)",
+      "description": "Install TTS engines - Piper working, ChatterBox in Python 3.11 venv",
+      "status": "in-progress",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P1",
+      "sprintId": "LUNA-000-S2",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-006",
+      "title": "Custom Wake Word Training",
+      "description": "Train OpenWakeWord model for 'Hey Roxy' wake phrase",
+      "status": "in-progress",
+      "priority": "high",
+      "phaseId": "LUNA-000-P1",
+      "sprintId": "LUNA-000-S2",
+      "storyPoints": 5,
+      "notes": "61 synthetic samples generated. Training pending."
+    },
+    {
+      "id": "LUNA-000-STORY-007",
+      "title": "Voice Assistant Loop",
+      "description": "Create roxy_assistant.py with full wake→STT→LLM→TTS pipeline",
+      "status": "in-progress",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P1",
+      "sprintId": "LUNA-000-S2",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-008",
+      "title": "Home Assistant Deployment",
+      "description": "Deploy Home Assistant Core via Docker with Wyoming voice services",
+      "status": "complete",
+      "priority": "high",
+      "phaseId": "LUNA-000-P3",
+      "sprintId": "LUNA-000-S3",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-009",
+      "title": "Tailscale Remote Access",
+      "description": "Authenticate Tailscale and configure secure remote access",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P3",
+      "sprintId": "LUNA-000-S3",
+      "storyPoints": 3,
+      "blockedBy": "physical-access"
+    },
+    {
+      "id": "LUNA-000-STORY-010",
+      "title": "Voice Cloning Setup",
+      "description": "Record 5-minute voice sample, fine-tune ChatterBox for personalized Roxy voice",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P4",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-011",
+      "title": "Emotion-Aware Responses",
+      "description": "Detect frustration/excitement in voice, adjust response style accordingly",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P4",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-012",
+      "title": "Multi-Room Audio",
+      "description": "Snapcast server for distributed speakers, respond from nearest speaker",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P4",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-013",
+      "title": "Interrupt Handling",
+      "description": "'Hey Roxy, stop' mid-response, 'shorter' preference learning",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P4",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-014",
+      "title": "Full Documents Ingestion",
+      "description": "Ingest ~/Documents, Notion exports, Google Drive sync into RAG",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P5",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-015",
+      "title": "Calendar + Email RAG",
+      "description": "CalDAV + IMAP ingestion for schedule and email awareness",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P5",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-016",
+      "title": "Codebase Live-Sync",
+      "description": "File watcher re-embeds on save, always-current architecture knowledge",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P5",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-017",
+      "title": "Git History Awareness",
+      "description": "Embed commit messages and PRs for 'what changed last week?' queries",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P5",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-018",
+      "title": "Voice-Triggered Git Ops",
+      "description": "'Hey Roxy, commit and push' runs commit, reads diff summary, pushes",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P6",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-019",
+      "title": "Build Status Announcer",
+      "description": "GitHub Actions webhook triggers Roxy announcements on build pass/fail",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P6",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-020",
+      "title": "Smart Home Scenes",
+      "description": "'Roxy, coding mode' dims lights, DND, focus playlist, silence notifications",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P6",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-021",
+      "title": "OBS WebSocket Integration",
+      "description": "Voice-controlled OBS: start/stop streaming, switch scenes, recording",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P7",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-022",
+      "title": "Real-Time Transcription Overlay",
+      "description": "Whisper real-time → OBS text source for auto-captions on stream",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P7",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-023",
+      "title": "AI Clip Detection",
+      "description": "LLM analyzes transcript for viral moments, scores 1-100, suggests boundaries",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P7",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-024",
+      "title": "FFmpeg Clip Extraction Pipeline",
+      "description": "Extract clips, add animated captions, resize for platform (9:16, 1:1, 16:9)",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P7",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-025",
+      "title": "Social Scheduling Integration",
+      "description": "Auto-schedule clips across TikTok, Instagram, YouTube, Twitter at optimal times",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P7",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-026",
+      "title": "Thumbnail Generator",
+      "description": "Stable Diffusion local generates thumbnails from stream topics",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P7",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-027",
+      "title": "LMS Data Ingestion",
+      "description": "Ingest student progress, lesson completions, assessment scores",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P8",
+      "sprintId": "LUNA-000-S6",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-028",
+      "title": "Progress Tracking Dashboard",
+      "description": "Real-time cohort visualization, module completion rates, stuck points",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P8",
+      "sprintId": "LUNA-000-S6",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-029",
+      "title": "At-Risk Detection Algorithm",
+      "description": "Flag students inactive 7+ days or stuck on same lesson",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P8",
+      "sprintId": "LUNA-000-S6",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-030",
+      "title": "Automated Re-Engagement Emails",
+      "description": "AI-drafted personalized emails for at-risk students",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P8",
+      "sprintId": "LUNA-000-S6",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-031",
+      "title": "Discord Bot Integration",
+      "description": "RAG-powered answers to community questions, moderation",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P8",
+      "sprintId": "LUNA-000-S6",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-032",
+      "title": "Social API Integrations",
+      "description": "Connect Twitter, YouTube, TikTok, Instagram APIs for posting/analytics",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P9",
+      "sprintId": "LUNA-000-S7",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-033",
+      "title": "Content Calendar Generation",
+      "description": "AI generates 7-day content calendar from available clips/content",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P9",
+      "sprintId": "LUNA-000-S7",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-034",
+      "title": "Optimal Timing Algorithm",
+      "description": "Learn best posting times per platform from engagement data",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P9",
+      "sprintId": "LUNA-000-S7",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-035",
+      "title": "Analytics Aggregation",
+      "description": "Unified view of performance across all platforms",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P9",
+      "sprintId": "LUNA-000-S7",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-036",
+      "title": "Stripe Integration",
+      "description": "Real-time revenue, subscription, invoice data",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P10",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-037",
+      "title": "Unified Business Dashboard",
+      "description": "MRR, churn, growth, students, content performance in one view",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P10",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-038",
+      "title": "Daily Briefing Generator",
+      "description": "7 AM spoken + visual summary of all business metrics",
+      "status": "pending",
+      "priority": "critical",
+      "phaseId": "LUNA-000-P10",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-039",
+      "title": "Churn Prediction Model",
+      "description": "Early warning on at-risk subscribers based on behavior patterns",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P10",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-040",
+      "title": "Growth Forecasting",
+      "description": "Predict MRR, student count, content performance trends",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P10",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-041",
+      "title": "DeckLink Driver Installation",
+      "description": "Install Blackmagic DeckLink drivers for SDI capture",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P11",
+      "sprintId": "LUNA-000-S5",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-042",
+      "title": "Grafana System Health Dashboard",
+      "description": "GPU temps, VRAM usage, Docker health, query latencies, wall display",
+      "status": "pending",
+      "priority": "high",
+      "phaseId": "LUNA-000-P12",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 5
+    },
+    {
+      "id": "LUNA-000-STORY-043",
+      "title": "Proactive System Alerts",
+      "description": "'Mark, RX 6900 XT is at 85°C, want me to throttle Ollama?'",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P12",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-044",
+      "title": "Session Journaling",
+      "description": "Auto-log all Roxy interactions, searchable history",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P12",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-045",
+      "title": "Local Stable Diffusion",
+      "description": "ROCm SD on RX 6900 XT for UI mockups, thumbnails, visuals",
+      "status": "pending",
+      "priority": "low",
+      "phaseId": "LUNA-000-P12",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 8
+    },
+    {
+      "id": "LUNA-000-STORY-046",
+      "title": "Llama 3.1 70B Quantized Upgrade",
+      "description": "Upgrade from 8B to 70B quantized for smarter responses",
+      "status": "pending",
+      "priority": "medium",
+      "phaseId": "LUNA-000-P12",
+      "sprintId": "LUNA-000-S8",
+      "storyPoints": 3
+    },
+    {
+      "id": "LUNA-000-STORY-047",
+      "title": "Voice Biometrics",
+      "description": "Roxy only responds to Mark's voice, ignores TV/guests",
+      "status": "pending",
+      "priority": "low",
+      "phaseId": "LUNA-000-P4",
+      "sprintId": "LUNA-000-S4",
+      "storyPoints": 8
+    }
+  ],
+  "completedMilestones": [
+    {
+      "date": "2025-12-22",
+      "milestone": "Ubuntu Thunderbolt Boot Achieved",
+      "notes": "Solved T2 chip issues, Thunderbolt authorization, initramfs configuration"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "Dual GPU ROCm Working",
+      "notes": "W5700X + RX 6900 XT both detected and accelerating Ollama"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "RAG Pipeline Operational",
+      "notes": "ChromaDB + nomic-embed-text + langchain = working jarvis-ask"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "MacPronix Gym Baseline",
+      "notes": "GPU thermals (27-30C), vkmark 7999, ORION 4.1GB/s read"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "Voice Stack 85% Complete",
+      "notes": "PyTorch ROCm, Whisper (CPU), Piper TTS, OpenWakeWord. roxy_assistant.py deployed"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "Home Assistant + Wyoming Deployed",
+      "notes": "Docker compose: HA + wyoming-whisper + wyoming-piper + wyoming-openwakeword"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "Dev Environment Complete",
+      "notes": "bun 1.3.5, pnpm, Cursor 2.2.43, gh CLI, full repo cloned, 547 chunks ingested"
+    },
+    {
+      "date": "2025-12-22",
+      "milestone": "Auto-Healing Services",
+      "notes": "systemd services for Ollama, HA, Roxy. Timeshift weekly backups. UFW firewall. chezmoi dotfiles"
+    }
+  ],
+  "successCriteria": {
+    "voiceInterface": [
+      "'Hey Roxy' responds in <3 seconds",
+      "Voice clone sounds natural and consistent",
+      "Can control all 5 organs via voice"
+    ],
+    "contentPipeline": [
+      "3-hour stream → 10+ clips in <30 minutes",
+      "Clips auto-scheduled across 4 platforms",
+      "Captions accurate to 98%+"
+    ],
+    "studentSuccess": [
+      "At-risk students flagged within 48 hours",
+      "Re-engagement emails sent automatically",
+      "Completion rate visible in real-time"
+    ],
+    "marketingAutomation": [
+      "7-day content calendar generated weekly",
+      "Posts scheduled at optimal times",
+      "Performance analytics aggregated daily"
+    ],
+    "businessIntelligence": [
+      "Daily briefing generated by 7 AM",
+      "MRR, churn, growth visible at a glance",
+      "Predictive alerts on anomalies"
+    ]
+  },
+  "costAnalysis": {
+    "local": {
+      "hardware": {"cost": 0, "notes": "Already owned Mac Pro 2019"},
+      "ollama": {"cost": 0, "notes": "Local inference"},
+      "chromadb": {"cost": 0, "notes": "Local storage"},
+      "homeAssistant": {"cost": 0, "notes": "Self-hosted"},
+      "whisper": {"cost": 0, "notes": "Local inference"},
+      "chatterbox": {"cost": 0, "notes": "Local inference"},
+      "tailscale": {"cost": 0, "notes": "Personal tier"},
+      "obs": {"cost": 0, "notes": "Open source"},
+      "ffmpeg": {"cost": 0, "notes": "Open source"},
+      "subtotal": 0
+    },
+    "cloud": {
+      "claudeCode": {"cost": 20, "notes": "Development subscription"},
+      "socialAPIs": {"cost": 50, "notes": "Various platforms"},
+      "email": {"cost": 10, "notes": "Postmark transactional"},
+      "analytics": {"cost": 9, "notes": "Plausible privacy-focused"},
+      "subtotal": 89
+    },
+    "total": 89,
+    "comparison": "vs $500+/month cloud-native equivalent (Opus Clip + scheduling + analytics + etc.)"
+  },
+  "documentation": {
+    "masterPlan": "research/JARVIS1_ROXY_UNIFIED_MASTER_PLAN.md",
+    "technicalSpec": "research/JARVIS1_TECHNICAL_PLAN.md",
+    "nexusVision": "research/NEXUS_ORGANISM_VISION.md",
+    "benchmarks": "~/.gym/results/baseline-20251223.json"
+  },
+  "sixMonthVision": {
+    "description": "Mark wakes up. Roxy speaks:",
+    "briefingExample": "Good morning. MRR hit $15,000 overnight—we crossed the milestone. Your January cohort has 94% completion, highest ever. Yesterday's clip about chord inversions hit 50K views. Phoenix Protocol is two tasks from full completion. Your 10 AM is with the team, and you have a clear afternoon for deep work. Coffee's ready. What would you like to focus on first?",
+    "principles": [
+      "Everything connected",
+      "Everything flowing",
+      "Everything serving the mission: Teach the world to make music"
+    ]
+  }
+}

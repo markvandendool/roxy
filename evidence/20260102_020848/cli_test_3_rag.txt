@@ -1,0 +1,6 @@
+[ROXY] Processing: what is roxy
+[ROXY] Routing to: rag ['what is roxy']
+
+Based on the provided context, Roxy appears to be an AI assistant or a system with advanced capabilities. The contexts mention Roxy as a comprehensive analysis tool, indicating that it is likely a software or artificial intelligence solution designed for complex problem-solving and data analysis.
+
+📌 Source: RAG (Retrieval Augmented Generation) - 5 context chunks

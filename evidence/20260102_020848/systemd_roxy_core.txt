@@ -1,0 +1,20 @@
+● roxy-core.service - ROXY Core (always-on background service)
+     Loaded: loaded (/home/mark/.config/systemd/user/roxy-core.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-01-02 02:05:06 UTC; 4min 3s ago
+   Main PID: 3975632 (python)
+      Tasks: 173 (limit: 192980)
+     Memory: 71.7M (peak: 298.0M)
+        CPU: 13.048s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/roxy-core.service
+             └─3975632 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+
+Jan 02 02:05:26 macpro-linux python[3975632]: 2026-01-02 02:05:26,149 [INFO] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+Jan 02 02:05:38 macpro-linux python[3975632]: 2026-01-02 02:05:38,113 [INFO] [4293b320] Route: subprocess (subprocess: 13438ms)
+Jan 02 02:05:38 macpro-linux python[3975632]: 2026-01-02 02:05:38,127 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:05:38 macpro-linux python[3975632]: 2026-01-02 02:05:38,128 [INFO] [4293b320] Complete: route=subprocess, total=13454ms, subprocess=13438ms, size=510b
+Jan 02 02:05:39 macpro-linux python[3975632]: 2026-01-02 02:05:39,794 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 02 02:05:39 macpro-linux python[3975632]: 2026-01-02 02:05:39,795 [INFO] [b9f1e67d] Request start from 127.0.0.1
+Jan 02 02:05:39 macpro-linux python[3975632]: 2026-01-02 02:05:39,795 [INFO] [b9f1e67d] Command: what is roxy
+Jan 02 02:05:54 macpro-linux python[3975632]: 2026-01-02 02:05:54,671 [INFO] [b9f1e67d] Route: subprocess (subprocess: 14876ms)
+Jan 02 02:05:54 macpro-linux python[3975632]: 2026-01-02 02:05:54,680 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:05:54 macpro-linux python[3975632]: 2026-01-02 02:05:54,680 [INFO] [b9f1e67d] Complete: route=subprocess, total=14885ms, subprocess=14876ms, size=540b

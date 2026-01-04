@@ -1,0 +1,153 @@
+{
+  "passed": [
+    {
+      "test": "Health Endpoint",
+      "passed": true,
+      "message": "Health check successful",
+      "timestamp": "2026-01-02T02:45:55.280654"
+    },
+    {
+      "test": "Git Commands",
+      "passed": true,
+      "message": "3/3 git commands routed correctly",
+      "timestamp": "2026-01-02T02:47:41.985334"
+    },
+    {
+      "test": "OBS Commands",
+      "passed": true,
+      "message": "3/3 OBS commands routed correctly",
+      "timestamp": "2026-01-02T02:47:42.529864"
+    },
+    {
+      "test": "Health Commands",
+      "passed": true,
+      "message": "3/3 health commands routed correctly",
+      "timestamp": "2026-01-02T02:47:44.257692"
+    },
+    {
+      "test": "RAG Queries",
+      "passed": true,
+      "message": "3/3 RAG queries successful, 2 with source attribution",
+      "timestamp": "2026-01-02T02:47:59.783467"
+    },
+    {
+      "test": "Hybrid Search",
+      "passed": true,
+      "message": "3/3 hybrid search queries successful (integrated in RAG)",
+      "timestamp": "2026-01-02T02:48:03.505445"
+    },
+    {
+      "test": "Tool Direct Execution",
+      "passed": true,
+      "message": "2/2 tool executions successful",
+      "timestamp": "2026-01-02T02:48:04.788207"
+    },
+    {
+      "test": "Capabilities Query",
+      "passed": true,
+      "message": "Capabilities query successful",
+      "timestamp": "2026-01-02T02:48:04.911638"
+    },
+    {
+      "test": "Model Info Query",
+      "passed": true,
+      "message": "Model info query successful",
+      "timestamp": "2026-01-02T02:48:05.036347"
+    },
+    {
+      "test": "Unavailable Capabilities Rejection",
+      "passed": true,
+      "message": "3/3 correctly rejected",
+      "timestamp": "2026-01-02T02:48:05.317010"
+    },
+    {
+      "test": "Streaming Responses",
+      "passed": true,
+      "message": "Streaming endpoint working",
+      "timestamp": "2026-01-02T02:48:08.559480"
+    },
+    {
+      "test": "Batch Processing",
+      "passed": true,
+      "message": "Batch processed 3 commands",
+      "timestamp": "2026-01-02T02:48:11.306107"
+    },
+    {
+      "test": "Context Management",
+      "passed": true,
+      "message": "2/2 context queries successful",
+      "timestamp": "2026-01-02T02:48:23.697456"
+    },
+    {
+      "test": "Validation Gates",
+      "passed": true,
+      "message": "Validation gates working",
+      "timestamp": "2026-01-02T02:48:26.208001"
+    },
+    {
+      "test": "Error Recovery",
+      "passed": true,
+      "message": "Error recovery working",
+      "timestamp": "2026-01-02T02:48:28.438507"
+    },
+    {
+      "test": "LLM Routing",
+      "passed": true,
+      "message": "LLM routing working",
+      "timestamp": "2026-01-02T02:48:34.170622"
+    },
+    {
+      "test": "Observability",
+      "passed": true,
+      "message": "Observability logging working",
+      "timestamp": "2026-01-02T02:48:41.056262"
+    },
+    {
+      "test": "Evaluation Metrics",
+      "passed": true,
+      "message": "Evaluation metrics collection working",
+      "timestamp": "2026-01-02T02:48:47.562484"
+    },
+    {
+      "test": "Concurrent Requests",
+      "passed": true,
+      "message": "17/20 concurrent requests successful",
+      "timestamp": "2026-01-02T02:49:51.777939"
+    },
+    {
+      "test": "Prompt Templates",
+      "passed": true,
+      "message": "Prompt templates working",
+      "timestamp": "2026-01-02T02:49:55.016893"
+    }
+  ],
+  "failed": [
+    {
+      "test": "Security Input Sanitization",
+      "passed": false,
+      "message": "Security not blocking dangerous commands",
+      "timestamp": "2026-01-02T02:47:40.551970"
+    }
+  ],
+  "warnings": [
+    {
+      "test": "Rate Limiting",
+      "passed": true,
+      "message": "Rate limiting configured (25 requests processed)",
+      "timestamp": "2026-01-02T02:47:38.332869"
+    },
+    {
+      "test": "Semantic Caching",
+      "passed": true,
+      "message": "Cache infrastructure working (time1=2.71s, time2=2.72s, may not have hit)",
+      "timestamp": "2026-01-02T02:48:17.237039"
+    }
+  ],
+  "stats": {
+    "total": 23,
+    "passed": 20,
+    "failed": 1,
+    "warnings": 2,
+    "start_time": "2026-01-02T02:45:55.278428"
+  }
+}

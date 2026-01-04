@@ -1,0 +1,1 @@
+{"status": "ok", "service": "roxy-core", "timestamp": "2026-01-03T00:50:14.514507", "checks": {"auth_token": "ok", "rate_limiter": "ok", "chromadb": "ok", "ollama": "ok"}}

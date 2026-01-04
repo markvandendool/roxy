@@ -1,0 +1,20 @@
+● roxy-core.service - ROXY Core (always-on background service)
+     Loaded: loaded (/home/mark/.config/systemd/user/roxy-core.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-01-02 03:25:16 UTC; 13h ago
+   Main PID: 809812 (python)
+      Tasks: 114 (limit: 192980)
+     Memory: 64.5M (peak: 283.2M)
+        CPU: 52.720s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/roxy-core.service
+             └─809812 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py
+
+Jan 02 14:58:19 macpro-linux python[809812]: 2026-01-02 14:58:19,333 [INFO] Executing command: open obs
+Jan 02 14:58:19 macpro-linux python[809812]: 2026-01-02 14:58:19,507 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 14:58:38 macpro-linux python[809812]: 2026-01-02 14:58:38,802 [INFO] Executing command: hi roxy
+Jan 02 14:58:41 macpro-linux python[809812]: 2026-01-02 14:58:41,965 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 14:58:42 macpro-linux python[809812]: 2026-01-02 14:58:42,505 [INFO] Executing command: what is new today
+Jan 02 14:58:46 macpro-linux python[809812]: 2026-01-02 14:58:46,387 [INFO] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+Jan 02 14:58:46 macpro-linux python[809812]: 2026-01-02 14:58:46,494 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 14:58:47 macpro-linux python[809812]: 2026-01-02 14:58:47,296 [INFO] Executing command: what is roxy
+Jan 02 14:58:51 macpro-linux python[809812]: 2026-01-02 14:58:51,342 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 16:45:35 macpro-linux python[809812]: 2026-01-02 16:45:35,212 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -

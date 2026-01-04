@@ -1,0 +1,29 @@
+# Hey Roxy Wake Word Training Configuration
+# For use with OpenWakeWord training tools
+
+model_name: hey_roxy
+version: 1.0
+
+data:
+  positive_dir: ~/.roxy/wake/hey_roxy/positive
+  negative_dir: ~/.roxy/wake/hey_roxy/negative
+  manifest: ~/.roxy/wake/hey_roxy/training_manifest.json
+
+training:
+  epochs: 100
+  batch_size: 32
+  learning_rate: 0.001
+  
+augmentation:
+  speed_range: [0.9, 1.1]
+  pitch_shift: [-2, 2]
+  add_noise: true
+  noise_snr: [10, 30]
+
+output:
+  model_path: ~/.roxy/models/hey_roxy.tflite
+  onnx_path: ~/.roxy/models/hey_roxy.onnx
+
+thresholds:
+  detection: 0.5
+  false_positive_rate: 0.01

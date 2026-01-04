@@ -1,0 +1,19 @@
+/home/mark/.roxy/roxy_commands.py:531:        # Get embedding using DefaultEmbeddingFunction (384-dim) - MUST match collection
+/home/mark/.roxy/roxy_commands.py:532:        from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/roxy_commands.py:533:        embedding_fn = DefaultEmbeddingFunction()
+/home/mark/.roxy/roxy_commands.py:537:        # CRITICAL: Pass embedding_function to get_collection so it matches
+/home/mark/.roxy/roxy_commands.py:538:        collection = client.get_collection("mindsong_docs", embedding_function=embedding_fn)
+/home/mark/.roxy/roxy_commands.py:540:        # Enhanced query with query_texts (ChromaDB will handle embedding internally)
+/home/mark/.roxy/roxy_commands.py:542:            query_texts=[expanded_query],
+/home/mark/.roxy/mcp/mcp_chromadb.py:12:CHIEF FIX: Use DefaultEmbeddingFunction (384-dim) to match collection contract
+/home/mark/.roxy/mcp/mcp_chromadb.py:19:from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+/home/mark/.roxy/mcp/mcp_chromadb.py:52:def get_embedding_function():
+/home/mark/.roxy/mcp/mcp_chromadb.py:53:    """Get DefaultEmbeddingFunction (384-dim) - MUST match collection"""
+/home/mark/.roxy/mcp/mcp_chromadb.py:54:    return DefaultEmbeddingFunction()
+/home/mark/.roxy/mcp/mcp_chromadb.py:60:        embedding_fn = get_embedding_function()
+/home/mark/.roxy/mcp/mcp_chromadb.py:66:            # CHIEF FIX: Use query_texts (not query_embeddings) with embedding_function
+/home/mark/.roxy/mcp/mcp_chromadb.py:67:            collection = client.get_collection("mindsong_docs", embedding_function=embedding_fn)
+/home/mark/.roxy/mcp/mcp_chromadb.py:69:                query_texts=[query],
+/home/mark/.roxy/mcp/mcp_chromadb.py:87:            # CHIEF FIX: Use embedding_function, ChromaDB handles embedding internally
+/home/mark/.roxy/mcp/mcp_chromadb.py:90:                embedding_function=embedding_fn
+/home/mark/.roxy/mcp/mcp_chromadb.py:99:        , embedding_function=embedding_fn

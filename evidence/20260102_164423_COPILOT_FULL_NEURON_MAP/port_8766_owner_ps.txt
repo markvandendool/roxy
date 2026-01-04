@@ -1,0 +1,2 @@
+UID          PID    PPID  C STIME TTY          TIME CMD
+mark      809812    4143  0 03:25 ?        00:00:11 /home/mark/.roxy/venv/bin/python /home/mark/.roxy/roxy_core.py

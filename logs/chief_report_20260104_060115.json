@@ -1,0 +1,60 @@
+{
+  "passed": 8,
+  "total": 9,
+  "tests": [
+    {
+      "name": "Redis Cache",
+      "passed": true,
+      "detail": "\u2713 1.34M memory",
+      "time_ms": 3
+    },
+    {
+      "name": "PostgreSQL Memory",
+      "passed": true,
+      "detail": "\u2713 Connected",
+      "time_ms": 1
+    },
+    {
+      "name": "NATS JetStream",
+      "passed": true,
+      "detail": "\u2713 JetStream active",
+      "time_ms": 1
+    },
+    {
+      "name": "Expert Router",
+      "passed": true,
+      "detail": "\u2713 5 experts ready",
+      "time_ms": 1
+    },
+    {
+      "name": "Feedback System",
+      "passed": true,
+      "detail": "\u2713 3 entries",
+      "time_ms": 1
+    },
+    {
+      "name": "GET /cache/stats",
+      "passed": false,
+      "detail": "HTTP 404",
+      "time_ms": 1
+    },
+    {
+      "name": "POST /memory/recall",
+      "passed": true,
+      "detail": "\u2713 0 memories found",
+      "time_ms": 1
+    },
+    {
+      "name": "Code Query \u2192 code expert",
+      "passed": true,
+      "detail": "type=code conf=85%",
+      "time_ms": 6332
+    },
+    {
+      "name": "Math Query \u2192 math expert",
+      "passed": true,
+      "detail": "type=math conf=90%",
+      "time_ms": 15194
+    }
+  ]
+}

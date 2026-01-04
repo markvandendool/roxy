@@ -1,0 +1,13 @@
+Generated: 2026-01-02T07:00:10.104366
+
+Hey Mark! Roxy here, and I've got your morning briefing ready to go.
+
+First off, great job on the MRR front - we're seeing 8.5% growth, which is fantastic news! That's a total of $12,500 coming in, so let's keep that momentum going.
+
+On the student side, we've got 156 active learners, with 8 who are at-risk and might need some extra attention. Our content team has got 14 clips ready to roll, and another 21 scheduled for release soon.
+
+In terms of products, I'm keeping an eye on three open PRs and looking forward to the next release of our software, v0.4.0 - it's shaping up to be a big update.
+
+Finally, take note that you've got two meetings today: first one at 10:00 AM is your team sync, so make sure to clear your schedule for that.
+
+That's all for now, Mark! What would you like to focus on first?

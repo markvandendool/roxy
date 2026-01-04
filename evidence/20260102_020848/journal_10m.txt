@@ -1,0 +1,706 @@
+Jan 02 02:13:27 macpro-linux python[3975632]: 2026-01-02 02:13:27,764 [INFO] Received signal 15
+Jan 02 02:13:27 macpro-linux python[3975632]: 2026-01-02 02:13:27,764 [INFO] Stopping ROXY core...
+Jan 02 02:13:27 macpro-linux systemd[4143]: Stopping roxy-core.service - ROXY Core (always-on background service)...
+Jan 02 02:13:28 macpro-linux python[3975632]: 2026-01-02 02:13:28,243 [INFO] ✓ HTTP server stopped
+Jan 02 02:13:28 macpro-linux python[3975632]: 2026-01-02 02:13:28,244 [INFO] ROXY core stopped
+Jan 02 02:13:28 macpro-linux systemd[4143]: Stopped roxy-core.service - ROXY Core (always-on background service).
+Jan 02 02:13:28 macpro-linux systemd[4143]: roxy-core.service: Consumed 13.464s CPU time, 298.0M memory peak, 0B memory swap peak.
+Jan 02 02:13:28 macpro-linux systemd[4143]: Started roxy-core.service - ROXY Core (always-on background service).
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,907 [INFO] ✅ Truth Gate initialized (hallucination prevention)
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] ✅ Truth Gate initialized (hallucination prevention)
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] ✓ Auth token loaded
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] ============================================================
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] ROXY CORE INITIALIZING
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] IPC Endpoint: http://127.0.0.1:8766
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] ============================================================
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,908 [INFO] Using basic mode (advanced services not available)
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,910 [INFO] ✓ HTTP IPC server listening on 127.0.0.1:8766
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,911 [INFO] ✓ Server thread started
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,911 [INFO] Background tasks: ready
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,911 [INFO] ============================================================
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,911 [INFO] ROXY CORE RUNNING
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,911 [INFO] Test with: curl http://127.0.0.1:8766/health
+Jan 02 02:13:28 macpro-linux python[4074778]: 2026-01-02 02:13:28,911 [INFO] ============================================================
+Jan 02 02:13:39 macpro-linux python[4074778]: 2026-01-02 02:13:39,246 [INFO] [84145613] Request start from 127.0.0.1
+Jan 02 02:13:39 macpro-linux python[4074778]: 2026-01-02 02:13:39,246 [INFO] [84145613] Command: Which onboarding documents exist?
+Jan 02 02:13:40 macpro-linux python[4074778]: 2026-01-02 02:13:40,118 [INFO] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+Jan 02 02:13:45 macpro-linux python[4074778]: 2026-01-02 02:13:45,185 [INFO] [84145613] Route: subprocess (subprocess: 5938ms)
+Jan 02 02:13:45 macpro-linux python[4074778]: 2026-01-02 02:13:45,196 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:13:45 macpro-linux python[4074778]: 2026-01-02 02:13:45,196 [INFO] [84145613] Complete: route=subprocess, total=5950ms, subprocess=5938ms, size=1471b
+Jan 02 02:13:46 macpro-linux python[4074778]: 2026-01-02 02:13:46,214 [INFO] [cf55de52] Request start from 127.0.0.1
+Jan 02 02:13:46 macpro-linux python[4074778]: 2026-01-02 02:13:46,214 [INFO] [cf55de52] Command: Which onboarding documents exist?
+Jan 02 02:13:49 macpro-linux python[4074778]: 2026-01-02 02:13:49,368 [INFO] [cf55de52] Route: subprocess (subprocess: 3153ms)
+Jan 02 02:13:49 macpro-linux python[4074778]: 2026-01-02 02:13:49,377 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:13:49 macpro-linux python[4074778]: 2026-01-02 02:13:49,377 [INFO] [cf55de52] Complete: route=subprocess, total=3162ms, subprocess=3153ms, size=1472b
+Jan 02 02:13:49 macpro-linux python[4074778]: 2026-01-02 02:13:49,808 [INFO] [8cc9b79e] Request start from 127.0.0.1
+Jan 02 02:13:49 macpro-linux python[4074778]: 2026-01-02 02:13:49,808 [INFO] [8cc9b79e] Command: Which onboarding documents exist?
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,120 [INFO] [8cc9b79e] Route: subprocess (subprocess: 312ms)
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,136 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,137 [INFO] [8cc9b79e] Complete: route=subprocess, total=328ms, subprocess=312ms, size=1472b
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,156 [INFO] [949534f3] Request start from 127.0.0.1
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,156 [INFO] [949534f3] Command: Which onboarding documents exist?
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,461 [INFO] [949534f3] Route: subprocess (subprocess: 304ms)
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,490 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:13:50 macpro-linux python[4074778]: 2026-01-02 02:13:50,490 [INFO] [949534f3] Complete: route=subprocess, total=334ms, subprocess=304ms, size=1472b
+Jan 02 02:14:06 macpro-linux python[4074778]: 2026-01-02 02:14:06,599 [INFO] [ef1cec41] Request start from 127.0.0.1
+Jan 02 02:14:06 macpro-linux python[4074778]: 2026-01-02 02:14:06,600 [INFO] [ef1cec41] Command: show me the markdown files
+Jan 02 02:14:20 macpro-linux python[4074778]: 2026-01-02 02:14:20,658 [INFO] [ef1cec41] Route: subprocess (subprocess: 14057ms)
+Jan 02 02:14:20 macpro-linux python[4074778]: 2026-01-02 02:14:20,683 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:20 macpro-linux python[4074778]: 2026-01-02 02:14:20,686 [INFO] [ef1cec41] Client disconnected (broken pipe) after 14086ms
+Jan 02 02:14:20 macpro-linux python[4074778]: 2026-01-02 02:14:20,687 [INFO] [e5f31183] Request start from 127.0.0.1
+Jan 02 02:14:20 macpro-linux python[4074778]: 2026-01-02 02:14:20,687 [INFO] [e5f31183] Command: show me the markdown files in docs
+Jan 02 02:14:27 macpro-linux python[4074778]: 2026-01-02 02:14:27,400 [INFO] [e5f31183] Route: subprocess (subprocess: 6712ms)
+Jan 02 02:14:27 macpro-linux python[4074778]: 2026-01-02 02:14:27,412 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:27 macpro-linux python[4074778]: 2026-01-02 02:14:27,412 [INFO] [e5f31183] Client disconnected (broken pipe) after 6725ms
+Jan 02 02:14:27 macpro-linux python[4074778]: 2026-01-02 02:14:27,413 [INFO] [d189df7f] Request start from 127.0.0.1
+Jan 02 02:14:27 macpro-linux python[4074778]: 2026-01-02 02:14:27,413 [INFO] [d189df7f] Command: show me documentation
+Jan 02 02:14:33 macpro-linux python[4074778]: 2026-01-02 02:14:33,968 [INFO] [d189df7f] Route: subprocess (subprocess: 6555ms)
+Jan 02 02:14:33 macpro-linux python[4074778]: 2026-01-02 02:14:33,983 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:33 macpro-linux python[4074778]: 2026-01-02 02:14:33,984 [INFO] [d189df7f] Client disconnected (broken pipe) after 6571ms
+Jan 02 02:14:33 macpro-linux python[4074778]: 2026-01-02 02:14:33,984 [INFO] [3976371e] Request start from 127.0.0.1
+Jan 02 02:14:33 macpro-linux python[4074778]: 2026-01-02 02:14:33,984 [INFO] [3976371e] Command: show documentation
+Jan 02 02:14:40 macpro-linux python[4074778]: 2026-01-02 02:14:40,607 [INFO] [3976371e] Route: subprocess (subprocess: 6623ms)
+Jan 02 02:14:40 macpro-linux python[4074778]: 2026-01-02 02:14:40,617 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:40 macpro-linux python[4074778]: 2026-01-02 02:14:40,617 [INFO] [3976371e] Client disconnected (broken pipe) after 6632ms
+Jan 02 02:14:40 macpro-linux python[4074778]: 2026-01-02 02:14:40,617 [INFO] [3e244afc] Request start from 127.0.0.1
+Jan 02 02:14:40 macpro-linux python[4074778]: 2026-01-02 02:14:40,617 [INFO] [3e244afc] Command: Tell me about roxy_assistant.py
+Jan 02 02:14:41 macpro-linux python[4074778]: 2026-01-02 02:14:41,874 [INFO] [3e244afc] Route: subprocess (subprocess: 1257ms)
+Jan 02 02:14:41 macpro-linux python[4074778]: 2026-01-02 02:14:41,883 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:41 macpro-linux python[4074778]: 2026-01-02 02:14:41,883 [INFO] [3e244afc] Complete: route=subprocess, total=1266ms, subprocess=1257ms, size=848b
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,086 [INFO] [cc329da5] Request start from 127.0.0.1
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,086 [INFO] [cc329da5] Command: ping
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,087 [INFO] [cc329da5] Route: ping_fastpath (no subprocess)
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,098 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,098 [INFO] [cc329da5] Complete: route=ping_fastpath, total=12ms, subprocess=0ms, size=109b
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,108 [INFO] [1c0867a7] Request start from 127.0.0.1
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,108 [INFO] [1c0867a7] Command: what are your capabilities
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,150 [INFO] [1c0867a7] Route: subprocess (subprocess: 41ms)
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,158 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,159 [INFO] [1c0867a7] Complete: route=subprocess, total=50ms, subprocess=41ms, size=865b
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,169 [INFO] [d653e5f5] Request start from 127.0.0.1
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,169 [INFO] [d653e5f5] Command: {"tool": "list_files", "args": {"path": "/home/mark/.roxy"}}
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,869 [INFO] [d653e5f5] Route: subprocess (subprocess: 700ms)
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,877 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,878 [INFO] [d653e5f5] Complete: route=subprocess, total=709ms, subprocess=700ms, size=4089b
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,888 [INFO] [13f1a027] Request start from 127.0.0.1
+Jan 02 02:14:49 macpro-linux python[4074778]: 2026-01-02 02:14:49,888 [INFO] [13f1a027] Command: {"tool": "read_file", "args": {"file_path": "/home/mark/.roxy/config.json", "max_lines": 5}}
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,005 [INFO] [13f1a027] Route: subprocess (subprocess: 117ms)
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,014 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,014 [INFO] [13f1a027] Complete: route=subprocess, total=126ms, subprocess=117ms, size=1021b
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,023 [INFO] [23ba0c07] Request start from 127.0.0.1
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,023 [INFO] [23ba0c07] Command: RUN_TOOL list_files {"path": "/home/mark/.roxy"}
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,731 [INFO] [23ba0c07] Route: subprocess (subprocess: 707ms)
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,745 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,745 [INFO] [23ba0c07] Complete: route=subprocess, total=721ms, subprocess=707ms, size=4053b
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,756 [INFO] [3c38aa85] Request start from 127.0.0.1
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,756 [INFO] [3c38aa85] Command: open firefox to google.com
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,904 [INFO] [3c38aa85] Route: subprocess (subprocess: 147ms)
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,912 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,913 [INFO] [3c38aa85] Complete: route=subprocess, total=156ms, subprocess=147ms, size=235b
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,923 [INFO] [903296d1] Request start from 127.0.0.1
+Jan 02 02:14:50 macpro-linux python[4074778]: 2026-01-02 02:14:50,923 [INFO] [903296d1] Command: run command: ls -la
+Jan 02 02:14:51 macpro-linux python[4074778]: 2026-01-02 02:14:51,005 [INFO] [903296d1] Route: subprocess (subprocess: 82ms)
+Jan 02 02:14:51 macpro-linux python[4074778]: 2026-01-02 02:14:51,014 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:51 macpro-linux python[4074778]: 2026-01-02 02:14:51,014 [INFO] [903296d1] Complete: route=subprocess, total=91ms, subprocess=82ms, size=439b
+Jan 02 02:14:51 macpro-linux python[4074778]: 2026-01-02 02:14:51,024 [INFO] [89ea8d03] Request start from 127.0.0.1
+Jan 02 02:14:51 macpro-linux python[4074778]: 2026-01-02 02:14:51,024 [INFO] [89ea8d03] Command: echo "hello world" with <brackets> and $symbols
+Jan 02 02:14:55 macpro-linux python[4074778]: 2026-01-02 02:14:55,813 [INFO] [89ea8d03] Route: subprocess (subprocess: 4788ms)
+Jan 02 02:14:55 macpro-linux python[4074778]: 2026-01-02 02:14:55,823 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:14:55 macpro-linux python[4074778]: 2026-01-02 02:14:55,823 [INFO] [89ea8d03] Complete: route=subprocess, total=4799ms, subprocess=4788ms, size=1051b
+Jan 02 02:14:55 macpro-linux python[4074778]: 2026-01-02 02:14:55,833 [INFO] [037ce23b] Request start from 127.0.0.1
+Jan 02 02:14:55 macpro-linux python[4074778]: 2026-01-02 02:14:55,833 [INFO] [037ce23b] Command: This is a very long command intended to test the handling of large inputs with many words and charac
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,571 [INFO] [037ce23b] Route: subprocess (subprocess: 4737ms)
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,579 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,580 [INFO] [037ce23b] Complete: route=subprocess, total=4746ms, subprocess=4737ms, size=1641b
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,589 [INFO] [051f366f] Request start from 127.0.0.1
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,589 [ERROR] [051f366f] JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,589 [ERROR] Error:  - Expecting value: line 1 column 1 (char 0)
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,590 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 500 -
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,599 [INFO] [1d9ce302] Request start from 127.0.0.1
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,599 [INFO] 127.0.0.1 - code 403, message Forbidden: Invalid or missing token
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,599 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 403 -
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,599 [WARNING] Unauthorized access attempt from 127.0.0.1
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,606 [INFO] [06ac8ea3] Request start from 127.0.0.1
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,606 [INFO] [06ac8ea3] Command: ping
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,606 [INFO] [06ac8ea3] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,615 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,615 [INFO] [06ac8ea3] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,615 [INFO] [5330b679] Request start from 127.0.0.1
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,615 [INFO] [5330b679] Command: what are your capabilities
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,635 [INFO] [5330b679] Route: subprocess (subprocess: 20ms)
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,644 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,644 [INFO] [5330b679] Complete: route=subprocess, total=28ms, subprocess=20ms, size=864b
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,644 [INFO] [d197c179] Request start from 127.0.0.1
+Jan 02 02:15:00 macpro-linux python[4074778]: 2026-01-02 02:15:00,644 [INFO] [d197c179] Command: {"tool": "list_files", "args": {"path": "/home/mark/.roxy"}}
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,276 [INFO] [d197c179] Route: subprocess (subprocess: 631ms)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,285 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,285 [INFO] [d197c179] Complete: route=subprocess, total=641ms, subprocess=631ms, size=4089b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,306 [INFO] [5b76d3c2] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,306 [INFO] [5b76d3c2] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,306 [INFO] [5b76d3c2] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,315 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,315 [INFO] [5b76d3c2] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,328 [INFO] [99797a93] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,328 [INFO] [99797a93] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,329 [INFO] [99797a93] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,337 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,337 [INFO] [99797a93] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,345 [INFO] [5cb48ff5] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,345 [INFO] [5cb48ff5] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,345 [INFO] [5cb48ff5] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,354 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,354 [INFO] [5cb48ff5] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,362 [INFO] [31726bae] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,362 [INFO] [31726bae] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,362 [INFO] [31726bae] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,370 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,371 [INFO] [31726bae] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,378 [INFO] [2e43cbe9] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,378 [INFO] [2e43cbe9] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,378 [INFO] [2e43cbe9] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,386 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,386 [INFO] [2e43cbe9] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,394 [INFO] [cde75e1a] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,394 [INFO] [cde75e1a] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,394 [INFO] [cde75e1a] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,402 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,402 [INFO] [cde75e1a] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,409 [INFO] [7cb6b814] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,410 [INFO] [7cb6b814] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,410 [INFO] [7cb6b814] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,418 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,418 [INFO] [7cb6b814] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,425 [INFO] [2a9cffe5] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,425 [INFO] [2a9cffe5] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,425 [INFO] [2a9cffe5] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,434 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,434 [INFO] [2a9cffe5] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,441 [INFO] [fc915249] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,441 [INFO] [fc915249] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,441 [INFO] [fc915249] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,449 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,449 [INFO] [fc915249] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,457 [INFO] [acf55c3c] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,457 [INFO] [acf55c3c] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,457 [INFO] [acf55c3c] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,465 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,465 [INFO] [acf55c3c] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,473 [INFO] [a67947a2] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,473 [INFO] [a67947a2] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,473 [INFO] [a67947a2] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,487 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,488 [INFO] [a67947a2] Complete: route=ping_fastpath, total=14ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,498 [INFO] [0e6107ae] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,498 [INFO] [0e6107ae] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,498 [INFO] [0e6107ae] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,507 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,507 [INFO] [0e6107ae] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,515 [INFO] [d2fb7e69] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,515 [INFO] [d2fb7e69] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,515 [INFO] [d2fb7e69] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,523 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,523 [INFO] [d2fb7e69] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,531 [INFO] [8831ccb6] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,531 [INFO] [8831ccb6] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,531 [INFO] [8831ccb6] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,539 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,539 [INFO] [8831ccb6] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,546 [INFO] [743bf52d] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,546 [INFO] [743bf52d] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,547 [INFO] [743bf52d] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,555 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,555 [INFO] [743bf52d] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,562 [INFO] [64b76cb4] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,562 [INFO] [64b76cb4] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,562 [INFO] [64b76cb4] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,570 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,570 [INFO] [64b76cb4] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,583 [INFO] [e8ac68e4] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,583 [INFO] [e8ac68e4] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,583 [INFO] [e8ac68e4] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,606 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,607 [INFO] [e8ac68e4] Complete: route=ping_fastpath, total=24ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,625 [INFO] [23b8eeb4] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,626 [INFO] [23b8eeb4] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,626 [INFO] [23b8eeb4] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,642 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,642 [INFO] [23b8eeb4] Complete: route=ping_fastpath, total=16ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,650 [INFO] [ea257d6f] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,650 [INFO] [ea257d6f] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,650 [INFO] [ea257d6f] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,659 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,660 [INFO] [ea257d6f] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,667 [INFO] [32b3893a] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,667 [INFO] [32b3893a] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,668 [INFO] [32b3893a] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,676 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,676 [INFO] [32b3893a] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,683 [INFO] [a1d17429] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,684 [INFO] [a1d17429] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,684 [INFO] [a1d17429] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,692 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,692 [INFO] [a1d17429] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,700 [INFO] [9732c78c] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,700 [INFO] [9732c78c] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,700 [INFO] [9732c78c] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,708 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,708 [INFO] [9732c78c] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,716 [INFO] [d081e368] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,716 [INFO] [d081e368] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,716 [INFO] [d081e368] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,724 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,724 [INFO] [d081e368] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,732 [INFO] [7edacbfc] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,732 [INFO] [7edacbfc] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,732 [INFO] [7edacbfc] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,740 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,740 [INFO] [7edacbfc] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,748 [INFO] [19505824] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,748 [INFO] [19505824] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,748 [INFO] [19505824] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,756 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,757 [INFO] [19505824] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,767 [INFO] [d02e7542] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,767 [INFO] [d02e7542] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,767 [INFO] [d02e7542] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,781 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,781 [INFO] [d02e7542] Complete: route=ping_fastpath, total=14ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,789 [INFO] [ddca74bf] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,790 [INFO] [ddca74bf] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,790 [INFO] [ddca74bf] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,798 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,798 [INFO] [ddca74bf] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,806 [INFO] [d5b5d913] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,806 [INFO] [d5b5d913] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,806 [INFO] [d5b5d913] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,814 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,814 [INFO] [d5b5d913] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,821 [INFO] [bc414df3] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,821 [INFO] [bc414df3] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,821 [INFO] [bc414df3] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,830 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,830 [INFO] [bc414df3] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,837 [INFO] [bfaaba80] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,837 [INFO] [bfaaba80] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,837 [INFO] [bfaaba80] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,845 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,846 [INFO] [bfaaba80] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,853 [INFO] [67ddacfd] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,853 [INFO] [67ddacfd] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,853 [INFO] [67ddacfd] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,861 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,862 [INFO] [67ddacfd] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,869 [INFO] [3eba8927] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,869 [INFO] [3eba8927] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,869 [INFO] [3eba8927] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,878 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,878 [INFO] [3eba8927] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,886 [INFO] [069a3c53] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,886 [INFO] [069a3c53] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,886 [INFO] [069a3c53] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,904 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,904 [INFO] [069a3c53] Complete: route=ping_fastpath, total=18ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,927 [INFO] [de1ea859] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,927 [INFO] [de1ea859] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,928 [INFO] [de1ea859] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,951 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,952 [INFO] [de1ea859] Complete: route=ping_fastpath, total=25ms, subprocess=0ms, size=111b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,971 [INFO] [b2776e35] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,971 [INFO] [b2776e35] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,972 [INFO] [b2776e35] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,983 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,983 [INFO] [b2776e35] Complete: route=ping_fastpath, total=11ms, subprocess=0ms, size=109b
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,991 [INFO] [0726e7d1] Request start from 127.0.0.1
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,991 [INFO] [0726e7d1] Command: ping
+Jan 02 02:15:01 macpro-linux python[4074778]: 2026-01-02 02:15:01,991 [INFO] [0726e7d1] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,000 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,000 [INFO] [0726e7d1] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,007 [INFO] [ff17177c] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,007 [INFO] [ff17177c] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,007 [INFO] [ff17177c] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,016 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,016 [INFO] [ff17177c] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,023 [INFO] [8b6175e4] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,023 [INFO] [8b6175e4] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,023 [INFO] [8b6175e4] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,031 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,032 [INFO] [8b6175e4] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,039 [INFO] [ec127b82] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,039 [INFO] [ec127b82] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,039 [INFO] [ec127b82] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,048 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,048 [INFO] [ec127b82] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,055 [INFO] [6abf74bd] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,055 [INFO] [6abf74bd] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,056 [INFO] [6abf74bd] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,064 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,064 [INFO] [6abf74bd] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,073 [INFO] [033b97fd] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,073 [INFO] [033b97fd] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,073 [INFO] [033b97fd] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,087 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,087 [INFO] [033b97fd] Complete: route=ping_fastpath, total=14ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,097 [INFO] [7b6954a8] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,097 [INFO] [7b6954a8] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,097 [INFO] [7b6954a8] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,106 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,106 [INFO] [7b6954a8] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,114 [INFO] [591afb98] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,114 [INFO] [591afb98] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,114 [INFO] [591afb98] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,122 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,122 [INFO] [591afb98] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,130 [INFO] [54efd99e] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,130 [INFO] [54efd99e] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,130 [INFO] [54efd99e] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,138 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,138 [INFO] [54efd99e] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,145 [INFO] [2816c3e0] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,145 [INFO] [2816c3e0] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,145 [INFO] [2816c3e0] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,154 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,154 [INFO] [2816c3e0] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,162 [INFO] [ca38f8a7] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,162 [INFO] [ca38f8a7] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,162 [INFO] [ca38f8a7] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,170 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,170 [INFO] [ca38f8a7] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,178 [INFO] [74765282] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,178 [INFO] [74765282] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,178 [INFO] [74765282] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,187 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,187 [INFO] [74765282] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,195 [INFO] [93f8af61] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,195 [INFO] [93f8af61] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,195 [INFO] [93f8af61] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,212 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,212 [INFO] [93f8af61] Complete: route=ping_fastpath, total=16ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,220 [INFO] [d943743d] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,220 [INFO] [d943743d] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,220 [INFO] [d943743d] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,228 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,228 [INFO] [d943743d] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,236 [INFO] [8b8660dd] Request start from 127.0.0.1
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,236 [INFO] [8b8660dd] Command: ping
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,236 [INFO] [8b8660dd] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,244 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:02 macpro-linux python[4074778]: 2026-01-02 02:15:02,244 [INFO] [8b8660dd] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,034 [INFO] [79e9e8e8] Request start from 127.0.0.1
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,034 [INFO] [79e9e8e8] Command: ping
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,034 [INFO] [79e9e8e8] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,043 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,043 [INFO] [79e9e8e8] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,052 [INFO] [50e0b2da] Request start from 127.0.0.1
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,052 [INFO] [50e0b2da] Command: what are your capabilities
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,084 [INFO] [50e0b2da] Route: subprocess (subprocess: 31ms)
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,098 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,099 [INFO] [50e0b2da] Complete: route=subprocess, total=46ms, subprocess=31ms, size=865b
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,109 [INFO] [ad35ee13] Request start from 127.0.0.1
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,109 [INFO] [ad35ee13] Command: {"tool": "list_files", "args": {"path": "/home/mark/.roxy"}}
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,785 [INFO] [ad35ee13] Route: subprocess (subprocess: 676ms)
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,794 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,794 [INFO] [ad35ee13] Complete: route=subprocess, total=685ms, subprocess=676ms, size=4089b
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,804 [INFO] [5404ce11] Request start from 127.0.0.1
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,804 [INFO] [5404ce11] Command: {"tool": "read_file", "args": {"file_path": "/home/mark/.roxy/config.json", "max_lines": 5}}
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,886 [INFO] [5404ce11] Route: subprocess (subprocess: 81ms)
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,895 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,895 [INFO] [5404ce11] Complete: route=subprocess, total=90ms, subprocess=81ms, size=1021b
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,907 [INFO] [b7c8e618] Request start from 127.0.0.1
+Jan 02 02:15:08 macpro-linux python[4074778]: 2026-01-02 02:15:08,907 [INFO] [b7c8e618] Command: RUN_TOOL list_files {"path": "/home/mark/.roxy"}
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,646 [INFO] [b7c8e618] Route: subprocess (subprocess: 739ms)
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,655 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,655 [INFO] [b7c8e618] Complete: route=subprocess, total=747ms, subprocess=739ms, size=4053b
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,665 [INFO] [f062e676] Request start from 127.0.0.1
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,665 [INFO] [f062e676] Command: open firefox to google.com
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,805 [INFO] [f062e676] Route: subprocess (subprocess: 140ms)
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,814 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,814 [INFO] [f062e676] Complete: route=subprocess, total=149ms, subprocess=140ms, size=234b
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,824 [INFO] [6a3e48a7] Request start from 127.0.0.1
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,824 [INFO] [6a3e48a7] Command: run command: ls -la
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,916 [INFO] [6a3e48a7] Route: subprocess (subprocess: 92ms)
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,925 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,925 [INFO] [6a3e48a7] Complete: route=subprocess, total=101ms, subprocess=92ms, size=439b
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,935 [INFO] [08ad079a] Request start from 127.0.0.1
+Jan 02 02:15:09 macpro-linux python[4074778]: 2026-01-02 02:15:09,935 [INFO] [08ad079a] Command: echo "hello world" with <brackets> and $symbols
+Jan 02 02:15:14 macpro-linux python[4074778]: 2026-01-02 02:15:14,034 [INFO] [08ad079a] Route: subprocess (subprocess: 4098ms)
+Jan 02 02:15:14 macpro-linux python[4074778]: 2026-01-02 02:15:14,043 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:14 macpro-linux python[4074778]: 2026-01-02 02:15:14,043 [INFO] [08ad079a] Complete: route=subprocess, total=4108ms, subprocess=4098ms, size=875b
+Jan 02 02:15:14 macpro-linux python[4074778]: 2026-01-02 02:15:14,053 [INFO] [1663e6e0] Request start from 127.0.0.1
+Jan 02 02:15:14 macpro-linux python[4074778]: 2026-01-02 02:15:14,053 [INFO] [1663e6e0] Command: This is a very long command intended to test the handling of large inputs with many words and charac
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,535 [INFO] [1663e6e0] Route: subprocess (subprocess: 3481ms)
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,546 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,547 [INFO] [1663e6e0] Complete: route=subprocess, total=3493ms, subprocess=3481ms, size=1353b
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,568 [INFO] [b32ed498] Request start from 127.0.0.1
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,568 [ERROR] [b32ed498] JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,569 [ERROR] Error:  - Expecting value: line 1 column 1 (char 0)
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,569 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 500 -
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,590 [INFO] [3f7710be] Request start from 127.0.0.1
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,590 [INFO] 127.0.0.1 - code 403, message Forbidden: Invalid or missing token
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,590 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 403 -
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,590 [WARNING] Unauthorized access attempt from 127.0.0.1
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,607 [INFO] [c416e1f3] Request start from 127.0.0.1
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,607 [INFO] [c416e1f3] Command: what are your capabilities
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,706 [INFO] [c416e1f3] Route: subprocess (subprocess: 98ms)
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,719 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,719 [INFO] [c416e1f3] Complete: route=subprocess, total=111ms, subprocess=98ms, size=865b
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,719 [INFO] [66ddd307] Request start from 127.0.0.1
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,719 [INFO] [66ddd307] Command: ping
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,719 [INFO] [66ddd307] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,729 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,730 [INFO] [66ddd307] Complete: route=ping_fastpath, total=10ms, subprocess=0ms, size=109b
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,730 [INFO] [3882994f] Request start from 127.0.0.1
+Jan 02 02:15:17 macpro-linux python[4074778]: 2026-01-02 02:15:17,730 [INFO] [3882994f] Command: {"tool": "list_files", "args": {"path": "/home/mark/.roxy"}}
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,371 [INFO] [3882994f] Route: subprocess (subprocess: 641ms)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,380 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,380 [INFO] [3882994f] Complete: route=subprocess, total=650ms, subprocess=641ms, size=4073b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,397 [INFO] [fd378a56] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,397 [INFO] [fd378a56] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,397 [INFO] [fd378a56] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,420 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,421 [INFO] [fd378a56] Complete: route=ping_fastpath, total=24ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,440 [INFO] [3dc4e145] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,440 [INFO] [3dc4e145] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,441 [INFO] [3dc4e145] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,455 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,455 [INFO] [3dc4e145] Complete: route=ping_fastpath, total=15ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,464 [INFO] [a2dbd4d0] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,464 [INFO] [a2dbd4d0] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,464 [INFO] [a2dbd4d0] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,472 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,472 [INFO] [a2dbd4d0] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,480 [INFO] [e2b9982a] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,480 [INFO] [e2b9982a] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,480 [INFO] [e2b9982a] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,489 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,489 [INFO] [e2b9982a] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,497 [INFO] [276e7265] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,497 [INFO] [276e7265] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,497 [INFO] [276e7265] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,505 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,505 [INFO] [276e7265] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,513 [INFO] [e54aee91] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,513 [INFO] [e54aee91] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,513 [INFO] [e54aee91] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,521 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,521 [INFO] [e54aee91] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,529 [INFO] [c0109bdb] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,529 [INFO] [c0109bdb] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,529 [INFO] [c0109bdb] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,537 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,537 [INFO] [c0109bdb] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,545 [INFO] [8edb389b] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,545 [INFO] [8edb389b] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,545 [INFO] [8edb389b] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,553 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,554 [INFO] [8edb389b] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,561 [INFO] [667f10dd] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,562 [INFO] [667f10dd] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,562 [INFO] [667f10dd] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,576 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,576 [INFO] [667f10dd] Complete: route=ping_fastpath, total=14ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,586 [INFO] [6c4c8f94] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,586 [INFO] [6c4c8f94] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,586 [INFO] [6c4c8f94] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,594 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,594 [INFO] [6c4c8f94] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,603 [INFO] [46051b59] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,603 [INFO] [46051b59] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,603 [INFO] [46051b59] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,611 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,612 [INFO] [46051b59] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,619 [INFO] [fe72888a] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,619 [INFO] [fe72888a] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,619 [INFO] [fe72888a] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,628 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,628 [INFO] [fe72888a] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,635 [INFO] [8e38152a] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,635 [INFO] [8e38152a] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,635 [INFO] [8e38152a] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,644 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,644 [INFO] [8e38152a] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,652 [INFO] [b6549dc1] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,652 [INFO] [b6549dc1] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,652 [INFO] [b6549dc1] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,660 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,660 [INFO] [b6549dc1] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,668 [INFO] [e3a48dc1] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,668 [INFO] [e3a48dc1] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,668 [INFO] [e3a48dc1] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,677 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,677 [INFO] [e3a48dc1] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,689 [INFO] [b15bdb24] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,690 [INFO] [b15bdb24] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,690 [INFO] [b15bdb24] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,698 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,698 [INFO] [b15bdb24] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,706 [INFO] [ccbdf0ee] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,706 [INFO] [ccbdf0ee] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,706 [INFO] [ccbdf0ee] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,715 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,715 [INFO] [ccbdf0ee] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,722 [INFO] [e0644eb8] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,722 [INFO] [e0644eb8] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,723 [INFO] [e0644eb8] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,731 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,732 [INFO] [e0644eb8] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,739 [INFO] [b16d28c6] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,739 [INFO] [b16d28c6] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,740 [INFO] [b16d28c6] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,748 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,748 [INFO] [b16d28c6] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,756 [INFO] [1e7dbbba] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,756 [INFO] [1e7dbbba] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,756 [INFO] [1e7dbbba] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,764 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,765 [INFO] [1e7dbbba] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,772 [INFO] [9aa8aae8] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,773 [INFO] [9aa8aae8] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,773 [INFO] [9aa8aae8] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,781 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,781 [INFO] [9aa8aae8] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,789 [INFO] [fe4e4a5b] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,789 [INFO] [fe4e4a5b] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,789 [INFO] [fe4e4a5b] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,798 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,798 [INFO] [fe4e4a5b] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,808 [INFO] [35c248b3] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,808 [INFO] [35c248b3] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,808 [INFO] [35c248b3] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,822 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,823 [INFO] [35c248b3] Complete: route=ping_fastpath, total=14ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,831 [INFO] [5fabd4ef] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,831 [INFO] [5fabd4ef] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,831 [INFO] [5fabd4ef] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,840 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,840 [INFO] [5fabd4ef] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,848 [INFO] [d23dc5d5] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,848 [INFO] [d23dc5d5] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,848 [INFO] [d23dc5d5] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,856 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,857 [INFO] [d23dc5d5] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,864 [INFO] [6ca75ecf] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,865 [INFO] [6ca75ecf] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,865 [INFO] [6ca75ecf] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,873 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,873 [INFO] [6ca75ecf] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,881 [INFO] [73ee3df4] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,881 [INFO] [73ee3df4] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,881 [INFO] [73ee3df4] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,889 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,890 [INFO] [73ee3df4] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,897 [INFO] [30855036] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,898 [INFO] [30855036] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,898 [INFO] [30855036] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,906 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,906 [INFO] [30855036] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,914 [INFO] [003f5911] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,914 [INFO] [003f5911] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,914 [INFO] [003f5911] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,922 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,923 [INFO] [003f5911] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,938 [INFO] [1c5b4212] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,938 [INFO] [1c5b4212] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,938 [INFO] [1c5b4212] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,962 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,962 [INFO] [1c5b4212] Complete: route=ping_fastpath, total=24ms, subprocess=0ms, size=109b
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,982 [INFO] [9cf54823] Request start from 127.0.0.1
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,982 [INFO] [9cf54823] Command: ping
+Jan 02 02:15:18 macpro-linux python[4074778]: 2026-01-02 02:15:18,982 [INFO] [9cf54823] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,011 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,012 [INFO] [9cf54823] Complete: route=ping_fastpath, total=29ms, subprocess=0ms, size=111b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,022 [INFO] [c029f4c7] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,022 [INFO] [c029f4c7] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,022 [INFO] [c029f4c7] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,030 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,031 [INFO] [c029f4c7] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,039 [INFO] [c4e58531] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,039 [INFO] [c4e58531] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,039 [INFO] [c4e58531] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,047 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,047 [INFO] [c4e58531] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,055 [INFO] [a8ca137e] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,055 [INFO] [a8ca137e] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,055 [INFO] [a8ca137e] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,064 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,064 [INFO] [a8ca137e] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,072 [INFO] [d7cdcf8a] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,072 [INFO] [d7cdcf8a] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,072 [INFO] [d7cdcf8a] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,080 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,080 [INFO] [d7cdcf8a] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,088 [INFO] [a4c4418b] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,088 [INFO] [a4c4418b] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,088 [INFO] [a4c4418b] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,096 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,096 [INFO] [a4c4418b] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,104 [INFO] [06024173] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,104 [INFO] [06024173] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,104 [INFO] [06024173] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,112 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,112 [INFO] [06024173] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,120 [INFO] [9b77e425] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,120 [INFO] [9b77e425] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,120 [INFO] [9b77e425] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,129 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,129 [INFO] [9b77e425] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,137 [INFO] [da9b6332] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,137 [INFO] [da9b6332] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,137 [INFO] [da9b6332] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,146 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,146 [INFO] [da9b6332] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,155 [INFO] [6cd1156d] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,155 [INFO] [6cd1156d] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,156 [INFO] [6cd1156d] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,164 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,164 [INFO] [6cd1156d] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,172 [INFO] [0c047706] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,172 [INFO] [0c047706] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,172 [INFO] [0c047706] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,180 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,180 [INFO] [0c047706] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,188 [INFO] [4ad92fad] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,188 [INFO] [4ad92fad] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,188 [INFO] [4ad92fad] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,197 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,197 [INFO] [4ad92fad] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,205 [INFO] [2add0216] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,206 [INFO] [2add0216] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,206 [INFO] [2add0216] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,220 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,220 [INFO] [2add0216] Complete: route=ping_fastpath, total=14ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,230 [INFO] [9c005806] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,230 [INFO] [9c005806] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,230 [INFO] [9c005806] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,239 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,239 [INFO] [9c005806] Complete: route=ping_fastpath, total=9ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,247 [INFO] [ab77b41b] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,247 [INFO] [ab77b41b] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,247 [INFO] [ab77b41b] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,255 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,256 [INFO] [ab77b41b] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,263 [INFO] [0a0bbc99] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,263 [INFO] [0a0bbc99] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,263 [INFO] [0a0bbc99] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,272 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,272 [INFO] [0a0bbc99] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,280 [INFO] [a0050801] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,280 [INFO] [a0050801] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,280 [INFO] [a0050801] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,288 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,288 [INFO] [a0050801] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,296 [INFO] [46a49129] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,296 [INFO] [46a49129] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,296 [INFO] [46a49129] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,305 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,305 [INFO] [46a49129] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,312 [INFO] [e47c7d8d] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,312 [INFO] [e47c7d8d] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,312 [INFO] [e47c7d8d] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,321 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,321 [INFO] [e47c7d8d] Complete: route=ping_fastpath, total=8ms, subprocess=0ms, size=109b
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,331 [INFO] [371d05a5] Request start from 127.0.0.1
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,331 [INFO] [371d05a5] Command: ping
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,331 [INFO] [371d05a5] Route: ping_fastpath (no subprocess)
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,346 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 02:15:19 macpro-linux python[4074778]: 2026-01-02 02:15:19,346 [INFO] [371d05a5] Complete: route=ping_fastpath, total=15ms, subprocess=0ms, size=109b
+Jan 02 02:17:09 macpro-linux python[4074778]: 2026-01-02 02:17:09,532 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -

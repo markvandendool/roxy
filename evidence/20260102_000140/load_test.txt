@@ -1,0 +1,49 @@
+=== PING LOAD TEST ===
+Timeout: 30s per request
+Requests per concurrency level: 200
+
+Testing C=1 (concurrency=1, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 2332ms
+  Latency P95: 4403ms
+  Latency P99: 6025ms
+  Broken pipe errors: 0
+0
+
+Testing C=5 (concurrency=5, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 9367ms
+  Latency P95: 17087ms
+  Latency P99: 19921ms
+  Broken pipe errors: 0
+0
+
+Testing C=10 (concurrency=10, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 12578ms
+  Latency P95: 22147ms
+  Latency P99: 25262ms
+  Broken pipe errors: 0
+0
+
+Testing C=25 (concurrency=25, requests=200)...
+  Successes: 58/200 (29%)
+  Failures: 142/200
+  Latency P50: 20132ms
+  Latency P95: 28545ms
+  Latency P99: 29953ms
+  Broken pipe errors: 184
+
+Testing C=50 (concurrency=50, requests=200)...
+  Successes: 20/200 (10%)
+  Failures: 180/200
+  Latency P50: 22977ms
+  Latency P95: 29339ms
+  Latency P99: 29339ms
+  Broken pipe errors: 112
+
+=== SUMMARY ===
+Test complete. Results saved to: /home/mark/.roxy/evidence/20260102_000140/load_test.txt

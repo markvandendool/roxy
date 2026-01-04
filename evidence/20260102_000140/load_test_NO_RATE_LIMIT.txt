@@ -1,0 +1,51 @@
+=== PING LOAD TEST ===
+Timeout: 30s per request
+Requests per concurrency level: 200
+
+Testing C=1 (concurrency=1, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 15ms
+  Latency P95: 23ms
+  Latency P99: 28ms
+  Broken pipe errors: 0
+0
+
+Testing C=5 (concurrency=5, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 37ms
+  Latency P95: 66ms
+  Latency P99: 80ms
+  Broken pipe errors: 0
+0
+
+Testing C=10 (concurrency=10, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 76ms
+  Latency P95: 1095ms
+  Latency P99: 1110ms
+  Broken pipe errors: 0
+0
+
+Testing C=25 (concurrency=25, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 1116ms
+  Latency P95: 2140ms
+  Latency P99: 2178ms
+  Broken pipe errors: 0
+0
+
+Testing C=50 (concurrency=50, requests=200)...
+  Successes: 200/200 (100%)
+  Failures: 0/200
+  Latency P50: 1363ms
+  Latency P95: 3312ms
+  Latency P99: 4156ms
+  Broken pipe errors: 0
+0
+
+=== SUMMARY ===
+Test complete. Results saved to: /home/mark/.roxy/evidence/20260102_000140/load_test_NO_RATE_LIMIT.txt

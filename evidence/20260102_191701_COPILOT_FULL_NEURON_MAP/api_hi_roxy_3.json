@@ -1,0 +1,1 @@
+{"status": "success", "command": "hi roxy", "result": "[ROXY] Processing: hi roxy\n[ROXY] Routing to: rag ['hi roxy']\n\nHi!\n\n\ud83d\udccc Source: RAG (Retrieval Augmented Generation) - 5 context chunks", "response_time": 2.116}

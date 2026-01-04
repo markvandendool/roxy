@@ -1,0 +1,8 @@
+Jan 02 16:47:28 macpro-linux python[809812]: 2026-01-02 16:47:28,003 [INFO] Executing command: hi roxy
+Jan 02 16:47:37 macpro-linux python[809812]: 2026-01-02 16:47:37,106 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 16:47:41 macpro-linux python[809812]: 2026-01-02 16:47:41,958 [INFO] Executing command: what is new today
+Jan 02 16:47:45 macpro-linux python[809812]: 2026-01-02 16:47:45,061 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 16:47:50 macpro-linux python[809812]: 2026-01-02 16:47:50,886 [INFO] Executing command: what is roxy
+Jan 02 16:47:53 macpro-linux python[809812]: 2026-01-02 16:47:53,037 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 02 16:47:57 macpro-linux python[809812]: 2026-01-02 16:47:57,541 [INFO] Executing batch: 2 commands
+Jan 02 16:48:01 macpro-linux python[809812]: 2026-01-02 16:48:01,194 [INFO] 127.0.0.1 - "POST /batch HTTP/1.1" 200 -

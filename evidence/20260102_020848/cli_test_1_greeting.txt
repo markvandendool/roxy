@@ -1,0 +1,4 @@
+[ROXY] Processing: hi roxy
+[ROXY] Routing to: greeting []
+
+Hello! I'm ROXY, your local AI assistant. I can help with git operations, OBS streaming control, and knowledge base queries. What can I help you with?

@@ -1,0 +1,52 @@
+=== CHIEF-GRADE STRESS TEST V3 ===
+Start time: 2026-01-02T00:45:07+00:00
+
+=== PHASE 1: BASIC FUNCTIONALITY ===
+TEST: Health endpoint ... ✅ PASS
+TEST: Capabilities query ... ✅ PASS
+
+=== PHASE 2: TOOL FORCING ===
+TEST: Tool Direct: list_files ... ✅ PASS
+TEST: Tool Direct: read_file ... ✅ PASS
+TEST: RUN_TOOL syntax ... ✅ PASS
+
+=== PHASE 3: SAFETY ENVELOPE ===
+TEST: Block browser (no tool) ... ✅ PASS
+TEST: Block shell (disabled) ... ✅ PASS
+
+=== PHASE 4: EDGE CASES ===
+TEST: Special chars (quotes/brackets) ... ✅ PASS
+TEST: Long command (200 chars) ... ✅ PASS
+
+=== PHASE 5: ERROR HANDLING ===
+TEST: Invalid JSON (graceful error) ... ✅ PASS
+TEST: Missing token (403 denied) ... ✅ PASS
+
+=== PHASE 6: LOAD CHARACTERIZATION ===
+LOAD TEST: 3 parallel requests ... ✅ PASS
+LOAD TEST: 50 tool_direct calls (back-to-back) ... ✅ PASS (50/50 in 1s)
+
+=== RESULTS ===
+PASS: 13/13
+FAIL: 0/13
+SUCCESS RATE: 100%
+
+=== SERVICE HEALTH (CLEAN-RUN VERIFICATION) ===
+Errors since 2026-01-02T00:45:07+00:00: 2
+Whitelisted (expected): 2
+Unexpected errors: 0
+
+=== SINGLE-STACK PROOF ===
+Port 8766 listeners (ss):
+LISTEN 0      5      127.0.0.1:8766 0.0.0.0:* users:(("python",pid=2498208,fd=4))
+Listener count: 1 (must be 1)
+
+Port 8766 listeners (lsof):
+COMMAND     PID USER   FD   TYPE  DEVICE SIZE/OFF NODE NAME
+python  2498208 mark    4u  IPv4 7485300      0t0  TCP 127.0.0.1:8766 (LISTEN)
+
+🎉 CHIEF-GRADE VALIDATION PASSED
+   - All tests passed
+   - Zero unexpected errors
+   - Single listener verified
+EXIT=0

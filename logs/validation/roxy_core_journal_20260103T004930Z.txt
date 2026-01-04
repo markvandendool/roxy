@@ -1,0 +1,203 @@
+Jan 02 22:58:06 macpro-linux systemd[5148]: Stopped roxy-core.service - ROXY Core (always-on background service).
+Jan 02 22:58:06 macpro-linux systemd[5148]: Started roxy-core.service - ROXY Core (always-on background service).
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] ✅ Truth Gate initialized (hallucination prevention)
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] ✓ Auth token loaded
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] ============================================================
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] ROXY CORE INITIALIZING
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] IPC Endpoint: http://127.0.0.1:8766
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] ============================================================
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,139 [INFO] Using basic mode (advanced services not available)
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] ✓ HTTP IPC server listening on 127.0.0.1:8766
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] ✓ Server thread started
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] Background tasks: ready
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] ============================================================
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] ROXY CORE RUNNING
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] Test with: curl http://127.0.0.1:8765/health
+Jan 02 22:58:06 macpro-linux python[326684]: 2026-01-02 22:58:06,141 [INFO] ============================================================
+-- Boot a9a580cb8a00434ba8235fd2c92d227a --
+Jan 02 23:07:38 macpro-linux systemd[5107]: Started roxy-core.service - ROXY Core (always-on background service).
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,884 [WARNING] prometheus_client not installed. Metrics disabled.
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,886 [INFO] ✅ Truth Gate initialized (hallucination prevention)
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,887 [INFO] ✓ Auth token loaded
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,887 [INFO] ============================================================
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,887 [INFO] ROXY CORE INITIALIZING
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,887 [INFO] IPC Endpoint: http://127.0.0.1:8766
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,887 [INFO] ============================================================
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,887 [INFO] Using basic mode (advanced services not available)
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,888 [INFO] ✓ HTTP IPC server listening on 127.0.0.1:8766
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,889 [INFO] ✓ Server thread started
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,889 [INFO] Background tasks: ready
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,889 [INFO] ============================================================
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,889 [INFO] ROXY CORE RUNNING
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,889 [INFO] Test with: curl http://127.0.0.1:8765/health
+Jan 02 23:07:38 macpro-linux python[5245]: 2026-01-02 23:07:38,889 [INFO] ============================================================
+-- Boot 4dc7791ad00447afb7f1eb3407588870 --
+Jan 03 00:23:56 macpro-linux systemd[5268]: Started roxy-core.service - ROXY Core (always-on background service).
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,270 [WARNING] prometheus_client not installed. Metrics disabled.
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,271 [INFO] ✅ Truth Gate initialized (hallucination prevention)
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO] ✓ Auth token loaded
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO] ============================================================
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO] ROXY CORE INITIALIZING
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO] IPC Endpoint: http://127.0.0.1:8766
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO] ============================================================
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [WARNING] Prometheus not available, skipping metrics server
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [WARNING] Prometheus metrics server failed to start
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO] ✓ Advanced services available
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,272 [INFO]   - observability: available
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,274 [INFO] ✓ HTTP IPC server listening on 127.0.0.1:8766
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,274 [INFO] ✓ Server thread started
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] Using advanced observability from /opt/roxy/services
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] ✓ Advanced observability enabled
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] Background tasks: ready
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] ============================================================
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] ROXY CORE RUNNING
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] Test with: curl http://127.0.0.1:8765/health
+Jan 03 00:23:56 macpro-linux python[5318]: 2026-01-03 00:23:56,276 [INFO] ============================================================
+Jan 03 00:26:08 macpro-linux python[5318]: 2026-01-03 00:26:08,240 [INFO] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+Jan 03 00:26:08 macpro-linux python[5318]: 2026-01-03 00:26:08,356 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:26:11 macpro-linux python[5318]: 2026-01-03 00:26:11,764 [INFO] 127.0.0.1 - "GET /stream?command=hi%20roxy%21 HTTP/1.1" 200 -
+Jan 03 00:27:12 macpro-linux python[5318]: 2026-01-03 00:27:12,454 [INFO] Executing command: hi roxy!
+Jan 03 00:27:12 macpro-linux python[5318]: 2026-01-03 00:27:12,457 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 03 00:27:43 macpro-linux python[5318]: 2026-01-03 00:27:43,191 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:27:44 macpro-linux python[5318]: 2026-01-03 00:27:44,487 [INFO] Executing command: hello roxy
+Jan 03 00:27:44 macpro-linux python[5318]: 2026-01-03 00:27:44,488 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 03 00:27:44 macpro-linux python[5318]: 2026-01-03 00:27:44,967 [INFO] 127.0.0.1 - code 403, message Forbidden: Invalid or missing token
+Jan 03 00:27:44 macpro-linux python[5318]: 2026-01-03 00:27:44,967 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 403 -
+Jan 03 00:27:44 macpro-linux python[5318]: 2026-01-03 00:27:44,967 [WARNING] Unauthorized access attempt from 127.0.0.1
+Jan 03 00:27:45 macpro-linux python[5318]: 2026-01-03 00:27:45,770 [INFO] 127.0.0.1 - "GET /stream?q=hello HTTP/1.1" 200 -
+Jan 03 00:27:45 macpro-linux python[5318]: 2026-01-03 00:27:45,882 [ERROR] Streaming error: [Errno 32] Broken pipe
+Jan 03 00:27:45 macpro-linux python[5318]: 2026-01-03 00:27:45,882 [ERROR] Streaming failed: [Errno 32] Broken pipe
+Jan 03 00:27:45 macpro-linux python[5318]: 2026-01-03 00:27:45,882 [INFO] 127.0.0.1 - code 500, message [Errno 32] Broken pipe
+Jan 03 00:27:45 macpro-linux python[5318]: 2026-01-03 00:27:45,882 [INFO] 127.0.0.1 - "GET /stream?q=hello HTTP/1.1" 500 -
+Jan 03 00:27:45 macpro-linux python[5318]: ----------------------------------------
+Jan 03 00:27:45 macpro-linux python[5318]: Exception occurred during processing of request from ('127.0.0.1', 57488)
+Jan 03 00:27:45 macpro-linux python[5318]: Traceback (most recent call last):
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 292, in _stream_command_response
+Jan 03 00:27:45 macpro-linux python[5318]:     self.wfile.write(f"data: {event_data}\n\n".encode())
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 840, in write
+Jan 03 00:27:45 macpro-linux python[5318]:     self._sock.sendall(b)
+Jan 03 00:27:45 macpro-linux python[5318]: BrokenPipeError: [Errno 32] Broken pipe
+Jan 03 00:27:45 macpro-linux python[5318]: During handling of the above exception, another exception occurred:
+Jan 03 00:27:45 macpro-linux python[5318]: Traceback (most recent call last):
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 264, in _handle_streaming
+Jan 03 00:27:45 macpro-linux python[5318]:     self._stream_command_response(command)
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 399, in _stream_command_response
+Jan 03 00:27:45 macpro-linux python[5318]:     self.wfile.write(f"event: error\ndata: {error_data}\n\n".encode())
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 840, in write
+Jan 03 00:27:45 macpro-linux python[5318]:     self._sock.sendall(b)
+Jan 03 00:27:45 macpro-linux python[5318]: BrokenPipeError: [Errno 32] Broken pipe
+Jan 03 00:27:45 macpro-linux python[5318]: During handling of the above exception, another exception occurred:
+Jan 03 00:27:45 macpro-linux python[5318]: Traceback (most recent call last):
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 318, in _handle_request_noblock
+Jan 03 00:27:45 macpro-linux python[5318]:     self.process_request(request, client_address)
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 349, in process_request
+Jan 03 00:27:45 macpro-linux python[5318]:     self.finish_request(request, client_address)
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 362, in finish_request
+Jan 03 00:27:45 macpro-linux python[5318]:     self.RequestHandlerClass(request, client_address, self)
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 761, in __init__
+Jan 03 00:27:45 macpro-linux python[5318]:     self.handle()
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 436, in handle
+Jan 03 00:27:45 macpro-linux python[5318]:     self.handle_one_request()
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 424, in handle_one_request
+Jan 03 00:27:45 macpro-linux python[5318]:     method()
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 133, in do_GET
+Jan 03 00:27:45 macpro-linux python[5318]:     self._handle_streaming()
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 272, in _handle_streaming
+Jan 03 00:27:45 macpro-linux python[5318]:     self.send_error(500, str(e))
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 488, in send_error
+Jan 03 00:27:45 macpro-linux python[5318]:     self.end_headers()
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 538, in end_headers
+Jan 03 00:27:45 macpro-linux python[5318]:     self.flush_headers()
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 542, in flush_headers
+Jan 03 00:27:45 macpro-linux python[5318]:     self.wfile.write(b"".join(self._headers_buffer))
+Jan 03 00:27:45 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 840, in write
+Jan 03 00:27:45 macpro-linux python[5318]:     self._sock.sendall(b)
+Jan 03 00:27:45 macpro-linux python[5318]: BrokenPipeError: [Errno 32] Broken pipe
+Jan 03 00:27:45 macpro-linux python[5318]: ----------------------------------------
+Jan 03 00:27:46 macpro-linux python[5318]: 2026-01-03 00:27:46,570 [INFO] 127.0.0.1 - "GET /stream?command=test HTTP/1.1" 200 -
+Jan 03 00:27:46 macpro-linux python[5318]: 2026-01-03 00:27:46,926 [ERROR] Ollama API error: 404
+Jan 03 00:28:28 macpro-linux python[5318]: 2026-01-03 00:28:28,007 [INFO] 127.0.0.1 - "GET /stream?command=what%27s%20new%20today%2C%20has%20a%20lot%20of%20work%20been%20done%20in%20mindsong%3F HTTP/1.1" 200 -
+Jan 03 00:28:28 macpro-linux python[5318]: 2026-01-03 00:28:28,193 [ERROR] Ollama API error: 404
+Jan 03 00:28:28 macpro-linux python[5318]: 2026-01-03 00:28:28,194 [INFO] Executing command: what's new today, has a lot of work been done in mindsong?
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,241 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,241 [ERROR] Command execution failed: [Errno 32] Broken pipe
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,241 [ERROR] Error: what's new today, has a lot of work been done in m - [Errno 32] Broken pipe
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,242 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 500 -
+Jan 03 00:28:58 macpro-linux python[5318]: ----------------------------------------
+Jan 03 00:28:58 macpro-linux python[5318]: Exception occurred during processing of request from ('127.0.0.1', 48068)
+Jan 03 00:28:58 macpro-linux python[5318]: Traceback (most recent call last):
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 593, in _handle_run_command
+Jan 03 00:28:58 macpro-linux python[5318]:     self.wfile.write(json.dumps(response).encode())
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 840, in write
+Jan 03 00:28:58 macpro-linux python[5318]:     self._sock.sendall(b)
+Jan 03 00:28:58 macpro-linux python[5318]: BrokenPipeError: [Errno 32] Broken pipe
+Jan 03 00:28:58 macpro-linux python[5318]: During handling of the above exception, another exception occurred:
+Jan 03 00:28:58 macpro-linux python[5318]: Traceback (most recent call last):
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 318, in _handle_request_noblock
+Jan 03 00:28:58 macpro-linux python[5318]:     self.process_request(request, client_address)
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 349, in process_request
+Jan 03 00:28:58 macpro-linux python[5318]:     self.finish_request(request, client_address)
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 362, in finish_request
+Jan 03 00:28:58 macpro-linux python[5318]:     self.RequestHandlerClass(request, client_address, self)
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 761, in __init__
+Jan 03 00:28:58 macpro-linux python[5318]:     self.handle()
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 436, in handle
+Jan 03 00:28:58 macpro-linux python[5318]:     self.handle_one_request()
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 424, in handle_one_request
+Jan 03 00:28:58 macpro-linux python[5318]:     method()
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 412, in do_POST
+Jan 03 00:28:58 macpro-linux python[5318]:     self._handle_run_command()
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/home/mark/.roxy/roxy_core.py", line 620, in _handle_run_command
+Jan 03 00:28:58 macpro-linux python[5318]:     self.end_headers()
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 538, in end_headers
+Jan 03 00:28:58 macpro-linux python[5318]:     self.flush_headers()
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/http/server.py", line 542, in flush_headers
+Jan 03 00:28:58 macpro-linux python[5318]:     self.wfile.write(b"".join(self._headers_buffer))
+Jan 03 00:28:58 macpro-linux python[5318]:   File "/usr/lib/python3.12/socketserver.py", line 840, in write
+Jan 03 00:28:58 macpro-linux python[5318]:     self._sock.sendall(b)
+Jan 03 00:28:58 macpro-linux python[5318]: BrokenPipeError: [Errno 32] Broken pipe
+Jan 03 00:28:58 macpro-linux python[5318]: ----------------------------------------
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,248 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,299 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,332 [INFO] 127.0.0.1 - code 403, message Forbidden: Invalid or missing token
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,332 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 403 -
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,332 [WARNING] Unauthorized access attempt from 127.0.0.1
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,339 [INFO] Executing command: hello
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,340 [INFO] 127.0.0.1 - "POST /run HTTP/1.1" 200 -
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,349 [INFO] 127.0.0.1 - "GET /stream?q=test HTTP/1.1" 200 -
+Jan 03 00:28:58 macpro-linux python[5318]: 2026-01-03 00:28:58,535 [ERROR] Ollama API error: 404
+Jan 03 00:29:01 macpro-linux python[5318]: 2026-01-03 00:29:01,356 [INFO] 127.0.0.1 - "GET /stream?command=test HTTP/1.1" 200 -
+Jan 03 00:29:01 macpro-linux python[5318]: 2026-01-03 00:29:01,534 [ERROR] Ollama API error: 404
+Jan 03 00:29:04 macpro-linux python[5318]: 2026-01-03 00:29:04,373 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:31:37 macpro-linux systemd[5268]: Stopping roxy-core.service - ROXY Core (always-on background service)...
+Jan 03 00:31:37 macpro-linux python[5318]: 2026-01-03 00:31:37,831 [INFO] Received signal 15
+Jan 03 00:31:37 macpro-linux python[5318]: 2026-01-03 00:31:37,831 [INFO] Stopping ROXY core...
+Jan 03 00:31:38 macpro-linux python[5318]: 2026-01-03 00:31:38,030 [INFO] ✓ HTTP server stopped
+Jan 03 00:31:38 macpro-linux python[5318]: 2026-01-03 00:31:38,030 [INFO] ROXY core stopped
+Jan 03 00:31:38 macpro-linux systemd[5268]: Stopped roxy-core.service - ROXY Core (always-on background service).
+Jan 03 00:31:38 macpro-linux systemd[5268]: roxy-core.service: Consumed 19.962s CPU time, 560.7M memory peak, 0B memory swap peak.
+-- Boot 34b79d52d64e4a7e8b768b7b1b5898d8 --
+Jan 03 00:40:24 macpro-linux systemd[5121]: Started roxy-core.service - ROXY Core (always-on background service).
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,518 [WARNING] prometheus_client not installed. Metrics disabled.
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,519 [INFO] ✅ Truth Gate initialized (hallucination prevention)
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,519 [INFO] ✓ Auth token loaded
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,519 [INFO] ============================================================
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [INFO] ROXY CORE INITIALIZING
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [INFO] IPC Endpoint: http://127.0.0.1:8766
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [INFO] ============================================================
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [WARNING] Prometheus not available, skipping metrics server
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [WARNING] Prometheus metrics server failed to start
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [INFO] ✓ Advanced services available
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,520 [INFO]   - observability: available
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,521 [INFO] ✓ HTTP IPC server listening on 127.0.0.1:8766
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,521 [INFO] ✓ Server thread started
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] Using advanced observability from /opt/roxy/services
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ✓ Advanced observability enabled
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] Background tasks: ready
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ============================================================
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ROXY CORE RUNNING
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] Test with: curl http://127.0.0.1:8765/health
+Jan 03 00:40:24 macpro-linux python[5185]: 2026-01-03 00:40:24,522 [INFO] ============================================================
+Jan 03 00:49:31 macpro-linux python[5185]: 2026-01-03 00:49:31,418 [INFO] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+Jan 03 00:49:31 macpro-linux python[5185]: 2026-01-03 00:49:31,534 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+Jan 03 00:50:14 macpro-linux python[5185]: 2026-01-03 00:50:14,519 [INFO] 127.0.0.1 - "GET /health HTTP/1.1" 200 -

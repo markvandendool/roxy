@@ -1,0 +1,2 @@
+UID          PID    PPID  C STIME TTY          TIME CMD
+mark       11275       1  0 Jan01 ?        00:00:05 /home/mark/.roxy/venv/bin/python3 /home/mark/.roxy/mcp/mcp_server.py

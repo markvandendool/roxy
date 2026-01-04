@@ -1,0 +1,4 @@
+161:            result = self._execute_command(command)
+258:            result = self._execute_command(command)
+371:                futures = {executor.submit(self._execute_command, cmd): cmd for cmd in commands}
+404:    def _execute_command(self, command: str) -> str:

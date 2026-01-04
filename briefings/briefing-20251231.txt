@@ -1,0 +1,13 @@
+Generated: 2025-12-31T07:00:30.169686
+
+Hey Mark! Hope you're doing well.
+
+I've got some great numbers to kick off your day - our MRR is up 8.5% to $12,500! That's a fantastic start.
+
+On the student front, we've got 156 active learners, with 8 who are at-risk of dropping out. I know we're all invested in helping them stay on track.
+
+Content-wise, we're looking good - 14 clips are ready to go, and 21 more are scheduled for release soon. Product development is also moving forward; we've got three open PRs, and our next release is v0.4.0 on the horizon.
+
+As far as calendar items, you've got two meetings today: a team sync at 10:00 AM, followed by... well, that's it! No other surprises for now.
+
+What would you like to focus on first?

@@ -1,0 +1,4 @@
+PWD=/home/mark/.roxy
+XDG_DATA_DIRS_VSCODE_SNAP_ORIG=/usr/share/ubuntu:/usr/share/gnome:/home/mark/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+XDG_DATA_DIRS=/home/mark/snap/code/217/.local/share/flatpak/exports/share:/home/mark/snap/code/217/.local/share:/home/mark/snap/code/217:/snap/code/217/usr/share:/usr/share/ubuntu:/usr/share/gnome:/home/mark/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+OLDPWD=/home/mark/.roxy

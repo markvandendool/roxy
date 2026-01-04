@@ -1,0 +1,51 @@
+=== PING LOAD TEST ===
+Timeout: 30s per request
+Requests per concurrency level: 200
+
+Testing C=1 (concurrency=1, requests=200)...
+  Successes: 60/200 (30%)
+  Failures: 140/200
+  Latency P50: 9ms
+  Latency P95: 13ms
+  Latency P99: 15ms
+  Broken pipe errors: 0
+0
+
+Testing C=5 (concurrency=5, requests=200)...
+  Successes: 17/200 (8%)
+  Failures: 183/200
+  Latency P50: 10ms
+  Latency P95: 22ms
+  Latency P99: 22ms
+  Broken pipe errors: 0
+0
+
+Testing C=10 (concurrency=10, requests=200)...
+  Successes: 194/200 (97%)
+  Failures: 6/200
+  Latency P50: 26ms
+  Latency P95: 1046ms
+  Latency P99: 1071ms
+  Broken pipe errors: 0
+0
+
+Testing C=25 (concurrency=25, requests=200)...
+  Successes: 181/200 (90%)
+  Failures: 19/200
+  Latency P50: 1083ms
+  Latency P95: 2125ms
+  Latency P99: 3125ms
+  Broken pipe errors: 0
+0
+
+Testing C=50 (concurrency=50, requests=200)...
+  Successes: 109/200 (54%)
+  Failures: 91/200
+  Latency P50: 1137ms
+  Latency P95: 3122ms
+  Latency P99: 3325ms
+  Broken pipe errors: 0
+0
+
+=== SUMMARY ===
+Test complete. Results saved to: /home/mark/.roxy/evidence/20260102_000140/load_test_AFTER_FASTPATH.txt

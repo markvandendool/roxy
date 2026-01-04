@@ -1,0 +1,7 @@
+Testing RAG embedding configuration...
+1. ChromaDB path: /home/mark/.roxy/chroma_db
+2. DefaultEmbeddingFunction dimension: 384
+3. Collections: ['mindsong_docs', 'roxy_cache']
+4. Collection count: 2516
+5. Query test: ✅ SUCCESS
+   Results: 1 docs

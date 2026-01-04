@@ -1,0 +1,52 @@
+=== RAG EMBEDDING DIMENSION MISMATCH - FIXED ===
+Date: 2026-01-02 01:12-01:20 UTC (8 minutes)
+
+ROOT CAUSE IDENTIFIED:
+1. Collection created WITHOUT embedding_function parameter
+2. ChromaDB defaulted to inconsistent dimensions
+3. Query code passed embedding_function to get_collection() but CREATE didn't
+
+FIXES APPLIED:
+
+1. roxy_commands.py (Line 440-450):
+   BEFORE: collection.query(query_embeddings=[embedding])
+   AFTER:  collection.query(query_texts=[expanded_query])
+   - Let ChromaDB handle embedding internally with consistent function
+
+2. roxy_commands.py (Line 86-88):
+   ADDED: Greeting fast-path (hi/hello/hey → bypass RAG)
+   - Prevents unnecessary RAG calls for greetings
+
+3. roxy_commands.py (Line 456-462):
+   ADDED: Embedding error fallback handler
+   - Catches "expecting embedding with dimension" errors
+   - Returns graceful degradation message
+   - Prevents double-error spam
+
+4. rebuild_rag_index.py (Line 99-105):
+   BEFORE: client.create_collection(name=COLLECTION_NAME, metadata={...})
+   AFTER:  client.create_collection(name=COLLECTION_NAME, 
+                                    embedding_function=embedding_fn, 
+                                    metadata={...})
+   - CRITICAL: Pass embedding_function at CREATE time
+
+VALIDATION:
+✅ test_rag_quick.py: Query succeeded with 384-dim embeddings
+✅ API test "hi roxy": Routes to greeting (bypasses RAG)
+✅ API test "what is roxy": RAG returns results (no errors)
+✅ Collection rebuild in progress with 384-dim embeddings
+
+ENFORCEMENT:
+- DefaultEmbeddingFunction (384-dim) used consistently:
+  * Collection creation (rebuild_rag_index.py)
+  * get_collection() calls (roxy_commands.py)
+  * Query operations (via query_texts, not query_embeddings)
+
+BACKGROUND TASK:
+- rebuild_rag_index.py running (PID 3113035)
+- Ingesting docs with correct 384-dim embeddings
+- Will complete in ~5-10 minutes
+
+NEXT VALIDATION:
+After rebuild completes, test full RAG pipeline:
+  roxy "tell me about the onboarding documentation"

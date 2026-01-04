@@ -1,0 +1,11 @@
+316:    if cmd_type == "git":
+319:    elif cmd_type == "obs":
+322:    elif cmd_type == "health":
+325:    elif cmd_type == "briefing":
+328:    elif cmd_type == "capabilities":
+335:    elif cmd_type == "model_info":
+343:    elif cmd_type == "unavailable":
+353:    elif cmd_type == "tool_direct":
+365:    elif cmd_type == "info":
+368:    elif cmd_type == "tool_preflight":
+394:    elif cmd_type == "rag":

@@ -1,0 +1,152 @@
+{
+  "passed": [
+    {
+      "test": "Health Endpoint",
+      "passed": true,
+      "message": "Health check successful",
+      "timestamp": "2026-01-02T02:41:15.370746"
+    },
+    {
+      "test": "Git Commands",
+      "passed": true,
+      "message": "3/3 git commands routed correctly",
+      "timestamp": "2026-01-02T02:43:04.139852"
+    },
+    {
+      "test": "OBS Commands",
+      "passed": true,
+      "message": "3/3 OBS commands routed correctly",
+      "timestamp": "2026-01-02T02:43:04.672497"
+    },
+    {
+      "test": "Health Commands",
+      "passed": true,
+      "message": "3/3 health commands routed correctly",
+      "timestamp": "2026-01-02T02:43:06.499675"
+    },
+    {
+      "test": "RAG Queries",
+      "passed": true,
+      "message": "2/3 RAG queries successful, 1 with source attribution",
+      "timestamp": "2026-01-02T02:43:21.887234"
+    },
+    {
+      "test": "Context Management",
+      "passed": true,
+      "message": "2/2 context queries successful",
+      "timestamp": "2026-01-02T02:43:34.596078"
+    },
+    {
+      "test": "Validation Gates",
+      "passed": true,
+      "message": "Validation gates working",
+      "timestamp": "2026-01-02T02:43:37.202374"
+    },
+    {
+      "test": "Error Recovery",
+      "passed": true,
+      "message": "Error recovery working",
+      "timestamp": "2026-01-02T02:43:41.076241"
+    },
+    {
+      "test": "LLM Routing",
+      "passed": true,
+      "message": "LLM routing working",
+      "timestamp": "2026-01-02T02:43:50.507418"
+    },
+    {
+      "test": "Observability",
+      "passed": true,
+      "message": "Observability logging working",
+      "timestamp": "2026-01-02T02:43:55.255167"
+    },
+    {
+      "test": "Evaluation Metrics",
+      "passed": true,
+      "message": "Evaluation metrics collection working",
+      "timestamp": "2026-01-02T02:44:02.148876"
+    },
+    {
+      "test": "Concurrent Requests",
+      "passed": true,
+      "message": "17/20 concurrent requests successful",
+      "timestamp": "2026-01-02T02:44:58.905592"
+    },
+    {
+      "test": "Prompt Templates",
+      "passed": true,
+      "message": "Prompt templates working",
+      "timestamp": "2026-01-02T02:45:01.697502"
+    }
+  ],
+  "failed": [
+    {
+      "test": "Rate Limiting",
+      "passed": false,
+      "message": "Rate limiting not working",
+      "timestamp": "2026-01-02T02:42:55.421353"
+    },
+    {
+      "test": "Security Input Sanitization",
+      "passed": false,
+      "message": "Security not blocking dangerous commands",
+      "timestamp": "2026-01-02T02:42:58.182198"
+    },
+    {
+      "test": "Hybrid Search",
+      "passed": false,
+      "message": "Hybrid search failed",
+      "timestamp": "2026-01-02T02:43:21.890303"
+    },
+    {
+      "test": "Tool Direct Execution",
+      "passed": false,
+      "message": "Tool direct execution failed",
+      "timestamp": "2026-01-02T02:43:21.891948"
+    },
+    {
+      "test": "Capabilities Query",
+      "passed": false,
+      "message": "Capabilities query failed",
+      "timestamp": "2026-01-02T02:43:21.893078"
+    },
+    {
+      "test": "Model Info Query",
+      "passed": false,
+      "message": "Model info query failed",
+      "timestamp": "2026-01-02T02:43:21.893875"
+    },
+    {
+      "test": "Unavailable Capabilities Rejection",
+      "passed": false,
+      "message": "Not properly rejecting unavailable capabilities",
+      "timestamp": "2026-01-02T02:43:21.896242"
+    },
+    {
+      "test": "Streaming Responses",
+      "passed": false,
+      "message": "Streaming endpoint failed",
+      "timestamp": "2026-01-02T02:43:21.898667"
+    },
+    {
+      "test": "Batch Processing",
+      "passed": false,
+      "message": "Batch processing failed",
+      "timestamp": "2026-01-02T02:43:21.899535"
+    },
+    {
+      "test": "Semantic Caching",
+      "passed": false,
+      "message": "Caching test failed",
+      "timestamp": "2026-01-02T02:43:26.131576"
+    }
+  ],
+  "warnings": [],
+  "stats": {
+    "total": 23,
+    "passed": 13,
+    "failed": 10,
+    "warnings": 0,
+    "start_time": "2026-01-02T02:41:15.367969"
+  }
+}

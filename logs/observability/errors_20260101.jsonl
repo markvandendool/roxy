@@ -1,0 +1,31 @@
+{"timestamp": "2026-01-01T21:06:07.576069", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:10:24.751551", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:25:55.953527", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:26:05.748327", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:56:59.849460", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:58:06.980173", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:59:23.896558", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T21:59:51.696032", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T22:32:43.349718", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T22:58:24.653470", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T22:58:36.810735", "command": "", "error": "Expecting value: line 1 column 1 (char 0)", "error_type": "unknown"}
+{"timestamp": "2026-01-01T22:59:15.774860", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T22:59:20.042555", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:26.373822", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:34.724191", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:39.750198", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:43.407884", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:48.033633", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:54.653492", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:00:59.302971", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:03.425588", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:09.893561", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:15.461928", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:20.608002", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:25.104873", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:30.065665", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:34.977502", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:40.297966", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:44.789053", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:47.724766", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
+{"timestamp": "2026-01-01T23:01:51.653372", "command": "ping", "error": "[Errno 32] Broken pipe", "error_type": "unknown"}
