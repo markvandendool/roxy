@@ -60,6 +60,18 @@ PERSONA_CONFIGS = {
     )
 }
 
+# Dual wake-word map for simultaneous detection
+ALL_WAKE_WORDS = {
+    "hey roxy": PersonaMode.ROXY,
+    "okay roxy": PersonaMode.ROXY,
+    "yo roxy": PersonaMode.ROXY,
+    "hey rocky": PersonaMode.ROCKY,
+    "okay rocky": PersonaMode.ROCKY,
+    "yo rocky": PersonaMode.ROCKY,
+}
+
+ENABLE_AUTO_PERSONA_ROUTING = True
+
 class VoiceIntegration:
     """
     Main voice integration class that bridges:
@@ -217,18 +229,18 @@ class VoiceIntegration:
     # ─────────────────────────────────────────────────────────────
     
     async def start_wake_word_detection(self, callback: Callable[[str], None]):
-        """Start listening for wake words"""
+        """Start listening for wake words (both personas)."""
         try:
             async with self.session.post(
                 f"{MCP_URL}/mcp/voice/wake_word",
                 json={
-                    "wake_words": self.config.wake_words,
+                    "wake_words": list(ALL_WAKE_WORDS.keys()),
                     "action": "start",
-                    "callback_url": None  # In-process callback
+                    "callback_url": None
                 }
             ) as resp:
                 if resp.status == 200:
-                    logger.info(f"[VoiceIntegration] Wake word detection started for: {self.config.wake_words}")
+                    logger.info("[VoiceIntegration] Wake word detection started for Rocky + ROXY")
                     return True
         except Exception as e:
             logger.error(f"[VoiceIntegration] Wake word start failed: {e}")
@@ -243,6 +255,17 @@ class VoiceIntegration:
             )
         except Exception:
             pass
+
+    def handle_wake_word(self, phrase: str) -> str:
+        """Resolve persona from wake phrase and switch mode."""
+        persona = self._resolve_persona_from_wake_word(phrase)
+        if persona and persona != self.mode:
+            self.set_mode(persona)
+        return self.config.greeting
+
+    def _resolve_persona_from_wake_word(self, phrase: str) -> Optional[PersonaMode]:
+        normalized = (phrase or "").strip().lower()
+        return ALL_WAKE_WORDS.get(normalized, self.mode)
     
     # ─────────────────────────────────────────────────────────────
     # Command Routing via MCP
@@ -280,9 +303,18 @@ class VoiceIntegration:
     async def _analyze_command(self, command: str) -> Optional[Dict[str, Any]]:
         """Analyze command to determine routing"""
         cmd_lower = command.lower()
+
+        is_music = any(kw in cmd_lower for kw in ["chord", "scale", "song", "practice", "music", "play", "learn", "guitar", "piano"])
+        is_dev = any(kw in cmd_lower for kw in ["task", "status", "citadel", "dispatch", "friday", "workflow", "automation", "backup", "deploy", "sync"])
+
+        if ENABLE_AUTO_PERSONA_ROUTING:
+            if is_music and self.mode != PersonaMode.ROCKY:
+                self.set_mode(PersonaMode.ROCKY)
+            elif is_dev and self.mode != PersonaMode.ROXY:
+                self.set_mode(PersonaMode.ROXY)
         
         # Rocky (music) commands
-        if any(kw in cmd_lower for kw in ["chord", "scale", "song", "practice", "music", "play", "learn", "guitar", "piano"]):
+        if is_music:
             if "explain" in cmd_lower or "what is" in cmd_lower:
                 return {"bridge": "rocky", "tool": "rocky_explain_concept", "params": {"query": command}}
             if "exercise" in cmd_lower or "practice" in cmd_lower:

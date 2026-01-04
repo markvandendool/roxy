@@ -19,6 +19,7 @@ Tools:
 import json
 import logging
 import asyncio
+import concurrent.futures
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger("roxy.mcp.music_tools")
@@ -186,6 +187,28 @@ FAMOUS_PROGRESSIONS = {
     ],
 }
 
+VALID_INSTRUMENTS = {"guitar", "piano", "synth", "bass", "strings"}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BRIDGE HELPERS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _run_bridge_coro(coro: asyncio.Future, timeout: float = 3.0) -> Dict[str, Any]:
+    """Run an Apollo bridge coroutine safely from sync contexts."""
+    if not BRIDGE_AVAILABLE:
+        return {"sent": False, "message": "bridge_unavailable"}
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+
+    # If we're already on a running loop, execute in a helper thread to avoid deadlocks.
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future = executor.submit(asyncio.run, coro)
+        return future.result(timeout=timeout)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # HELPER FUNCTIONS
@@ -230,42 +253,40 @@ def parse_chord(chord: str) -> tuple:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _play_chord(chord: str, instrument: str = "piano", duration: float = 2.0, velocity: float = 0.8) -> Dict[str, Any]:
-    """Play a chord through Apollo - NOW WITH REAL AUDIO!"""
-    root, quality = parse_chord(chord)
+    """Play a chord through Apollo with sane validation and bridge fallback."""
+    if not isinstance(chord, str) or not chord.strip():
+        return {"status": "error", "error": "Chord is required"}
+
+    instrument = (instrument or "piano").strip().lower()
+    if instrument not in VALID_INSTRUMENTS:
+        instrument = "piano"
+
+    duration = max(0.1, float(duration))
+    velocity = max(0.0, min(1.0, float(velocity)))
+
+    root, quality = parse_chord(chord.strip())
     intervals = CHORD_INTERVALS.get(quality, CHORD_INTERVALS['maj'])
-    
+
     # Generate notes with octave (default to octave 4)
     notes_raw = [interval_to_note(root, i) for i in intervals]
     notes_with_octave = [f"{note}4" for note in notes_raw]
-    
+
     # Try to send to Apollo Bridge for REAL audio playback
     audio_sent = False
     bridge_status = "bridge_unavailable"
-    
+
     if BRIDGE_AVAILABLE:
         try:
-            # Run async send in sync context
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Already in async context, create task
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    future = executor.submit(
-                        asyncio.run,
-                        send_chord_to_apollo(notes_with_octave, duration, velocity)
-                    )
-                    result = future.result(timeout=2.0)
-                    audio_sent = result.get("sent", False)
-                    bridge_status = result.get("message", "unknown")
-            else:
-                # Not in async context, run directly
-                result = asyncio.run(send_chord_to_apollo(notes_with_octave, duration, velocity))
-                audio_sent = result.get("sent", False)
-                bridge_status = result.get("message", "unknown")
+            result = _run_bridge_coro(
+                send_chord_to_apollo(notes_with_octave, duration, velocity, instrument),
+                timeout=3.0
+            )
+            audio_sent = result.get("sent", False)
+            bridge_status = result.get("message", "unknown")
         except Exception as e:
             logger.warning(f"Failed to send chord to Apollo: {e}")
             bridge_status = f"error: {e}"
-    
+
     return {
         "status": "success",
         "chord": chord,
@@ -278,15 +299,21 @@ def _play_chord(chord: str, instrument: str = "piano", duration: float = 2.0, ve
         "velocity": velocity,
         "audio_sent": audio_sent,
         "bridge_status": bridge_status,
-        "message": f"🎵 {'Playing' if audio_sent else 'Prepared'} {chord} ({', '.join(notes_raw)}) on {instrument}" + 
+        "message": f"🎵 {'Playing' if audio_sent else 'Prepared'} {chord} ({', '.join(notes_raw)}) on {instrument}" +
                    (f" [Audio sent!]" if audio_sent else f" [No audio - {bridge_status}]")
     }
 
 
 def _play_progression(chords: List[str], tempo: int = 120, beats_per_chord: int = 4, instrument: str = "piano") -> Dict[str, Any]:
-    """Play a chord progression through Apollo - NOW WITH REAL AUDIO!"""
+    """Play a chord progression through Apollo with validation and safe bridge calls."""
+    instrument = (instrument or "piano").strip().lower()
+    if instrument not in VALID_INSTRUMENTS:
+        instrument = "piano"
+
+    tempo = max(30, int(tempo))
+    beats_per_chord = max(1, int(beats_per_chord))
     beat_duration = 60 / tempo * beats_per_chord
-    
+
     # Build chord info with octaves for audio playback
     chord_info = []
     chord_notes_list = []  # For bridge
@@ -310,21 +337,12 @@ def _play_progression(chords: List[str], tempo: int = 120, beats_per_chord: int 
     
     if BRIDGE_AVAILABLE:
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    future = executor.submit(
-                        asyncio.run,
-                        send_progression_to_apollo(chord_notes_list, tempo, beats_per_chord)
-                    )
-                    result = future.result(timeout=5.0)
-                    audio_sent = result.get("sent", False)
-                    bridge_status = result.get("message", "unknown")
-            else:
-                result = asyncio.run(send_progression_to_apollo(chord_notes_list, tempo, beats_per_chord))
-                audio_sent = result.get("sent", False)
-                bridge_status = result.get("message", "unknown")
+            result = _run_bridge_coro(
+                send_progression_to_apollo(chord_notes_list, tempo, beats_per_chord),
+                timeout=5.0
+            )
+            audio_sent = result.get("sent", False)
+            bridge_status = result.get("message", "unknown")
         except Exception as e:
             logger.warning(f"Failed to send progression to Apollo: {e}")
             bridge_status = f"error: {e}"

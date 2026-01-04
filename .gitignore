@@ -28,3 +28,5 @@ whisper_models/
 # Embedded repos
 chatterbox/
 chatterbox-venv/
+chroma_db.backup*/
+*.onnx

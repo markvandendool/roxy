@@ -163,7 +163,7 @@ class EventStreamProcessor:
                     name=stream_name,
                     subjects=config['subjects'],
                     retention=RetentionPolicy.LIMITS,
-                    max_age=config['retention_days'] * 86400 * 1_000_000_000,  # nanoseconds
+                    max_age=float(config['retention_days'] * 86400),  # seconds
                     storage=StorageType.FILE,
                     description=config['description']
                 )

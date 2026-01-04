@@ -313,7 +313,8 @@ async def get_bridge() -> ApolloBridge:
 async def send_chord_to_apollo(
     notes: List[str],
     duration: float = 2.0,
-    velocity: float = 0.8
+    velocity: float = 0.8,
+    instrument: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Convenience function for MCP tools to send a chord to Apollo.
@@ -321,12 +322,13 @@ async def send_chord_to_apollo(
     Returns a status dict with connection info.
     """
     bridge = await get_bridge()
-    sent = await bridge.send_play_chord(notes, duration, velocity)
+    sent = await bridge.send_play_chord(notes, duration, velocity, instrument)
     
     return {
         "sent": sent > 0,
         "clients": sent,
         "notes": notes,
+        "instrument": instrument,
         "message": f"Sent to {sent} client(s)" if sent else "No clients connected"
     }
 
