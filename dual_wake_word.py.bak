@@ -1,0 +1,364 @@
+#!/usr/bin/env python3
+"""
+DUAL WAKE WORD SYSTEM
+=====================
+Sprint 5, Story RRR-019: "Hey Rocky" / "Hey Roxy" persona switching
+
+Architecture:
+- Listen for both wake words via OpenWakeWord (port 10400)
+- Route to appropriate persona based on wake word detected
+- Music queries → Rocky (music teacher)
+- Dev/system queries → ROXY (dev assistant)
+"""
+
+import asyncio
+import json
+import logging
+from dataclasses import dataclass
+from enum import Enum
+from typing import Callable, Optional
+
+import aiohttp
+
+logger = logging.getLogger(__name__)
+
+
+class Persona(Enum):
+    """Available assistant personas"""
+    ROCKY = "rocky"
+    ROXY = "roxy"
+
+
+@dataclass
+class WakeWordConfig:
+    """Configuration for a wake word trigger"""
+    phrase: str
+    persona: Persona
+    voice_id: str
+    greeting: str
+    system_prompt: str
+
+
+# WAKE WORD CONFIGURATIONS
+WAKE_WORDS = {
+    "hey rocky": WakeWordConfig(
+        phrase="hey rocky",
+        persona=Persona.ROCKY,
+        voice_id="en_US-hfc_male-medium",  # Male voice for Rocky
+        greeting="Hey! Rocky here - ready to rock some music! 🎸",
+        system_prompt="""You are Rocky, an enthusiastic music teacher AI.
+You specialize in:
+- Guitar, piano, drums, and bass instruction
+- Music theory (chords, scales, progressions, rhythm)
+- Song analysis and recommendation
+- Practice routines and technique tips
+- Sight-reading and ear training
+
+Personality: Encouraging, fun, uses music metaphors, celebrates progress.
+Style: Casual but knowledgeable. Use emojis sparingly. Keep responses concise.
+When asked to play or demonstrate, use the Apollo audio system via MCP tools."""
+    ),
+    
+    "hey roxy": WakeWordConfig(
+        phrase="hey roxy",
+        persona=Persona.ROXY,
+        voice_id="en_US-hfc_female-medium",  # Female voice for ROXY
+        greeting="ROXY online. How can I assist? ⚡",
+        system_prompt="""You are ROXY, a highly capable dev assistant AI.
+You specialize in:
+- Software development and debugging
+- System administration and DevOps
+- Code review and architecture
+- Research and documentation
+- Task automation and scripting
+
+Personality: Efficient, precise, helpful, proactive.
+Style: Technical but accessible. Direct and actionable responses.
+You have access to MCP tools for file operations, git, docker, and more."""
+    )
+}
+
+
+class DualWakeWordListener:
+    """
+    Listens for dual wake words and routes to appropriate personas.
+    
+    Usage:
+        listener = DualWakeWordListener()
+        await listener.start()
+    """
+    
+    def __init__(
+        self,
+        wake_word_port: int = 10400,
+        whisper_port: int = 10300,
+        piper_port: int = 10200,
+        roxy_port: int = 8766
+    ):
+        self.wake_word_port = wake_word_port
+        self.whisper_port = whisper_port
+        self.piper_port = piper_port
+        self.roxy_port = roxy_port
+        
+        self.current_persona: Optional[Persona] = None
+        self.on_persona_change: Optional[Callable[[Persona], None]] = None
+        self._running = False
+        
+    async def start(self):
+        """Start listening for wake words"""
+        logger.info("🎤 Starting dual wake word listener...")
+        logger.info(f"  Wake words: {list(WAKE_WORDS.keys())}")
+        self._running = True
+        
+        async with aiohttp.ClientSession() as session:
+            while self._running:
+                try:
+                    detected = await self._poll_wake_word(session)
+                    if detected:
+                        await self._handle_wake_word(session, detected)
+                except Exception as e:
+                    logger.error(f"Wake word error: {e}")
+                    await asyncio.sleep(1)
+                    
+    async def stop(self):
+        """Stop listening"""
+        self._running = False
+        logger.info("🛑 Dual wake word listener stopped")
+        
+    async def _poll_wake_word(
+        self, 
+        session: aiohttp.ClientSession
+    ) -> Optional[str]:
+        """Poll OpenWakeWord for detections"""
+        try:
+            url = f"http://localhost:{self.wake_word_port}/detect"
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    if data.get("detected"):
+                        wake_word = data.get("wake_word", "").lower()
+                        if wake_word in WAKE_WORDS:
+                            return wake_word
+        except asyncio.TimeoutError:
+            pass  # Normal - no wake word detected
+        except Exception as e:
+            logger.debug(f"Wake word poll error: {e}")
+        return None
+    
+    async def _handle_wake_word(
+        self, 
+        session: aiohttp.ClientSession,
+        wake_word: str
+    ):
+        """Handle a detected wake word"""
+        config = WAKE_WORDS[wake_word]
+        
+        logger.info(f"🎙️ Wake word detected: '{wake_word}' → {config.persona.value}")
+        
+        # Switch persona
+        old_persona = self.current_persona
+        self.current_persona = config.persona
+        
+        if self.on_persona_change and old_persona != self.current_persona:
+            self.on_persona_change(self.current_persona)
+        
+        # Speak greeting
+        await self._speak(session, config.greeting, config.voice_id)
+        
+        # Start listening for user speech
+        user_speech = await self._transcribe(session)
+        
+        if user_speech:
+            # Route to ROXY with persona context
+            response = await self._query_roxy(
+                session, 
+                user_speech, 
+                config.system_prompt
+            )
+            
+            # Speak response
+            if response:
+                await self._speak(session, response, config.voice_id)
+                
+    async def _transcribe(
+        self, 
+        session: aiohttp.ClientSession,
+        timeout: float = 10.0
+    ) -> Optional[str]:
+        """Transcribe user speech via Whisper"""
+        try:
+            url = f"http://localhost:{self.whisper_port}/transcribe"
+            async with session.post(
+                url, 
+                json={"timeout": timeout},
+                timeout=aiohttp.ClientTimeout(total=timeout + 2)
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    return data.get("text", "").strip()
+        except Exception as e:
+            logger.error(f"Transcription error: {e}")
+        return None
+    
+    async def _speak(
+        self, 
+        session: aiohttp.ClientSession,
+        text: str,
+        voice_id: str
+    ):
+        """Synthesize and speak text via Piper"""
+        try:
+            url = f"http://localhost:{self.piper_port}/speak"
+            async with session.post(
+                url,
+                json={"text": text, "voice": voice_id},
+                timeout=aiohttp.ClientTimeout(total=30)
+            ) as resp:
+                if resp.status != 200:
+                    logger.error(f"TTS error: {resp.status}")
+        except Exception as e:
+            logger.error(f"Speech error: {e}")
+            
+    async def _query_roxy(
+        self, 
+        session: aiohttp.ClientSession,
+        query: str,
+        system_prompt: str
+    ) -> Optional[str]:
+        """Query ROXY with persona-specific system prompt"""
+        try:
+            url = f"http://localhost:{self.roxy_port}/chat"
+            payload = {
+                "message": query,
+                "system_prompt": system_prompt,
+                "persona": self.current_persona.value if self.current_persona else "roxy"
+            }
+            
+            async with session.post(
+                url,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=60)
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    return data.get("response", "")
+        except Exception as e:
+            logger.error(f"ROXY query error: {e}")
+        return None
+
+
+class PersonaRouter:
+    """
+    Routes queries to appropriate persona based on content analysis.
+    
+    Music-related queries → Rocky
+    Dev/system queries → ROXY
+    Ambiguous → Based on current persona or default to ROXY
+    """
+    
+    # Keywords that strongly suggest music domain
+    MUSIC_KEYWORDS = {
+        # Instruments
+        "guitar", "piano", "drums", "bass", "violin", "keyboard", "synth",
+        "ukulele", "saxophone", "trumpet", "flute",
+        # Theory
+        "chord", "scale", "arpeggio", "progression", "key", "tempo", "rhythm",
+        "melody", "harmony", "interval", "octave", "note", "beat", "measure",
+        "bar", "time signature", "key signature",
+        # Actions
+        "play", "strum", "pick", "fingerpick", "practice", "jam", "improvise",
+        "transpose", "tune", "tuning",
+        # Concepts
+        "music", "song", "riff", "lick", "solo", "verse", "chorus", "bridge",
+        "tab", "tablature", "sheet music", "notation",
+        # Theory terms
+        "major", "minor", "diminished", "augmented", "dominant", "pentatonic",
+        "diatonic", "chromatic"
+    }
+    
+    # Keywords that strongly suggest dev domain
+    DEV_KEYWORDS = {
+        "code", "debug", "error", "exception", "bug", "fix", "compile",
+        "build", "deploy", "docker", "git", "commit", "branch", "merge",
+        "server", "database", "api", "endpoint", "request", "response",
+        "function", "class", "method", "variable", "import", "module",
+        "test", "unittest", "pytest", "file", "directory", "path",
+        "terminal", "command", "script", "python", "javascript", "typescript",
+        "react", "node", "npm", "pnpm", "pip"
+    }
+    
+    def __init__(self, default_persona: Persona = Persona.ROXY):
+        self.default_persona = default_persona
+        self.current_persona: Optional[Persona] = None
+        
+    def route(self, query: str) -> Persona:
+        """
+        Determine which persona should handle a query.
+        
+        Returns:
+            Persona enum indicating ROCKY or ROXY
+        """
+        query_lower = query.lower()
+        words = set(query_lower.split())
+        
+        # Count keyword matches
+        music_score = sum(1 for kw in self.MUSIC_KEYWORDS if kw in query_lower)
+        dev_score = sum(1 for kw in self.DEV_KEYWORDS if kw in query_lower)
+        
+        # Strong signal - one domain clearly dominates
+        if music_score > dev_score + 1:
+            return Persona.ROCKY
+        if dev_score > music_score + 1:
+            return Persona.ROXY
+            
+        # Weak or equal signal - use current persona or default
+        if self.current_persona:
+            return self.current_persona
+        return self.default_persona
+        
+    def get_config(self, persona: Persona) -> WakeWordConfig:
+        """Get configuration for a persona"""
+        for config in WAKE_WORDS.values():
+            if config.persona == persona:
+                return config
+        # Fallback to ROXY
+        return WAKE_WORDS["hey roxy"]
+
+
+# CLI entry point
+async def main():
+    """Run dual wake word listener as standalone service"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    )
+    
+    listener = DualWakeWordListener()
+    
+    print("""
+╔══════════════════════════════════════════════════════════════════╗
+║           🎸 DUAL WAKE WORD LISTENER - ACTIVE 🎧                 ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║   Say "Hey Rocky" for music teaching assistance                  ║
+║   Say "Hey Roxy" for dev/system assistance                       ║
+║                                                                  ║
+║   Services:                                                      ║
+║   • OpenWakeWord: localhost:10400                                ║
+║   • Whisper STT:  localhost:10300                                ║
+║   • Piper TTS:    localhost:10200                                ║
+║   • ROXY Core:    localhost:8766                                 ║
+║                                                                  ║
+║   Press Ctrl+C to stop                                           ║
+╚══════════════════════════════════════════════════════════════════╝
+    """)
+    
+    try:
+        await listener.start()
+    except KeyboardInterrupt:
+        await listener.stop()
+        print("\n👋 Dual wake word listener stopped")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -1,0 +1,31 @@
+[Unit]
+Description=ROXY AI Assistant Command Center
+Documentation=https://github.com/mindsong/roxy
+After=network.target ollama.service
+
+[Service]
+Type=forking
+User=%i
+WorkingDirectory=/home/%i/.roxy
+ExecStart=/home/%i/.roxy/roxy-launch.sh start
+ExecStop=/home/%i/.roxy/roxy-launch.sh stop
+ExecReload=/home/%i/.roxy/roxy-launch.sh restart
+
+# Environment
+Environment="ROXY_HOME=/home/%i/.roxy"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:/home/%i/.local/bin"
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+
+# Limits
+LimitNOFILE=65536
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roxy
+
+[Install]
+WantedBy=multi-user.target

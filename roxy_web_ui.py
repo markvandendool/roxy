@@ -1184,16 +1184,16 @@ async def api_chat(request: web.Request) -> web.Response:
         
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                f"{ROXY_BASE_URL}/expert",
+                f"{ROXY_BASE_URL}/run",
                 headers=headers,
-                json={"message": message},
+                json={"command": message},
                 timeout=aiohttp.ClientTimeout(total=120)
             ) as resp:
                 if resp.status == 200:
                     result = await resp.json()
                     return web.json_response({
-                        "response": result.get("response", "No response"),
-                        "expert": result.get("expert", "unknown"),
+                        "response": result.get("result", "No response"),
+                        "expert": result.get("routed_to", "roxy"),
                     })
                 else:
                     error_text = await resp.text()

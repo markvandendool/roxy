@@ -1,0 +1,1 @@
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin OLLAMA_GPU_OVERHEAD=1 OLLAMA_KEEP_ALIVE=5m HSA_OVERRIDE_GFX_VERSION=10.3.0 ROCR_VISIBLE_DEVICES=1 OLLAMA_HOST=0.0.0.0

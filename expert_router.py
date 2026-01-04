@@ -544,3 +544,185 @@ def get_router() -> ExpertRouterSync:
     if _router_instance is None:
         _router_instance = ExpertRouterSync()
     return _router_instance
+
+
+# =============================================================================
+# SKILLS INTEGRATION (RU-011)
+# =============================================================================
+# Route queries to dynamically loaded skills before falling back to LLM experts
+
+try:
+    from skills_registry import (
+        _loaded_skills,
+        find_skill_by_capability,
+        find_skill_by_keyword
+    )
+    SKILLS_AVAILABLE = True
+except ImportError:
+    SKILLS_AVAILABLE = False
+    _loaded_skills = {}
+
+
+class SkillsAwareRouter:
+    """
+    Enhanced router that checks skills before LLM experts.
+    
+    Priority:
+    1. Exact skill capability match
+    2. Keyword-based skill match
+    3. LLM expert routing (existing logic)
+    """
+    
+    MIN_SKILL_CONFIDENCE = 0.3
+    
+    def __init__(self):
+        self._llm_router = ExpertRouterSync()
+    
+    def _extract_keywords(self, query: str) -> list:
+        """Extract keywords from query"""
+        stopwords = {
+            'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been',
+            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+            'could', 'should', 'may', 'might', 'must', 'can', 'to', 'of',
+            'in', 'for', 'on', 'with', 'at', 'by', 'from', 'as', 'into',
+            'please', 'help', 'want', 'need', 'like', 'how', 'what', 'why',
+            'when', 'where', 'which', 'who', 'i', 'me', 'my', 'we', 'you'
+        }
+        import re
+        words = re.findall(r'\b\w+\b', query.lower())
+        return [w for w in words if w not in stopwords and len(w) > 2]
+    
+    def _score_skill(self, skill_name: str, query: str, keywords: list) -> tuple:
+        """Score a skill's relevance to query. Returns (score, reason)."""
+        if skill_name not in _loaded_skills:
+            return 0.0, "not_loaded"
+        
+        skill = _loaded_skills[skill_name]
+        manifest = skill.manifest
+        score = 0.0
+        reasons = []
+        
+        query_lower = query.lower()
+        
+        # Check keywords
+        skill_keywords = [k.lower() for k in manifest.keywords]
+        for kw in keywords:
+            if kw in skill_keywords:
+                score += 0.3
+                reasons.append(f"kw:{kw}")
+        
+        # Check capabilities
+        for cap in manifest.capabilities:
+            if cap.lower() in query_lower:
+                score += 0.4
+                reasons.append(f"cap:{cap}")
+        
+        # Check skill name
+        if manifest.name.lower() in query_lower:
+            score += 0.5
+            reasons.append("name")
+        
+        return min(1.0, score), ", ".join(reasons[:3]) if reasons else "no_match"
+    
+    def route_to_skill(self, query: str) -> dict:
+        """
+        Check if query should route to a skill.
+        
+        Returns:
+            {
+                "routed": True/False,
+                "skill": "skill_name" or None,
+                "confidence": float,
+                "reason": str
+            }
+        """
+        if not SKILLS_AVAILABLE or not _loaded_skills:
+            return {"routed": False, "skill": None, "confidence": 0, "reason": "no_skills"}
+        
+        keywords = self._extract_keywords(query)
+        
+        # Score all skills
+        scores = []
+        for skill_name in _loaded_skills:
+            score, reason = self._score_skill(skill_name, query, keywords)
+            if score >= self.MIN_SKILL_CONFIDENCE:
+                scores.append((skill_name, score, reason))
+        
+        scores.sort(key=lambda x: x[1], reverse=True)
+        
+        if scores:
+            best = scores[0]
+            return {
+                "routed": True,
+                "skill": best[0],
+                "confidence": best[1],
+                "reason": best[2],
+                "alternatives": [(s[0], s[1]) for s in scores[1:3]]
+            }
+        
+        return {"routed": False, "skill": None, "confidence": 0, "reason": "below_threshold"}
+    
+    async def route_async(self, query: str, context: dict = None, system: str = None) -> dict:
+        """
+        Route query with skills-first priority.
+        
+        Returns:
+            {
+                "target": "skill_name" | "llm_expert",
+                "target_type": "skill" | "llm",
+                "confidence": float,
+                "response": str (if LLM) or None (if skill)
+            }
+        """
+        # Check skills first
+        skill_routing = self.route_to_skill(query)
+        
+        if skill_routing["routed"]:
+            logger.info(f"Routed to skill: {skill_routing['skill']} ({skill_routing['confidence']:.2f})")
+            return {
+                "target": skill_routing["skill"],
+                "target_type": "skill",
+                "confidence": skill_routing["confidence"],
+                "reason": skill_routing["reason"],
+                "response": None  # Caller should invoke skill
+            }
+        
+        # Fall back to LLM routing
+        llm_response = await self._llm_router._async_router.route(query, context, system)
+        query_type, conf = await self._llm_router._async_router.classify_query(query)
+        
+        return {
+            "target": query_type.value,
+            "target_type": "llm",
+            "confidence": conf,
+            "reason": f"llm_expert:{query_type.value}",
+            "response": llm_response
+        }
+    
+    def route(self, query: str, context: dict = None, system: str = None) -> dict:
+        """Synchronous route with skills-first priority."""
+        loop = self._llm_router._get_loop()
+        return loop.run_until_complete(self.route_async(query, context, system))
+    
+    def get_skill_stats(self) -> dict:
+        """Get skills routing statistics."""
+        if not SKILLS_AVAILABLE:
+            return {"available": False}
+        
+        return {
+            "available": True,
+            "loaded_skills": list(_loaded_skills.keys()),
+            "skill_count": len(_loaded_skills)
+        }
+
+
+# Global skills-aware router
+_skills_router: Optional[SkillsAwareRouter] = None
+
+
+def get_skills_router() -> SkillsAwareRouter:
+    """Get global skills-aware router instance."""
+    global _skills_router
+    if _skills_router is None:
+        _skills_router = SkillsAwareRouter()
+    return _skills_router

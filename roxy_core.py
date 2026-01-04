@@ -665,10 +665,69 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_memory_recall()
         elif path == "/expert" or path == "/v1/expert":
             self._handle_expert_route()
+        elif path.startswith("/mcp/"):
+            self._handle_mcp_tool(path)
         else:
             self.send_response(404)
             self.end_headers()
     
+    def _handle_mcp_tool(self, path: str):
+        """Handle MCP tool calls - /mcp/{module}/{tool}"""
+        try:
+            parts = path.strip('/').split('/')
+            if len(parts) < 3:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Invalid MCP path. Use /mcp/{module}/{tool}"}).encode())
+                return
+            
+            _, module_name, tool_name = parts[0], parts[1], parts[2]
+            
+            # Read request body
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b'{}'
+            params = json.loads(body.decode('utf-8')) if body else {}
+            
+            # Load MCP module dynamically
+            import importlib.util
+            mcp_dir = Path.home() / ".roxy" / "mcp"
+            module_path = mcp_dir / f"mcp_{module_name}.py"
+            
+            if not module_path.exists():
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": f"MCP module not found: {module_name}"}).encode())
+                return
+            
+            spec = importlib.util.spec_from_file_location(f"mcp_{module_name}", module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            
+            # Call tool
+            if hasattr(module, 'handle_tool'):
+                result = module.handle_tool(tool_name, params)
+            else:
+                result = {"error": f"Module {module_name} has no handle_tool function"}
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            
+        except json.JSONDecodeError as e:
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": f"Invalid JSON: {e}"}).encode())
+        except Exception as e:
+            logger.error(f"MCP tool error: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
     def _handle_feedback_submission(self):
         """Handle user feedback submission"""
         try:

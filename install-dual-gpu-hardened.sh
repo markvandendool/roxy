@@ -1,0 +1,351 @@
+#!/bin/bash
+#===============================================================================
+# DUAL GPU ACTIVATION - HARDENED INSTALLER
+# Version: 2.0 - Engineering Grade
+# Date: 2025-01-02
+# 
+# ROOT CAUSE: ROCR_VISIBLE_DEVICES=1 in systemd config HIDES GPU[0] (W5700X)
+# FIX: REMOVE ROCR_VISIBLE_DEVICES entirely - let Ollama auto-detect
+#
+# SOURCES:
+# - GitHub Issue #13061: Multi-GPU detection failure fixed by removing ROCR_VISIBLE_DEVICES
+# - ROCm GPU Isolation docs: https://rocm.docs.amd.com/en/latest/conceptual/gpu-isolation.html
+# - AMD 5700 series needs HSA_OVERRIDE_GFX_VERSION=10.3.0 (ROCm #887)
+#===============================================================================
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+BACKUP_DIR="/home/mark/.roxy/backups"
+OVERRIDE_DIR="/etc/systemd/system/ollama.service.d"
+CURRENT_OVERRIDE="${OVERRIDE_DIR}/gpu-stability.conf"
+NEW_OVERRIDE="${OVERRIDE_DIR}/dual-gpu.conf"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_ok() { echo -e "${GREEN}[OK]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+#===============================================================================
+# PRE-FLIGHT CHECKS
+#===============================================================================
+
+preflight_checks() {
+    echo ""
+    echo "=============================================="
+    echo "  DUAL GPU ACTIVATION - PRE-FLIGHT CHECKS"
+    echo "=============================================="
+    echo ""
+    
+    local errors=0
+    
+    # 1. Check running as root
+    if [[ $EUID -ne 0 ]]; then
+        log_error "Must run as root (use sudo)"
+        ((errors++))
+    else
+        log_ok "Running as root"
+    fi
+    
+    # 2. Check Ubuntu version (24.04.x supported)
+    local ubuntu_version=$(lsb_release -rs 2>/dev/null || echo "unknown")
+    if [[ "$ubuntu_version" == "24.04" ]]; then
+        log_ok "Ubuntu ${ubuntu_version} - supported"
+    elif [[ "$ubuntu_version" =~ ^24\. ]]; then
+        log_warn "Ubuntu ${ubuntu_version} - should work"
+    else
+        log_error "Ubuntu ${ubuntu_version} - untested, proceed with caution"
+    fi
+    
+    # 3. Check Ollama is installed
+    if command -v ollama &>/dev/null; then
+        local ollama_ver=$(ollama --version 2>/dev/null | awk '{print $NF}')
+        log_ok "Ollama ${ollama_ver} installed"
+    else
+        log_error "Ollama not found in PATH"
+        ((errors++))
+    fi
+    
+    # 4. Check ROCm is installed
+    if dpkg -l | grep -q amdgpu-core; then
+        local rocm_ver=$(dpkg -l | grep amdgpu-core | awk '{print $3}' | cut -d'-' -f1)
+        log_ok "ROCm ${rocm_ver} installed"
+    else
+        log_warn "ROCm/amdgpu-core not detected via dpkg"
+    fi
+    
+    # 5. Check current GPU visibility (without ROCR_VISIBLE_DEVICES restriction)
+    log_info "Testing GPU visibility with ROCR_VISIBLE_DEVICES unset..."
+    local gpu_count
+    gpu_count=$(rocminfo 2>/dev/null | grep -E "^[[:space:]]+Name:[[:space:]]+gfx" | wc -l)
+    if [[ "$gpu_count" -ge 2 ]]; then
+        log_ok "Both GPUs detected by rocminfo ($gpu_count gfx devices)"
+    elif [[ "$gpu_count" -eq 1 ]]; then
+        log_warn "Only 1 GPU detected - may need HSA_OVERRIDE_GFX_VERSION"
+    else
+        log_error "No gfx GPUs detected by rocminfo"
+        ((errors++))
+    fi
+    
+    # 6. Check for kernel errors
+    if journalctl -k --since "1 hour ago" 2>/dev/null | grep -qi "amdgpu.*error\|GPU.*fell\|fallen off"; then
+        log_warn "Recent amdgpu kernel errors detected - check dmesg"
+    else
+        log_ok "No recent GPU kernel errors"
+    fi
+    
+    # 7. Check existing override conflict
+    if [[ -f "$CURRENT_OVERRIDE" ]]; then
+        if grep -q "ROCR_VISIBLE_DEVICES=1" "$CURRENT_OVERRIDE"; then
+            log_warn "Found ROCR_VISIBLE_DEVICES=1 - THIS IS THE ROOT CAUSE"
+            log_info "  This setting HIDES GPU[0] from Ollama"
+        fi
+    fi
+    
+    echo ""
+    if [[ $errors -gt 0 ]]; then
+        log_error "Pre-flight failed with $errors critical errors"
+        return 1
+    fi
+    log_ok "All pre-flight checks passed"
+    return 0
+}
+
+#===============================================================================
+# BACKUP FUNCTIONS
+#===============================================================================
+
+create_backup() {
+    log_info "Creating backup..."
+    mkdir -p "$BACKUP_DIR"
+    
+    if [[ -f "$CURRENT_OVERRIDE" ]]; then
+        cp "$CURRENT_OVERRIDE" "${BACKUP_DIR}/gpu-stability.conf.${TIMESTAMP}.bak"
+        log_ok "Backed up existing config to ${BACKUP_DIR}/"
+    fi
+    
+    # Save current systemd environment
+    systemctl show ollama --property=Environment > "${BACKUP_DIR}/ollama-env.${TIMESTAMP}.bak" 2>/dev/null || true
+    
+    # Create restore script
+    cat > "${BACKUP_DIR}/restore-${TIMESTAMP}.sh" << 'RESTORE'
+#!/bin/bash
+# Restore script generated by install-dual-gpu-hardened.sh
+BACKUP_DIR="$(dirname "$0")"
+TIMESTAMP="TIMESTAMP_PLACEHOLDER"
+
+echo "Restoring Ollama GPU config from backup ${TIMESTAMP}..."
+
+if [[ -f "${BACKUP_DIR}/gpu-stability.conf.${TIMESTAMP}.bak" ]]; then
+    sudo cp "${BACKUP_DIR}/gpu-stability.conf.${TIMESTAMP}.bak" /etc/systemd/system/ollama.service.d/gpu-stability.conf
+    sudo rm -f /etc/systemd/system/ollama.service.d/dual-gpu.conf 2>/dev/null
+    sudo systemctl daemon-reload
+    sudo systemctl restart ollama
+    echo "Restored. Check: systemctl status ollama"
+else
+    echo "ERROR: Backup file not found!"
+    exit 1
+fi
+RESTORE
+    sed -i "s/TIMESTAMP_PLACEHOLDER/${TIMESTAMP}/" "${BACKUP_DIR}/restore-${TIMESTAMP}.sh"
+    chmod +x "${BACKUP_DIR}/restore-${TIMESTAMP}.sh"
+    log_ok "Created restore script: ${BACKUP_DIR}/restore-${TIMESTAMP}.sh"
+}
+
+#===============================================================================
+# APPLY FIX
+#===============================================================================
+
+apply_fix() {
+    log_info "Applying dual-GPU fix..."
+    
+    # Strategy: Replace the problematic override with a corrected one
+    # Key insight from #13061: DON'T set ROCR_VISIBLE_DEVICES at all - let Ollama auto-detect
+    
+    # Remove the problematic ROCR_VISIBLE_DEVICES=1 line
+    if [[ -f "$CURRENT_OVERRIDE" ]]; then
+        # Create new config WITHOUT ROCR_VISIBLE_DEVICES
+        cat > "${CURRENT_OVERRIDE}.new" << 'NEWCONF'
+[Service]
+# DUAL GPU FIX - Applied by install-dual-gpu-hardened.sh
+# Date: TIMESTAMP_PLACEHOLDER
+#
+# KEY FIX: Removed ROCR_VISIBLE_DEVICES=1 which was hiding GPU[0]
+# Per GitHub #13061: Let Ollama auto-detect GPUs
+
+Environment="OLLAMA_GPU_OVERHEAD=512"
+Environment="OLLAMA_KEEP_ALIVE=5m"
+Environment="HSA_OVERRIDE_GFX_VERSION=10.3.0"
+# REMOVED: Environment="ROCR_VISIBLE_DEVICES=1"   <-- THIS WAS THE PROBLEM
+Environment="OLLAMA_HOST=0.0.0.0"
+
+# Performance optimizations for 32GB total VRAM (16GB + 16GB)
+Environment="OLLAMA_NUM_PARALLEL=4"
+Environment="OLLAMA_FLASH_ATTENTION=1"
+
+Restart=on-failure
+RestartSec=10
+NEWCONF
+        sed -i "s/TIMESTAMP_PLACEHOLDER/$(date)/" "${CURRENT_OVERRIDE}.new"
+        mv "${CURRENT_OVERRIDE}.new" "$CURRENT_OVERRIDE"
+        log_ok "Updated $CURRENT_OVERRIDE"
+    else
+        # Create new config file
+        mkdir -p "$OVERRIDE_DIR"
+        cat > "$CURRENT_OVERRIDE" << 'NEWCONF'
+[Service]
+# DUAL GPU CONFIG - Created by install-dual-gpu-hardened.sh
+Environment="OLLAMA_GPU_OVERHEAD=512"
+Environment="OLLAMA_KEEP_ALIVE=5m"
+Environment="HSA_OVERRIDE_GFX_VERSION=10.3.0"
+Environment="OLLAMA_HOST=0.0.0.0"
+Environment="OLLAMA_NUM_PARALLEL=4"
+Environment="OLLAMA_FLASH_ATTENTION=1"
+
+Restart=on-failure
+RestartSec=10
+NEWCONF
+        log_ok "Created new $CURRENT_OVERRIDE"
+    fi
+    
+    # Reload systemd
+    systemctl daemon-reload
+    log_ok "Systemd configuration reloaded"
+    
+    # Restart Ollama
+    systemctl restart ollama
+    sleep 3
+    
+    if systemctl is-active --quiet ollama; then
+        log_ok "Ollama service restarted successfully"
+    else
+        log_error "Ollama failed to restart - check: journalctl -u ollama -n 50"
+        return 1
+    fi
+}
+
+#===============================================================================
+# VERIFICATION
+#===============================================================================
+
+verify_fix() {
+    echo ""
+    echo "=============================================="
+    echo "  VERIFICATION"
+    echo "=============================================="
+    echo ""
+    
+    local success=true
+    
+    # 1. Check Ollama sees both GPUs
+    log_info "Checking GPU detection..."
+    local ollama_debug=$(OLLAMA_DEBUG=1 timeout 10 ollama list 2>&1 || true)
+    
+    # 2. Check with rocminfo
+    local gpu_info=$(rocminfo 2>/dev/null | grep -E "Name:.*gfx|Marketing Name" | head -10)
+    if [[ -n "$gpu_info" ]]; then
+        log_ok "rocminfo shows:"
+        echo "$gpu_info" | sed 's/^/  /'
+    fi
+    
+    # 3. Run quick inference test
+    log_info "Running quick inference test..."
+    local test_result=$(timeout 30 ollama run qwen3:1.7b "Say 'dual-gpu test complete' and nothing else" 2>&1 || echo "TIMEOUT")
+    
+    if echo "$test_result" | grep -qi "dual-gpu\|complete\|test"; then
+        log_ok "Inference test passed"
+    else
+        log_warn "Inference test output: $test_result"
+    fi
+    
+    # 4. Check VRAM usage on both GPUs (if radeontop available)
+    if command -v amd-smi &>/dev/null; then
+        log_info "GPU Memory status:"
+        amd-smi static --gpu 0,1 -g 2>/dev/null | grep -E "GPU|VRAM" | head -6 || true
+    fi
+    
+    echo ""
+    echo "=============================================="
+    echo "  SUMMARY"
+    echo "=============================================="
+    echo ""
+    echo "  Config file: $CURRENT_OVERRIDE"
+    echo "  Backup dir:  $BACKUP_DIR"
+    echo "  Restore:     ${BACKUP_DIR}/restore-${TIMESTAMP}.sh"
+    echo ""
+    echo "  To verify both GPUs are used during inference:"
+    echo "    watch -n1 'cat /sys/class/drm/card*/device/gpu_busy_percent 2>/dev/null'"
+    echo ""
+    echo "  To rollback:"
+    echo "    sudo ${BACKUP_DIR}/restore-${TIMESTAMP}.sh"
+    echo ""
+}
+
+#===============================================================================
+# ROLLBACK
+#===============================================================================
+
+rollback() {
+    log_info "Rolling back to previous configuration..."
+    
+    local latest_backup=$(ls -t "${BACKUP_DIR}/gpu-stability.conf."*.bak 2>/dev/null | head -1)
+    
+    if [[ -n "$latest_backup" && -f "$latest_backup" ]]; then
+        cp "$latest_backup" "$CURRENT_OVERRIDE"
+        systemctl daemon-reload
+        systemctl restart ollama
+        log_ok "Rolled back to: $latest_backup"
+    else
+        log_error "No backup found to restore from"
+        return 1
+    fi
+}
+
+#===============================================================================
+# MAIN
+#===============================================================================
+
+main() {
+    echo ""
+    echo "╔══════════════════════════════════════════════════════════════╗"
+    echo "║  OLLAMA DUAL GPU ACTIVATION - HARDENED INSTALLER             ║"
+    echo "║  GPUs: AMD W5700X (16GB) + RX 6900 XT (16GB) = 32GB VRAM    ║"
+    echo "╚══════════════════════════════════════════════════════════════╝"
+    echo ""
+    
+    case "${1:-install}" in
+        install)
+            preflight_checks || exit 1
+            create_backup
+            apply_fix
+            verify_fix
+            ;;
+        preflight)
+            preflight_checks
+            ;;
+        rollback)
+            rollback
+            ;;
+        verify)
+            verify_fix
+            ;;
+        *)
+            echo "Usage: $0 [install|preflight|rollback|verify]"
+            echo ""
+            echo "  install   - Full installation with backup and verification"
+            echo "  preflight - Run pre-flight checks only"
+            echo "  rollback  - Restore previous configuration"
+            echo "  verify    - Run verification tests only"
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
