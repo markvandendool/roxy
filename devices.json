@@ -1,0 +1,302 @@
+[
+    {
+        "name": "Core 2",
+        "id": "eb63e70be60c8865042kla",
+        "key": "KQlQO`nQHYLIio@u",
+        "mac": "38:2c:e5:42:54:2c",
+        "uuid": "1d28402fe1eae893",
+        "sn": "1001605630E220",
+        "category": "cz",
+        "product_name": "Smart plug",
+        "product_id": "nx8rv6jpe1tsnffk",
+        "biz_type": 18,
+        "model": "ET01B-15A\u7f8e\u89c4\u4e0d\u8ba1\u91cf CB2S-J 7231N",
+        "sub": false,
+        "icon": "https://images.tuyaus.com/smart/icon/bay1708341531867mz6I/b7e75d35748f6e175b0e14a07260935d.png",
+        "mapping": {
+            "1": {
+                "code": "switch_1",
+                "type": "Boolean",
+                "values": {}
+            },
+            "9": {
+                "code": "countdown_1",
+                "type": "Integer",
+                "values": {
+                    "unit": "s",
+                    "min": 0,
+                    "max": 86400,
+                    "scale": 0,
+                    "step": 1
+                }
+            },
+            "38": {
+                "code": "relay_status",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "power_off",
+                        "power_on",
+                        "last"
+                    ]
+                }
+            },
+            "40": {
+                "code": "light_mode",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "relay",
+                        "pos",
+                        "none"
+                    ]
+                }
+            },
+            "41": {
+                "code": "child_lock",
+                "type": "Boolean",
+                "values": {}
+            },
+            "42": {
+                "code": "cycle_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "43": {
+                "code": "random_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "44": {
+                "code": "switch_inching",
+                "type": "String",
+                "values": "{}"
+            }
+        }
+    },
+    {
+        "name": "Core",
+        "id": "ebce5daaeb24572c1a86ol",
+        "key": "t+~0<s:XJfq|VqnN",
+        "mac": "38:2c:e5:40:e6:4c",
+        "uuid": "df01d189baf05bfb",
+        "sn": "10016056614954",
+        "category": "cz",
+        "product_name": "Smart Plug",
+        "product_id": "lowvwcxidmgmddxh",
+        "biz_type": 18,
+        "model": "ET01A-15A\u7f8e\u89c4\u4e0d\u8ba1\u91cf CB2S-J 7231N",
+        "sub": false,
+        "icon": "https://images.tuyaus.com/smart/icon/bay1708341531867mz6I/a7609ae245041852c48257ce215e35ec.png",
+        "mapping": {
+            "1": {
+                "code": "switch_1",
+                "type": "Boolean",
+                "values": {}
+            },
+            "9": {
+                "code": "countdown_1",
+                "type": "Integer",
+                "values": {
+                    "unit": "s",
+                    "min": 0,
+                    "max": 86400,
+                    "scale": 0,
+                    "step": 1
+                }
+            },
+            "38": {
+                "code": "relay_status",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "power_off",
+                        "power_on",
+                        "last"
+                    ]
+                }
+            },
+            "40": {
+                "code": "light_mode",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "relay",
+                        "pos",
+                        "none"
+                    ]
+                }
+            },
+            "41": {
+                "code": "child_lock",
+                "type": "Boolean",
+                "values": {}
+            },
+            "42": {
+                "code": "cycle_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "43": {
+                "code": "random_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "44": {
+                "code": "switch_inching",
+                "type": "String",
+                "values": "{}"
+            }
+        }
+    },
+    {
+        "name": "Cam\u00e9ra",
+        "id": "eb1dc94bbe15cf52890qw5",
+        "key": "TLtliK#4z.x_ue@$",
+        "mac": "38:2c:e5:42:45:b8",
+        "uuid": "9d13f4bfac0f1dbb",
+        "sn": "1001605630D2ED",
+        "category": "cz",
+        "product_name": "Smart plug",
+        "product_id": "nx8rv6jpe1tsnffk",
+        "biz_type": 18,
+        "model": "ET01B-15A\u7f8e\u89c4\u4e0d\u8ba1\u91cf CB2S-J 7231N",
+        "sub": false,
+        "icon": "https://images.tuyaus.com/smart/icon/bay1708341531867mz6I/b7e75d35748f6e175b0e14a07260935d.png",
+        "mapping": {
+            "1": {
+                "code": "switch_1",
+                "type": "Boolean",
+                "values": {}
+            },
+            "9": {
+                "code": "countdown_1",
+                "type": "Integer",
+                "values": {
+                    "unit": "s",
+                    "min": 0,
+                    "max": 86400,
+                    "scale": 0,
+                    "step": 1
+                }
+            },
+            "38": {
+                "code": "relay_status",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "power_off",
+                        "power_on",
+                        "last"
+                    ]
+                }
+            },
+            "40": {
+                "code": "light_mode",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "relay",
+                        "pos",
+                        "none"
+                    ]
+                }
+            },
+            "41": {
+                "code": "child_lock",
+                "type": "Boolean",
+                "values": {}
+            },
+            "42": {
+                "code": "cycle_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "43": {
+                "code": "random_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "44": {
+                "code": "switch_inching",
+                "type": "String",
+                "values": "{}"
+            }
+        }
+    },
+    {
+        "name": "Studio Lights",
+        "id": "eb90375a7ee68720d66msw",
+        "key": "XrYjc9)1+w]'9h7x",
+        "mac": "38:2c:e5:41:e7:4a",
+        "uuid": "54e9520b25500259",
+        "sn": "100160563089E6",
+        "category": "cz",
+        "product_name": "Smart plug",
+        "product_id": "nx8rv6jpe1tsnffk",
+        "biz_type": 18,
+        "model": "ET01B-15A\u7f8e\u89c4\u4e0d\u8ba1\u91cf CB2S-J 7231N",
+        "sub": false,
+        "icon": "https://images.tuyaus.com/smart/icon/bay1708341531867mz6I/b7e75d35748f6e175b0e14a07260935d.png",
+        "mapping": {
+            "1": {
+                "code": "switch_1",
+                "type": "Boolean",
+                "values": {}
+            },
+            "9": {
+                "code": "countdown_1",
+                "type": "Integer",
+                "values": {
+                    "unit": "s",
+                    "min": 0,
+                    "max": 86400,
+                    "scale": 0,
+                    "step": 1
+                }
+            },
+            "38": {
+                "code": "relay_status",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "power_off",
+                        "power_on",
+                        "last"
+                    ]
+                }
+            },
+            "40": {
+                "code": "light_mode",
+                "type": "Enum",
+                "values": {
+                    "range": [
+                        "relay",
+                        "pos",
+                        "none"
+                    ]
+                }
+            },
+            "41": {
+                "code": "child_lock",
+                "type": "Boolean",
+                "values": {}
+            },
+            "42": {
+                "code": "cycle_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "43": {
+                "code": "random_time",
+                "type": "String",
+                "values": "{}"
+            },
+            "44": {
+                "code": "switch_inching",
+                "type": "String",
+                "values": "{}"
+            }
+        }
+    }
+]

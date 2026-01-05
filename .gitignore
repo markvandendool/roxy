@@ -32,3 +32,5 @@ chroma_db.backup*/
 *.onnx
 .env
 snapshot.json
+tinytuya.json
+tuya-raw.json
