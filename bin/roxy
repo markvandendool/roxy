@@ -2,6 +2,8 @@
 # Quick commands for Roxy hardware automation
 
 ROXY_DIR="$HOME/.roxy/ha-integration"
+ROXY_AUDIO="$HOME/.roxy/audio"
+ROXY_VENV="$HOME/.roxy/venv/bin/python"
 
 case "$1" in
     live)
@@ -28,6 +30,52 @@ case "$1" in
     status)
         python3 "$ROXY_DIR/roxy-hardware.py" status
         ;;
+    pitch)
+        shift
+        case "$1" in
+            start)
+                echo "Starting pitch detector service..."
+                systemctl --user start roxy-pitch.service
+                sleep 2
+                systemctl --user status roxy-pitch.service
+                ;;
+            stop)
+                echo "Stopping pitch detector service..."
+                systemctl --user stop roxy-pitch.service
+                ;;
+            restart)
+                echo "Restarting pitch detector service..."
+                systemctl --user restart roxy-pitch.service
+                sleep 2
+                systemctl --user status roxy-pitch.service
+                ;;
+            status)
+                systemctl --user status roxy-pitch.service
+                ;;
+            log|logs)
+                tail -f ~/.roxy/logs/pitch_detector.log
+                ;;
+            test)
+                echo "Running pitch detector test..."
+                "$ROXY_VENV" "$ROXY_AUDIO/pitch_detector.py" --demo
+                ;;
+            run)
+                shift
+                echo "Running pitch detector in foreground..."
+                "$ROXY_VENV" "$ROXY_AUDIO/pitch_detector.py" "$@"
+                ;;
+            *)
+                echo "Pitch Detector Commands:"
+                echo "  roxy pitch start    - Start as background service"
+                echo "  roxy pitch stop     - Stop the service"
+                echo "  roxy pitch restart  - Restart the service"
+                echo "  roxy pitch status   - Check service status"
+                echo "  roxy pitch log      - Tail service logs"
+                echo "  roxy pitch test     - Run demo test (440Hz)"
+                echo "  roxy pitch run      - Run in foreground"
+                ;;
+        esac
+        ;;
     *)
         echo "Roxy Hardware Control"
         echo "Usage: roxy <command>"
@@ -40,5 +88,6 @@ case "$1" in
         echo "  ha        - Home Assistant control"
         echo "  profile   - Set power profile"
         echo "  status    - Full system status"
+        echo "  pitch     - Pitch detector control (GPU audio analysis)"
         ;;
 esac

@@ -1,0 +1,21 @@
+[Unit]
+Description=ROXY Pitch Detector - TorchCrepe on AMD GPU
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=mark
+WorkingDirectory=/home/mark/.roxy/audio
+Environment="PATH=/home/mark/.roxy/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="HSA_OVERRIDE_GFX_VERSION=10.3.0"
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/mark/.roxy/venv/bin/python pitch_detector.py --device 12
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

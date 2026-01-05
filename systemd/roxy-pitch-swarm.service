@@ -1,0 +1,19 @@
+[Unit]
+Description=ROXY Pitch Detection Swarm (P3+P4)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mark
+Environment="HOME=/home/mark"
+Environment="ROCR_VISIBLE_DEVICES=1"
+Environment="PATH=/home/mark/.roxy/venv/bin:/usr/local/bin:/usr/bin:/bin"
+WorkingDirectory=/home/mark/.roxy/audio
+ExecStartPre=/home/mark/.roxy/venv/bin/python /home/mark/.roxy/audio/warmup.py
+ExecStart=/bin/bash -c '/home/mark/.roxy/venv/bin/python pitch_detector.py --device 12 & /home/mark/.roxy/venv/bin/python swiftf0_detector.py --device 12 & wait'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

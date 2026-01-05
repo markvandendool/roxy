@@ -1,0 +1,35 @@
+# Rocky System - Audio Pipeline
+# Story: RAF-020
+# Manages audio capture and pitch detection
+
+[Unit]
+Description=ROXY Audio Pipeline
+Documentation=https://github.com/user/roxy
+After=sound.target pipewire.service
+Requires=pipewire.service
+Before=roxy.service
+
+[Service]
+Type=simple
+User=%i
+Group=%i
+SupplementaryGroups=audio
+
+Environment="XDG_RUNTIME_DIR=/run/user/%U"
+Environment="PIPEWIRE_RUNTIME_DIR=/run/user/%U"
+
+ExecStart=/usr/bin/python3 %h/.roxy/audio/audio_pipeline.py
+
+Restart=on-failure
+RestartSec=3
+
+# Audio needs realtime scheduling
+LimitRTPRIO=99
+LimitMEMLOCK=infinity
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roxy-audio
+
+[Install]
+WantedBy=default.target

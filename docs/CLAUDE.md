@@ -1,8 +1,33 @@
 # MindSong Juke Hub - Claude Code Master Context
 
-> **Version:** 3.0 (MDF2030 + MOS2030 Deep Integration)
+> **Version:** 3.1 (MDF2030 + MOS2030 + UNIVERSE)
 > **Status:** Production-Ready Master Knowledge Base
-> **Last Updated:** 2025-12-09
+> **Last Updated:** 2026-01-04
+
+---
+
+# 🚀 THE UNIVERSE — READ THIS FIRST
+
+## ONE COMMAND TO RULE 40 SERVERS
+
+```bash
+~/.roxy/start-universe.sh status   # WHAT'S RUNNING?
+~/.roxy/start-universe.sh minimal  # START ESSENTIALS
+~/.roxy/start-universe.sh full     # START EVERYTHING
+~/.roxy/start-universe.sh stop     # STOP ALL
+```
+
+## THE NUMBERS: 40 servers → 1 script
+
+| Port | Service | Status |
+|------|---------|--------|
+| **8766** | ROXY Core | 🟢 systemd |
+| **8765** | MCP Server | 🟢 systemd |
+| **8767** | Pitch WS (5.6ms!) | 🟢 running |
+| **3030** | Grafana | 🟢 docker |
+| **9099** | Prometheus | 🟢 docker |
+
+**Full inventory:** `~/.roxy/UNIVERSE.md`
 
 ---
 

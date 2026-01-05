@@ -1,0 +1,48 @@
+# Rocky System - Main Service
+# Story: RAF-020
+# Install: sudo cp ~/.roxy/systemd/*.service /etc/systemd/system/
+#          sudo systemctl daemon-reload
+#          sudo systemctl enable --now roxy.service
+
+[Unit]
+Description=ROXY AI Assistant Daemon
+Documentation=https://github.com/user/roxy
+After=network.target sound.target graphical.target
+Wants=roxy-brain.service roxy-audio.service
+
+[Service]
+Type=notify
+User=%i
+Group=%i
+Environment="XDG_RUNTIME_DIR=/run/user/%U"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus"
+Environment="DISPLAY=:0"
+
+# Main ROXY coordinator
+ExecStart=/usr/bin/python3 %h/.roxy/daemon/roxy_main.py
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart policy
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+# Resource limits
+MemoryMax=2G
+CPUQuota=50%
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.roxy/data %h/.roxy/logs /dev/shm
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roxy
+
+[Install]
+WantedBy=default.target

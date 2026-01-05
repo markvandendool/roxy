@@ -1,0 +1,50 @@
+# Rocky Shell - Atuin Configuration
+# Story: RAF-015
+# Target: Smart shell history with ROXY context awareness
+#
+# Install: cargo install atuin
+# Setup: eval "$(atuin init zsh)" or eval "$(atuin init bash)"
+
+[settings]
+# Use ROXY-enhanced search
+dialect = "us"
+auto_sync = false  # Local only for privacy
+update_check = false
+style = "compact"
+inline_height = 8
+show_preview = true
+show_help = true
+show_tabs = true
+exit_mode = "return-original"
+history_filter = ["^roxy-secret", "^export.*KEY", "^export.*TOKEN"]
+
+# ROXY-aware search
+search_mode = "fuzzy"
+filter_mode = "global"
+search_mode_shell_up_key_binding = "fuzzy"
+filter_mode_shell_up_key_binding = "directory"
+
+# Context-based ranking (custom stats)
+[stats]
+common_prefix = ["git ", "docker ", "npm ", "pnpm ", "cargo ", "python "]
+common_substrings = ["--help", "--version", "| grep", "| head", "| tail"]
+
+# Sync settings (disabled for privacy)
+[sync]
+records = false
+
+# Key bindings
+[keys]
+# Alt+R for ROXY-enhanced search
+scroll_exits = true
+
+# ROXY integration hooks
+[daemon]
+enabled = false  # We use our own daemon
+
+# Session context (ROXY populates these)
+[context]
+# These are set by ROXY shell integration
+# roxy_project = "current-project"
+# roxy_mood = "focused"
+# roxy_skill_level = "intermediate"

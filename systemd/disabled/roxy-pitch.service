@@ -1,0 +1,18 @@
+[Unit]
+Description=Rocky Pitch Detector - Real-time GPU pitch detection for MindSong
+After=graphical-session.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/mark/.roxy/venv/bin/python /home/mark/.roxy/audio/pitch_detector.py --device 12
+Restart=always
+RestartSec=5
+Environment="HOME=/home/mark"
+
+# Logging
+StandardOutput=append:/home/mark/.roxy/logs/pitch_detector.log
+StandardError=append:/home/mark/.roxy/logs/pitch_detector.log
+
+[Install]
+WantedBy=default.target

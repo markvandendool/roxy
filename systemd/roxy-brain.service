@@ -1,0 +1,29 @@
+# Rocky System - Shared Memory Brain
+# Story: RAF-020
+# Manages the shared memory IPC hub
+
+[Unit]
+Description=ROXY Shared Memory Brain
+Documentation=https://github.com/user/roxy
+Before=roxy.service
+
+[Service]
+Type=simple
+User=%i
+Group=%i
+
+ExecStart=/usr/bin/python3 %h/.roxy/ipc/shm_brain.py
+ExecStop=/bin/rm -f /dev/shm/roxy_brain
+
+Restart=always
+RestartSec=2
+
+# Shared memory needs write access
+ReadWritePaths=/dev/shm
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roxy-brain
+
+[Install]
+WantedBy=default.target
