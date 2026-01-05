@@ -1,0 +1,44 @@
+#!/bin/bash
+# Quick commands for Roxy hardware automation
+
+ROXY_DIR="$HOME/.roxy/ha-integration"
+
+case "$1" in
+    live)
+        python3 "$ROXY_DIR/roxy-hardware.py" go-live
+        ;;
+    offline)
+        python3 "$ROXY_DIR/roxy-hardware.py" go-offline
+        ;;
+    gpu)
+        rocm-smi
+        ;;
+    lights)
+        shift
+        python3 "$ROXY_DIR/tuya-control.py" "$@"
+        ;;
+    ha)
+        shift
+        python3 "$ROXY_DIR/ha-control.py" "$@"
+        ;;
+    profile)
+        shift
+        "$ROXY_DIR/power-profile.sh" "$@"
+        ;;
+    status)
+        python3 "$ROXY_DIR/roxy-hardware.py" status
+        ;;
+    *)
+        echo "Roxy Hardware Control"
+        echo "Usage: roxy <command>"
+        echo ""
+        echo "Commands:"
+        echo "  live      - Go live (lights, OBS, GPU perf)"
+        echo "  offline   - Go offline"
+        echo "  gpu       - Show GPU status"
+        echo "  lights    - Control Tuya lights"
+        echo "  ha        - Home Assistant control"
+        echo "  profile   - Set power profile"
+        echo "  status    - Full system status"
+        ;;
+esac

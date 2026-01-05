@@ -1,0 +1,13 @@
+[Unit]
+Description=Roxy GPU Monitor for Home Assistant
+After=network.target
+
+[Service]
+Type=simple
+User=mark
+ExecStart=/home/mark/.roxy/ha-integration/gpu-monitor.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

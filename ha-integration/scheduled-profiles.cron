@@ -1,0 +1,18 @@
+# Roxy Power Profiles - Scheduled automation
+# Add to crontab: crontab -e
+
+# Morning wake-up: 7 AM - GPU to auto, lights off
+0 7 * * * /home/mark/.roxy/ha-integration/power-profile.sh morning
+
+# Work mode: 9 AM - GPU performance
+0 9 * * 1-5 /home/mark/.roxy/ha-integration/power-profile.sh work
+
+# Stream prep: 30 min before scheduled streams
+# (customize as needed)
+# 30 19 * * * /home/mark/.roxy/ha-integration/roxy-hardware.py go-live
+
+# Night mode: 11 PM - Everything off, GPU low power
+0 23 * * * /home/mark/.roxy/ha-integration/power-profile.sh night
+
+# Weekend gaming: Saturday 2 PM - GPU max
+0 14 * * 6 /home/mark/.roxy/ha-integration/power-profile.sh gaming
