@@ -30,3 +30,5 @@ chatterbox/
 chatterbox-venv/
 chroma_db.backup*/
 *.onnx
+.env
+snapshot.json
