@@ -1,0 +1,15 @@
+[Unit]
+Description=Roxy Tuya REST API
+After=network.target
+
+[Service]
+Type=simple
+User=mark
+WorkingDirectory=/home/mark/.roxy
+ExecStart=/home/mark/.roxy/venv/bin/python /home/mark/.roxy/ha-integration/tuya-api.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
