@@ -97,6 +97,38 @@ Read: `docs/onboarding/common-mistakes/`
 ### Complete 30-Minute Path
 Finish all steps above.
 
+## Remote Access (iMac / "Friday")
+If you need to access the iMac known as **Friday** (citadel-worker-1):
+
+- Host: `10.0.0.65`
+- User: `mark`
+- Key: `~/imackeys`
+- Recommended alias (add to `~/.ssh/config`):
+
+```text
+Host friday
+  HostName 10.0.0.65
+  User mark
+  IdentityFile ~/imackeys
+```
+
+- Jump example (via `imac`):
+```
+ssh -J imac mark@10.0.0.69
+```
+
+**Voice profile note:** To change ROXY voice profile without enabling another user's profile, set `ROXY_TTS_PROFILE` in `~/.roxy/.env` and restart the `roxy-voice` service.
+
+Example (set to your profile `mine`):
+```bash
+if rg -q '^ROXY_TTS_PROFILE' ~/.roxy/.env; then
+  sed -i 's/^ROXY_TTS_PROFILE=.*/ROXY_TTS_PROFILE=mine/' ~/.roxy/.env
+else
+  echo 'ROXY_TTS_PROFILE=mine' >> ~/.roxy/.env
+fi
+sudo systemctl restart roxy-voice
+```
+
 ### Read Enterprise Vision (15 min)
 Read: `docs/MINDSONG_ENTERPRISE_VISION.md`
 - Mission & North Star
