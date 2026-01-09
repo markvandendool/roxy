@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 # Configuration
-OLLAMA_URL = 'http://localhost:11434/api/generate'
+OLLAMA_URL = 'http://127.0.0.1:11435/api/generate'
 MODEL = 'llama3.2:1b'
 MIC_DEVICE = 'hw:2,0'
 SAMPLE_RATE = 16000

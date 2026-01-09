@@ -54,7 +54,7 @@ MAX_RECORD_DURATION = 30  # max seconds to record
 WHISPER_MODEL = "base.en"
 PIPER_VOICE = "/home/mark/.roxy/piper-voices/en_US-lessac-medium.onnx"
 OLLAMA_MODEL = "llama3:8b"
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = "http://127.0.0.1:11435/api/generate"
 
 ROXY_SYSTEM_PROMPT = """You are ROXY, the AI assistant for MindSong and Mark's personal operations.
 

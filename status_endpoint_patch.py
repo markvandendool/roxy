@@ -181,7 +181,7 @@ STATUS_ENDPOINT_HANDLER = '''
         ollama_status = {"status": "unknown"}
         try:
             import requests
-            resp = requests.get("http://localhost:11434/api/tags", timeout=2)
+            resp = requests.get("http://127.0.0.1:11435/api/tags", timeout=2)
             if resp.status_code == 200:
                 ollama_status["status"] = "healthy"
                 models = resp.json().get("models", [])

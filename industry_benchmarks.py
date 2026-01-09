@@ -100,7 +100,7 @@ class IndustryBenchmarks:
         """Query Ollama directly"""
         if HTTP_CLIENT == 'requests':
             response = requests.post(
-                "http://localhost:11434/api/generate",
+                "http://127.0.0.1:11435/api/generate",
                 json={
                     "model": model,
                     "prompt": prompt,
@@ -112,7 +112,7 @@ class IndustryBenchmarks:
             return response.json().get('response', '')
         else:
             req = urllib.request.Request(
-                "http://localhost:11434/api/generate",
+                "http://127.0.0.1:11435/api/generate",
                 data=json.dumps({
                     "model": model,
                     "prompt": prompt,

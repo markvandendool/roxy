@@ -27,6 +27,14 @@ from typing import List, Dict, Any, Optional, Tuple
 ROXY_DIR = Path.home() / ".roxy"
 logger = logging.getLogger("roxy.commands")
 
+
+def _get_ollama_base_url() -> str:
+    """Resolve Ollama base URL with environment overrides."""
+    url = (os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL") or "").strip()
+    if url:
+        return url.rstrip("/")
+    return "http://127.0.0.1:11435"
+
 # Global tracking for Truth Gate evidence
 TOOLS_EXECUTED = []
 
@@ -611,8 +619,9 @@ Answer:"""
         except Exception as e:
             logger.debug(f"LLM router failed: {e}, using direct API call")
             # Fallback to direct API call
+            base_url = _get_ollama_base_url()
             llm_resp = requests.post(
-                "http://localhost:11434/api/generate",
+                f"{base_url}/api/generate",
                 json={
                     "model": "qwen2.5-coder:14b",
                     "prompt": prompt,

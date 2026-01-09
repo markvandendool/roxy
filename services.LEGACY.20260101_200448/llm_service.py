@@ -52,7 +52,7 @@ class LLMService:
                 # Now import langchain_ollama (needs standard library email, not services/email/)
                 from langchain_ollama import ChatOllama
                 
-                ollama_host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
+                ollama_host = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11435')
                 model = os.getenv('OLLAMA_MODEL', 'llama3:8b')
                 self.client = ChatOllama(
                     model=model,

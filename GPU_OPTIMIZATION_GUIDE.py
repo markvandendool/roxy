@@ -515,7 +515,7 @@ import requests
 
 def stream_generate(prompt):
     response = requests.post(
-        "http://localhost:11434/api/generate",
+        "http://127.0.0.1:11435/api/generate",
         json={
             "model": "qwen2.5-coder:14b",
             "prompt": prompt,

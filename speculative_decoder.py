@@ -27,7 +27,7 @@ from urllib.error import URLError, HTTPError
 logger = logging.getLogger("roxy.speculative_decoder")
 
 # Configuration
-OLLAMA_BASE = "http://localhost:11434"
+OLLAMA_BASE = "http://127.0.0.1:11435"
 DRAFT_MODEL = "tinyllama:latest"      # Small, fast (637MB) - GPU[0]
 TARGET_MODEL = "qwen2.5:32b"          # Large, accurate (19GB) - GPU[1]
 FALLBACK_MODEL = "llama3:8b"          # Medium fallback if 32b unavailable

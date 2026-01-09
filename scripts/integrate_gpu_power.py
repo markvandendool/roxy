@@ -69,7 +69,7 @@ def configure_gpu_env():
     
     # GPU optimizations
     gpu_config = {
-        'OLLAMA_HOST': 'http://localhost:11434',
+        'OLLAMA_HOST': 'http://127.0.0.1:11435',
         'OLLAMA_GPU_LAYERS': '35',  # Use GPU for most layers
         'OLLAMA_NUM_GPU': '1',
         'PYTORCH_CUDA_ALLOC_CONF': 'max_split_size_mb:512',
@@ -160,7 +160,7 @@ def verify_gpu_setup():
     # Check Ollama
     import urllib.request
     try:
-        urllib.request.urlopen('http://localhost:11434/api/tags', timeout=2)
+        urllib.request.urlopen('http://127.0.0.1:11435/api/tags', timeout=2)
         print("  ✅ Ollama is running")
     except:
         print("  ⚠️  Ollama not accessible (may not be running)")

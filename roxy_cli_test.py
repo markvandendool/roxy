@@ -17,8 +17,8 @@ import chromadb
 import requests
 from datetime import datetime
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-EMBED_URL = "http://localhost:11434/api/embeddings"
+OLLAMA_URL = "http://127.0.0.1:11435/api/generate"
+EMBED_URL = "http://127.0.0.1:11435/api/embeddings"
 OLLAMA_MODEL = "llama3:8b"
 EMBED_MODEL = "nomic-embed-text"
 

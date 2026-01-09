@@ -192,7 +192,7 @@ class ExpertRouter:
             default_model: Fallback model for BIG pool
         """
         # Pool endpoints (explicit dual-pool default)
-        self.big_pool_url = os.getenv("OLLAMA_BIG_URL", "http://127.0.0.1:11434")
+        self.big_pool_url = os.getenv("OLLAMA_BIG_URL", "http://127.0.0.1:11435")
         self.fast_pool_url = os.getenv("OLLAMA_FAST_URL", "http://127.0.0.1:11435")
 
         # Legacy compatibility

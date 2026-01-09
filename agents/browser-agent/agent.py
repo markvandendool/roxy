@@ -18,7 +18,7 @@ except ImportError as e:
     exit(1)
 
 # Configuration
-OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
+OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11435')
 MODEL_NAME = os.getenv('OLLAMA_MODEL', 'llama3:8b')
 SESSIONS_DIR = Path('/opt/roxy/secrets/browser-sessions')
 

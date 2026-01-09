@@ -31,7 +31,7 @@ except ImportError:
 class SSEStreamer:
     """Server-Sent Events streamer for LLM responses"""
     
-    def __init__(self, ollama_url: str = "http://localhost:11434"):
+    def __init__(self, ollama_url: str = "http://127.0.0.1:11435"):
         self.ollama_url = ollama_url
         self.heartbeat_interval = 8  # seconds (faster for proxy compatibility)
         # Initialize circuit breaker for Ollama

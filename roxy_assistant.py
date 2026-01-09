@@ -29,7 +29,7 @@ from openwakeword.model import Model as WakeModel
 CONFIG = {
     'whisper_model': 'base.en',
     'ollama_model': 'llama3:8b',
-    'ollama_url': 'http://localhost:11434',
+    'ollama_url': 'http://127.0.0.1:11435',
     'voice_model': os.path.expanduser('~/.roxy/voices/en_US-lessac-medium.onnx'),
     'sample_rate': 16000,
     'channels': 1,

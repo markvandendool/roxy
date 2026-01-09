@@ -184,7 +184,7 @@ def get_service_status(services):
 
 def get_ollama_status():
     """Check Ollama status"""
-    output = run_cmd("curl -s http://localhost:11434/api/tags 2>/dev/null")
+    output = run_cmd("curl -s http://127.0.0.1:11435/api/tags 2>/dev/null")
     if output:
         try:
             data = json.loads(output)

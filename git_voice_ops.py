@@ -23,7 +23,7 @@ from datetime import datetime
 import requests
 
 REPO_PATH = Path.home() / "mindsong-juke-hub"
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = "http://127.0.0.1:11435/api/generate"
 OLLAMA_MODEL = "llama3:8b"
 
 def run_git(args, cwd=None):

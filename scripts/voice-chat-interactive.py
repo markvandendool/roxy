@@ -112,7 +112,7 @@ def get_llm_response(text):
     
     try:
         response = requests.post(
-            'http://localhost:11434/api/generate',
+            'http://127.0.0.1:11435/api/generate',
             json={
                 'model': 'llama3:8b',
                 'prompt': text,

@@ -152,7 +152,7 @@ class ModelConfig:
                 "general": ["llama3:8b", "mistral:7b", "gemma2:9b"],
                 "reasoning": ["qwen2.5-coder:32b", "llama3:70b", "mixtral:8x7b"]
             },
-            "ollama_url": "http://localhost:11434",
+            "ollama_url": "http://127.0.0.1:11435",
             "openai_api_key": os.environ.get("OPENAI_API_KEY", ""),
             "anthropic_api_key": os.environ.get("ANTHROPIC_API_KEY", ""),
         }

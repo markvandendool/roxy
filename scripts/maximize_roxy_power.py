@@ -175,7 +175,7 @@ class RoxyMaximizer:
             self.issues_found.append("Claude API key missing")
         
         if 'OLLAMA_HOST' in env_vars:
-            ollama_host = env_vars.get('OLLAMA_HOST', 'http://localhost:11434')
+            ollama_host = env_vars.get('OLLAMA_HOST', 'http://127.0.0.1:11435')
             # Test connection
             import urllib.request
             try:
@@ -186,7 +186,7 @@ class RoxyMaximizer:
                 self.issues_found.append("Ollama not accessible")
         else:
             # Set default
-            self._update_env('OLLAMA_HOST', 'http://localhost:11434')
+            self._update_env('OLLAMA_HOST', 'http://127.0.0.1:11435')
             self._update_env('OLLAMA_MODEL', 'llama3:8b')
             print("  ✅ Ollama defaults configured")
     

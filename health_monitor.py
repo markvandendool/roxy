@@ -86,8 +86,8 @@ SERVICES: List[ServiceConfig] = [
     ),
     ServiceConfig(
         name="Ollama",
-        endpoint="http://127.0.0.1:11434/api/tags",
-        port=11434,
+        endpoint="http://127.0.0.1:11435/api/tags",
+        port=11435,
         critical=False
     ),
     ServiceConfig(

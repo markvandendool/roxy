@@ -28,7 +28,7 @@ from urllib.error import URLError, HTTPError
 logger = logging.getLogger("roxy.mcp.rocky")
 
 # Configuration
-OLLAMA_BASE = "http://localhost:11434"
+OLLAMA_BASE = "http://127.0.0.1:11435"
 CHROMADB_BASE = "http://localhost:8000"
 ROCKY_MODEL = "llama3:8b"  # Default model for Rocky
 TIMEOUT = 30  # Music analysis can take longer

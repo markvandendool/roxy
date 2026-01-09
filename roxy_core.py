@@ -192,6 +192,40 @@ ROXY_MODES = {
     },
 }
 
+def _get_ollama_base_url() -> str:
+    """Resolve Ollama base URL with environment overrides."""
+    url = (os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL") or "").strip()
+    if url:
+        return url.rstrip("/")
+    return "http://127.0.0.1:11435"
+
+
+OLLAMA_HEALTH_LOCK = threading.Lock()
+_ollama_health_state = {
+    "last_ok_ts": None,
+    "last_error": None,
+    "last_latency_ms": None,
+}
+
+
+def _record_ollama_success(latency_ms: float) -> None:
+    with OLLAMA_HEALTH_LOCK:
+        _ollama_health_state["last_ok_ts"] = int(time.time())
+        _ollama_health_state["last_latency_ms"] = round(latency_ms, 2)
+        _ollama_health_state["last_error"] = None
+
+
+def _record_ollama_error(message: str) -> None:
+    with OLLAMA_HEALTH_LOCK:
+        _ollama_health_state["last_error"] = message.strip()[:300] if message else ""
+        _ollama_health_state["last_latency_ms"] = None
+
+
+def _snapshot_ollama_health() -> dict:
+    with OLLAMA_HEALTH_LOCK:
+        return dict(_ollama_health_state)
+
+
 def query_ollama_direct(prompt: str, model: str = "qwen2.5-coder:14b", 
                         temperature: float = 0.0, max_tokens: int = 512,
                         timeout: int = 60) -> str:
@@ -211,7 +245,7 @@ def query_ollama_direct(prompt: str, model: str = "qwen2.5-coder:14b",
         }).encode()
         
         req = urllib.request.Request(
-            "http://localhost:11434/api/generate",
+            f"{_get_ollama_base_url().rstrip('/')}/api/generate",
             data=data,
             headers={"Content-Type": "application/json"}
         )
@@ -336,17 +370,45 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             all_healthy = False
         
         # Check Ollama
+        base_url = _get_ollama_base_url()
+        snapshot = _snapshot_ollama_health()
+        ollama_check = {
+            "ok": False,
+            "base_url": base_url,
+            "latency_ms": snapshot.get("last_latency_ms"),
+            "last_ok_ts": snapshot.get("last_ok_ts"),
+            "last_error": snapshot.get("last_error"),
+        }
+
         try:
             import requests
-            response = requests.get("http://localhost:11434/api/tags", timeout=2)
-            if response.status_code == 200:
-                health_status["checks"]["ollama"] = "ok"
-            else:
-                health_status["checks"]["ollama"] = f"unavailable: {response.status_code}"
-                all_healthy = False
+
+            start_time = time.perf_counter()
+            response = requests.get(f"{base_url}/api/tags", timeout=3)
+            response.raise_for_status()
+            latency_ms = (time.perf_counter() - start_time) * 1000
+            _record_ollama_success(latency_ms)
+
+            snapshot = _snapshot_ollama_health()
+            ollama_check.update({
+                "ok": True,
+                "latency_ms": snapshot.get("last_latency_ms"),
+                "last_ok_ts": snapshot.get("last_ok_ts"),
+                "last_error": snapshot.get("last_error"),
+            })
         except Exception as e:
-            health_status["checks"]["ollama"] = f"error: {str(e)[:50]}"
+            logger.debug(f"Ollama health check failed: {e}")
+            _record_ollama_error(str(e))
+            snapshot = _snapshot_ollama_health()
+            ollama_check.update({
+                "ok": False,
+                "latency_ms": snapshot.get("last_latency_ms"),
+                "last_ok_ts": snapshot.get("last_ok_ts"),
+                "last_error": snapshot.get("last_error"),
+            })
             all_healthy = False
+
+        health_status["checks"]["ollama"] = ollama_check
         
         # Check Infrastructure (Redis, PostgreSQL, NATS)
         if INFRASTRUCTURE_AVAILABLE:
@@ -665,6 +727,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_memory_recall()
         elif path == "/expert" or path == "/v1/expert":
             self._handle_expert_route()
+        elif path == "/warmup" or path == "/v1/warmup":
+            self._handle_warmup()
         elif path.startswith("/mcp/"):
             self._handle_mcp_tool(path)
         else:
@@ -1002,6 +1066,108 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_warmup(self):
+        """Warm up Ollama by issuing a minimal generate call."""
+        base_url = _get_ollama_base_url()
+        snapshot = _snapshot_ollama_health()
+        result = {
+            "ok": False,
+            "base_url": base_url,
+            "model": None,
+            "latency_ms": snapshot.get("last_latency_ms"),
+            "last_ok_ts": snapshot.get("last_ok_ts"),
+            "last_error": snapshot.get("last_error"),
+            "error": None,
+        }
+
+        try:
+            if AUTH_TOKEN:
+                provided_token = self.headers.get('X-ROXY-Token')
+                if not provided_token or provided_token != AUTH_TOKEN:
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Unauthorized"}).encode())
+                    return
+
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b"{}"
+
+            try:
+                data = json.loads(body.decode('utf-8')) if body else {}
+            except json.JSONDecodeError as exc:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": f"Invalid JSON: {exc}"}).encode())
+                return
+
+            config_defaults = config if 'config' in globals() else {}
+            model = (data.get("model") or config_defaults.get("default_model") or "qwen2.5-coder:14b").strip()
+            result["model"] = model
+            prompt = data.get("prompt", "Warmup check.")
+            num_predict = max(1, int(data.get("num_predict", 1)))
+            timeout = int(data.get("timeout", 30))
+
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "num_predict": num_predict
+                }
+            }
+
+            import requests
+
+            start_time = time.perf_counter()
+            response = requests.post(f"{base_url}/api/generate", json=payload, timeout=timeout)
+            latency_ms = (time.perf_counter() - start_time) * 1000
+
+            if response.status_code == 200:
+                _record_ollama_success(latency_ms)
+                snapshot = _snapshot_ollama_health()
+                result.update({
+                    "ok": True,
+                    "model": model,
+                    "latency_ms": snapshot.get("last_latency_ms"),
+                    "last_ok_ts": snapshot.get("last_ok_ts"),
+                    "last_error": snapshot.get("last_error"),
+                })
+                status_code = 200
+            else:
+                error_msg = f"Status {response.status_code}: {response.text[:200]}"
+                _record_ollama_error(error_msg)
+                snapshot = _snapshot_ollama_health()
+                result.update({
+                    "ok": False,
+                    "model": model,
+                    "latency_ms": snapshot.get("last_latency_ms"),
+                    "last_ok_ts": snapshot.get("last_ok_ts"),
+                    "last_error": snapshot.get("last_error"),
+                    "error": error_msg,
+                })
+                status_code = 502
+
+        except Exception as exc:
+            error_msg = str(exc)
+            _record_ollama_error(error_msg)
+            snapshot = _snapshot_ollama_health()
+            result.update({
+                "ok": False,
+                "model": result.get("model"),
+                "latency_ms": snapshot.get("last_latency_ms"),
+                "last_ok_ts": snapshot.get("last_ok_ts"),
+                "last_error": snapshot.get("last_error"),
+                "error": error_msg,
+            })
+            status_code = 500
+
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(result).encode())
     
     def _handle_list_modes(self):
         """List available ROXY modes"""

@@ -28,7 +28,7 @@ class LLMRouter:
     def _discover_models(self) -> list:
         """Discover available Ollama models"""
         try:
-            resp = requests.get("http://localhost:11434/api/tags", timeout=5)
+            resp = requests.get("http://127.0.0.1:11435/api/tags", timeout=5)
             if resp.status_code == 200:
                 models = [m["name"] for m in resp.json().get("models", [])]
                 logger.debug(f"Discovered {len(models)} models: {models}")
@@ -105,7 +105,7 @@ class LLMRouter:
         """Generate response with specific model"""
         try:
             resp = requests.post(
-                "http://localhost:11434/api/generate",
+                "http://127.0.0.1:11435/api/generate",
                 json={
                     "model": model,
                     "prompt": prompt,

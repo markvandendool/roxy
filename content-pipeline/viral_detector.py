@@ -12,7 +12,7 @@ from dataclasses import dataclass
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-OLLAMA_URL = 'http://localhost:11434/api/generate'
+OLLAMA_URL = 'http://127.0.0.1:11435/api/generate'
 MODEL = 'llama3.2'  # or mistral, mixtral, etc.
 
 @dataclass
