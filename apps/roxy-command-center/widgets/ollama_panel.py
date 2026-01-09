@@ -205,8 +205,8 @@ class OllamaPanel(Gtk.Box):
         self.notebook.set_margin_top(8)
         
         # BIG pool tab
-            self.big_tab = PoolTab("BIG", 11435, self._on_model_unload_request)
-            big_label = Gtk.Label(label="BIG (:11435)")
+        self.big_tab = PoolTab("BIG", 11435, self._on_model_unload_request)
+        big_label = Gtk.Label(label="BIG (:11435)")
         big_label.add_css_class("accent-big")
         self.notebook.append_page(self.big_tab, big_label)
         
