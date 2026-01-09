@@ -2,7 +2,13 @@
 
 > **Version:** 3.1 (MDF2030 + MOS2030 + UNIVERSE)
 > **Status:** Production-Ready Master Knowledge Base
-> **Last Updated:** 2026-01-04
+> **Last Updated:** 2026-01-09
+
+---
+
+## 🔊 HARDWARE QUICK REF
+
+**Stereo Split Audio:** L→TCL, R→RCA (see `~/.roxy/docs/HARDWARE_NOTES.md`)
 
 ---
 

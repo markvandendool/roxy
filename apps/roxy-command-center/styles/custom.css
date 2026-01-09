@@ -584,6 +584,24 @@ button.pill {
     opacity: 0.7;
 }
 
+/* === Connection Status Chips === */
+.talk-column .caption {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: alpha(@view_fg_color, 0.05);
+}
+
+/* === Typing Indicator === */
+.talk-column spinner {
+    min-width: 16px;
+    min-height: 16px;
+}
+
+/* === Speak Toggle Button === */
+.talk-column togglebutton:checked {
+    background-color: alpha(@accent_bg_color, 0.3);
+}
+
 /* === Execution Run Cards === */
 .execute-column .card {
     background-color: @card_bg_color;

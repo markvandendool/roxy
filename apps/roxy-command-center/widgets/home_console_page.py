@@ -9,7 +9,8 @@ NORTH STAR: Home = Talk + Triage + Execute
 Layout:
   [Left: Triage/Inbox]  [Center: Roxy Chat]  [Right: Progressions/Runs]
 
-All data is placeholder/mock until roxy-core endpoints are wired.
+Chat is REAL - wired to roxy-core via ChatService.
+Voice is Option B: Speak button toggle (not auto-speak).
 """
 
 import gi
@@ -21,6 +22,19 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
 import random
+import sys
+import os
+
+# Add parent dir to path for services import
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from services.chat_service import (
+    ChatService, VoiceService,
+    ChatMessage as ServiceChatMessage,
+    ChatMode, ConnectionStatus,
+    Identity as ServiceIdentity,
+    get_chat_service, get_voice_service
+)
+
 
 
 # =============================================================================
@@ -539,18 +553,29 @@ class ChatMessage_Widget(Gtk.Box):
 
 
 class TalkColumn(Gtk.Box):
-    """Center column: Roxy Conversation."""
+    """Center column: Roxy Conversation - REAL roxy-core integration."""
     
     def __init__(self):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add_css_class("talk-column")
         self.set_hexpand(True)
         
-        self._messages: List[ChatMessage] = []
         self._draft_mode = True  # Human-in-the-loop default
+        self._speak_mode = False  # Option B: speak button, not auto-speak
+        self._is_typing = False
+        
+        # Services
+        self._chat_service = get_chat_service()
+        self._voice_service = get_voice_service()
+        
+        # UI references
+        self._status_chip: Optional[Gtk.Label] = None
+        self._model_chip: Optional[Gtk.Label] = None
+        self._latency_chip: Optional[Gtk.Label] = None
+        self._typing_indicator: Optional[Gtk.Box] = None
         
         self._build_ui()
-        self._load_mock_data()
+        self._connect_to_roxy()
     
     def _build_ui(self):
         # Header with context chips
@@ -560,27 +585,58 @@ class TalkColumn(Gtk.Box):
         header.set_margin_end(12)
         self.append(header)
         
+        # Title row
+        title_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        header.append(title_row)
+        
         title = Gtk.Label(label="Roxy")
         title.add_css_class("title-2")
         title.set_xalign(0)
-        header.append(title)
+        title_row.append(title)
         
-        # Context chips row
+        # Connection button
+        connect_btn = Gtk.Button(label="Connect")
+        connect_btn.add_css_class("suggested-action")
+        connect_btn.add_css_class("pill")
+        connect_btn.connect("clicked", self._on_connect_click)
+        title_row.append(connect_btn)
+        
+        spacer = Gtk.Box()
+        spacer.set_hexpand(True)
+        title_row.append(spacer)
+        
+        # Context chips row - LIVE data from roxy-core
         chips_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         chips_box.set_margin_bottom(8)
         header.append(chips_box)
         
-        chip_texts = [
-            ("🖥️ Local", "Connected to local ROXY"),
-            ("🧠 qwen2.5:14b", "Current model"),
-            ("🎵 MindSong", "Active project context"),
-        ]
-        for text, tooltip in chip_texts:
-            chip = Gtk.Label(label=text)
-            chip.add_css_class("dim-label")
-            chip.add_css_class("caption")
-            chip.set_tooltip_text(tooltip)
-            chips_box.append(chip)
+        # Status chip
+        self._status_chip = Gtk.Label(label="⚪ Disconnected")
+        self._status_chip.add_css_class("dim-label")
+        self._status_chip.add_css_class("caption")
+        self._status_chip.set_tooltip_text("Connection status")
+        chips_box.append(self._status_chip)
+        
+        # Model chip
+        self._model_chip = Gtk.Label(label="🧠 --")
+        self._model_chip.add_css_class("dim-label")
+        self._model_chip.add_css_class("caption")
+        self._model_chip.set_tooltip_text("Current model")
+        chips_box.append(self._model_chip)
+        
+        # Latency chip
+        self._latency_chip = Gtk.Label(label="⏱️ --")
+        self._latency_chip.add_css_class("dim-label")
+        self._latency_chip.add_css_class("caption")
+        self._latency_chip.set_tooltip_text("Response latency")
+        chips_box.append(self._latency_chip)
+        
+        # Identity chip
+        identity_chip = Gtk.Label(label="🎵 MindSong")
+        identity_chip.add_css_class("dim-label")
+        identity_chip.add_css_class("caption")
+        identity_chip.set_tooltip_text("Active project context")
+        chips_box.append(identity_chip)
         
         # Chat transcript
         scrolled = Gtk.ScrolledWindow()
@@ -591,6 +647,21 @@ class TalkColumn(Gtk.Box):
         self.chat_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         scrolled.set_child(self.chat_box)
         
+        # Typing indicator (hidden by default)
+        self._typing_indicator = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self._typing_indicator.set_margin_start(12)
+        self._typing_indicator.set_margin_bottom(8)
+        self._typing_indicator.set_visible(False)
+        self.append(self._typing_indicator)
+        
+        typing_spinner = Gtk.Spinner()
+        typing_spinner.start()
+        self._typing_indicator.append(typing_spinner)
+        
+        typing_label = Gtk.Label(label="Roxy is thinking...")
+        typing_label.add_css_class("dim-label")
+        self._typing_indicator.append(typing_label)
+        
         # Input area
         input_area = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         input_area.set_margin_start(12)
@@ -598,7 +669,7 @@ class TalkColumn(Gtk.Box):
         input_area.set_margin_bottom(12)
         self.append(input_area)
         
-        # Mode toggle
+        # Mode toggle row
         mode_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         input_area.append(mode_box)
         
@@ -622,14 +693,21 @@ class TalkColumn(Gtk.Box):
         spacer.set_hexpand(True)
         mode_box.append(spacer)
         
+        # Speak toggle (Option B: manual button)
+        self.speak_btn = Gtk.ToggleButton()
+        self.speak_btn.set_icon_name("audio-speakers-symbolic")
+        self.speak_btn.set_tooltip_text("Toggle voice output (Option B)")
+        self.speak_btn.connect("toggled", self._on_speak_toggle)
+        mode_box.append(self.speak_btn)
+        
         # Input row
         input_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         input_area.append(input_row)
         
-        # Voice button (stub)
+        # Voice button (push-to-talk)
         voice_btn = Gtk.Button()
         voice_btn.set_icon_name("audio-input-microphone-symbolic")
-        voice_btn.set_tooltip_text("Push to talk (coming soon)")
+        voice_btn.set_tooltip_text("Push to talk (Phase 2)")
         voice_btn.add_css_class("circular")
         voice_btn.connect("clicked", self._on_voice_click)
         input_row.append(voice_btn)
@@ -647,60 +725,97 @@ class TalkColumn(Gtk.Box):
         send_btn.connect("clicked", self._on_send)
         input_row.append(send_btn)
     
+    def _connect_to_roxy(self):
+        """Connect to roxy-core via ChatService."""
+        self._chat_service.connect(
+            identity=ServiceIdentity.MINDSONG,
+            on_message=self._on_chat_message,
+            on_status_change=self._on_status_change,
+            on_typing=self._on_typing_change
+        )
+    
+    def _on_connect_click(self, button):
+        """Manual reconnect."""
+        self._connect_to_roxy()
+    
+    def _on_chat_message(self, message: ServiceChatMessage):
+        """Called when a new message arrives (user or assistant)."""
+        # Convert to UI widget
+        ui_message = ChatMessage(
+            id=message.id,
+            role=message.role,
+            content=message.content,
+            timestamp=message.timestamp
+        )
+        widget = ChatMessage_Widget(ui_message)
+        self.chat_box.append(widget)
+        
+        # Update latency chip for assistant messages
+        if message.role == "assistant":
+            latency = self._chat_service.latency_ms
+            self._latency_chip.set_label(f"⏱️ {latency}ms")
+            
+            # Speak if speak mode enabled (Option B)
+            if self._speak_mode:
+                self._voice_service.speak(message.content)
+    
+    def _on_status_change(self, status: ConnectionStatus, message: str):
+        """Called when connection status changes."""
+        status_icons = {
+            ConnectionStatus.DISCONNECTED: "⚪",
+            ConnectionStatus.CONNECTING: "🟡",
+            ConnectionStatus.CONNECTED: "🟢",
+            ConnectionStatus.ERROR: "🔴"
+        }
+        icon = status_icons.get(status, "⚪")
+        
+        # Update chips
+        self._status_chip.set_label(f"{icon} {status.value.title()}")
+        
+        if status == ConnectionStatus.CONNECTED:
+            model = self._chat_service.model
+            self._model_chip.set_label(f"🧠 {model}")
+    
+    def _on_typing_change(self, is_typing: bool):
+        """Called when typing indicator should show/hide."""
+        self._is_typing = is_typing
+        if self._typing_indicator:
+            self._typing_indicator.set_visible(is_typing)
+    
     def _on_mode_toggle(self, button, is_draft: bool):
         if button.get_active():
             self._draft_mode = is_draft
             if is_draft:
                 self.send_btn.set_active(False)
+                self._chat_service.set_mode(ChatMode.DRAFT)
             else:
                 self.draft_btn.set_active(False)
+                self._chat_service.set_mode(ChatMode.SEND)
                 # Warn about send mode
                 print("[Talk] WARNING: Send mode enabled - Roxy will execute without approval")
     
+    def _on_speak_toggle(self, button):
+        """Toggle speak mode (Option B)."""
+        self._speak_mode = button.get_active()
+        self._voice_service.speak_mode = self._speak_mode
+        if self._speak_mode:
+            print("[Talk] Speak mode ON - responses will be spoken")
+        else:
+            print("[Talk] Speak mode OFF")
+    
     def _on_voice_click(self, button):
-        """Voice button stub - TODO: wire to wyoming/whisper."""
+        """Voice button - push-to-talk (Phase 2 stub)."""
         print("[Talk] Voice input not yet implemented (Phase 2)")
+        # In Phase 2: self._voice_service.start_recording()
     
     def _on_send(self, widget):
-        """Send message - TODO: wire to roxy-core."""
+        """Send message to roxy-core."""
         text = self.entry.get_text().strip()
         if not text:
             return
         
-        # Add user message
-        msg = ChatMessage(
-            id=f"msg-{len(self._messages)+1}",
-            role="user",
-            content=text,
-            timestamp=datetime.now()
-        )
-        self._add_message(msg)
         self.entry.set_text("")
-        
-        # Simulate Roxy response (TODO: call roxy-core)
-        GLib.timeout_add(500, self._simulate_response, text)
-    
-    def _simulate_response(self, user_text: str):
-        """Simulate Roxy response - TODO: replace with real API call."""
-        response = ChatMessage(
-            id=f"msg-{len(self._messages)+1}",
-            role="assistant",
-            content=f"I understood your request about '{user_text[:30]}...'. "
-                    "In Draft mode, I'll prepare a response for your approval. "
-                    "[This is placeholder - roxy-core integration pending]",
-            timestamp=datetime.now()
-        )
-        self._add_message(response)
-        return False
-    
-    def _add_message(self, message: ChatMessage):
-        self._messages.append(message)
-        widget = ChatMessage_Widget(message)
-        self.chat_box.append(widget)
-    
-    def _load_mock_data(self):
-        for msg in MockDataStore.get_mock_chat():
-            self._add_message(msg)
+        self._chat_service.send_message(text)
 
 
 class ExecutionRunCard(Gtk.Box):
