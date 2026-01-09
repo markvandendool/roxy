@@ -1,0 +1,5 @@
+{
+  "tiktok": {
+    "error": "expected str, bytes or os.PathLike object, not list"
+  }
+}
