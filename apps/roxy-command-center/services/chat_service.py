@@ -65,6 +65,7 @@ class ConnectionStatus(Enum):
     """Connection state to roxy-core."""
     DISCONNECTED = "disconnected"
     CONNECTING = "connecting"
+    WARMING = "warming"
     CONNECTED = "connected"
     ERROR = "error"
 
@@ -114,8 +115,23 @@ class ChatService:
     def __init__(self):
         self._session: Optional[ChatSession] = None
         self._soup_session = Soup.Session()
+        try:
+            self._soup_session.set_property("timeout", 120)
+        except TypeError:
+            try:
+                self._soup_session.props.timeout = 120
+            except Exception:
+                pass
+        except Exception:
+            pass
         self._status = ConnectionStatus.DISCONNECTED
         self._auth_token = get_auth_token()
+        self._timeout_handles: List[int] = []
+        self._pending_request_active = False
+        self._pending_message: Optional[Soup.Message] = None
+        self._timeout_error_triggered = False
+        self._last_error_message: Optional[str] = None
+        self._ollama_base_url: str = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11435")
         
         # Callbacks
         self._on_message: Optional[Callable[[ChatMessage], None]] = None
@@ -274,21 +290,46 @@ class ChatService:
             if data:
                 try:
                     status = json.loads(data)
-                    # Extract model from ollama check if available
-                    ollama_status = status.get("checks", {}).get("ollama", "unknown")
-                    self._last_model = ollama_status if isinstance(ollama_status, str) else "ready"
-                    
-                    self._set_status(
-                        ConnectionStatus.CONNECTED,
-                        f"Connected • roxy-core"
-                    )
-                    
-                    # Add system message
+                    checks = status.get("checks", {})
+                    ollama = checks.get("ollama", {})
+                    status_state = ConnectionStatus.CONNECTED
+                    status_message = f"Connected to ROXY ({ROXY_CORE_HOST}:{ROXY_CORE_PORT})"
+
+                    if isinstance(ollama, dict):
+                        base_url = ollama.get("base_url") or self._ollama_base_url
+                        if base_url:
+                            self._ollama_base_url = base_url
+
+                        latency = ollama.get("latency_ms")
+                        if isinstance(latency, (int, float)):
+                            self._last_latency_ms = int(latency)
+
+                        if ollama.get("ok"):
+                            self._last_model = ollama.get("current_model", "ready")
+                            status_state = ConnectionStatus.CONNECTED
+                            status_message = f"Ollama ready at {self._ollama_base_url}"
+                        else:
+                            self._last_model = ollama.get("current_model", "unknown")
+                            last_error = ollama.get("last_error")
+                            if last_error:
+                                status_state = ConnectionStatus.ERROR
+                                status_message = f"Ollama error at {self._ollama_base_url}: {last_error}"
+                            else:
+                                status_state = ConnectionStatus.WARMING
+                                status_message = f"Warming model at {self._ollama_base_url} (up to 120s)"
+                    elif isinstance(ollama, str):
+                        self._last_model = ollama
+
+                    if status_state != ConnectionStatus.ERROR:
+                        self._last_error_message = None
+                    self._set_status(status_state, status_message)
+
                     if self._session and self._on_message:
+                        prefix = "✅" if status_state == ConnectionStatus.CONNECTED else "⚠️"
                         sys_msg = ChatMessage(
-                            id="system-connect",
+                            id=str(uuid.uuid4()),
                             role="system",
-                            content=f"✅ Connected to ROXY ({ROXY_CORE_HOST}:{ROXY_CORE_PORT})",
+                            content=f"{prefix} {status_message}",
                             timestamp=datetime.now()
                         )
                         self._on_message(sys_msg)
@@ -329,6 +370,12 @@ class ChatService:
         
         # Store start_time as instance var since user_data doesn't work reliably
         self._request_start_time = start_time
+        self._pending_request_active = True
+        self._timeout_error_triggered = False
+        self._last_error_message = None
+        self._cancel_status_timeouts()
+        self._set_status(ConnectionStatus.CONNECTING, "Sending…")
+        self._pending_message = message
         
         print(f"[ChatService] Sending to {uri}...")
         
@@ -340,10 +387,64 @@ class ChatService:
             self._on_run_response, 
             None  # user_data - not reliably passed in all libsoup versions
         )
+        self._schedule_status_updates()
     
+    def _cancel_status_timeouts(self):
+        for handle in self._timeout_handles:
+            GLib.source_remove(handle)
+        self._timeout_handles.clear()
+
+    def _schedule_status_updates(self):
+        self._cancel_status_timeouts()
+        self._timeout_handles.append(
+            GLib.timeout_add_seconds(5, self._status_callback(
+                ConnectionStatus.WARMING,
+                "Loading model… (cold start can take 60–120s)"
+            ))
+        )
+        self._timeout_handles.append(
+            GLib.timeout_add_seconds(30, self._status_callback(
+                ConnectionStatus.WARMING,
+                "Still loading…"
+            ))
+        )
+        self._timeout_handles.append(
+            GLib.timeout_add_seconds(120, self._timeout_callback())
+        )
+
+    def _status_callback(self, status: ConnectionStatus, message: str):
+        def _callback():
+            if not self._pending_request_active:
+                return False
+            self._set_status(status, message)
+            return False
+        return _callback
+
+    def _timeout_callback(self):
+        def _callback():
+            if not self._pending_request_active:
+                return False
+            host = self._ollama_base_url or os.getenv("OLLAMA_HOST", "http://127.0.0.1:11435")
+            message = f"Timed out waiting for first token. Check Ollama host at {host}"
+            self._timeout_error_triggered = True
+            self._pending_request_active = False
+            if self._pending_message is not None:
+                try:
+                    self._soup_session.cancel_message(self._pending_message, Soup.Status.CANCELLED)
+                except Exception:
+                    pass
+                self._pending_message = None
+            self._handle_error(message)
+            return False
+        return _callback
+
     def _on_run_response(self, session, result, user_data):
         """Handle /run response from roxy-core."""
         print("[ChatService] Response callback triggered")
+        self._cancel_status_timeouts()
+        self._pending_request_active = False
+        self._pending_message = None
+        self._timeout_error_triggered = False
         
         # Hide typing indicator
         if self._on_typing:
@@ -392,6 +493,11 @@ class ChatService:
                         
                         if self._on_message:
                             self._on_message(assistant_msg)
+                        self._set_status(
+                            ConnectionStatus.CONNECTED,
+                            f"Response received in {self._last_latency_ms}ms"
+                        )
+                        self._last_error_message = None
                     else:
                         self._handle_error("Empty response from Roxy")
                         
@@ -408,6 +514,11 @@ class ChatService:
                             self._session.messages.append(assistant_msg)
                         if self._on_message:
                             self._on_message(assistant_msg)
+                        self._set_status(
+                            ConnectionStatus.CONNECTED,
+                            f"Response received in {self._last_latency_ms}ms"
+                        )
+                        self._last_error_message = None
                     else:
                         self._handle_error(f"Invalid response: {e}")
             else:
@@ -419,11 +530,20 @@ class ChatService:
     
     def _handle_error(self, error: str):
         """Handle error response."""
+        self._cancel_status_timeouts()
+        self._pending_request_active = False
+        self._pending_message = None
+        if self._on_typing:
+            self._on_typing(False)
+        self._set_status(ConnectionStatus.ERROR, error)
+        if error == self._last_error_message:
+            return
+        self._last_error_message = error
         if self._on_message:
             error_msg = ChatMessage(
                 id=str(uuid.uuid4()),
                 role="system",
-                content=f"⚠️ Error: {error}",
+                content=f"⚠️ {error}",
                 timestamp=datetime.now()
             )
             self._on_message(error_msg)
