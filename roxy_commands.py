@@ -75,6 +75,25 @@ def run_script(script_name: str, args: Optional[List[str]] = None) -> str:
     except Exception as e:
         return f"Error: {e}"
 
+def handle_special_tool(tool_name, tool_args):
+    """Handle small, safe special-case tools (non-LLM)"""
+    try:
+        if tool_name == "git_status":
+            # Safe, read-only git status in the canonical repo path
+            repo_path = os.path.expanduser("~/mindsong-juke-hub")
+            p = Path(repo_path)
+            if not p.exists():
+                track_tool_execution(tool_name, tool_args, None, ok=False, error="Repo not found")
+                return f"ERROR: Repo not found: {repo_path}"
+            result = subprocess.run(["git","-C",str(p),"status","--porcelain"], capture_output=True, text=True, timeout=20)
+            out = result.stdout.strip()
+            track_tool_execution(tool_name, tool_args, (out[:1000] if out else "CLEAN"), ok=(result.returncode==0))
+            return out if out else "CLEAN"
+    except Exception as e:
+        track_tool_execution(tool_name, tool_args, None, ok=False, error=str(e))
+        return f"ERROR: {e}"
+
+
 def parse_command(text: str) -> Tuple[str, List[str]]:
     """Parse natural language command"""
     text_lower = text.lower().strip()
@@ -230,6 +249,11 @@ def execute_tool_direct(tool_name, tool_args):
     """Execute a tool directly without LLM (Chief's P0 requirement)"""
     
     try:
+        # Check for special tools first (git_status, etc.)
+        special = handle_special_tool(tool_name, tool_args)
+        if special is not None:
+            return special
+        
         if tool_name == "execute_command":
             # Shell execution (if enabled)
             config_path = ROXY_DIR / "config.json"

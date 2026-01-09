@@ -1,0 +1,10 @@
+{
+  "mine": {
+    "voice": "en-US-GuyNeural",
+    "description": "User voice placeholder (Edge TTS)"
+  },
+  "hers": {
+    "voice": "en-US-AriaNeural",
+    "description": "Assistant voice placeholder (Edge TTS)"
+  }
+}

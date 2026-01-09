@@ -1,0 +1,9 @@
+[
+  {"cmd": "goto", "url": "https://iot.tuya.com", "wait_until": "domcontentloaded"},
+  {"cmd": "wait", "selector": "input[type=\"email\"], input[name=\"email\"], input[name=\"username\"], input[type=\"text\"]", "state": "visible", "timeout": 10000},
+  {"cmd": "type", "selector": "input[type=\"email\"], input[name=\"email\"], input[name=\"username\"], input[type=\"text\"]", "text": "<<vault:tuya_user>>"},
+  {"cmd": "type", "selector": "input[type=\"password\"]", "text": "<<vault:tuya_password>>"},
+  {"cmd": "screenshot", "full_page": false},
+  {"cmd": "html"},
+  {"cmd": "close"}
+]

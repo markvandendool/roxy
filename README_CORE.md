@@ -1,59 +1,82 @@
-# ROXY Core - Wayland-Correct Implementation
+# ROXY Core - Hub Architecture
 
-**Status: ✅ DEPLOYED AND RUNNING**
+**Status: ✅ DEPLOYED ON MAC STUDIO (Hub Migration 2026-01-07)**
+
+## ⚠️ CRITICAL: Hub Location
+
+**ROXY Hub runs on Mac Studio (10.0.0.92), NOT on this machine (ROXY Linux).**
+
+| Component | Host | Endpoint |
+|-----------|------|----------|
+| ROXY Core | Mac Studio | 127.0.0.1:8766 (local only) |
+| ROXY Proxy | Mac Studio | 0.0.0.0:9136 (LAN accessible) |
+| Token | Mac Studio | ~/.roxy/secret.token |
+
+**From ROXY Linux or any LAN machine:**
+```bash
+# Status
+curl http://10.0.0.92:9136/api/status
+
+# Tool execution
+TOKEN=$(cat ~/.roxy/secret.token)
+curl -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL read_file {\"path\":\"/etc/hosts\"}"}' \
+  http://10.0.0.92:9136/api/roxy/run
+```
+
+---
 
 ## Architecture
 
-ROXY now uses a **Wayland-correct architecture**:
+ROXY uses a **hub-satellite architecture**:
 
-1. **ROXY Core** (`roxy_core.py`) - Always-on background service
-   - Runs as systemd **user service** (not system service)
-   - Exposes HTTP IPC on `localhost:8766`
-   - Routes commands via existing `roxy_commands.py`
-   - No UI, no hotkey listener (Wayland-incompatible)
+1. **ROXY Core** (`roxy_core.py`) - Hub service on Mac Studio
+   - Runs on Mac Studio (10.0.0.92)
+   - Exposes HTTP IPC on `localhost:8766` (local only)
+   - Routes commands via `roxy_commands.py`
+   - Handles tool execution (read_file, list_files, git_status, etc.)
 
-2. **ROXY Client** (`roxy_client.py`) - Interactive terminal chat
-   - Invoked by **GNOME keyboard shortcut** (Ctrl+Space)
-   - Connects to core via HTTP IPC
-   - Uses `input()`/`print()` for interactive chat (works in terminal)
+2. **ROXY Proxy** (`roxy_proxy.py`) - LAN gateway on Mac Studio
+   - Listens on `0.0.0.0:9136` (LAN accessible)
+   - Injects X-ROXY-Token header automatically
+   - Maps API paths (/api/status → /health, /api/roxy/run → /run)
 
-3. **Systemd User Service** (`~/.config/systemd/user/roxy-core.service`)
-   - Runs under your user session (not root)
-   - Auto-starts with user login
-   - Restarts on failure
+3. **ROXY Client** (`roxy_client.py`) - Interactive terminal chat (optional)
+   - Can run on any machine
+   - Connects to hub via HTTP (10.0.0.92:9136)
 
-## Why This Works on Wayland
+## Why Hub on Mac Studio?
 
-**Previous approach (BROKEN):**
-- ❌ `pynput` global hotkeys (Wayland blocks input capture from background processes)
-- ❌ System service trying to access graphical session (wrong service type)
-- ❌ `input()`/`print()` UI in systemd service (no TTY)
+**Previous approach (PROBLEMATIC):**
+- ❌ sshfs mount to mindsong-juke-hub caused D-state processes
+- ❌ Terminal stalls due to FUSE blocking
+- ❌ Hub services on ROXY Linux with network latency
 
 **Current approach (WORKING):**
-- ✅ GNOME binds **Ctrl+Space → runs command** (Wayland allows this)
-- ✅ Command launches **gnome-terminal** (has TTY)
-- ✅ Terminal runs **roxy_client.py** (input/print works)
-- ✅ Always-on logic in **user service** (correct systemd target)
+- ✅ Hub co-located with mindsong-juke-hub repository
+- ✅ No sshfs mounts (eliminated root cause of stalls)
+- ✅ Proxy handles LAN access with token injection
+- ✅ git_status tool reads local repo directly
 
 ## Current Status
 
 ```bash
-# Service running
-$ systemctl --user status roxy-core
-● roxy-core.service - ROXY Core (always-on background service)
-     Active: active (running)
+# Hub health (from any LAN machine)
+$ curl http://10.0.0.92:9136/api/status
+{"status": "ok", "service": "roxy-core", ...}
 
-# IPC responding
-$ curl http://127.0.0.1:8766/health
-{"status": "ok", "service": "roxy-core"}
+# Tool execution
+$ TOKEN=$(cat ~/.roxy/secret.token)
+$ curl -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+    -d '{"command":"RUN_TOOL git_status {}"}' \
+    http://10.0.0.92:9136/api/roxy/run
+{"status": "success", "result": "M file1.ts\nM file2.md\n..."}
 
-# Command routing working
-$ curl -X POST http://127.0.0.1:8766/run -d '{"command":"help"}'
-{"status": "success", "result": "[ROXY] Processing: help..."}
-
-# Hotkey configured
-$ gsettings get ... binding
-'<Primary>space'
+# Available tools
+- read_file: Read file contents
+- list_files: List directory
+- search_code: Search code
+- git_status: Git status of mindsong-juke-hub (read-only)
 ```
 
 ## Usage
@@ -72,33 +95,35 @@ In the terminal:
 ## Verification Commands
 
 ```bash
-# Check service status
-systemctl --user status roxy-core
+# Check hub health
+curl http://10.0.0.92:9136/api/status
 
-# View logs
-journalctl --user -u roxy-core -n 100 --no-pager
+# Check processes on Mac Studio
+ssh macstudio 'lsof -iTCP:8766 -sTCP:LISTEN -nP'  # Should show Python
+ssh macstudio 'lsof -iTCP:9136 -sTCP:LISTEN -nP'  # Should show Python
 
-# Restart service
-systemctl --user restart roxy-core
+# Test tool execution
+TOKEN=$(cat ~/.roxy/secret.token)
+curl -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL read_file {\"path\":\"/etc/hosts\"}"}' \
+  http://10.0.0.92:9136/api/roxy/run
 
-# Stop service
-systemctl --user stop roxy-core
-
-# Test health endpoint
-curl http://127.0.0.1:8766/health
-
-# Test command execution
-curl -X POST http://127.0.0.1:8766/run \
-  -H "Content-Type: application/json" \
-  -d '{"command":"hello"}'
+# Restart hub services (on Mac Studio)
+ssh macstudio 'pkill -f roxy_core.py; pkill -f roxy_proxy.py'
+ssh macstudio 'cd ~/.roxy && nohup python3 roxy_core.py > ~/opslogs/roxy-core.log 2>&1 &'
+ssh macstudio 'cd ~/.roxy && nohup python3 roxy_proxy.py > ~/opslogs/roxy-proxy.log 2>&1 &'
 ```
 
-## Files Created
+## Files on Mac Studio
 
-- `~/.roxy/roxy_core.py` (206 lines) - Background service
-- `~/.roxy/roxy_client.py` (67 lines) - Terminal client
-- `~/.config/systemd/user/roxy-core.service` - User service unit
+- `~/.roxy/roxy_core.py` - Hub service
+- `~/.roxy/roxy_proxy.py` - LAN proxy
+- `~/.roxy/roxy_commands.py` - Command router with git_status
+- `~/.roxy/secret.token` - Auth token (600 permissions)
+- `~/Library/LaunchAgents/com.mindsong.roxy-*.plist` - LaunchAgents
 - `~/.roxy/install_daemon.sh` - Updated installer (user service, no pynput)
+- **Canonical path guardrail**: `roxy_core.py` now exits if launched from `/services/` or `/opt/roxy`; keep the running copy at `~/.roxy/roxy_core.py` (see `roxy-path-doctor.sh`).
+- **Canonical runtime contract**: Only supported ExecStart is `%h/.roxy/venv/bin/python %h/.roxy/roxy_core.py` with `EnvironmentFile=%h/.roxy/.env`.
 
 ## Files Deprecated
 

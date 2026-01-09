@@ -1,0 +1,119 @@
+{
+  "name": "Product Sales & Customer Onboarding",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gumroad-webhook",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Gumroad Purchase Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {"name": "customer_email", "value": "={{$json.body.email}}"},
+            {"name": "product_name", "value": "={{$json.body.product_name}}"},
+            {"name": "amount", "value": "={{$json.body.price}}"},
+            {"name": "purchase_date", "value": "={{$now.toISO()}}"}
+          ]
+        }
+      },
+      "name": "Extract Purchase Data",
+      "type": "n8n-nodes-base.set",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "REVENUE_TRACKER",
+        "range": "A:E",
+        "options": {}
+      },
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "list": "customers",
+        "email": "={{$json.customer_email}}",
+        "updateIfExists": true,
+        "additionalFields": {
+          "firstName": "={{$json.customer_email.split('@')[0]}}",
+          "customFields": {
+            "product_purchased": "={{$json.product_name}}",
+            "purchase_amount": "={{$json.amount}}"
+          }
+        }
+      },
+      "name": "Add to ConvertKit",
+      "type": "n8n-nodes-base.convertKit",
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.customer_email}}",
+        "subject": "Your {{$json.product_name}} is ready!",
+        "emailType": "html",
+        "message": "<h2>Thanks for your purchase!</h2><p>Your download link: <a href='https://gumroad.com/d/{{$json.product_id}}'>Click here</a></p><p>Need help? Reply to this email.</p><p>Pro tip: Join our Discord for community support!</p>"
+      },
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "channel": "#sales",
+        "text": "💰 NEW SALE!\nProduct: {{$json.product_name}}\nAmount: ${{$json.amount}}\nCustomer: {{$json.customer_email}}"
+      },
+      "name": "Notify Team",
+      "type": "n8n-nodes-base.slack",
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8003/api/event",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "event_type", "value": "sale"},
+            {"name": "revenue", "value": "={{$json.amount}}"},
+            {"name": "product", "value": "={{$json.product_name}}"}
+          ]
+        }
+      },
+      "name": "Log to Roxy Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [850, 350]
+    }
+  ],
+  "connections": {
+    "Gumroad Purchase Webhook": {
+      "main": [[{"node": "Extract Purchase Data", "type": "main", "index": 0}]]
+    },
+    "Extract Purchase Data": {
+      "main": [
+        [
+          {"node": "Log to Google Sheets", "type": "main", "index": 0},
+          {"node": "Add to ConvertKit", "type": "main", "index": 0},
+          {"node": "Send Welcome Email", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [[{"node": "Notify Team", "type": "main", "index": 0}]]
+    },
+    "Add to ConvertKit": {
+      "main": [[{"node": "Notify Team", "type": "main", "index": 0}]]
+    },
+    "Send Welcome Email": {
+      "main": [[{"node": "Log to Roxy Analytics", "type": "main", "index": 0}]]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Vision stack (optional; not required for ROXY core)
+opencv-python>=4.8.0
+mediapipe<0.10.0  # legacy solutions API; 0.10+ requires Tasks model file
+numpy>=1.24.0

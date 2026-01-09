@@ -1,0 +1,44 @@
+name: "Chord Cubes Studio Warmup"
+description: "Warm up studio: lights, OBS, teleprompter, verify cameras. Dry-run safe by default."
+steps:
+  - name: "Turn on studio lights"
+    tool: tuya
+    args:
+      device: "Studio Lights"
+
+  - name: "Launch OBS"
+    tool: exec
+    args:
+      command: "gtk-launch"
+      args: ["com.obsproject.Studio"]
+    wait: 4
+
+  - name: "Connect to OBS WebSocket"
+    tool: obs_ws
+    args:
+      host: "127.0.0.1"
+      port: 4455
+
+  - name: "Set scene to Chord Cubes"
+    tool: obs_ws_send
+    args:
+      requestType: "SetCurrentProgramScene"
+      requestData:
+        sceneName: "Chord Cubes"
+
+  - name: "Launch teleprompter"
+    tool: exec
+    args:
+      command: "qprompt"
+      args: ["~/scripts/chord_cubes/intro.txt"]
+
+  - name: "Verify camera sources"
+    tool: obs_ws_send
+    args:
+      requestType: "GetSourcesList"
+    expect: ["iPhone Camera", "Sony A7"]
+
+  - name: "Ready state"
+    tool: output
+    args:
+      message: "✅ Studio ready. Say 'start recording' when you're ready."

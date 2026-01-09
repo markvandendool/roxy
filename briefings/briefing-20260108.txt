@@ -1,0 +1,15 @@
+Generated: 2026-01-08T07:00:09.250120
+
+Hey Mark! Morning! I've got your morning briefing ready.
+
+First off, let's start with the good stuff - our MRR is looking healthy, up 8.5% from last month at $12,500. That's a solid foundation for us to build on!
+
+On the student side, we're currently at 156 active students, and I've flagged eight of them as being at-risk. We'll need to keep a close eye on those folks and make sure they're getting the support they need.
+
+Content-wise, we're looking good with 14 ready-to-go clips and 21 scheduled for the next batch. Our pipeline is full!
+
+Product development is moving forward too - we've got three open PRs and are gearing up for the next release, v0.4.0. That's some exciting stuff on the horizon!
+
+Finally, let's talk about today's calendar. We've got a team sync scheduled for 10:00 AM, so make sure to clear your schedule.
+
+So, what would you like to focus on first?

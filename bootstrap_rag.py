@@ -15,23 +15,15 @@ from typing import List, Dict
 
 import chromadb
 from chromadb.config import Settings
-import requests
-
-OLLAMA_URL = "http://localhost:11434/api/embeddings"
-EMBED_MODEL = "nomic-embed-text"
+from chromadb.utils import embedding_functions
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
+EMBEDDING_FN = embedding_functions.DefaultEmbeddingFunction()
+
 def get_embedding(text: str) -> List[float]:
-    """Get embedding from Ollama"""
-    response = requests.post(
-        OLLAMA_URL,
-        json={"model": EMBED_MODEL, "prompt": text},
-        timeout=60
-    )
-    if response.status_code == 200:
-        return response.json()["embedding"]
-    raise Exception(f"Embedding failed: {response.text}")
+    """Get embedding using DefaultEmbeddingFunction (384-dim)"""
+    return EMBEDDING_FN([text])[0]
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> List[str]:
     """Split text into overlapping chunks"""
@@ -88,11 +80,12 @@ def main():
 
     # Create or get collection
     try:
-        collection = client.get_collection("mindsong_docs")
+        collection = client.get_collection("mindsong_docs", embedding_function=EMBEDDING_FN)
         print(f"[RAG] Using existing collection: {collection.count()} docs")
     except:
         collection = client.create_collection(
             name="mindsong_docs",
+            embedding_function=EMBEDDING_FN,
             metadata={"description": "MindSong documentation for ROXY RAG"}
         )
         print("[RAG] Created new collection")

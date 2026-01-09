@@ -1,0 +1,136 @@
+{
+  "workshop": {
+    "name": "monetization",
+    "version": "1.0.0",
+    "created_at": "2026-01-08T13:45:00Z",
+    "updated_at": "2026-01-08T13:45:00Z",
+    "location": "/home/mark/.roxy/workshops/monetization",
+    "status": "production-ready"
+  },
+  "metadata": {
+    "purpose": "Revenue generation using existing infrastructure",
+    "target_revenue": "$500-$2000 in 30 days",
+    "primary_tracks": [
+      "digital-products",
+      "faceless-videos",
+      "freelance-services",
+      "grants-crowdfunding"
+    ]
+  },
+  "structure": {
+    "brain": {
+      "path": "brain/",
+      "purpose": "RAG-optimized documentation",
+      "subdirs": ["strategies", "playbooks", "market-research"]
+    },
+    "products": {
+      "path": "products/",
+      "purpose": "Sellable code packages",
+      "items": ["roxy-ai-infrastructure", "obs-automation-toolkit"]
+    },
+    "content": {
+      "path": "content/",
+      "purpose": "Video generation pipelines",
+      "formats": {
+        "vertical": "1080x1920 (TikTok, Shorts, Reels)",
+        "horizontal": "1920x1080 (YouTube, Twitter)"
+      }
+    },
+    "automation": {
+      "path": "automation/",
+      "purpose": "Workflow orchestration",
+      "engines": ["n8n", "obs", "cron"]
+    },
+    "grants": {
+      "path": "grants/",
+      "purpose": "Funding applications",
+      "targets": ["awesome-foundation", "namm-foundation", "kickstarter"]
+    },
+    "analytics": {
+      "path": "analytics/",
+      "purpose": "Revenue and metrics tracking"
+    },
+    "ops": {
+      "path": "ops/",
+      "purpose": "Operational procedures and runbooks"
+    }
+  },
+  "documents": {
+    "master_index": "00_INDEX.md",
+    "quick_start": "README.md",
+    "strategies": [
+      "brain/strategies/01_asset-inventory.md"
+    ],
+    "playbooks": [
+      "brain/playbooks/00_executive-summary.md",
+      "brain/playbooks/01_revenue-playbook.md"
+    ],
+    "grants": [
+      "grants/00_INDEX.md"
+    ],
+    "engines": [
+      "content/engines/faceless_video_engine.py"
+    ],
+    "workflows": [
+      "automation/n8n/daily-video-generation.json",
+      "automation/n8n/product-sales-funnel.json",
+      "automation/n8n/content-repurposing.json"
+    ],
+    "scripts": [
+      "products/package_products.sh"
+    ]
+  },
+  "integration_points": {
+    "roxy_infrastructure": {
+      "obs_controller": "~/.roxy/obs_controller.py",
+      "n8n_mcp": "~/.roxy/mcp/mcp_n8n.py",
+      "obs_mcp": "~/.roxy/mcp/mcp_obs.py",
+      "content_pipeline": "~/.roxy/content-pipeline/"
+    },
+    "mindsong_infrastructure": {
+      "8k_theater": "~/mindsong-mirror/figma-8k-theater-rebuild/",
+      "obs_automation": "~/mindsong-mirror/automation/obs/",
+      "marketing_ui": "~/mindsong-mirror/src/pages/MarketingDashboard.tsx",
+      "sales_ui": "~/mindsong-mirror/src/pages/Sales.tsx"
+    }
+  },
+  "tags": [
+    "revenue",
+    "monetization",
+    "automation",
+    "obs",
+    "tiktok",
+    "youtube",
+    "gumroad",
+    "grants",
+    "n8n",
+    "content-pipeline",
+    "8k-theater",
+    "vertical-video",
+    "horizontal-video"
+  ],
+  "rag_config": {
+    "embeddings_model": "nomic-embed-text",
+    "chunk_size": 512,
+    "chunk_overlap": 50,
+    "index_type": "chromadb",
+    "collection_name": "monetization_workshop"
+  },
+  "metrics": {
+    "total_files": 8,
+    "total_lines": 15000,
+    "strategies": 1,
+    "playbooks": 2,
+    "engines": 1,
+    "workflows": 3,
+    "grants": 1
+  },
+  "version_history": [
+    {
+      "version": "1.0.0",
+      "date": "2026-01-08",
+      "changes": "Initial workshop creation",
+      "author": "Roxy AI"
+    }
+  ]
+}

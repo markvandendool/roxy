@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Expert Router - Intelligent query routing to specialized models
-Uses phi-2 for fast classification and routes to domain experts
+Expert Router - Intelligent query routing to specialized models.
+Supports dual Ollama pools for BIG (GPU1) and FAST (GPU0) inference lanes.
 """
 import logging
 import json
 import time
 import asyncio
 import httpx
+import os
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 logger = logging.getLogger("roxy.expert_router")
 
@@ -24,6 +25,16 @@ class QueryType(Enum):
     REASONING = "reasoning"
     BROADCAST = "broadcast"
     GENERAL = "general"
+    SECRETARY = "secretary"
+    TRIAGE = "triage"
+    SCHEDULING = "scheduling"
+    SUMMARY = "summary"
+
+
+class GPUPool(Enum):
+    """GPU pools for routing."""
+    BIG = "big"      # GPU1 / heavy workloads
+    FAST = "fast"    # GPU0 / summaries + secretary
 
 
 @dataclass
@@ -34,52 +45,89 @@ class ModelSpec:
     size_gb: float
     specialty: str
     keep_alive: str = "0"  # Release VRAM when not in use
+    pool: GPUPool = GPUPool.BIG
+
+
+@dataclass
+class RouteDecision:
+    """Full trace of a routing decision for observability."""
+    model: str
+    pool: GPUPool
+    url: str
+    reason: str
+    query_type: QueryType
+    confidence: float
+    fallback: bool = False
 
 
 class ExpertRouter:
     """
     Mixture-of-Experts router for intelligent query routing.
+    Maintains historical dual-pool architecture with explicit BIG/FAST lanes.
     
     Features:
     - Ultra-fast classification with phi-2 (~100ms)
-    - Domain-specific expert model routing
-    - Ensemble queries for critical importance
+    - Deterministic pool selection (BIG vs FAST)
     - Performance tracking for adaptive routing
-    - Graceful fallback to default model
+    - Graceful fallback to default model per pool
+    - Full trace metadata for observability
     """
     
-    # Expert model matrix: QueryType -> [(model, confidence)]
-    # Updated model names to match installed models
+    # Expert model matrix: QueryType -> models with pool assignment
     EXPERT_MODELS: Dict[QueryType, List[ModelSpec]] = {
         QueryType.CODE: [
-            ModelSpec("qwen2.5-coder:14b", 1.0, 9.0, "Primary coder"),
-            ModelSpec("deepseek-coder:6.7b", 0.8, 3.8, "Code backup"),
+            ModelSpec("qwen2.5-coder:14b", 1.0, 9.0, "Primary coder", pool=GPUPool.BIG),
+            ModelSpec("deepseek-coder:6.7b", 0.8, 3.8, "Code backup", pool=GPUPool.BIG),
         ],
         QueryType.MATH: [
-            ModelSpec("wizard-math:7b", 1.0, 4.1, "Math specialist"),
-            ModelSpec("qwen2.5-coder:14b", 0.7, 9.0, "Can do math"),
+            ModelSpec("wizard-math:7b", 1.0, 4.1, "Math specialist", pool=GPUPool.BIG),
+            ModelSpec("qwen2.5-coder:14b", 0.7, 9.0, "Can do math", pool=GPUPool.BIG),
         ],
         QueryType.CREATIVE: [
-            ModelSpec("llama3:8b", 0.9, 4.7, "Creative writing"),
-            ModelSpec("qwen2.5-coder:14b", 0.6, 9.0, "Good backup"),
+            ModelSpec("llama3:8b", 0.9, 4.7, "Creative writing", pool=GPUPool.BIG),
+            ModelSpec("qwen2.5-coder:14b", 0.6, 9.0, "Good backup", pool=GPUPool.BIG),
         ],
         QueryType.REASONING: [
-            ModelSpec("qwen2.5:32b", 1.0, 19.0, "Best reasoning"),
-            ModelSpec("qwen2.5-coder:14b", 0.8, 9.0, "Also good"),
+            ModelSpec("qwen2.5:32b", 1.0, 19.0, "Best reasoning", pool=GPUPool.BIG),
+            ModelSpec("qwen2.5-coder:14b", 0.8, 9.0, "Also good", pool=GPUPool.BIG),
         ],
         QueryType.TECHNICAL: [
-            ModelSpec("qwen2.5-coder:14b", 1.0, 9.0, "Technical docs"),
-            ModelSpec("llama3:8b", 0.7, 4.7, "Backup"),
+            ModelSpec("qwen2.5-coder:14b", 1.0, 9.0, "Technical docs", pool=GPUPool.BIG),
+            ModelSpec("llama3:8b", 0.7, 4.7, "Backup", pool=GPUPool.BIG),
         ],
         QueryType.BROADCAST: [
-            ModelSpec("llama3:8b", 0.8, 4.7, "Creative content"),
-            ModelSpec("qwen2.5:32b", 0.8, 19.0, "Analysis"),
-            ModelSpec("qwen2.5-coder:14b", 0.6, 9.0, "Technical aspects"),
+            ModelSpec("llama3:8b", 0.8, 4.7, "Creative content", pool=GPUPool.BIG),
+            ModelSpec("qwen2.5:32b", 0.8, 19.0, "Analysis", pool=GPUPool.BIG),
+            ModelSpec("qwen2.5-coder:14b", 0.6, 9.0, "Technical aspects", pool=GPUPool.BIG),
         ],
         QueryType.GENERAL: [
-            ModelSpec("llama3:8b", 1.0, 4.7, "Fast general"),
-            ModelSpec("qwen2.5-coder:14b", 0.8, 9.0, "Solid backup"),
-        ]
+            ModelSpec("llama3:8b", 1.0, 4.7, "Fast general", pool=GPUPool.BIG),
+            ModelSpec("qwen2.5-coder:14b", 0.8, 9.0, "Solid backup", pool=GPUPool.BIG),
+        ],
+        QueryType.SECRETARY: [
+            ModelSpec("phi:2.7b", 1.0, 1.6, "Secretary default", pool=GPUPool.FAST),
+            ModelSpec("llama3:8b", 0.5, 4.7, "Secretary fallback", pool=GPUPool.BIG),
+        ],
+        QueryType.TRIAGE: [
+            ModelSpec("phi:2.7b", 1.0, 1.6, "Inbox triage", pool=GPUPool.FAST),
+            ModelSpec("llama3:8b", 0.5, 4.7, "Triage fallback", pool=GPUPool.BIG),
+        ],
+        QueryType.SCHEDULING: [
+            ModelSpec("phi:2.7b", 1.0, 1.6, "Scheduling default", pool=GPUPool.FAST),
+            ModelSpec("llama3:8b", 0.5, 4.7, "Scheduling fallback", pool=GPUPool.BIG),
+        ],
+        QueryType.SUMMARY: [
+            ModelSpec("phi:2.7b", 1.0, 1.6, "Summarization", pool=GPUPool.FAST),
+            ModelSpec("llama3:8b", 0.6, 4.7, "Summary fallback", pool=GPUPool.BIG),
+        ],
+    }
+
+    # Task types that should prefer the FAST lane explicitly
+    FAST_POOL_TASKS = {
+        QueryType.SECRETARY,
+        QueryType.TRIAGE,
+        QueryType.SCHEDULING,
+        QueryType.SUMMARY,
     }
     
     # Classification keywords for fast pre-routing
@@ -112,48 +160,143 @@ class ExpertRouter:
             'stream', 'broadcast', 'youtube', 'twitch', 'content', 'viral',
             'thumbnail', 'title', 'audience', 'engagement', 'growth',
             'podcast', 'video', 'live', 'obs', 'overlay'
-        ]
+        ],
+        QueryType.SECRETARY: [
+            'email', 'draft', 'reply', 'message', 'reminder', 'notify',
+            'quick', 'simple', 'brief', 'short', 'assistant', 'notes'
+        ],
+        QueryType.TRIAGE: [
+            'inbox', 'triage', 'priority', 'urgent', 'important', 'filter',
+            'sort', 'categorize', 'classify'
+        ],
+        QueryType.SCHEDULING: [
+            'calendar', 'schedule', 'meeting', 'appointment', 'time',
+            'when', 'available', 'free', 'book', 'slot'
+        ],
+        QueryType.SUMMARY: [
+            'summarize', 'summary', 'tl;dr', 'tldr', 'key points', 'highlights',
+            'overview', 'gist', 'recap', 'condense', 'bullet points'
+        ],
     }
     
     def __init__(self,
-                 ollama_url: str = "http://localhost:11434",
+                 ollama_url: str = None,
                  classifier_model: str = "phi:2.7b",
                  default_model: str = "qwen2.5-coder:14b"):
         """
         Initialize expert router.
         
         Args:
-            ollama_url: Ollama API URL
+            ollama_url: Legacy Ollama API URL (defaults to BIG pool)
             classifier_model: Fast model for classification
-            default_model: Fallback model
+            default_model: Fallback model for BIG pool
         """
-        self.ollama_url = ollama_url
+        # Pool endpoints (explicit dual-pool default)
+        self.big_pool_url = os.getenv("OLLAMA_BIG_URL", "http://127.0.0.1:11434")
+        self.fast_pool_url = os.getenv("OLLAMA_FAST_URL", "http://127.0.0.1:11435")
+
+        # Legacy compatibility
+        self.ollama_url = ollama_url or self.big_pool_url
         self.classifier_model = classifier_model
         self.default_model = default_model
-        
+
+        classifier_pool_env = os.getenv("CLASSIFIER_POOL", GPUPool.FAST.value).lower()
+        self.classifier_pool = GPUPool.FAST if classifier_pool_env == GPUPool.FAST.value else GPUPool.BIG
+
+        # Pool defaults allow overrides per environment
+        self.big_default = os.getenv("OLLAMA_BIG_DEFAULT", default_model)
+        self.fast_default = os.getenv("OLLAMA_FAST_DEFAULT", "phi:2.7b")
+        self.fast_tiny = os.getenv("OLLAMA_FAST_TINY", "phi:2.7b")
+
         # Performance tracking
         self.performance_history: Dict[str, Dict[str, Any]] = {}
         self.classification_cache: Dict[str, QueryType] = {}
-        
-        # Available models (updated on first use)
-        self._available_models: Optional[List[str]] = None
+
+        # Available models cache per pool (updated lazily)
+        self._available_models: Dict[GPUPool, Optional[List[str]]] = {
+            GPUPool.BIG: None,
+            GPUPool.FAST: None,
+        }
+
+        self._last_route: Optional[RouteDecision] = None
+
+        logger.info("ExpertRouter initialized: BIG=%s FAST=%s", self.big_pool_url, self.fast_pool_url)
     
-    async def _get_available_models(self) -> List[str]:
-        """Get list of available Ollama models."""
-        if self._available_models is not None:
-            return self._available_models
-        
+    def _default_for_pool(self, pool: GPUPool) -> str:
+        """Return fallback model for a pool."""
+        return self.fast_default if pool == GPUPool.FAST else self.big_default
+
+    def _pool_priority_for(self, query_type: QueryType, importance: str = "normal") -> List[GPUPool]:
+        """Determine pool priority order for a query."""
+        if importance == "fast":
+            return [GPUPool.FAST, GPUPool.BIG]
+
+        if query_type in self.FAST_POOL_TASKS:
+            return [GPUPool.FAST, GPUPool.BIG]
+
+        if importance == "critical":
+            return [GPUPool.BIG, GPUPool.FAST]
+
+        return [GPUPool.BIG, GPUPool.FAST]
+
+    def _record_route(self, decision: RouteDecision):
+        """Persist the most recent routing decision for observability."""
+        self._last_route = decision
+        logger.info(
+            "Routing %s query -> %s via %s (pool=%s, fallback=%s)",
+            decision.query_type.value,
+            decision.model,
+            decision.reason,
+            decision.pool.value,
+            decision.fallback,
+        )
+
+    async def _route_to_model(
+        self,
+        model: str,
+        pool: GPUPool,
+        query: str,
+        query_type: QueryType,
+        confidence: float,
+        reason: str,
+        system: Optional[str] = None,
+        fallback: bool = False,
+    ) -> str:
+        """Record decision then execute the model query."""
+        decision = RouteDecision(
+            model=model,
+            pool=pool,
+            url=self.get_pool_url(pool),
+            reason=reason,
+            query_type=query_type,
+            confidence=confidence,
+            fallback=fallback,
+        )
+        self._record_route(decision)
+        return await self.query_model(model, query, system=system, pool=pool)
+    
+    def get_pool_url(self, pool: GPUPool) -> str:
+        """Return URL for the requested pool."""
+        return self.fast_pool_url if pool == GPUPool.FAST else self.big_pool_url
+
+    async def _get_available_models(self, pool: GPUPool = GPUPool.BIG) -> List[str]:
+        """Get list of available Ollama models for a specific pool."""
+        if self._available_models[pool] is not None:
+            return self._available_models[pool]
+
+        url = self.get_pool_url(pool)
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(f"{self.ollama_url}/api/tags", timeout=5)
+                response = await client.get(f"{url}/api/tags", timeout=5)
                 if response.status_code == 200:
                     data = response.json()
-                    self._available_models = [m['name'] for m in data.get('models', [])]
-                    logger.info(f"Available models: {self._available_models}")
-                    return self._available_models
+                    models = [m['name'] for m in data.get('models', [])]
+                    self._available_models[pool] = models
+                    logger.info("Available models on %s pool: %s", pool.value, models)
+                    return models
         except Exception as e:
-            logger.warning(f"Failed to get models: {e}")
-        
+            logger.warning("Failed to get models from %s pool (%s): %s", pool.value, url, e)
+
         return []
     
     def _keyword_classify(self, query: str) -> Optional[QueryType]:
@@ -213,9 +356,10 @@ Category:"""
             
             start_time = time.time()
             
+            classifier_url = self.get_pool_url(self.classifier_pool)
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    f"{self.ollama_url}/api/generate",
+                    f"{classifier_url}/api/generate",
                     json={
                         "model": self.classifier_model,
                         "prompt": classification_prompt,
@@ -242,14 +386,14 @@ Category:"""
                             return qtype, 0.9
                             
         except Exception as e:
-            logger.warning(f"LLM classification failed: {e}")
+            logger.warning("LLM classification failed via %s pool: %s", self.classifier_pool.value, e)
         
         # Default to general
         return QueryType.GENERAL, 0.5
     
-    async def is_model_available(self, model: str) -> bool:
-        """Check if a model is available."""
-        available = await self._get_available_models()
+    async def is_model_available(self, model: str, pool: GPUPool = GPUPool.BIG) -> bool:
+        """Check if a model is available on a specific pool."""
+        available = await self._get_available_models(pool)
         
         # Check exact match or partial match
         for m in available:
@@ -263,7 +407,8 @@ Category:"""
                          prompt: str,
                          system: str = None,
                          max_tokens: int = 2048,
-                         temperature: float = 0.7) -> str:
+                         temperature: float = 0.7,
+                         pool: GPUPool = GPUPool.BIG) -> str:
         """
         Query a specific model.
         
@@ -293,9 +438,10 @@ Category:"""
             if system:
                 payload["system"] = system
             
+            url = self.get_pool_url(pool)
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    f"{self.ollama_url}/api/generate",
+                    f"{url}/api/generate",
                     json=payload,
                     timeout=120
                 )
@@ -311,10 +457,15 @@ Category:"""
                     
                     return response_text
                 else:
-                    logger.error(f"Model query failed: {response.status_code}")
+                    logger.error(
+                        "Model query failed (%s pool %s): %s",
+                        pool.value,
+                        url,
+                        response.status_code,
+                    )
                     
         except Exception as e:
-            logger.error(f"Model query error: {e}")
+            logger.error("Model query error (%s pool): %s", pool.value, e)
         
         return ""
     
@@ -359,81 +510,160 @@ Category:"""
         
         # Step 2: Get expert models
         experts = self.EXPERT_MODELS.get(query_type, self.EXPERT_MODELS[QueryType.GENERAL])
-        
+        pool_priority = self._pool_priority_for(query_type, importance)
+
         # Step 3: Route based on importance
         if importance == 'critical':
             # Use ensemble for critical queries
-            return await self.ensemble_query(query, experts[:3], system)
+            return await self.ensemble_query(query, experts[:3], query_type, confidence, pool_priority, system)
         elif importance == 'fast':
             # Use fastest available model
-            return await self.query_fastest(query, experts, system)
+            return await self.query_fastest(query, experts, query_type, confidence, pool_priority, system)
         else:
             # Use best single model
-            return await self.query_best(query, experts, system)
+            return await self.query_best(query, experts, query_type, confidence, pool_priority, system)
     
-    async def query_best(self, 
-                        query: str, 
-                        experts: List[ModelSpec],
-                        system: str = None) -> str:
-        """Query the best available expert model."""
-        for expert in experts:
-            if await self.is_model_available(expert.name):
-                logger.info(f"Routing to {expert.name} ({expert.specialty})")
-                return await self.query_model(expert.name, query, system)
-        
-        # Fallback to default
-        logger.info(f"No experts available, using default: {self.default_model}")
-        return await self.query_model(self.default_model, query, system)
+    async def query_best(
+        self,
+        query: str,
+        experts: List[ModelSpec],
+        query_type: QueryType,
+        confidence: float,
+        pool_priority: List[GPUPool],
+        system: str = None,
+    ) -> str:
+        """Query the best available expert model, honoring pool priority."""
+        for pool in pool_priority:
+            for expert in experts:
+                if expert.pool != pool:
+                    continue
+                if await self.is_model_available(expert.name, pool):
+                    reason = expert.specialty or "primary"
+                    return await self._route_to_model(
+                        expert.name,
+                        pool,
+                        query,
+                        query_type,
+                        confidence,
+                        reason,
+                        system=system,
+                    )
+
+        # Fallback to pool defaults in priority order
+        for pool in pool_priority:
+            fallback_model = self._default_for_pool(pool)
+            if fallback_model and await self.is_model_available(fallback_model, pool):
+                return await self._route_to_model(
+                    fallback_model,
+                    pool,
+                    query,
+                    query_type,
+                    confidence,
+                    f"default:{pool.value}",
+                    system=system,
+                    fallback=True,
+                )
+
+        # Ultimate fallback to BIG default even if availability check fails
+        fallback_model = self._default_for_pool(GPUPool.BIG)
+        logger.warning("No pool models available, forcing big default %s", fallback_model)
+        return await self._route_to_model(
+            fallback_model,
+            GPUPool.BIG,
+            query,
+            query_type,
+            confidence,
+            "ultimate-default",
+            system=system,
+            fallback=True,
+        )
     
-    async def query_fastest(self,
-                           query: str,
-                           experts: List[ModelSpec],
-                           system: str = None) -> str:
-        """Query the fastest available model (smallest size)."""
-        # Sort by size
-        available_experts = []
-        for expert in experts:
-            if await self.is_model_available(expert.name):
-                available_experts.append(expert)
-        
+    async def query_fastest(
+        self,
+        query: str,
+        experts: List[ModelSpec],
+        query_type: QueryType,
+        confidence: float,
+        pool_priority: List[GPUPool],
+        system: str = None,
+    ) -> str:
+        """Query the fastest available model (smallest size) within pool priorities."""
+        available_experts: List[ModelSpec] = []
+        for pool in pool_priority:
+            for expert in experts:
+                if expert.pool != pool:
+                    continue
+                if await self.is_model_available(expert.name, pool):
+                    available_experts.append(expert)
+
         if available_experts:
             fastest = min(available_experts, key=lambda e: e.size_gb)
-            logger.info(f"Fast routing to {fastest.name} ({fastest.size_gb}GB)")
-            return await self.query_model(fastest.name, query, system)
-        
-        return await self.query_model(self.default_model, query, system)
+            reason = f"fastest:{fastest.size_gb}GB"
+            return await self._route_to_model(
+                fastest.name,
+                fastest.pool,
+                query,
+                query_type,
+                confidence,
+                reason,
+                system=system,
+            )
+
+        # Fallback mirrors best logic but biases fast pool first
+        for pool in pool_priority:
+            fallback_model = self._default_for_pool(pool)
+            if fallback_model and await self.is_model_available(fallback_model, pool):
+                return await self._route_to_model(
+                    fallback_model,
+                    pool,
+                    query,
+                    query_type,
+                    confidence,
+                    f"fast-default:{pool.value}",
+                    system=system,
+                    fallback=True,
+                )
+
+        fallback_model = self._default_for_pool(GPUPool.BIG)
+        logger.warning("Fast routing fallback to big default %s", fallback_model)
+        return await self._route_to_model(
+            fallback_model,
+            GPUPool.BIG,
+            query,
+            query_type,
+            confidence,
+            "fast-ultimate",
+            system=system,
+            fallback=True,
+        )
     
-    async def ensemble_query(self,
-                            query: str,
-                            experts: List[ModelSpec],
-                            system: str = None) -> str:
-        """
-        Query multiple experts and synthesize the best response.
-        
-        Args:
-            query: User query
-            experts: List of expert models
-            system: Optional system prompt
-            
-        Returns:
-            Synthesized response from multiple experts
-        """
-        # Get available experts
-        available = []
-        for expert in experts:
-            if await self.is_model_available(expert.name):
-                available.append(expert)
-        
+    async def ensemble_query(
+        self,
+        query: str,
+        experts: List[ModelSpec],
+        query_type: QueryType,
+        confidence: float,
+        pool_priority: List[GPUPool],
+        system: str = None,
+    ) -> str:
+        """Query multiple experts and synthesize the best response."""
+        available: List[ModelSpec] = []
+        for pool in pool_priority:
+            for expert in experts:
+                if expert.pool != pool:
+                    continue
+                if await self.is_model_available(expert.name, pool):
+                    available.append(expert)
+
         if len(available) < 2:
             # Not enough for ensemble, use single best
-            return await self.query_best(query, experts, system)
-        
-        logger.info(f"Ensemble query with {len(available)} models")
-        
-        # Query all experts in parallel
+            return await self.query_best(query, experts, query_type, confidence, pool_priority, system)
+
+        logger.info("Ensemble query with %s experts", len(available))
+
         tasks = [
-            self.query_model(expert.name, query, system)
-            for expert in available[:3]  # Max 3 for ensemble
+            self.query_model(expert.name, query, system, pool=expert.pool)
+            for expert in available[:3]
         ]
         responses = await asyncio.gather(*tasks, return_exceptions=True)
         
@@ -441,9 +671,22 @@ Category:"""
         valid_responses = [r for r in responses if isinstance(r, str) and r]
         
         if not valid_responses:
-            return await self.query_model(self.default_model, query, system)
+            return await self.query_best(query, experts, query_type, confidence, pool_priority, system)
         
         if len(valid_responses) == 1:
+            for expert, response in zip(available[:3], responses):
+                if isinstance(response, str) and response:
+                    decision = RouteDecision(
+                        model=expert.name,
+                        pool=expert.pool,
+                        url=self.get_pool_url(expert.pool),
+                        reason="ensemble-single",
+                        query_type=query_type,
+                        confidence=confidence,
+                        fallback=False,
+                    )
+                    self._record_route(decision)
+                    return response
             return valid_responses[0]
         
         # Synthesize responses
@@ -455,15 +698,38 @@ Synthesize the best comprehensive response, combining the strengths of each expe
 Be concise and focus on the most accurate and helpful information:"""
         
         logger.info("Synthesizing ensemble response")
-        return await self.query_model(self.default_model, synthesis_prompt, system)
+        return await self._route_to_model(
+            self._default_for_pool(GPUPool.BIG),
+            GPUPool.BIG,
+            synthesis_prompt,
+            query_type,
+            confidence,
+            "ensemble-synthesis",
+            system=system,
+            fallback=True,
+        )
     
     def get_stats(self) -> Dict[str, Any]:
         """Get router statistics."""
+        last_route_serialized = None
+        if self._last_route:
+            last_route_serialized = {
+                'model': self._last_route.model,
+                'pool': self._last_route.pool.value,
+                'url': self._last_route.url,
+                'reason': self._last_route.reason,
+                'query_type': self._last_route.query_type.value,
+                'confidence': self._last_route.confidence,
+                'fallback': self._last_route.fallback,
+            }
         return {
             'classifier_model': self.classifier_model,
             'default_model': self.default_model,
             'cached_classifications': len(self.classification_cache),
-            'model_performance': self.performance_history
+            'model_performance': self.performance_history,
+            'big_pool_url': self.big_pool_url,
+            'fast_pool_url': self.fast_pool_url,
+            'last_route': last_route_serialized,
         }
     
     async def health_check(self) -> Dict[str, Any]:
@@ -477,12 +743,12 @@ Be concise and focus on the most accurate and helpful information:"""
         
         try:
             # Check classifier
-            status['classifier_available'] = await self.is_model_available(self.classifier_model)
+            status['classifier_available'] = await self.is_model_available(self.classifier_model, self.classifier_pool)
             
             # Check experts
             for query_type, experts in self.EXPERT_MODELS.items():
                 for expert in experts:
-                    if await self.is_model_available(expert.name):
+                    if await self.is_model_available(expert.name, expert.pool):
                         if expert.name not in status['experts_available']:
                             status['experts_available'].append(expert.name)
             

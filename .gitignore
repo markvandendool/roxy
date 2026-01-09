@@ -24,6 +24,23 @@ whisper_models/
 
 # Environment
 .env
+.env.bak*
+secret.token
+
+# Runtime artifacts
+logs/
+evidence/
+benchmarks/
+pids/
+run/
+
+# Backups and generated clutter
+*.bak
+*.bak_*
+scripts/*.bak
+scripts/*.bak_*
+*.tar.gz
+*.zip
 
 # Embedded repos
 chatterbox/

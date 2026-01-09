@@ -17,11 +17,23 @@ import threading
 
 try:
     import cv2
-    import mediapipe as mp
     import numpy as np
+    try:
+        import mediapipe as mp
+        MP_VERSION = getattr(mp, "__version__", "unknown")
+        # MediaPipe 0.10+ uses Tasks API, try legacy first
+        if hasattr(mp, 'solutions'):
+            # Legacy API (mediapipe < 0.10)
+            MP_LEGACY = True
+        else:
+            MP_LEGACY = False
+    except ImportError:
+        MP_LEGACY = False
+        mp = None
+        MP_VERSION = "not-installed"
 except ImportError as e:
     print(f"ERROR: Missing dependency: {e}")
-    print("Run: pip install mediapipe opencv-python numpy")
+    print("Run: pip install -r requirements-vision.txt")
     exit(1)
 
 try:
@@ -48,7 +60,7 @@ class ChordShape:
     timestamp: float
 
 
-class RockyHandTracker:
+class RoxyHandTracker:
     """Real-time hand tracking for chord shape detection."""
 
     # Finger landmark indices
@@ -75,16 +87,30 @@ class RockyHandTracker:
     ):
         self.camera_id = camera_id
         self.websocket_port = websocket_port
+        self.mp_legacy = MP_LEGACY
 
-        # MediaPipe setup
-        self.mp_hands = mp.solutions.hands
-        self.mp_drawing = mp.solutions.drawing_utils
-        self.hands = self.mp_hands.Hands(
-            static_image_mode=False,
-            max_num_hands=max_hands,
-            min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=min_tracking_confidence,
-        )
+        # MediaPipe setup - handle both legacy and Tasks API
+        if MP_LEGACY:
+            # Legacy API (mediapipe < 0.10)
+            self.mp_hands = mp.solutions.hands
+            self.mp_drawing = mp.solutions.drawing_utils
+            self.hands = self.mp_hands.Hands(
+                static_image_mode=False,
+                max_num_hands=max_hands,
+                min_detection_confidence=min_detection_confidence,
+                min_tracking_confidence=min_tracking_confidence,
+            )
+        else:
+            # Tasks API (mediapipe >= 0.10)
+            # Note: MediaPipe 0.10+ removed solutions API, requires Tasks API with model files
+            # Set up placeholder - full implementation needs hand_landmarker.task model
+            self.mp_hands = None
+            self.mp_drawing = None
+            self.hands = None
+            print(f"[ROXY.VISION] Mediapipe version {MP_VERSION} detected (Tasks API)")
+            print("[ROXY.VISION] Tasks API requires mediapipe>=0.10 and hand_landmarker.task; repo default pins mediapipe<0.10 for stability.")
+            print("[ROXY.VISION] To enable Tasks API: wget -O /opt/roxy/vision/hand_landmarker.task \\")
+            print("  https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task")
 
         # State
         self.running = False
@@ -97,7 +123,7 @@ class RockyHandTracker:
         self.fps = 0.0
         self.last_fps_time = time.time()
 
-        print(f"[ROCKY.VISION] Initialized MediaPipe Hands (camera={camera_id})")
+        print(f"[ROXY.VISION] Initialized MediaPipe Hands (camera={camera_id})")
 
     def get_finger_state(self, landmarks: List[tuple]) -> dict:
         """Determine if each finger is up/down based on landmarks."""
@@ -199,7 +225,7 @@ class RockyHandTracker:
     async def websocket_handler(self, websocket, path):
         """Handle WebSocket connections."""
         self.ws_clients.add(websocket)
-        print(f"[ROCKY.VISION] Client connected ({len(self.ws_clients)} total)")
+        print(f"[ROXY.VISION] Client connected ({len(self.ws_clients)} total)")
 
         try:
             async for message in websocket:
@@ -210,14 +236,14 @@ class RockyHandTracker:
             pass
         finally:
             self.ws_clients.discard(websocket)
-            print(f"[ROCKY.VISION] Client disconnected ({len(self.ws_clients)} remaining)")
+            print(f"[ROXY.VISION] Client disconnected ({len(self.ws_clients)} remaining)")
 
     async def capture_loop(self):
         """Main capture and processing loop."""
         cap = cv2.VideoCapture(self.camera_id)
 
         if not cap.isOpened():
-            print(f"[ROCKY.VISION] ERROR: Cannot open camera {self.camera_id}")
+            print(f"[ROXY.VISION] ERROR: Cannot open camera {self.camera_id}")
             return
 
         # Set camera properties for low latency
@@ -226,7 +252,7 @@ class RockyHandTracker:
         cap.set(cv2.CAP_PROP_FPS, 30)
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
-        print(f"[ROCKY.VISION] Camera opened, starting capture...")
+        print(f"[ROXY.VISION] Camera opened, starting capture...")
         self.running = True
 
         try:
@@ -256,7 +282,7 @@ class RockyHandTracker:
                         if chord and (not self.current_chord or
                                       chord.name != self.current_chord.name):
                             self.current_chord = chord
-                            print(f"[ROCKY.VISION] Chord: {chord.name} "
+                            print(f"[ROXY.VISION] Chord: {chord.name} "
                                   f"(confidence={chord.confidence:.2f})")
 
                             # Broadcast
@@ -294,11 +320,11 @@ class RockyHandTracker:
         finally:
             cap.release()
             self.running = False
-            print("[ROCKY.VISION] Camera released")
+            print("[ROXY.VISION] Camera released")
 
     async def run(self):
         """Start hand tracker with WebSocket server."""
-        print(f"[ROCKY.VISION] Starting on port {self.websocket_port}...")
+        print(f"[ROXY.VISION] Starting on port {self.websocket_port}...")
 
         if websockets:
             async with websockets.serve(
@@ -306,15 +332,15 @@ class RockyHandTracker:
                 "127.0.0.1",
                 self.websocket_port
             ):
-                print(f"[ROCKY.VISION] WebSocket server ready")
+                print(f"[ROXY.VISION] WebSocket server ready")
                 await self.capture_loop()
         else:
-            print("[ROCKY.VISION] WebSockets not available, running capture only")
+            print("[ROXY.VISION] WebSockets not available, running capture only")
             await self.capture_loop()
 
 
 async def main():
-    tracker = RockyHandTracker(
+    tracker = RoxyHandTracker(
         camera_id=0,
         websocket_port=8768,
     )

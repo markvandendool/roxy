@@ -1,12 +1,36 @@
 # 🗣️ HOW TO TALK TO ROXY
 
-## Quick Start - Just Type:
+**Updated: 2026-01-07 (Hub Migration Complete)**
+
+## ⚠️ CRITICAL: ROXY Hub Location
+
+**ROXY Hub runs on Mac Studio (10.0.0.92), NOT locally.**
+
+| Endpoint | URL |
+|----------|-----|
+| Status | http://10.0.0.92:9136/api/status |
+| Tool Execution | http://10.0.0.92:9136/api/roxy/run |
+
+---
+
+## Quick Start - API Access:
 
 ```bash
-roxy
+# Check ROXY is alive
+curl http://10.0.0.92:9136/api/status
+
+# Execute a tool (requires token)
+TOKEN=$(cat ~/.roxy/secret.token)
+curl -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL read_file {\"path\":\"/etc/hosts\"}"}' \
+  http://10.0.0.92:9136/api/roxy/run
 ```
 
-That's it! This starts an interactive chat session with ROXY.
+---
+
+## Interactive Chat (Optional)
+
+If the `roxy` CLI is installed:
 
 ---
 

@@ -1,0 +1,17 @@
+[
+  {"cmd": "goto", "url": "https://iot.tuya.com", "wait_until": "domcontentloaded"},
+  {"cmd": "wait", "selector": "body", "state": "visible", "timeout": 10000},
+  {"cmd": "screenshot", "full_page": false},
+  {"cmd": "html"},
+  {"cmd": "assert_text", "text": "Studio Lights"},
+  {"cmd": "find_and_click", "text": "Devices", "selector": "nav, header, body"},
+  {"cmd": "wait", "selector": "body", "state": "visible", "timeout": 10000},
+  {"cmd": "screenshot", "full_page": false},
+  {"cmd": "assert_text", "text": "Studio Lights"},
+  {"cmd": "find_and_click", "text": "Studio Lights", "selector": "body"},
+  {"cmd": "wait", "selector": "body", "state": "visible", "timeout": 10000},
+  {"cmd": "screenshot", "full_page": true},
+  {"cmd": "assert_text", "text": "LAN Control"},
+  {"cmd": "html"},
+  {"cmd": "close"}
+]

@@ -1,0 +1,8 @@
+[
+  {"cmd": "goto", "url": "https://example.com", "wait_until": "domcontentloaded"},
+  {"cmd": "wait", "selector": "h1", "state": "visible", "timeout": 5000},
+  {"cmd": "extract", "selector": "h1", "attribute": null},
+  {"cmd": "screenshot", "full_page": true},
+  {"cmd": "html"},
+  {"cmd": "close"}
+]

@@ -14,15 +14,13 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 import chromadb
-import requests
+from chromadb.utils import embedding_functions
 
-OLLAMA_URL = "http://localhost:11434/api/embeddings"
-EMBED_MODEL = "nomic-embed-text"
+EMBEDDING_FN = embedding_functions.DefaultEmbeddingFunction()
 
 def get_embedding(text: str) -> list:
-    """Get embedding from Ollama"""
-    resp = requests.post(OLLAMA_URL, json={"model": EMBED_MODEL, "prompt": text}, timeout=60)
-    return resp.json()["embedding"]
+    """Get embedding using DefaultEmbeddingFunction (384-dim)"""
+    return EMBEDDING_FN([text])[0]
 
 def get_git_log(repo_path: str, days: int = 30) -> list:
     """Get git log entries from repo"""
@@ -84,9 +82,13 @@ def main():
     client = chromadb.PersistentClient(path=str(Path.home() / ".roxy" / "chroma_db"))
 
     try:
-        collection = client.get_collection("mindsong_docs")
+        collection = client.get_collection("mindsong_docs", embedding_function=EMBEDDING_FN)
     except:
-        collection = client.create_collection("mindsong_docs")
+        collection = client.create_collection(
+            "mindsong_docs",
+            embedding_function=EMBEDDING_FN,
+            metadata={"description": "MindSong documentation for ROXY RAG"}
+        )
 
     # Index commits
     indexed = 0

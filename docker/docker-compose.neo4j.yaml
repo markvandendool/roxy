@@ -28,7 +28,8 @@ services:
     networks:
       - roxy-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7474"]
+      # Use wget (available in neo4j image) instead of curl
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:7474 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

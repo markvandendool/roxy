@@ -1,44 +1,6 @@
-# ROXY Requirements
-# Core dependencies for ROXY AI assistant
-
-# HTTP Server & Networking
-requests>=2.31.0
-urllib3>=2.0.0
-
-# LLM & AI
-# Note: ollama is separate binary, not a Python package
-
-# Vector Database & Embeddings
-chromadb>=0.4.0
-sentence-transformers>=2.2.0
-torch>=2.0.0  # Required by sentence-transformers
-numpy>=1.24.0
-
-# Audio Processing (for voice assistant)
-pyaudio>=0.2.13
-sounddevice>=0.4.6
-openwakeword>=0.5.0
-
-# Utilities
-python-dotenv>=1.0.0
-pydantic>=2.0.0
-
-# Observability & Monitoring
-prometheus-client>=0.19.0
-
-# Testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-pytest-asyncio>=0.21.0
-requests-mock>=1.11.0
-
-# Code Quality
-black>=23.0.0
-pylint>=2.17.0
-mypy>=1.5.0
-
-# Security
-cryptography>=41.0.0
-
-# Optional: BM25 for hybrid search
-rank-bm25>=0.2.2
+# ROXY dependencies
+# Default install is core-only; dev and vision are optional.
+-r requirements-core.txt
+# Optional:
+# -r requirements-dev.txt
+# -r requirements-vision.txt

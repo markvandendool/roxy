@@ -23,8 +23,8 @@ BOLD='\033[1m'
 
 # Paths
 ROXY_HOME="$HOME/.roxy"
-MINDSONG_HOME="$HOME/mindsong-juke-hub"
-COMPOSE_DIR="$MINDSONG_HOME/luno-orchestrator/citadel/compose"
+# NOTE: Mindsong dev is on Mac Studio, not Citadel. Compose files copied to /opt/roxy.
+COMPOSE_DIR="/opt/roxy/compose/citadel"
 VENV="$ROXY_HOME/venv/bin/python"
 LOG_DIR="/tmp/roxy-logs"
 
@@ -211,15 +211,15 @@ start_voice_stack() {
 }
 
 start_dev_servers() {
-    print_header "💻 Starting Dev Servers"
+    print_header "💻 Dev Servers (Mac Studio)"
+
+    # NOTE: MindSong dev server runs on Mac Studio, not Citadel
+    # To start: ssh macstudio "cd ~/mindsong-juke-hub && pnpm dev"
+    echo -e "  ${YELLOW}ℹ${NC}  MindSong dev runs on Mac Studio (not Citadel)"
+    echo -e "  ${CYAN}→${NC}  ssh macstudio \"cd ~/mindsong-juke-hub && pnpm dev\""
 
     if ss -tlnp 2>/dev/null | grep -q ":9135 "; then
-        echo -e "  ${YELLOW}→${NC} Vite dev server already running"
-    else
-        echo "  Starting MindSong Vite..."
-        cd "$MINDSONG_HOME"
-        nohup pnpm dev > "$LOG_DIR/vite-dev.log" 2>&1 &
-        wait_for_port 9135 "Vite Dev Server" 30
+        echo -e "  ${GREEN}✓${NC} Port 9135 active (may be forwarded from Mac Studio)"
     fi
 }
 

@@ -1,15 +1,33 @@
-# Quick Start: Enhanced ROXY System
+# Quick Start: ROXY System
+
+**Updated: 2026-01-07 (Hub Migration Complete)**
+
+## ⚠️ CRITICAL: Hub Architecture
+
+**ROXY Hub runs on Mac Studio (10.0.0.92), not locally.**
+
+| Component | Host | Endpoint |
+|-----------|------|----------|
+| ROXY Core | Mac Studio | 127.0.0.1:8766 |
+| ROXY Proxy | Mac Studio | 0.0.0.0:9136 |
+
+**From any LAN machine:**
+```bash
+curl http://10.0.0.92:9136/api/status
+```
+
+---
 
 ## Prerequisites Check
 ```bash
-# Check Python version (need 3.10+)
-python3 --version
+# Check hub is reachable
+curl -s http://10.0.0.92:9136/api/status | python3 -m json.tool
 
-# Check if ROXY core is running
-systemctl --user status roxy-core
+# Check token exists locally
+cat ~/.roxy/secret.token
 
-# Check Docker containers
-docker ps
+# Check SSH to Mac Studio works
+ssh macstudio 'hostname'
 ```
 
 ## Step 1: Install Dependencies
@@ -74,30 +92,46 @@ curl http://localhost:9091/metrics | grep roxy_
 
 ## Test the System
 
-### Test Authentication
+### Test Hub Health
 ```bash
-# Load token
-TOKEN=$(cat /home/mark/.roxy/secret.token)
-
-# Test health endpoint (no auth required)
-curl http://127.0.0.1:8766/health
-
-# Test authenticated request
-curl -X POST http://127.0.0.1:8766/run \
-  -H "X-ROXY-Token: $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"command": "hello roxy"}'
-
-# Test without auth (should fail with 403)
-curl -X POST http://127.0.0.1:8766/run \
-  -H "Content-Type: application/json" \
-  -d '{"command": "hello"}'
+# No auth required for status
+curl http://10.0.0.92:9136/api/status
 ```
 
-### Test Rate Limiting
+### Test Tool Execution
 ```bash
-# Send multiple requests rapidly
-for i in {1..100}; do
+# Load token
+TOKEN=$(cat ~/.roxy/secret.token)
+
+# Test read_file tool
+curl -s -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL read_file {\"path\":\"/etc/hosts\"}"}' \
+  http://10.0.0.92:9136/api/roxy/run
+
+# Test git_status tool
+curl -s -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL git_status {}"}' \
+  http://10.0.0.92:9136/api/roxy/run
+
+# Test list_files tool
+curl -s -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL list_files {\"path\":\"~\"}"}' \
+  http://10.0.0.92:9136/api/roxy/run
+```
+
+### Available Tools
+- `read_file` - Read file contents (requires `path`)
+- `list_files` - List directory contents (requires `path`)
+- `search_code` - Search code in files
+- `git_status` - Git status of mindsong-juke-hub (read-only, no args)
+
+### Test Without Auth (Should Fail)
+```bash
+# This should return 403 Forbidden
+curl -s -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL read_file {\"path\":\"/etc/hosts\"}"}' \
+  http://10.0.0.92:9136/api/roxy/run
+```
   curl -X POST http://127.0.0.1:8766/run \
     -H "X-ROXY-Token: $TOKEN" \
     -H "Content-Type: application/json" \

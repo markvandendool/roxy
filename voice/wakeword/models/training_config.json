@@ -1,0 +1,20 @@
+{
+  "model_name": "hey_roxy",
+  "target_phrase": "hey roxy",
+  "positive_samples_dir": "/opt/roxy/voice/wakeword/samples/positive",
+  "negative_samples_dir": "/opt/roxy/voice/wakeword/samples/negative",
+  "output_dir": "/opt/roxy/voice/wakeword/models",
+  "training_params": {
+    "epochs": 100,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "validation_split": 0.2,
+    "early_stopping_patience": 10
+  },
+  "augmentation": {
+    "noise_injection": true,
+    "time_stretch": true,
+    "pitch_shift": true,
+    "volume_variation": true
+  }
+}

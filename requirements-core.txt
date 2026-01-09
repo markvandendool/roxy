@@ -1,0 +1,15 @@
+# Core runtime (ROXY service)
+requests>=2.31.0
+urllib3>=2.0.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+torch>=2.0.0
+numpy>=1.24.0
+pyaudio>=0.2.13
+sounddevice>=0.4.6
+openwakeword>=0.5.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+prometheus-client>=0.19.0
+cryptography>=41.0.0
+rank-bm25>=0.2.2

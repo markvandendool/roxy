@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROXY_HOME="${HOME}/.roxy"
+PY="${ROXY_HOME}/venv/bin/python"
+
+# If roxy-core is up, prefer API health + CLI client
+if curl -fsS --max-time 1 http://127.0.0.1:8766/health >/dev/null 2>&1; then
+  exec "${PY}" "${ROXY_HOME}/roxy_client.py" "$@"
+fi
+
+echo "ROXY core not responding on :8766. Try:"
+echo "  systemctl --user restart roxy-core"
+exit 1

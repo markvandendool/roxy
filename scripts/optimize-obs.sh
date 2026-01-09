@@ -1,0 +1,65 @@
+#!/bin/bash
+# OBS Studio Optimization for Mac Pro 2019
+# Dual GPU Setup - W5700X + RX 6900 XT
+
+echo "=== OBS STUDIO OPTIMIZATION ==="
+echo ""
+
+OBS_CONFIG="${HOME}/.config/obs-studio/global.ini"
+OBS_BASIC="${HOME}/.config/obs-studio/basic/profiles/*/basic.ini"
+
+echo "Recommended OBS Settings for Mac Pro 2019:"
+echo ""
+echo "ENCODER SETTINGS:"
+echo "  • Encoder: x264 (CPU) or AMF (GPU - AMD)"
+echo "  • Rate Control: CBR"
+echo "  • Bitrate: 6000-10000 Kbps (1080p60)"
+echo "  • Keyframe Interval: 2"
+echo "  • CPU Usage: veryfast (x264) or Quality (AMF)"
+echo ""
+echo "VIDEO SETTINGS:"
+echo "  • Base Resolution: 1920x1080"
+echo "  • Output Resolution: 1920x1080"
+echo "  • FPS: 60"
+echo "  • Downscale Filter: Lanczos"
+echo ""
+echo "ADVANCED SETTINGS:"
+echo "  • Process Priority: High"
+echo "  • Color Format: NV12"
+echo "  • Color Space: 709"
+echo "  • Color Range: Partial"
+echo ""
+echo "GPU SELECTION:"
+echo "  • Use RX 6900 XT for encoding (more powerful)"
+echo "  • Use W5700X for display if needed"
+echo ""
+echo "Creating OBS test script..."
+cat > /opt/roxy/scripts/obs-test-recording.sh << 'EOFTEST'
+#!/bin/bash
+# OBS Recording Test Script
+
+echo "=== OBS RECORDING TEST ==="
+echo ""
+echo "This will test OBS recording performance"
+echo ""
+echo "To test OBS:"
+echo "  1. Open OBS Studio"
+echo "  2. Add Display Capture or Window Capture"
+echo "  3. Settings → Output:"
+echo "     - Recording Path: /tmp/obs-test"
+echo "     - Encoder: x264 or AMF"
+echo "     - Bitrate: 6000 Kbps"
+echo "  4. Settings → Video:"
+echo "     - Base: 1920x1080"
+echo "     - Output: 1920x1080"
+echo "     - FPS: 60"
+echo "  5. Start Recording for 30 seconds"
+echo "  6. Check: /tmp/obs-test for output file"
+echo ""
+echo "Monitoring during recording:"
+echo "  • CPU usage: htop"
+echo "  • GPU usage: radeontop"
+echo "  • FPS: OBS Stats window"
+EOFTEST
+chmod +x /opt/roxy/scripts/obs-test-recording.sh
+echo "✅ OBS test script created"

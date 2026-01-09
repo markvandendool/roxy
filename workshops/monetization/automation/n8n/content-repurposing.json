@@ -1,0 +1,124 @@
+{
+  "name": "Content Repurposing Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerOn": "specificVideo",
+        "channelId": "YOUR_CHANNEL_ID",
+        "event": "videoPublished"
+      },
+      "name": "New YouTube Video",
+      "type": "n8n-nodes-base.youtubeTrigger",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "videoId": "={{$json.id}}",
+        "operation": "download"
+      },
+      "name": "Download Video",
+      "type": "n8n-nodes-base.youTube",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "model": "whisper-1",
+        "language": "en",
+        "responseFormat": "text"
+      },
+      "name": "Transcribe with Whisper",
+      "type": "n8n-nodes-base.openAi",
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a content repurposing expert. Convert video transcripts into engaging blog posts."
+          },
+          {
+            "role": "user",
+            "content": "Transcript: {{$json.transcript}}\n\nCreate a blog post with: 1) Catchy title, 2) Introduction, 3) Key points (with headers), 4) Conclusion with CTA"
+          }
+        ]
+      },
+      "name": "Generate Blog Post",
+      "type": "n8n-nodes-base.openAi",
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Create a 10-tweet thread from this transcript:\n{{$json.transcript}}\n\nMake it engaging, use emojis, end with CTA"
+          }
+        ]
+      },
+      "name": "Generate Twitter Thread",
+      "type": "n8n-nodes-base.openAi",
+      "position": [850, 350]
+    },
+    {
+      "parameters": {
+        "title": "={{$json.blog_title}}",
+        "content": "={{$json.blog_content}}",
+        "contentFormat": "markdown",
+        "publishStatus": "draft"
+      },
+      "name": "Publish to Medium",
+      "type": "n8n-nodes-base.medium",
+      "position": [1050, 250]
+    },
+    {
+      "parameters": {
+        "text": "={{$json.thread[0]}}",
+        "additionalFields": {
+          "attachments": "={{$json.video_thumbnail}}"
+        }
+      },
+      "name": "Post Twitter Thread",
+      "type": "n8n-nodes-base.twitter",
+      "position": [1050, 350]
+    },
+    {
+      "parameters": {
+        "content": "={{$json.blog_content}}",
+        "visibility": "public"
+      },
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [1050, 450]
+    }
+  ],
+  "connections": {
+    "New YouTube Video": {
+      "main": [[{"node": "Download Video", "type": "main", "index": 0}]]
+    },
+    "Download Video": {
+      "main": [[{"node": "Transcribe with Whisper", "type": "main", "index": 0}]]
+    },
+    "Transcribe with Whisper": {
+      "main": [
+        [
+          {"node": "Generate Blog Post", "type": "main", "index": 0},
+          {"node": "Generate Twitter Thread", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Generate Blog Post": {
+      "main": [[{"node": "Publish to Medium", "type": "main", "index": 0}]]
+    },
+    "Generate Twitter Thread": {
+      "main": [
+        [
+          {"node": "Post Twitter Thread", "type": "main", "index": 0},
+          {"node": "Post to LinkedIn", "type": "main", "index": 0}
+        ]
+      ]
+    }
+  }
+}

@@ -1,6 +1,33 @@
-# 🎉 Welcome Package - Roxy Workspace Setup Complete
+# 🎉 Welcome Package - Roxy Workspace Setup
 
-## ✅ Recent Work Completed (December 29, 2025)
+**Last Updated: 2026-01-07 (Hub Migration Complete)**
+
+## ⚠️ CRITICAL: ROXY Hub Architecture
+
+**ROXY Hub runs on Mac Studio (10.0.0.92), NOT on ROXY Linux.**
+
+| Component | Host | Endpoint |
+|-----------|------|----------|
+| ROXY Core | Mac Studio (10.0.0.92) | 127.0.0.1:8766 |
+| ROXY Proxy | Mac Studio (10.0.0.92) | 0.0.0.0:9136 |
+| Token | ~/.roxy/secret.token | Required for tool execution |
+
+```bash
+# Quick health check
+curl http://10.0.0.92:9136/api/status
+
+# Tool execution
+TOKEN=$(cat ~/.roxy/secret.token)
+curl -H "X-ROXY-Token: $TOKEN" -H "Content-Type: application/json" \
+  -d '{"command":"RUN_TOOL git_status {}"}' \
+  http://10.0.0.92:9136/api/roxy/run
+```
+
+**Available Tools:** read_file, list_files, search_code, git_status
+
+---
+
+## ✅ Recent Work Completed
 
 ### 1. **Mindsong Juke Hub Setup** 🎵
 - ✅ Cloned full repository from GitHub (`markvandendool/mindsong-juke-hub`)
