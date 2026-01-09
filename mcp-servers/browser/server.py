@@ -21,7 +21,7 @@ except ImportError as e:
 mcp = FastMCP('roxy-browser')
 
 # Configuration
-OLLAMA_HOST = 'http://localhost:11434'
+OLLAMA_HOST = 'http://127.0.0.1:11435'
 MODEL_NAME = 'llama3:8b'
 SESSIONS_DIR = Path('/opt/roxy/secrets/browser-sessions')
 
