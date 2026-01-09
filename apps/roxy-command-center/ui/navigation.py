@@ -44,6 +44,7 @@ class NavigationSidebar(Gtk.Box):
         
         # Navigation items
         nav_items = [
+            ("home", "go-home-symbolic", "Home"),
             ("overview", "view-grid-symbolic", "Overview"),
             ("services", "system-run-symbolic", "Services"),
             ("gpus", "video-display-symbolic", "GPUs"),

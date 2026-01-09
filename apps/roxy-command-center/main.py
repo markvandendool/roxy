@@ -20,6 +20,7 @@ from daemon_client import DaemonClient, normalize_status
 from ui.header_bar import HeaderBar
 from ui.navigation import MainNavigation
 from ui.settings import SettingsPage
+from widgets.home_console_page import HomeConsolePage
 from widgets.overview_page import OverviewPage
 from widgets.services_page import ServicesPage
 from widgets.gpus_page import GpusPage
@@ -135,12 +136,18 @@ class MainWindow(Adw.ApplicationWindow):
         # Add pages
         self._setup_pages()
         
-        # Navigate to overview
-        self.navigation.navigate_to("overview")
+        # Navigate to HOME (the cockpit)
+        self.navigation.navigate_to("home")
     
     def _setup_pages(self):
         """Set up navigation pages."""
-        # Overview page
+        # Home Console - THE COCKPIT (default landing)
+        self.home_page = HomeConsolePage(
+            on_navigate=self._on_navigate
+        )
+        self.navigation.add_page("home", "Home", self.home_page, "go-home-symbolic")
+        
+        # Overview page (telemetry dashboard)
         self.overview_page = OverviewPage(
             on_navigate=self._on_navigate
         )
@@ -261,6 +268,9 @@ class MainWindow(Adw.ApplicationWindow):
     
     def _update_ui(self, data: dict):
         """Update all UI components with new data."""
+        # Home Console
+        self.home_page.update(data)
+        
         # Overview
         self.overview_page.update(data)
         

@@ -419,6 +419,43 @@ queued → running → completed
                  → cancelled
 ```
 
+---
+
+## 📋 ALL 20 MESSAGE SOURCES (Placeholder Status)
+
+**All 20 sources available for BOTH identities. APIs/accounts to be wired up soon.**
+
+| # | Source | 👤 Me | 🎵 MindSong | Integration | Status |
+|---|--------|-------|-------------|-------------|--------|
+| 1 | Email (personal) | ✅ | - | IMAP/SMTP | 🔲 Placeholder |
+| 2 | Email (business) | - | ✅ | IMAP/SMTP | 🔲 Placeholder |
+| 3 | SMS | ✅ | ✅ | Twilio | 🔲 Placeholder |
+| 4 | iMessage | ✅ | - | Mac relay | 🔲 Placeholder (Phase 5) |
+| 5 | GitHub | ✅ | ✅ | Webhooks + API | 🔲 Placeholder |
+| 6 | Discord | ✅ | ✅ | Bot | 🔲 Placeholder |
+| 7 | Slack | ✅ | ✅ | Bot | 🔲 Placeholder |
+| 8 | Telegram | ✅ | ✅ | Bot API | 🔲 Placeholder |
+| 9 | WhatsApp | ✅ | ✅ | Business API | 🔲 Placeholder |
+| 10 | Instagram DMs | - | ✅ | Graph API | 🔲 Placeholder |
+| 11 | Instagram Comments | - | ✅ | Graph API | 🔲 Placeholder |
+| 12 | YouTube Comments | - | ✅ | Data API v3 | 🔲 Placeholder |
+| 13 | X/Twitter DMs | ✅ | ✅ | API v2 | 🔲 Placeholder |
+| 14 | X/Twitter Mentions | ✅ | ✅ | API v2 | 🔲 Placeholder |
+| 15 | LinkedIn | ✅ | ✅ | Limited API | 🔲 Placeholder |
+| 16 | Reddit | ✅ | ✅ | API | 🔲 Placeholder |
+| 17 | Twitch Chat | - | ✅ | API | 🔲 Placeholder |
+| 18 | Signal | ✅ | - | Bridge | 🔲 Placeholder (Phase 5) |
+| 19 | Matrix | ✅ | ✅ | Native | 🔲 Placeholder |
+| 20 | RSS/Newsletters | ✅ | ✅ | Feed parser | 🔲 Placeholder |
+
+### System Sources (Always MindSong Identity)
+| Source | Integration | Status |
+|--------|-------------|--------|
+| Ops Alerts (Grafana) | Webhooks | 🔲 Placeholder |
+| Orchestrator Events | NATS | 🔲 Placeholder |
+| StackKraft Pipeline | NATS | 🔲 Placeholder |
+| Service Health | roxy-core | 🔲 Placeholder |
+
 Each state transition is an event on `runs.status` NATS topic.
 
 ---
