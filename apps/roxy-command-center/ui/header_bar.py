@@ -142,6 +142,13 @@ class HeaderBar:
         self.refresh_btn.connect("clicked", self._on_refresh_clicked)
         self._widget.pack_end(self.refresh_btn)
         
+        # Debug info label (shows CPU/GPU status)
+        self.debug_label = Gtk.Label(label="CPU:-- GPU:--")
+        self.debug_label.add_css_class("dim-label")
+        self.debug_label.add_css_class("caption")
+        self.debug_label.set_margin_start(8)
+        self._widget.pack_start(self.debug_label)
+        
         # Sleep button - graceful system sleep
         self.sleep_btn = Gtk.Button.new_from_icon_name("weather-clear-night-symbolic")
         self.sleep_btn.set_tooltip_text("Sleep System (gracefully stops services)")
@@ -178,6 +185,13 @@ class HeaderBar:
     def set_subtitle(self, text: str):
         """Set custom subtitle text."""
         self.subtitle_label.set_label(text)
+    
+    def set_debug_info(self, cpu_pct: float, gpu_count: int):
+        """Update debug info strip showing CPU/GPU status."""
+        import time
+        ts = time.strftime("%H:%M:%S")
+        cpu_str = f"{cpu_pct:.0f}%" if cpu_pct else "N/A"
+        self.debug_label.set_text(f"CPU:{cpu_str} GPU:{gpu_count} @{ts}")
     
     def _on_settings_clicked(self, button):
         if self.on_settings:

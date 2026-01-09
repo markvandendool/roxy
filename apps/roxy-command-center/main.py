@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Optional
 
 # Import all components
-from daemon_client import DaemonClient
+from daemon_client import DaemonClient, normalize_status
 from ui.header_bar import HeaderBar
 from ui.navigation import MainNavigation
 from ui.settings import SettingsPage
@@ -223,24 +223,35 @@ class MainWindow(Adw.ApplicationWindow):
         def on_data(response):
             # Handle DaemonResponse object
             if hasattr(response, 'data'):
-                data = response.data if response.data else {}
+                raw_data = response.data if response.data else {}
                 if response.error:
-                    data['error'] = response.error
+                    raw_data['error'] = response.error
             else:
-                data = response if isinstance(response, dict) else {}
+                raw_data = response if isinstance(response, dict) else {}
             
-            if data:
+            if raw_data:
+                # Normalize to canonical schema
+                data = normalize_status(raw_data)
                 self._current_data = data
+                
+                # Debug output
+                gpu_count = len(data.get("gpus", []))
+                cpu_pct = data.get("cpu", {}).get("cpu_pct", 0)
+                print(f"[Data] CPU:{cpu_pct:.1f}% GPUs:{gpu_count}")
+                
                 self._update_ui(data)
                 
                 # Update header mode
                 mode = data.get("mode", "local")
-                host = data.get("remote_host", "")
+                host = raw_data.get("remote_host", "")
                 self.header.set_mode(mode, host)
+                
+                # Update header debug strip
+                self.header.set_debug_info(cpu_pct, gpu_count)
                 
                 # Process alerts
                 alert_manager = get_alert_manager()
-                alert_manager.process_daemon_data(data)
+                alert_manager.process_daemon_data(raw_data)
                 
                 # Update alert badge in navigation
                 alert_count = alert_manager.get_alert_count()

@@ -233,22 +233,24 @@ class OverviewPage(Gtk.ScrolledWindow):
     
     def update(self, data: dict):
         """Update all cards with daemon data."""
-        system = data.get("system", {})
+        # Use normalized schema
+        cpu_data = data.get("cpu", {})
+        memory_data = data.get("memory", {})
         gpus = data.get("gpus", [])
         services = data.get("services", {})
         ollama = data.get("ollama", {})
         
-        # CPU
-        cpu_percent = system.get("cpu_percent", 0)
-        load_avg = system.get("load_avg", [0, 0, 0])
+        # CPU - use normalized keys
+        cpu_percent = cpu_data.get("cpu_pct", 0)
+        load_1m = cpu_data.get("load_1m", 0)
         if "cpu" in self._cards:
             self._cards["cpu"].set_value(f"{cpu_percent:.0f}%")
-            self._cards["cpu"].set_subtitle(f"Load: {load_avg[0]:.1f}")
+            self._cards["cpu"].set_subtitle(f"Load: {load_1m:.1f}")
             self._cards["cpu"].add_sparkline_value(cpu_percent)
         
-        # Memory
-        mem_used = system.get("mem_used_gb", 0)
-        mem_total = system.get("mem_total_gb", 1)
+        # Memory - use normalized keys
+        mem_used = memory_data.get("mem_used_gb", 0)
+        mem_total = memory_data.get("mem_total_gb", 1)
         mem_percent = (mem_used / mem_total * 100) if mem_total > 0 else 0
         if "memory" in self._cards:
             self._cards["memory"].set_value(f"{mem_used:.1f} GB")
@@ -262,10 +264,11 @@ class OverviewPage(Gtk.ScrolledWindow):
                 card = self._cards[card_key]
                 
                 name = gpu.get("name", f"GPU {i}")
-                temp = gpu.get("temp", 0)
+                temp = gpu.get("temp_c", gpu.get("temp", 0))  # temp_c normalized, fallback temp
                 vram_used = gpu.get("vram_used_gb", 0)
                 vram_total = gpu.get("vram_total_gb", 1)
                 vram_percent = (vram_used / vram_total * 100) if vram_total > 0 else 0
+                util_pct = gpu.get("utilization_pct", gpu.get("utilization", 0))
                 pool = gpu.get("pool", "")
                 
                 # Truncate name
@@ -273,7 +276,7 @@ class OverviewPage(Gtk.ScrolledWindow):
                     name = name[:17] + "..."
                 
                 card.set_value(f"{temp}°C")
-                card.set_subtitle(f"{vram_used:.1f}/{vram_total:.0f} GB VRAM")
+                card.set_subtitle(f"{vram_used:.1f}/{vram_total:.0f} GB • {util_pct}%")
                 card.add_sparkline_value(temp)
                 
                 # Color by temp

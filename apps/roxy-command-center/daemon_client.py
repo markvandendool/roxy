@@ -204,3 +204,86 @@ def fetch_status_async(callback: Callable[[DaemonResponse], None],
     client = get_client()
     client.configure(mode, remote_host, remote_port)
     client.fetch_async(callback)
+
+
+def normalize_status(raw: dict) -> dict:
+    """
+    Normalize daemon payload to canonical schema.
+    Handles all known variations: gpu/gpus, temp_c/temp, system/stats, etc.
+    
+    Returns dict with guaranteed keys:
+    - mode: str
+    - cpu: dict with cpu_pct, load_1m
+    - memory: dict with mem_used_gb, mem_total_gb
+    - gpus: list of normalized GPU dicts
+    - services: dict
+    - ollama: dict
+    - disk: dict
+    - alerts: list
+    - _raw: original payload for debugging
+    """
+    # CPU/System
+    sys_data = raw.get("system") or raw.get("stats") or {}
+    cpu = {
+        "cpu_pct": sys_data.get("cpu_pct") or raw.get("cpu", {}).get("percent") or 0,
+        "load_1m": sys_data.get("load_1m") or 0,
+    }
+    
+    # Memory
+    memory = {
+        "mem_used_gb": sys_data.get("mem_used_gb") or 0,
+        "mem_total_gb": sys_data.get("mem_total_gb") or 0,
+    }
+    
+    # Services
+    services = raw.get("services") or {}
+    
+    # GPUs: accept 'gpu' (list) or 'gpus' (list) or dict
+    g = raw.get("gpus") or raw.get("gpu")
+    gpus = []
+    if isinstance(g, list):
+        gpus = g
+    elif isinstance(g, dict):
+        # Some daemons use {"0": {...}, "1": {...}}
+        if all(str(k).isdigit() for k in g.keys()):
+            for k in sorted(g.keys(), key=lambda x: int(x)):
+                gpus.append(g[k])
+        else:
+            gpus = [g]
+    
+    # Normalize each GPU's keys
+    norm_gpus = []
+    for i, gpu in enumerate(gpus):
+        if not isinstance(gpu, dict):
+            continue
+        
+        # Handle vram in GB or bytes
+        vram_used = gpu.get("vram_used_gb") or 0
+        vram_total = gpu.get("vram_total_gb") or 16
+        if vram_used == 0 and gpu.get("vram_used_bytes"):
+            vram_used = gpu.get("vram_used_bytes") / (1024**3)
+        if vram_total == 0 and gpu.get("vram_total_bytes"):
+            vram_total = gpu.get("vram_total_bytes") / (1024**3)
+        
+        norm_gpus.append({
+            "index": gpu.get("index", i),
+            "name": gpu.get("name") or gpu.get("model") or f"GPU {i}",
+            "temp_c": gpu.get("temp_c") or gpu.get("temp") or gpu.get("temperature_c") or 0,
+            "utilization_pct": gpu.get("utilization_pct") or gpu.get("gpu_busy_percent") or gpu.get("util") or 0,
+            "vram_used_gb": vram_used,
+            "vram_total_gb": vram_total,
+            "power_w": gpu.get("power_w") or 0,
+        })
+    
+    return {
+        "mode": raw.get("mode", "local"),
+        "cpu": cpu,
+        "memory": memory,
+        "gpus": norm_gpus,
+        "services": services,
+        "ollama": raw.get("ollama") or {},
+        "disk": raw.get("disk") or {},
+        "alerts": raw.get("alerts") or [],
+        "roxy": raw.get("roxy") or {},
+        "_raw": raw,  # Keep original for debug
+    }
