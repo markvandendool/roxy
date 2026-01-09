@@ -611,8 +611,9 @@ Answer:"""
         except Exception as e:
             logger.debug(f"LLM router failed: {e}, using direct API call")
             # Fallback to direct API call
+            base = (os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL") or "http://127.0.0.1:11435").rstrip("/")
             llm_resp = requests.post(
-                "http://localhost:11434/api/generate",
+                f"{base}/api/generate",
                 json={
                     "model": "qwen2.5-coder:14b",
                     "prompt": prompt,
