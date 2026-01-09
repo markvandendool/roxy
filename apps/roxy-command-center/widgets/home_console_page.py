@@ -24,6 +24,7 @@ from datetime import datetime
 import random
 import sys
 import os
+import uuid
 
 # Add parent dir to path for services import
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -573,6 +574,8 @@ class TalkColumn(Gtk.Box):
         self._model_chip: Optional[Gtk.Label] = None
         self._latency_chip: Optional[Gtk.Label] = None
         self._typing_indicator: Optional[Gtk.Box] = None
+        self._status_label: Optional[Gtk.Label] = None
+        self._status_spinner: Optional[Gtk.Spinner] = None
         
         self._build_ui()
         self._connect_to_roxy()
@@ -637,6 +640,20 @@ class TalkColumn(Gtk.Box):
         identity_chip.add_css_class("caption")
         identity_chip.set_tooltip_text("Active project context")
         chips_box.append(identity_chip)
+
+        status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        status_box.set_margin_bottom(4)
+        header.append(status_box)
+
+        self._status_spinner = Gtk.Spinner()
+        self._status_spinner.set_visible(False)
+        status_box.append(self._status_spinner)
+
+        self._status_label = Gtk.Label(label="Connect to Roxy to begin.")
+        self._status_label.set_xalign(0)
+        self._status_label.set_wrap(True)
+        self._status_label.add_css_class("dim-label")
+        status_box.append(self._status_label)
         
         # Chat transcript
         scrolled = Gtk.ScrolledWindow()
@@ -736,6 +753,19 @@ class TalkColumn(Gtk.Box):
     
     def _on_connect_click(self, button):
         """Manual reconnect."""
+        if self._status_chip:
+            self._status_chip.set_label("🟡 Connecting")
+        if self._model_chip:
+            self._model_chip.set_label("🧠 --")
+        if self._latency_chip:
+            self._latency_chip.set_label("⏱️ --")
+        if self._status_label:
+            self._status_label.set_label("Connecting to Roxy…")
+        if self._status_spinner:
+            self._status_spinner.set_visible(True)
+            self._status_spinner.start()
+        if self._typing_indicator:
+            self._typing_indicator.set_visible(False)
         self._connect_to_roxy()
     
     def _on_chat_message(self, message: ServiceChatMessage):
@@ -758,23 +788,57 @@ class TalkColumn(Gtk.Box):
             # Speak if speak mode enabled (Option B)
             if self._speak_mode:
                 self._voice_service.speak(message.content)
+
+    def _append_system_message(self, text: str):
+        message = ChatMessage(
+            id=str(uuid.uuid4()),
+            role="system",
+            content=text,
+            timestamp=datetime.now()
+        )
+        widget = ChatMessage_Widget(message)
+        self.chat_box.append(widget)
     
     def _on_status_change(self, status: ConnectionStatus, message: str):
         """Called when connection status changes."""
         status_icons = {
             ConnectionStatus.DISCONNECTED: "⚪",
             ConnectionStatus.CONNECTING: "🟡",
+            ConnectionStatus.WARMING: "🟠",
             ConnectionStatus.CONNECTED: "🟢",
             ConnectionStatus.ERROR: "🔴"
         }
         icon = status_icons.get(status, "⚪")
         
         # Update chips
-        self._status_chip.set_label(f"{icon} {status.value.title()}")
-        
+        if self._status_chip:
+            self._status_chip.set_label(f"{icon} {status.value.title()}")
+
+        if self._status_label:
+            detail = message or status.value.title()
+            self._status_label.set_label(detail)
+
+        if self._status_spinner:
+            show_spinner = status in (ConnectionStatus.CONNECTING, ConnectionStatus.WARMING)
+            self._status_spinner.set_visible(show_spinner)
+            if show_spinner:
+                self._status_spinner.start()
+            else:
+                self._status_spinner.stop()
+
         if status == ConnectionStatus.CONNECTED:
-            model = self._chat_service.model
-            self._model_chip.set_label(f"🧠 {model}")
+            model = self._chat_service.model or "ready"
+            if self._model_chip:
+                self._model_chip.set_label(f"🧠 {model}")
+        elif status == ConnectionStatus.WARMING:
+            if self._model_chip:
+                self._model_chip.set_label("🧠 warming…")
+        elif status in (ConnectionStatus.DISCONNECTED, ConnectionStatus.ERROR):
+            if self._model_chip:
+                self._model_chip.set_label("🧠 --")
+
+        if status != ConnectionStatus.CONNECTED and self._latency_chip:
+            self._latency_chip.set_label("⏱️ --")
     
     def _on_typing_change(self, is_typing: bool):
         """Called when typing indicator should show/hide."""
@@ -814,6 +878,13 @@ class TalkColumn(Gtk.Box):
         if not text:
             return
         
+        status = self._chat_service.status
+        if status in (ConnectionStatus.DISCONNECTED, ConnectionStatus.ERROR):
+            if self._status_label:
+                self._status_label.set_label("Not connected. Click Connect.")
+            self._append_system_message("⚠️ Not connected. Click Connect to retry.")
+            return
+
         self.entry.set_text("")
         self._chat_service.send_message(text)
 
