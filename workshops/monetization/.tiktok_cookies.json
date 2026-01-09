@@ -1,0 +1,308 @@
+[
+  {
+    "name": "delay_guest_mode_vid",
+    "value": "",
+    "domain": ".www.tiktok.com",
+    "path": "/",
+    "expires": 13438316032000000,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "passport_csrf_token",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13417580035675767,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "passport_csrf_token_default",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13417580035675872,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "tt_csrf_token",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 0,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "cmpl_token",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13417580085263537,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "last_login_method",
+    "value": "",
+    "domain": "www.tiktok.com",
+    "path": "/",
+    "expires": 13420172085000000,
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "multi_sids",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13417580085263425,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "passport_auth_status",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13414988085263558,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "passport_auth_status_ss",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13414988085263580,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "sessionid",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263702,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "sessionid_ss",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263722,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "sid_guard",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443500085263604,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "sid_tt",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263664,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "sid_ucp_v1",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263763,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "ssid_ucp_v1",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263786,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "tt_session_tlb_tag",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263742,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "uid_tt",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263624,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "uid_tt_ss",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948084263644,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "passport_fe_beating_status",
+    "value": "",
+    "domain": ".www.tiktok.com",
+    "path": "/",
+    "expires": 0,
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "perf_feed_cache",
+    "value": "",
+    "domain": ".www.tiktok.com",
+    "path": "/",
+    "expires": 13413000922000000,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "s_v_web_id",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 0,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "store-country-code",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119193252,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "store-country-code-src",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119193282,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "store-country-sign",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119193216,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "store-idc",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119193168,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "tt-target-idc",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119193313,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "tt-target-idc-sign",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119193343,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "tt_chain_token",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13427948117013211,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "ttwid",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443932119173629,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "tiktok_webapp_theme",
+    "value": "",
+    "domain": ".www.tiktok.com",
+    "path": "/",
+    "expires": 13438317080000000,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "tiktok_webapp_theme_source",
+    "value": "",
+    "domain": ".www.tiktok.com",
+    "path": "/",
+    "expires": 13438317080000000,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "odin_tt",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13443933957388064,
+    "secure": false,
+    "httpOnly": true
+  },
+  {
+    "name": "msToken",
+    "value": "",
+    "domain": "www.tiktok.com",
+    "path": "/",
+    "expires": 13420174219000000,
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "msToken",
+    "value": "",
+    "domain": ".tiktok.com",
+    "path": "/",
+    "expires": 13413262347345817,
+    "secure": true,
+    "httpOnly": false
+  }
+]
