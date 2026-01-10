@@ -860,6 +860,7 @@ def start_run(
     pool: str = "W5700X",
     num_fewshot: int = 5,
     limit: Optional[int] = 50,
+    dry_run: bool = False,
 ) -> dict:
     """
     Start a benchmark run.
@@ -910,6 +911,30 @@ def start_run(
             "pool_requested": pool,
             "pool_checked": pool_result.get("base_url"),
         }
+
+    # TRUE DRY RUN: return pool resolution only; NO evidence; NO threads; NO locks
+    if dry_run:
+        dry_run_result = {
+            "status": "dry_run",
+            "dry_run": True,
+            "task": task,
+            "model": model,
+            # API CONTRACT fields
+            "pool_requested_raw": pool_result.get("pool_requested_raw"),
+            "pool_requested_canonical": pool_result.get("pool_requested_canonical"),
+            "pool_used": pool_result.get("pool_used"),
+            "gpu_hint": pool_result.get("gpu_hint"),
+            # Helpful operator fields
+            "base_url_used": pool_result.get("base_url"),
+            "base_url_chat": pool_result.get("base_url_chat"),
+            "reachable": pool_result.get("reachable"),
+            "num_fewshot": num_fewshot,
+            "limit": limit,
+        }
+        # Only include error key if there's an actual error
+        if pool_result.get("error"):
+            dry_run_result["error"] = pool_result["error"]
+        return dry_run_result
 
     # Extract resolved pool info
     base_url = pool_result["base_url_chat"]

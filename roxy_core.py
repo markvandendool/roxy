@@ -3413,18 +3413,24 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             num_fewshot = params.get("num_fewshot", 5)
             limit = params.get("limit", 50)  # Default 50 samples for quick runs
 
+            # TRUE DRY RUN: Parse dry_run flag - skips lock/evidence/threads
+            dry_run = bool(params.get("dry_run", False))
+
             result = start_run(
                 task=task,
                 model=model,
                 pool=pool,
                 num_fewshot=num_fewshot,
-                limit=limit
+                limit=limit,
+                dry_run=dry_run,
             )
 
             if "error" in result:
                 self.send_response(409 if "already running" in result.get("error", "") else 400)
+            elif dry_run:
+                self.send_response(200)  # OK for dry_run (no async work started)
             else:
-                self.send_response(202)  # Accepted
+                self.send_response(202)  # Accepted (async benchmark started)
 
             self.send_header("Content-Type", "application/json")
             self.end_headers()
