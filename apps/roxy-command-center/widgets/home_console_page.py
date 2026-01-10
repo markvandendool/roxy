@@ -969,27 +969,36 @@ class TalkColumn(Gtk.Box):
         
         if self._ollama_chip:
             ollama = data.get("ollama", {})
-            if ollama.get("ok"):
-                latency = ollama.get("latency_ms", 0)
-                current_base = ollama.get("base_url", "")
-                
-                # CHIEF'S TRUTH CONTRACT: Use server-provided pool mapping
-                # No guessing from ports.
-                pools = ollama.get("pools", {})
-                pool_label = "UNK"
-                if current_base == pools.get("fast"):
-                    pool_label = "FAST"
-                elif current_base == pools.get("big"):
-                    pool_label = "BIG"
-                
-                # Show [POOL] (latency)
-                self._ollama_chip.set_label(f"🦙 {pool_label} • {latency:.0f}ms")
-                self._ollama_chip.set_tooltip_text(f"URL: {current_base}")
+            pools = ollama.get("pools", {})
+            
+            # Show pool status: BIG: ok/err, FAST: ok/err
+            big_status = "unset"
+            if pools.get("big", {}).get("configured"):
+                big_status = "ok" if pools["big"].get("reachable") else "err"
+            
+            fast_status = "unset"
+            if pools.get("fast", {}).get("configured"):
+                fast_status = "ok" if pools["fast"].get("reachable") else "err"
+            
+            self._ollama_chip.set_label(f"🦙 BIG:{big_status} FAST:{fast_status}")
+            
+            # Tooltip with details
+            tooltip_parts = []
+            if pools.get("big", {}).get("configured"):
+                big = pools["big"]
+                tooltip_parts.append(f"BIG: {big['url']} ({big.get('latency_ms', '??')}ms)" + (f" err: {big['error']}" if not big.get("reachable") else ""))
+            if pools.get("fast", {}).get("configured"):
+                fast = pools["fast"]
+                tooltip_parts.append(f"FAST: {fast['url']} ({fast.get('latency_ms', '??')}ms)" + (f" err: {fast['error']}" if not fast.get("reachable") else ""))
+            
+            self._ollama_chip.set_tooltip_text("\n".join(tooltip_parts) if tooltip_parts else "No pools configured")
+            
+            # Color based on any reachable
+            any_reachable = any(p.get("reachable", False) for p in pools.values() if isinstance(p, dict))
+            if any_reachable:
                 self._ollama_chip.remove_css_class("error")
             else:
-                self._ollama_chip.set_label("🦙 ❌")
                 self._ollama_chip.add_css_class("error")
-                self._ollama_chip.set_tooltip_text(ollama.get("error", "Connection failed"))
     
     def _update_truth_panel_error(self, error: str):
         """Handle /info fetch error."""

@@ -234,6 +234,23 @@ def _resolve_ollama_pools() -> dict:
         "default": default_url
     }
 
+def _check_ollama_reachability(url: str, timeout: float = 1.0) -> dict:
+    """Check if Ollama URL is reachable. Returns {reachable: bool, latency_ms: float|None, error: str|None}"""
+    if not url:
+        return {"reachable": False, "latency_ms": None, "error": "no url configured"}
+    
+    try:
+        import urllib.request
+        start = time.time()
+        req = urllib.request.Request(f"{url}/api/version", method="GET")  # /api/version is lighter than /api/tags
+        req.add_header("User-Agent", "roxy-core/reachability-check")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            latency_ms = round((time.time() - start) * 1000, 2)
+            return {"reachable": resp.status == 200, "latency_ms": latency_ms, "error": None}
+    except Exception as e:
+        return {"reachable": False, "latency_ms": None, "error": str(e)}
+
+
 def _get_ollama_base_url() -> str:
     """Resolve Ollama base URL via authentic pool resolution."""
     return _resolve_ollama_pools()["default"]
@@ -524,16 +541,32 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         pools = _resolve_ollama_pools()
         ollama_base = pools["default"]
         
-        # CHIEF'S TRUTH CONTRACT: Expose pool configuration derived from env
-        # This allows UI to map URLs to "BIG" or "FAST" labels authoritatively
+        # CHIEF'S TRUTH CONTRACT: Expose pool configuration + reachability
+        # configured: from env, reachable: actual socket check
+        big_reach = _check_ollama_reachability(pools["big"]["url"])
+        fast_reach = _check_ollama_reachability(pools["fast"]["url"])
+        
         info["ollama"]["pools"] = {
-            "big": pools["big"]["url"],
-            "fast": pools["fast"]["url"]
+            "big": {
+                "url": pools["big"]["url"],
+                "configured": pools["big"]["configured"],
+                "reachable": big_reach["reachable"],
+                "latency_ms": big_reach["latency_ms"],
+                "error": big_reach["error"]
+            },
+            "fast": {
+                "url": pools["fast"]["url"],
+                "configured": pools["fast"]["configured"],
+                "reachable": fast_reach["reachable"],
+                "latency_ms": fast_reach["latency_ms"],
+                "error": fast_reach["error"]
+            }
         }
         info["ollama"]["base_url"] = ollama_base
         # Legacy field for compatibility, but populated correctly now
         info["ollama"]["fast_url"] = pools["fast"]["url"]
         
+        # Default pool reachability (for legacy compatibility)
         try:
             import urllib.request
             start = time.time()
@@ -1939,21 +1972,31 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 effective_pool = pool.upper() if pool else "AUTO"
                 pool_config = _resolve_ollama_pools()
 
-                # If CHAT mode and no explicit pool, we MUST use BIG.
+                # If CHAT mode and no explicit pool, we MUST use BIG (if configured AND reachable).
                 if effective_mode == "CHAT" and effective_pool == "AUTO":
-                    if pool_config["big"]["configured"]:
+                    big_reach = _check_ollama_reachability(pool_config["big"]["url"])
+                    if pool_config["big"]["configured"] and big_reach["reachable"]:
                         effective_pool = "BIG"
                         logger.info(f"CHAT mode -> enforcing BIG pool ({pool_config['big']['url']})")
                     else:
                         # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
-                        # If BIG is expected but not configured, we fail fast.
-                        return "ERROR: CHAT mode requires a configured BIG pool (OLLAMA_BIG_URL). Explicitly set pool=FAST if you want to use the smaller model."
+                        # If BIG is expected but not configured/reachable, we fail fast.
+                        reason = "not configured" if not pool_config["big"]["configured"] else "not reachable"
+                        return f"ERROR: CHAT mode requires a configured and reachable BIG pool (OLLAMA_BIG_URL). {reason}. Explicitly set pool=FAST if you want to use the smaller model."
                 
-                # Validate explicit requests
-                if effective_pool == "BIG" and not pool_config["big"]["configured"]:
-                    return "ERROR: Pool BIG requested but not configured (OLLAMA_BIG_URL missing)."
-                if effective_pool == "FAST" and not pool_config["fast"]["configured"]:
-                    return "ERROR: Pool FAST requested but not configured (OLLAMA_FAST_URL missing)."
+                # Validate explicit requests (also check reachability)
+                if effective_pool == "BIG":
+                    if not pool_config["big"]["configured"]:
+                        return "ERROR: Pool BIG requested but not configured (OLLAMA_BIG_URL missing)."
+                    big_reach = _check_ollama_reachability(pool_config["big"]["url"])
+                    if not big_reach["reachable"]:
+                        return f"ERROR: Pool BIG requested but not reachable ({pool_config['big']['url']}: {big_reach['error']})."
+                if effective_pool == "FAST":
+                    if not pool_config["fast"]["configured"]:
+                        return "ERROR: Pool FAST requested but not configured (OLLAMA_FAST_URL missing)."
+                    fast_reach = _check_ollama_reachability(pool_config["fast"]["url"])
+                    if not fast_reach["reachable"]:
+                        return f"ERROR: Pool FAST requested but not reachable ({pool_config['fast']['url']}: {fast_reach['error']})."
 
                 # Update metadata so it reflects the forced decision even if parsing fails later
                 self._last_execution_metadata["pool"] = effective_pool.lower()
