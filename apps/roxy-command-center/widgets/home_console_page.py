@@ -591,9 +591,69 @@ class TalkColumn(Gtk.Box):
         self._last_meta_chip: Optional[Gtk.Label] = None
         
         self._build_ui()
+        self._load_settings()  # Sticky settings (Phase 2C)
         self._connect_to_roxy()
         self._start_info_polling()
     
+    def _save_settings(self):
+        """Persist sticky settings to JSON."""
+        try:
+            settings_dir = Path.home() / ".config" / "roxy-command-center"
+            settings_dir.mkdir(parents=True, exist_ok=True)
+            settings_file = settings_dir / "settings.json"
+            
+            data = {}
+            if settings_file.exists():
+                try:
+                    data = json.loads(settings_file.read_text())
+                except:
+                    pass
+            
+            # Update values
+            routes = ["AUTO", "CHAT", "RAG", "EXEC"]
+            if hasattr(self, '_route_dropdown'):
+                idx_route = self._route_dropdown.get_selected()
+                if idx_route < len(routes):
+                    data["route_mode"] = routes[idx_route]
+            
+            pools = ["AUTO", "FAST", "BIG"]
+            if hasattr(self, '_pool_dropdown'):
+                idx_pool = self._pool_dropdown.get_selected()
+                if idx_pool < len(pools):
+                    data["pool_mode"] = pools[idx_pool]
+                
+            settings_file.write_text(json.dumps(data, indent=2))
+        except Exception as e:
+            print(f"[Talk] Failed to save settings: {e}")
+
+    def _load_settings(self):
+        """Load sticky settings."""
+        from pathlib import Path
+        import json
+        try:
+            settings_file = Path.home() / ".config" / "roxy-command-center" / "settings.json"
+            if not settings_file.exists():
+                return
+                
+            data = json.loads(settings_file.read_text())
+            
+            route = data.get("route_mode", "AUTO")
+            routes = ["AUTO", "CHAT", "RAG", "EXEC"]
+            if route in routes and hasattr(self, '_route_dropdown'):
+                self._route_dropdown.set_selected(routes.index(route))
+                self._routing_mode = route
+                print(f"[Talk] Loaded sticky route: {route}")
+            
+            pool = data.get("pool_mode", "AUTO")
+            pools = ["AUTO", "FAST", "BIG"]
+            if pool in pools and hasattr(self, '_pool_dropdown'):
+                self._pool_dropdown.set_selected(pools.index(pool))
+                self._pool_mode = pool
+                print(f"[Talk] Loaded sticky pool: {pool}")
+                
+        except Exception as e:
+            print(f"[Talk] Failed to load settings: {e}")
+
     def _build_ui(self):
         # Header with context chips
         header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
@@ -836,8 +896,9 @@ class TalkColumn(Gtk.Box):
         if not self._last_meta_chip:
             return
             
-        # Format: [MODE] route -> model (t ms)
+        # Format: [MODE:POOL] route -> model (t ms)
         mode = (meta.get("mode") or "??").upper()
+        pool = (meta.get("pool") or "AUTO").upper()
         route = meta.get("route") or "?"
         model = meta.get("model_used")
         if model:
@@ -847,7 +908,7 @@ class TalkColumn(Gtk.Box):
         total_ms = meta.get("total_ms")
         timing = f"{total_ms}ms" if total_ms else ""
         
-        text = f"[{mode}] {route}"
+        text = f"[{mode}:{pool}] {route}"
         if model:
             text += f" → {model}"
         if timing:
@@ -891,26 +952,39 @@ class TalkColumn(Gtk.Box):
             try:
                 ts = data.get("server_time_iso", "")
                 if ts:
-                    # Extract HH:MM:SS
-                    time_part = ts.split("T")[1].split(".")[0] if "T" in ts else ts
-                    self._time_chip.set_label(f"🕐 {time_part}")
+                    # Parse ISO format for full date/time context
+                    dt = datetime.fromisoformat(ts)
+                    self._time_chip.set_label(f"🕐 {dt.strftime('%Y-%m-%d %H:%M')}")
             except:
-                self._time_chip.set_label("🕐 --:--")
+                self._time_chip.set_label("🕐 --")
         
         if self._git_chip:
             git = data.get("git", {})
             branch = git.get("branch", "?")
             sha = git.get("head_sha", "?")[:7]
-            dirty = "•" if git.get("dirty") else ""
-            self._git_chip.set_label(f"🔀 {branch}@{sha}{dirty}")
+            # State: clean (✔) or dirty (⚠️)
+            state = "⚠️" if git.get("dirty") else "✔"
+            self._git_chip.set_label(f"🔀 {branch} • {sha} • {state}")
             self._git_chip.set_tooltip_text(git.get("last_commit_subject", ""))
         
         if self._ollama_chip:
             ollama = data.get("ollama", {})
             if ollama.get("ok"):
                 latency = ollama.get("latency_ms", 0)
-                port = "11435" if "11435" in ollama.get("base_url", "") else "11434"
-                self._ollama_chip.set_label(f"🦙 :{port} {latency:.0f}ms")
+                current_base = ollama.get("base_url", "")
+                
+                # CHIEF'S TRUTH CONTRACT: Use server-provided pool mapping
+                # No guessing from ports.
+                pools = ollama.get("pools", {})
+                pool_label = "UNK"
+                if current_base == pools.get("fast"):
+                    pool_label = "FAST"
+                elif current_base == pools.get("big"):
+                    pool_label = "BIG"
+                
+                # Show [POOL] (latency)
+                self._ollama_chip.set_label(f"🦙 {pool_label} • {latency:.0f}ms")
+                self._ollama_chip.set_tooltip_text(f"URL: {current_base}")
                 self._ollama_chip.remove_css_class("error")
             else:
                 self._ollama_chip.set_label("🦙 ❌")
@@ -1040,6 +1114,7 @@ class TalkColumn(Gtk.Box):
         idx = dropdown.get_selected()
         self._routing_mode = routes[idx] if idx < len(routes) else "AUTO"
         print(f"[Talk] Routing mode: {self._routing_mode}")
+        self._save_settings()
     
     def _on_pool_changed(self, dropdown, _pspec):
         """Handle pool change (AUTO/FAST/BIG)."""
@@ -1047,6 +1122,7 @@ class TalkColumn(Gtk.Box):
         idx = dropdown.get_selected()
         self._pool_mode = pools[idx] if idx < len(pools) else "AUTO"
         print(f"[Talk] Pool: {self._pool_mode}")
+        self._save_settings()
     
     def _on_speak_toggle(self, button):
         """Toggle speak mode (Option B)."""
