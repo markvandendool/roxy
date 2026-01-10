@@ -577,8 +577,15 @@ class TalkColumn(Gtk.Box):
         self._status_label: Optional[Gtk.Label] = None
         self._status_spinner: Optional[Gtk.Spinner] = None
         
+        # Truth Panel chips (from /info endpoint)
+        self._time_chip: Optional[Gtk.Label] = None
+        self._git_chip: Optional[Gtk.Label] = None
+        self._ollama_chip: Optional[Gtk.Label] = None
+        self._info_poll_id: Optional[int] = None
+        
         self._build_ui()
         self._connect_to_roxy()
+        self._start_info_polling()
     
     def _build_ui(self):
         # Header with context chips
@@ -640,6 +647,32 @@ class TalkColumn(Gtk.Box):
         identity_chip.add_css_class("caption")
         identity_chip.set_tooltip_text("Active project context")
         chips_box.append(identity_chip)
+
+        # Truth Panel row - authoritative server data from /info
+        truth_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        truth_box.set_margin_bottom(4)
+        header.append(truth_box)
+        
+        # Server time chip
+        self._time_chip = Gtk.Label(label="🕐 --:--")
+        self._time_chip.add_css_class("dim-label")
+        self._time_chip.add_css_class("caption")
+        self._time_chip.set_tooltip_text("Server time")
+        truth_box.append(self._time_chip)
+        
+        # Git state chip
+        self._git_chip = Gtk.Label(label="🔀 --")
+        self._git_chip.add_css_class("dim-label")
+        self._git_chip.add_css_class("caption")
+        self._git_chip.set_tooltip_text("Git branch & commit")
+        truth_box.append(self._git_chip)
+        
+        # Ollama status chip
+        self._ollama_chip = Gtk.Label(label="🦙 --")
+        self._ollama_chip.add_css_class("dim-label")
+        self._ollama_chip.add_css_class("caption")
+        self._ollama_chip.set_tooltip_text("Ollama connection")
+        truth_box.append(self._ollama_chip)
 
         status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         status_box.set_margin_bottom(4)
@@ -751,6 +784,73 @@ class TalkColumn(Gtk.Box):
             on_typing=self._on_typing_change
         )
     
+    def _start_info_polling(self):
+        """Start polling /info endpoint for Truth Panel."""
+        # Poll every 3 seconds
+        self._info_poll_id = GLib.timeout_add_seconds(3, self._poll_info)
+        # Also do immediate fetch
+        GLib.idle_add(self._poll_info)
+    
+    def _poll_info(self) -> bool:
+        """Fetch /info endpoint and update Truth Panel chips."""
+        import threading
+        def fetch():
+            try:
+                import urllib.request
+                import json
+                req = urllib.request.Request("http://127.0.0.1:8766/info")
+                req.add_header("User-Agent", "roxy-command-center/truth-panel")
+                with urllib.request.urlopen(req, timeout=2) as resp:
+                    data = json.loads(resp.read().decode())
+                    GLib.idle_add(self._update_truth_panel, data)
+            except Exception as e:
+                GLib.idle_add(self._update_truth_panel_error, str(e))
+        
+        threading.Thread(target=fetch, daemon=True).start()
+        return True  # Keep polling
+    
+    def _update_truth_panel(self, data: dict):
+        """Update Truth Panel chips with /info data."""
+        if self._time_chip:
+            try:
+                ts = data.get("server_time_iso", "")
+                if ts:
+                    # Extract HH:MM:SS
+                    time_part = ts.split("T")[1].split(".")[0] if "T" in ts else ts
+                    self._time_chip.set_label(f"🕐 {time_part}")
+            except:
+                self._time_chip.set_label("🕐 --:--")
+        
+        if self._git_chip:
+            git = data.get("git", {})
+            branch = git.get("branch", "?")
+            sha = git.get("head_sha", "?")[:7]
+            dirty = "•" if git.get("dirty") else ""
+            self._git_chip.set_label(f"🔀 {branch}@{sha}{dirty}")
+            self._git_chip.set_tooltip_text(git.get("last_commit_subject", ""))
+        
+        if self._ollama_chip:
+            ollama = data.get("ollama", {})
+            if ollama.get("ok"):
+                latency = ollama.get("latency_ms", 0)
+                port = "11435" if "11435" in ollama.get("base_url", "") else "11434"
+                self._ollama_chip.set_label(f"🦙 :{port} {latency:.0f}ms")
+                self._ollama_chip.remove_css_class("error")
+            else:
+                self._ollama_chip.set_label("🦙 ❌")
+                self._ollama_chip.add_css_class("error")
+                self._ollama_chip.set_tooltip_text(ollama.get("error", "Connection failed"))
+    
+    def _update_truth_panel_error(self, error: str):
+        """Handle /info fetch error."""
+        if self._time_chip:
+            self._time_chip.set_label("🕐 --:--")
+        if self._git_chip:
+            self._git_chip.set_label("🔀 --")
+        if self._ollama_chip:
+            self._ollama_chip.set_label("🦙 ❌")
+            self._ollama_chip.set_tooltip_text(f"roxy-core unreachable: {error}")
+
     def _on_connect_click(self, button):
         """Manual reconnect."""
         if self._status_chip:

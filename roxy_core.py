@@ -324,6 +324,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_infrastructure_stats()
         elif path == "/feedback/stats" or path == "/v1/feedback/stats":
             self._handle_feedback_stats()
+        elif path == "/info" or path == "/v1/info":
+            self._handle_info()
         elif path.startswith("/stream") or path.startswith("/v1/stream"):
             # Streaming endpoint (SSE)
             self._handle_streaming()
@@ -434,6 +436,75 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(health_status).encode())
+
+    def _handle_info(self):
+        """Return server info: time, hostname, git state, ollama status, routing policy.
+        
+        Chief's Truth Panel - authoritative data for Command Center.
+        """
+        import socket
+        
+        info = {
+            "server_time_iso": datetime.now().isoformat(),
+            "hostname": socket.gethostname(),
+            "roxy_core_pid": os.getpid(),
+            "git": {},
+            "ollama": {},
+            "routing_policy": config.get("routing_policy", "auto")
+        }
+        
+        # Git state
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            info["git"]["branch"] = result.stdout.strip() if result.returncode == 0 else "unknown"
+            
+            result = subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            info["git"]["head_sha"] = result.stdout.strip() if result.returncode == 0 else "unknown"
+            
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            info["git"]["dirty"] = bool(result.stdout.strip()) if result.returncode == 0 else None
+            
+            result = subprocess.run(
+                ["git", "log", "-1", "--format=%s"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            info["git"]["last_commit_subject"] = result.stdout.strip()[:80] if result.returncode == 0 else ""
+        except Exception as e:
+            info["git"]["error"] = str(e)
+        
+        # Ollama state
+        ollama_base = os.getenv("OLLAMA_HOST", os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
+        ollama_fast = os.getenv("OLLAMA_FAST_URL", ollama_base)
+        info["ollama"]["base_url"] = ollama_base
+        info["ollama"]["fast_url"] = ollama_fast
+        
+        try:
+            import urllib.request
+            start = time.time()
+            req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
+            req.add_header("User-Agent", "roxy-core/info-check")
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                info["ollama"]["latency_ms"] = round((time.time() - start) * 1000, 2)
+                info["ollama"]["ok"] = resp.status == 200
+                info["ollama"]["error"] = None
+        except Exception as e:
+            info["ollama"]["ok"] = False
+            info["ollama"]["error"] = str(e)
+            info["ollama"]["latency_ms"] = None
+        
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(info, indent=2).encode())
 
     def _handle_metrics(self):
         """Expose Prometheus metrics with graceful degradation."""
@@ -1479,11 +1550,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             
+            # Build response with execution metadata (Chief's Truth Panel)
+            exec_meta = getattr(self, '_last_execution_metadata', {})
             response = {
                 "status": "success",
                 "command": command,
                 "result": result,
-                "response_time": round(response_time, 3)
+                "response_time": round(response_time, 3),
+                "metadata": {
+                    "mode": exec_meta.get("mode", "unknown"),
+                    "model_used": exec_meta.get("model_used"),
+                    "route": exec_meta.get("route", "unknown"),
+                    "tools_count": len(exec_meta.get("tools_executed", []))
+                }
             }
             self.wfile.write(json.dumps(response).encode())
             
@@ -1683,6 +1762,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     def _execute_command(self, command: str, request_id: Optional[str] = None) -> str:
         """Execute command via roxy_commands.py with caching and validation"""
         
+        # Initialize execution metadata for this call
+        self._last_execution_metadata = {
+            "mode": "unknown",
+            "model_used": None,
+            "route": "unknown",
+            "tools_executed": []
+        }
+        
         # GREETING FASTPATH - Instant response for simple greetings
         import re
         greeting_patterns = [
@@ -1797,6 +1884,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             mode = structured.get("mode", "unknown")
                             metadata = structured.get("metadata", {})
                             logger.debug(f"Parsed structured response: mode={mode}, tools={len(tools_executed)}")
+                            
+                            # Store metadata for caller (Chief's Truth Panel)
+                            self._last_execution_metadata = {
+                                "mode": mode,
+                                "model_used": metadata.get("model", metadata.get("model_used")),
+                                "route": mode,  # rag, tool_direct, etc.
+                                "tools_executed": tools_executed
+                            }
                         except json.JSONDecodeError as e:
                             logger.debug(f"Failed to parse structured response: {e}")
                 
