@@ -192,6 +192,16 @@ ROXY_MODES = {
     },
 }
 
+def _normalize_url(url: Optional[str]) -> Optional[str]:
+    """Normalize URL: localhost -> 127.0.0.1, strip trailing slash."""
+    if not url:
+        return None
+    url = url.strip().rstrip("/")
+    # Normalize localhost variants to 127.0.0.1
+    url = url.replace("localhost", "127.0.0.1")
+    url = url.replace("[::1]", "127.0.0.1")
+    return url
+
 def _resolve_ollama_pools() -> dict:
     """
     Resolve BIG and FAST pools authoritatively from config/env.
@@ -200,21 +210,18 @@ def _resolve_ollama_pools() -> dict:
         {
             "big": {"url": str|None, "configured": bool},
             "fast": {"url": str|None, "configured": bool},
-            "default": str (primary URL)
+            "default": str (primary URL),
+            "misconfigured": bool  # True if BIG==FAST (not distinct)
         }
     
     Policy:
-    - Normalizes localhost -> 127.0.0.1
+    - Normalizes localhost -> 127.0.0.1 consistently
     - BIG comes from OLLAMA_BIG_URL (or ROXY_OLLAMA_BIG_URL)
     - FAST comes from OLLAMA_FAST_URL (or ROXY_OLLAMA_FAST_URL)
-    - OLLAMA_HOST/OLLAMA_BASE_URL maps to BIG if BIG is unset.
-    - NO PORT GUESSING.
+    - OLLAMA_HOST/OLLAMA_BASE_URL maps to default fallback
+    - NO PORT GUESSING
+    - HARD INVARIANT: If normalize(BIG) == normalize(FAST), pools are MISCONFIGURED
     """
-    def _norm(url):
-        if not url: return None
-        url = url.strip().rstrip("/")
-        return url.replace("localhost", "127.0.0.1")
-
     # 1. Read explicit pools first
     big_in = os.getenv("ROXY_OLLAMA_BIG_URL") or os.getenv("OLLAMA_BIG_URL")
     fast_in = os.getenv("ROXY_OLLAMA_FAST_URL") or os.getenv("OLLAMA_FAST_URL")
@@ -222,16 +229,23 @@ def _resolve_ollama_pools() -> dict:
     # OLLAMA_HOST is just the default/fallback if no specific pool is chosen
     default_in = os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL")
 
-    big_url = _norm(big_in)
-    fast_url = _norm(fast_in)
+    big_url = _normalize_url(big_in)
+    fast_url = _normalize_url(fast_in)
     
     # default fallback if nothing set
-    default_url = _norm(default_in) or big_url or fast_url or "http://127.0.0.1:11434"
+    default_url = _normalize_url(default_in) or big_url or fast_url or "http://127.0.0.1:11434"
+    
+    # HARD INVARIANT: Check if pools are distinct
+    misconfigured = False
+    if big_url and fast_url and big_url == fast_url:
+        misconfigured = True
+        logger.error(f"POOL MISCONFIGURATION: BIG and FAST point to same endpoint: {big_url}")
 
     return {
         "big": {"url": big_url, "configured": bool(big_url)},
         "fast": {"url": fast_url, "configured": bool(fast_url)},
-        "default": default_url
+        "default": default_url,
+        "misconfigured": misconfigured
     }
 
 def _check_ollama_reachability(url: str, timeout: float = 1.0) -> dict:
@@ -282,8 +296,44 @@ def _snapshot_ollama_health() -> dict:
         return dict(_ollama_health_state)
 
 
+# ========== GITHUB STATUS CACHE ==========
+# Simple in-memory cache to prevent UI refresh loops from rate-limit chewing
+
+GITHUB_STATUS_CACHE_LOCK = threading.Lock()
+_github_status_cache = {
+    "data": None,
+    "timestamp": 0,
+    "ttl": 60  # 60 seconds cache TTL
+}
+
+def _get_cached_github_status() -> Optional[dict]:
+    """Get cached GitHub status if still valid."""
+    with GITHUB_STATUS_CACHE_LOCK:
+        if _github_status_cache["data"] and (time.time() - _github_status_cache["timestamp"]) < _github_status_cache["ttl"]:
+            return _github_status_cache["data"]
+    return None
+
+def _cache_github_status(status: dict) -> None:
+    """Cache GitHub status."""
+    with GITHUB_STATUS_CACHE_LOCK:
+        _github_status_cache["data"] = status
+        _github_status_cache["timestamp"] = time.time()
+
+
 # ========== GITHUB API FUNCTIONS ==========
 # Read-only GitHub API integration for repo awareness
+
+def _is_placeholder_token(token: Optional[str]) -> bool:
+    """Check if token is a placeholder (not real)."""
+    if not token:
+        return True
+    # Common placeholder patterns
+    placeholder_patterns = [
+        "EXAMPLE", "REPLACE", "FAKE", "TEST", "PLACEHOLDER",
+        "YOUR", "ACTUAL", "ghp_EXAMPLE", "ghp_FAKE"
+    ]
+    token_upper = token.upper()
+    return any(pattern in token_upper for pattern in placeholder_patterns)
 
 def _get_github_token() -> Optional[str]:
     """Get GitHub token from environment/config
@@ -292,10 +342,12 @@ def _get_github_token() -> Optional[str]:
     1. GITHUB_TOKEN env var (preferred)
     2. GITHUB_PAT env var (alternative)
     3. config.json github.token
+    
+    Returns None if token is placeholder/fake.
     """
     # Check environment first (preferred)
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_PAT")
-    if token:
+    if token and not _is_placeholder_token(token):
         return token
     
     # Check config file
@@ -304,7 +356,9 @@ def _get_github_token() -> Optional[str]:
         try:
             with open(config_file, 'r') as f:
                 config_data = json.load(f)
-                return config_data.get("github", {}).get("token")
+                token = config_data.get("github", {}).get("token")
+                if token and not _is_placeholder_token(token):
+                    return token
         except Exception as e:
             logger.debug(f"Failed to read GitHub token from config: {e}")
     
@@ -312,7 +366,14 @@ def _get_github_token() -> Optional[str]:
 
 
 def _check_github_reachability(token: Optional[str] = None, timeout: float = 2.0) -> dict:
-    """Check if GitHub API is reachable. Returns {reachable: bool, latency_ms: float|None, error: str|None, rate_limit: dict|None}"""
+    """Check if GitHub API is reachable. Returns {reachable: bool, latency_ms: float|None, error: str|None, rate_limit: dict|None}
+    Uses 60s cache to prevent rate-limit spam from UI refresh loops."""
+    
+    # Check cache first
+    cached = _get_cached_github_status()
+    if cached:
+        return cached
+    
     try:
         import requests
         
@@ -340,12 +401,17 @@ def _check_github_reachability(token: Optional[str] = None, timeout: float = 2.0
             "used": rate_data.get("used") or resp.headers.get("X-RateLimit-Used")
         }
         
-        return {
+        result = {
             "reachable": resp.status_code == 200,
             "latency_ms": latency_ms,
             "error": None if resp.status_code == 200 else f"HTTP {resp.status_code}",
             "rate_limit": rate_limit
         }
+        
+        # Cache successful and failed results
+        _cache_github_status(result)
+        return result
+        
     except Exception as e:
         return {
             "reachable": False,
@@ -676,7 +742,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         pools = _resolve_ollama_pools()
         ollama_base = pools["default"]
         
-        # CHIEF'S TRUTH CONTRACT: Expose pool configuration + reachability
+        # CHIEF'S TRUTH CONTRACT: Expose pool configuration + reachability + MISCONFIGURATION
         # configured: from env, reachable: actual socket check
         big_reach = _check_ollama_reachability(pools["big"]["url"])
         fast_reach = _check_ollama_reachability(pools["fast"]["url"])
@@ -700,6 +766,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         info["ollama"]["base_url"] = ollama_base
         # Legacy field for compatibility, but populated correctly now
         info["ollama"]["fast_url"] = pools["fast"]["url"]
+        # HARD INVARIANT: Expose misconfiguration state
+        info["ollama"]["misconfigured"] = pools["misconfigured"]
         
         # Default pool reachability (for legacy compatibility)
         try:
@@ -1784,6 +1852,40 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             response_time = exec_end - start_time
             total_ms = round((exec_end - exec_start) * 1000, 1)
             
+            # CHIEF P0: Pool errors must be HTTP errors, not embedded strings
+            if isinstance(result, str) and result.startswith("ERROR:"):
+                error_msg = result[6:].strip()  # Remove "ERROR:" prefix
+                # Determine HTTP status based on error type
+                if "MISCONFIGURED" in error_msg or "distinct" in error_msg.lower():
+                    http_status = 400  # Bad Request - configuration error
+                elif "not reachable" in error_msg.lower():
+                    http_status = 503  # Service Unavailable - pool down
+                elif "not configured" in error_msg.lower():
+                    http_status = 400  # Bad Request - missing configuration
+                else:
+                    http_status = 503  # Default to service unavailable
+                
+                if METRICS_AVAILABLE and metrics_ctx:
+                    metrics_ctx.set_status("pool_error")
+                    metrics_ctx.__exit__(None, None, None)
+                
+                self.send_response(http_status)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                exec_meta = getattr(self, '_last_execution_metadata', {})
+                response = {
+                    "status": "error",
+                    "error": error_msg,
+                    "command": command,
+                    "metadata": {
+                        "mode": exec_meta.get("mode", explicit_mode.lower() or "auto"),
+                        "pool": exec_meta.get("pool", explicit_pool.lower() or "auto"),
+                        "pool_error": True
+                    }
+                }
+                self.wfile.write(json.dumps(response).encode())
+                return
+            
             # Record metrics for successful execution
             if METRICS_AVAILABLE and metrics_ctx:
                 metrics_ctx.set_status("success")
@@ -2186,6 +2288,13 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 effective_mode = mode.upper() if mode else "AUTO"
                 effective_pool = pool.upper() if pool else "AUTO"
                 pool_config = _resolve_ollama_pools()
+
+                # HARD INVARIANT: Check for misconfiguration (BIG == FAST)
+                if pool_config["misconfigured"]:
+                    if effective_mode == "CHAT" and effective_pool == "AUTO":
+                        return "ERROR: CHAT mode requires distinct BIG/FAST pools. Pools are MISCONFIGURED (BIG and FAST point to same endpoint). Fix OLLAMA_BIG_URL and OLLAMA_FAST_URL."
+                    elif effective_pool == "BIG" or effective_pool == "FAST":
+                        return f"ERROR: Pool {effective_pool} requested but pools are MISCONFIGURED (BIG and FAST point to same endpoint). Fix OLLAMA_BIG_URL and OLLAMA_FAST_URL."
 
                 # If CHAT mode and no explicit pool, we MUST use BIG (if configured AND reachable).
                 if effective_mode == "CHAT" and effective_pool == "AUTO":
