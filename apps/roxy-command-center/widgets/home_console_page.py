@@ -585,6 +585,7 @@ class TalkColumn(Gtk.Box):
         self._time_chip: Optional[Gtk.Label] = None
         self._git_chip: Optional[Gtk.Label] = None
         self._ollama_chip: Optional[Gtk.Label] = None
+        self._github_chip: Optional[Gtk.Label] = None
         self._info_poll_id: Optional[int] = None
         
         # Per-message meta display
@@ -740,6 +741,13 @@ class TalkColumn(Gtk.Box):
         self._ollama_chip.add_css_class("caption")
         self._ollama_chip.set_tooltip_text("Ollama connection")
         truth_box.append(self._ollama_chip)
+        
+        # GitHub status chip
+        self._github_chip = Gtk.Label(label="🐙 --")
+        self._github_chip.add_css_class("dim-label")
+        self._github_chip.add_css_class("caption")
+        self._github_chip.set_tooltip_text("GitHub API status")
+        truth_box.append(self._github_chip)
 
         status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         status_box.set_margin_bottom(4)
@@ -999,6 +1007,36 @@ class TalkColumn(Gtk.Box):
                 self._ollama_chip.remove_css_class("error")
             else:
                 self._ollama_chip.add_css_class("error")
+        
+        if self._github_chip:
+            github = data.get("github", {})
+            
+            # Show GitHub status: configured + reachable
+            if github.get("configured"):
+                status = "ok" if github.get("reachable") else "err"
+                self._github_chip.set_label(f"🐙 {status}")
+                
+                # Tooltip with details
+                tooltip_parts = []
+                if github.get("latency_ms"):
+                    tooltip_parts.append(f"Latency: {github['latency_ms']}ms")
+                if github.get("rate_limit"):
+                    rl = github["rate_limit"]
+                    tooltip_parts.append(f"Rate limit: {rl.get('remaining', '?')}/{rl.get('limit', '?')}")
+                if github.get("error"):
+                    tooltip_parts.append(f"Error: {github['error']}")
+                
+                self._github_chip.set_tooltip_text("\n".join(tooltip_parts) if tooltip_parts else "GitHub API connected")
+                
+                # Color based on reachable
+                if github.get("reachable"):
+                    self._github_chip.remove_css_class("error")
+                else:
+                    self._github_chip.add_css_class("error")
+            else:
+                self._github_chip.set_label("🐙 unset")
+                self._github_chip.set_tooltip_text("GitHub token not configured")
+                self._github_chip.add_css_class("error")
     
     def _update_truth_panel_error(self, error: str):
         """Handle /info fetch error."""
@@ -1009,6 +1047,9 @@ class TalkColumn(Gtk.Box):
         if self._ollama_chip:
             self._ollama_chip.set_label("🦙 ❌")
             self._ollama_chip.set_tooltip_text(f"roxy-core unreachable: {error}")
+        if self._github_chip:
+            self._github_chip.set_label("🐙 --")
+            self._github_chip.set_tooltip_text(f"roxy-core unreachable: {error}")
 
     def _on_connect_click(self, button):
         """Manual reconnect."""

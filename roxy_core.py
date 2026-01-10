@@ -282,6 +282,125 @@ def _snapshot_ollama_health() -> dict:
         return dict(_ollama_health_state)
 
 
+# ========== GITHUB API FUNCTIONS ==========
+# Read-only GitHub API integration for repo awareness
+
+def _get_github_token() -> Optional[str]:
+    """Get GitHub token from environment/config"""
+    # Check environment first
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        return token
+    
+    # Check config file
+    config_file = ROXY_DIR / "config.json"
+    if config_file.exists():
+        try:
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+                return config.get("github", {}).get("token")
+        except Exception as e:
+            logger.debug(f"Failed to read GitHub token from config: {e}")
+    
+    return None
+
+
+def _check_github_reachability(token: Optional[str] = None, timeout: float = 2.0) -> dict:
+    """Check if GitHub API is reachable. Returns {reachable: bool, latency_ms: float|None, error: str|None, rate_limit: dict|None}"""
+    try:
+        import requests
+        
+        headers = {"User-Agent": "roxy-core/github-check"}
+        if token:
+            headers["Authorization"] = f"token {token}"
+        
+        start = time.time()
+        # Use rate limit endpoint which is lightweight
+        resp = requests.get("https://api.github.com/rate_limit", headers=headers, timeout=timeout)
+        latency_ms = round((time.time() - start) * 1000, 2)
+        
+        rate_limit = {
+            "limit": resp.headers.get("X-RateLimit-Limit"),
+            "remaining": resp.headers.get("X-RateLimit-Remaining"),
+            "reset": resp.headers.get("X-RateLimit-Reset"),
+            "used": resp.headers.get("X-RateLimit-Used")
+        }
+        
+        return {
+            "reachable": resp.status_code == 200,
+            "latency_ms": latency_ms,
+            "error": None,
+            "rate_limit": rate_limit
+        }
+    except Exception as e:
+        return {
+            "reachable": False,
+            "latency_ms": None,
+            "error": str(e),
+            "rate_limit": None
+        }
+
+
+def _get_github_user_info(token: Optional[str] = None) -> dict:
+    """Get authenticated user info from GitHub API"""
+    try:
+        import requests
+        
+        headers = {"User-Agent": "roxy-core/github-user"}
+        if token:
+            headers["Authorization"] = f"token {token}"
+        
+        resp = requests.get("https://api.github.com/user", headers=headers, timeout=5)
+        resp.raise_for_status()
+        
+        user_data = resp.json()
+        return {
+            "login": user_data.get("login"),
+            "name": user_data.get("name"),
+            "type": user_data.get("type"),
+            "public_repos": user_data.get("public_repos"),
+            "private_repos": user_data.get("total_private_repos", 0)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def _github_api_call(endpoint: str, token: Optional[str] = None, params: dict = None, timeout: float = 10.0) -> dict:
+    """Make a GitHub API call with proper error handling"""
+    try:
+        import requests
+        
+        url = f"https://api.github.com{endpoint}"
+        headers = {"User-Agent": "roxy-core/github-api"}
+        if token:
+            headers["Authorization"] = f"token {token}"
+        
+        resp = requests.get(url, headers=headers, params=params, timeout=timeout)
+        resp.raise_for_status()
+        
+        return {
+            "success": True,
+            "data": resp.json(),
+            "rate_limit": {
+                "limit": resp.headers.get("X-RateLimit-Limit"),
+                "remaining": resp.headers.get("X-RateLimit-Remaining"),
+                "reset": resp.headers.get("X-RateLimit-Reset")
+            }
+        }
+    except requests.exceptions.HTTPError as e:
+        return {
+            "success": False,
+            "error": f"HTTP {e.response.status_code}: {e.response.text[:200]}",
+            "rate_limit": None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "rate_limit": None
+        }
+
+
 def query_ollama_direct(prompt: str, model: str = "qwen2.5-coder:14b", 
                         temperature: float = 0.0, max_tokens: int = 512,
                         timeout: int = 60) -> str:
@@ -580,6 +699,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             info["ollama"]["ok"] = False
             info["ollama"]["error"] = str(e)
             info["ollama"]["latency_ms"] = None
+        
+        # GitHub state
+        github_token = _get_github_token()
+        github_reach = _check_github_reachability(github_token)
+        
+        info["github"] = {
+            "configured": bool(github_token),
+            "reachable": github_reach["reachable"],
+            "latency_ms": github_reach["latency_ms"],
+            "error": github_reach["error"],
+            "rate_limit": github_reach["rate_limit"]
+        }
         
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -880,6 +1011,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_expert_route()
         elif path == "/warmup" or path == "/v1/warmup":
             self._handle_warmup()
+        elif path == "/github/status" or path == "/v1/github/status":
+            self._handle_github_status()
         elif path.startswith("/mcp/"):
             self._handle_mcp_tool(path)
         else:
@@ -1319,6 +1452,62 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(result).encode())
+    
+    def _handle_github_status(self):
+        """Get GitHub API status and user info"""
+        try:
+            # Auth check
+            if AUTH_TOKEN:
+                provided_token = self.headers.get('X-ROXY-Token')
+                if not provided_token or provided_token != AUTH_TOKEN:
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Unauthorized"}).encode())
+                    return
+            
+            # Check if requests is available
+            try:
+                import requests
+            except ImportError:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "requests library not available"}).encode())
+                return
+            
+            # Get GitHub token
+            github_token = _get_github_token()
+            
+            # Check reachability
+            reachability = _check_github_reachability(github_token)
+            
+            status = {
+                "configured": bool(github_token),
+                "reachable": reachability["reachable"],
+                "latency_ms": reachability["latency_ms"],
+                "error": reachability["error"],
+                "rate_limit": reachability["rate_limit"],
+                "user": None
+            }
+            
+            # Get user info if reachable and configured
+            if status["reachable"] and status["configured"]:
+                user_info = _get_github_user_info(github_token)
+                if "error" not in user_info:
+                    status["user"] = user_info
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(status, indent=2).encode())
+            
+        except Exception as e:
+            logger.error(f"GitHub status check failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
     
     def _handle_list_modes(self):
         """List available ROXY modes"""
