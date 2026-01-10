@@ -192,12 +192,51 @@ ROXY_MODES = {
     },
 }
 
+def _resolve_ollama_pools() -> dict:
+    """
+    Resolve BIG and FAST pools authoritatively from config/env.
+    
+    Returns:
+        {
+            "big": {"url": str|None, "configured": bool},
+            "fast": {"url": str|None, "configured": bool},
+            "default": str (primary URL)
+        }
+    
+    Policy:
+    - Normalizes localhost -> 127.0.0.1
+    - BIG comes from OLLAMA_BIG_URL (or ROXY_OLLAMA_BIG_URL)
+    - FAST comes from OLLAMA_FAST_URL (or ROXY_OLLAMA_FAST_URL)
+    - OLLAMA_HOST/OLLAMA_BASE_URL maps to BIG if BIG is unset.
+    - NO PORT GUESSING.
+    """
+    def _norm(url):
+        if not url: return None
+        url = url.strip().rstrip("/")
+        return url.replace("localhost", "127.0.0.1")
+
+    # 1. Read explicit pools first
+    big_in = os.getenv("ROXY_OLLAMA_BIG_URL") or os.getenv("OLLAMA_BIG_URL")
+    fast_in = os.getenv("ROXY_OLLAMA_FAST_URL") or os.getenv("OLLAMA_FAST_URL")
+    
+    # OLLAMA_HOST is just the default/fallback if no specific pool is chosen
+    default_in = os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL")
+
+    big_url = _norm(big_in)
+    fast_url = _norm(fast_in)
+    
+    # default fallback if nothing set
+    default_url = _norm(default_in) or big_url or fast_url or "http://127.0.0.1:11434"
+
+    return {
+        "big": {"url": big_url, "configured": bool(big_url)},
+        "fast": {"url": fast_url, "configured": bool(fast_url)},
+        "default": default_url
+    }
+
 def _get_ollama_base_url() -> str:
-    """Resolve Ollama base URL with environment overrides."""
-    url = (os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL") or "").strip()
-    if url:
-        return url.rstrip("/")
-    return "http://127.0.0.1:11435"
+    """Resolve Ollama base URL via authentic pool resolution."""
+    return _resolve_ollama_pools()["default"]
 
 
 OLLAMA_HEALTH_LOCK = threading.Lock()
@@ -482,17 +521,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             info["git"]["error"] = str(e)
         
         # Ollama state
-        ollama_base = os.getenv("OLLAMA_HOST", os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
-        ollama_fast = os.getenv("OLLAMA_FAST_URL", ollama_base)
+        pools = _resolve_ollama_pools()
+        ollama_base = pools["default"]
         
         # CHIEF'S TRUTH CONTRACT: Expose pool configuration derived from env
         # This allows UI to map URLs to "BIG" or "FAST" labels authoritatively
         info["ollama"]["pools"] = {
-            "big": ollama_base,
-            "fast": ollama_fast
+            "big": pools["big"]["url"],
+            "fast": pools["fast"]["url"]
         }
         info["ollama"]["base_url"] = ollama_base
-        info["ollama"]["fast_url"] = ollama_fast
+        # Legacy field for compatibility, but populated correctly now
+        info["ollama"]["fast_url"] = pools["fast"]["url"]
         
         try:
             import urllib.request
@@ -1894,18 +1934,38 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env.pop("ROXY_REQUEST_ID", None)
                 
                 # Pass explicit operator controls as env vars (Chief's mode/pool)
-                # --- CHIEF'S LOGIC: Default to BIG for Chat ---
-                # If CHAT mode and no explicit pool (or AUTO pool), FORCE BIG to prevent "tiny model" errors
+                # --- CHIEF'S LOGIC: Strict Pool Enforcement ---
                 effective_mode = mode.upper() if mode else "AUTO"
                 effective_pool = pool.upper() if pool else "AUTO"
-                
+                pool_config = _resolve_ollama_pools()
+
+                # If CHAT mode and no explicit pool, we MUST use BIG.
                 if effective_mode == "CHAT" and effective_pool == "AUTO":
-                    effective_pool = "BIG"
-                    logger.info(f"CHAT mode requested with AUTO pool -> Enforcing BIG pool for quality")
+                    if pool_config["big"]["configured"]:
+                        effective_pool = "BIG"
+                        logger.info(f"CHAT mode -> enforcing BIG pool ({pool_config['big']['url']})")
+                    else:
+                        # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
+                        # If BIG is expected but not configured, we fail fast.
+                        return "ERROR: CHAT mode requires a configured BIG pool (OLLAMA_BIG_URL). Explicitly set pool=FAST if you want to use the smaller model."
+                
+                # Validate explicit requests
+                if effective_pool == "BIG" and not pool_config["big"]["configured"]:
+                    return "ERROR: Pool BIG requested but not configured (OLLAMA_BIG_URL missing)."
+                if effective_pool == "FAST" and not pool_config["fast"]["configured"]:
+                    return "ERROR: Pool FAST requested but not configured (OLLAMA_FAST_URL missing)."
 
                 # Update metadata so it reflects the forced decision even if parsing fails later
                 self._last_execution_metadata["pool"] = effective_pool.lower()
                 self._last_execution_metadata["mode"] = effective_mode.lower()
+                
+                # Set base_url_used based on effective pool
+                if effective_pool == "BIG" and pool_config["big"]["configured"]:
+                    self._last_execution_metadata["base_url_used"] = pool_config["big"]["url"]
+                elif effective_pool == "FAST" and pool_config["fast"]["configured"]:
+                    self._last_execution_metadata["base_url_used"] = pool_config["fast"]["url"]
+                else:
+                    self._last_execution_metadata["base_url_used"] = pool_config["default"]
 
                 if mode:
                     env["ROXY_MODE"] = effective_mode
@@ -1948,6 +2008,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             logger.debug(f"Parsed structured response: mode={mode}, tools={len(tools_executed)}")
                             
                             # Store metadata for caller (Chief's Truth Panel)
+                            existing_meta = self._last_execution_metadata.copy()
                             self._last_execution_metadata = {
                                 "mode": mode,
                                 "model_used": metadata.get("model", metadata.get("model_used")),
@@ -1955,6 +2016,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "pool": metadata.get("pool", effective_pool.lower()),
                                 "tools_executed": tools_executed
                             }
+                            # Preserve base_url_used from our earlier decision
+                            self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
                         except json.JSONDecodeError as e:
                             logger.debug(f"Failed to parse structured response: {e}")
                 
