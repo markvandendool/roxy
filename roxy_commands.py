@@ -430,7 +430,68 @@ def execute_command(cmd_type, args):
         query = " ".join(args)
         return query_rag(query)
 
+    elif cmd_type == "chat":
+        # Direct LLM chat (bypass RAG)
+        query = " ".join(args)
+        return chat_direct(query)  
+
     return f"Unknown command type: {cmd_type}"
+
+def chat_direct(query):
+    """Direct LLM chat without RAG"""
+    import requests
+    
+    # Check for explicit pool/model from env (passed from roxy_core)
+    model_override = os.environ.get("ROXY_MODEL", "")
+    pool = os.environ.get("ROXY_POOL", "AUTO")
+    
+    # Default model logic
+    model = "qwen2.5-coder:14b"
+    if model_override:
+        model = model_override
+    elif pool == "FAST":
+        model = "qwen2.5-coder:32b" # 6900XT preferred
+    elif pool == "BIG":
+        model = "llama3.1:8b" # Until 70b is online
+        
+    prompt = f"""You are ROXY, a helpful, concise AI assistant.
+
+User: {query}
+
+Assistant:"""
+
+    try:
+        # Try to use router first
+        try:
+            sys.path.insert(0, str(ROXY_DIR))
+            from llm_router import get_llm_router
+            router = get_llm_router()
+            return router.route_and_generate(
+                prompt=prompt,
+                query=query,
+                context="",
+                task_type="chat", 
+                stream=False
+            )
+        except Exception:
+            # Fallback to direct call
+            base_url = _get_ollama_base_url()
+            resp = requests.post(
+                f"{base_url}/api/generate",
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {"temperature": 0.7, "num_predict": 500}
+                },
+                timeout=60
+            )
+            if resp.status_code == 200:
+                return resp.json().get("response", "").strip()
+            return f"Error: {resp.status_code} {resp.text}"
+            
+    except Exception as e:
+        return f"Chat failed: {e}"
 
 def query_rag(query, n_results=5, use_advanced_rag=False):
     """Query RAG and get LLM response - Enhanced with hybrid search"""
@@ -682,9 +743,30 @@ def main():
 
     print(f"[ROXY] Processing: {command}")
 
-    # Parse and execute
+    # Check for explicit mode override from roxy_core (Chief's operator controls)
+    explicit_mode = os.environ.get("ROXY_MODE", "").upper()
+    explicit_pool = os.environ.get("ROXY_POOL", "")
+    model_override = os.environ.get("ROXY_MODEL", "")
+    
+    # Parse and potentially override routing based on explicit mode
     cmd_type, args = parse_command(command)
-    print(f"[ROXY] Routing to: {cmd_type} {args}")
+    
+    # If explicit mode is set, override auto-routing
+    if explicit_mode == "CHAT":
+        # Force direct chat, no RAG unless explicitly asked
+        if cmd_type == "rag" and not any(kw in command.lower() for kw in ["search", "find", "what is", "how to"]):
+            cmd_type = "chat"  # Direct LLM chat
+            args = [command]
+    elif explicit_mode == "EXEC":
+        # Force deterministic mode - strict formatting
+        pass  # Keep routing, but EXEC mode affects system prompt
+    elif explicit_mode == "RAG":
+        # Force RAG mode
+        if cmd_type not in ["git", "obs", "system"]:  # Don't override tool commands
+            cmd_type = "rag"
+            args = [command]
+    
+    print(f"[ROXY] Routing to: {cmd_type} {args} (mode={explicit_mode or 'auto'}, pool={explicit_pool or 'auto'})")
 
     result = execute_command(cmd_type, args)
     

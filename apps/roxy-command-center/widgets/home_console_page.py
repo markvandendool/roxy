@@ -565,6 +565,10 @@ class TalkColumn(Gtk.Box):
         self._speak_mode = False  # Option B: speak button, not auto-speak
         self._is_typing = False
         
+        # Operator controls (Chief's Truth Panel)
+        self._routing_mode = "AUTO"  # CHAT, RAG, EXEC, AUTO
+        self._pool_mode = "AUTO"  # AUTO, FAST, BIG
+        
         # Services
         self._chat_service = get_chat_service()
         self._voice_service = get_voice_service()
@@ -582,6 +586,9 @@ class TalkColumn(Gtk.Box):
         self._git_chip: Optional[Gtk.Label] = None
         self._ollama_chip: Optional[Gtk.Label] = None
         self._info_poll_id: Optional[int] = None
+        
+        # Per-message meta display
+        self._last_meta_chip: Optional[Gtk.Label] = None
         
         self._build_ui()
         self._connect_to_roxy()
@@ -750,6 +757,45 @@ class TalkColumn(Gtk.Box):
         self.speak_btn.connect("toggled", self._on_speak_toggle)
         mode_box.append(self.speak_btn)
         
+        # === OPERATOR CONTROLS ROW (Chief's Truth Panel) ===
+        operator_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        input_area.append(operator_box)
+        
+        # Routing Mode: CHAT/RAG/EXEC/AUTO
+        route_label = Gtk.Label(label="Route:")
+        route_label.add_css_class("dim-label")
+        operator_box.append(route_label)
+        
+        self._route_dropdown = Gtk.DropDown.new_from_strings(["AUTO", "CHAT", "RAG", "EXEC"])
+        self._route_dropdown.set_selected(0)  # AUTO by default
+        self._route_dropdown.set_tooltip_text("AUTO=smart routing, CHAT=direct LLM, RAG=retrieval, EXEC=strict")
+        self._route_dropdown.connect("notify::selected", self._on_route_changed)
+        operator_box.append(self._route_dropdown)
+        
+        # Pool: AUTO/FAST/BIG
+        pool_label = Gtk.Label(label="Pool:")
+        pool_label.add_css_class("dim-label")
+        pool_label.set_margin_start(12)
+        operator_box.append(pool_label)
+        
+        self._pool_dropdown = Gtk.DropDown.new_from_strings(["AUTO", "FAST", "BIG"])
+        self._pool_dropdown.set_selected(0)  # AUTO by default
+        self._pool_dropdown.set_tooltip_text("AUTO=smart selection, FAST=6900XT, BIG=main GPU")
+        self._pool_dropdown.connect("notify::selected", self._on_pool_changed)
+        operator_box.append(self._pool_dropdown)
+        
+        # Spacer
+        op_spacer = Gtk.Box()
+        op_spacer.set_hexpand(True)
+        operator_box.append(op_spacer)
+        
+        # Last execution meta chip (updates after each message)
+        self._last_meta_chip = Gtk.Label(label="")
+        self._last_meta_chip.add_css_class("dim-label")
+        self._last_meta_chip.add_css_class("caption")
+        self._last_meta_chip.set_tooltip_text("Last request execution details")
+        operator_box.append(self._last_meta_chip)
+        
         # Input row
         input_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         input_area.append(input_row)
@@ -781,8 +827,38 @@ class TalkColumn(Gtk.Box):
             identity=ServiceIdentity.MINDSONG,
             on_message=self._on_chat_message,
             on_status_change=self._on_status_change,
-            on_typing=self._on_typing_change
+            on_typing=self._on_typing_change,
+            on_meta_update=self._on_meta_update
         )
+
+    def _on_meta_update(self, meta: dict):
+        """Update the last execution metadata chip."""
+        if not self._last_meta_chip:
+            return
+            
+        # Format: [MODE] route -> model (t ms)
+        mode = (meta.get("mode") or "??").upper()
+        route = meta.get("route") or "?"
+        model = meta.get("model_used")
+        if model:
+            # Shorten model name
+            model = model.replace("qwen2.5-coder:14b", "Qwen14B").replace("llama3.1:8b", "L3.8B").split(":")[0]
+        
+        total_ms = meta.get("total_ms")
+        timing = f"{total_ms}ms" if total_ms else ""
+        
+        text = f"[{mode}] {route}"
+        if model:
+            text += f" → {model}"
+        if timing:
+            text += f" ({timing})"
+            
+        # Update chip
+        self._last_meta_chip.set_label(text)
+        
+        # Tooltip with full details
+        full_text = "\n".join([f"{k}: {v}" for k, v in meta.items()])
+        self._last_meta_chip.set_tooltip_text(f"Last Execution:\n{full_text}")
     
     def _start_info_polling(self):
         """Start polling /info endpoint for Truth Panel."""
@@ -958,6 +1034,20 @@ class TalkColumn(Gtk.Box):
                 # Warn about send mode
                 print("[Talk] WARNING: Send mode enabled - Roxy will execute without approval")
     
+    def _on_route_changed(self, dropdown, _pspec):
+        """Handle routing mode change (CHAT/RAG/EXEC/AUTO)."""
+        routes = ["AUTO", "CHAT", "RAG", "EXEC"]
+        idx = dropdown.get_selected()
+        self._routing_mode = routes[idx] if idx < len(routes) else "AUTO"
+        print(f"[Talk] Routing mode: {self._routing_mode}")
+    
+    def _on_pool_changed(self, dropdown, _pspec):
+        """Handle pool change (AUTO/FAST/BIG)."""
+        pools = ["AUTO", "FAST", "BIG"]
+        idx = dropdown.get_selected()
+        self._pool_mode = pools[idx] if idx < len(pools) else "AUTO"
+        print(f"[Talk] Pool: {self._pool_mode}")
+    
     def _on_speak_toggle(self, button):
         """Toggle speak mode (Option B)."""
         self._speak_mode = button.get_active()
@@ -986,7 +1076,13 @@ class TalkColumn(Gtk.Box):
             return
 
         self.entry.set_text("")
-        self._chat_service.send_message(text)
+        
+        # Pass operator controls to chat service (Chief's Truth Panel)
+        self._chat_service.send_message(
+            text, 
+            routing_mode=self._routing_mode if self._routing_mode != "AUTO" else "",
+            pool=self._pool_mode if self._pool_mode != "AUTO" else ""
+        )
 
 
 class ExecutionRunCard(Gtk.Box):

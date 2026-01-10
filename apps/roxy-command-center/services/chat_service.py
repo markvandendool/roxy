@@ -142,6 +142,10 @@ class ChatService:
         self._last_model: str = "unknown"
         self._last_expert: str = "roxy"
         self._last_latency_ms: int = 0
+        
+        # Execution metadata (Chief's Truth Panel)
+        self._last_execution_meta: dict = {}
+        self._on_meta_update: Optional[Callable[[dict], None]] = None
     
     # -------------------------------------------------------------------------
     # Public API
@@ -152,7 +156,8 @@ class ChatService:
         identity: Identity = Identity.MINDSONG,
         on_message: Optional[Callable[[ChatMessage], None]] = None,
         on_status_change: Optional[Callable[[ConnectionStatus, str], None]] = None,
-        on_typing: Optional[Callable[[bool], None]] = None
+        on_typing: Optional[Callable[[bool], None]] = None,
+        on_meta_update: Optional[Callable[[dict], None]] = None
     ):
         """
         Connect to roxy-core and create/load a session.
@@ -162,10 +167,12 @@ class ChatService:
             on_message: Callback when new message arrives
             on_status_change: Callback when connection status changes
             on_typing: Callback when typing indicator should show/hide
+            on_meta_update: Callback when execution metadata updates
         """
         self._on_message = on_message
         self._on_status_change = on_status_change
         self._on_typing = on_typing
+        self._on_meta_update = on_meta_update
         
         # Create new session
         self._session = ChatSession(
@@ -185,12 +192,14 @@ class ChatService:
         self._session = None
         self._set_status(ConnectionStatus.DISCONNECTED, "Disconnected")
     
-    def send_message(self, text: str) -> Optional[ChatMessage]:
+    def send_message(self, text: str, routing_mode: str = "", pool: str = "") -> Optional[ChatMessage]:
         """
         Send a message to Roxy and get a response.
         
         Args:
             text: The user's message
+            routing_mode: Explicit routing mode (CHAT/RAG/EXEC) - empty means auto
+            pool: Explicit pool (FAST/BIG) - empty means auto
             
         Returns:
             The user message (assistant response comes via callback)
@@ -220,8 +229,8 @@ class ChatService:
         if self._on_typing:
             self._on_typing(True)
         
-        # Send to roxy-core
-        self._send_to_roxy_core(text)
+        # Send to roxy-core with operator controls
+        self._send_to_roxy_core(text, routing_mode=routing_mode, pool=pool)
         
         return user_msg
     
@@ -342,8 +351,14 @@ class ChatService:
             print(f"[ChatService] Ping failed: {e}")
             self._set_status(ConnectionStatus.ERROR, f"Connection failed: {e}")
     
-    def _send_to_roxy_core(self, text: str):
-        """Send message to roxy-core /run endpoint."""
+    def _send_to_roxy_core(self, text: str, routing_mode: str = "", pool: str = ""):
+        """Send message to roxy-core /run endpoint.
+        
+        Args:
+            text: The message to send
+            routing_mode: Explicit routing mode (CHAT/RAG/EXEC/AUTO) - empty means auto
+            pool: Explicit pool (AUTO/FAST/BIG) - empty means auto
+        """
         uri = f"{ROXY_CORE_URL}/run"
         message = Soup.Message.new("POST", uri)
         
@@ -357,9 +372,15 @@ class ChatService:
         payload = {
             "command": text,
             "identity": self._session.identity.value if self._session else "mindsong",
-            "mode": self._session.mode.value if self._session else "draft",
+            "chat_mode": self._session.mode.value if self._session else "draft",  # Draft/Send
             "session_id": self._session.id if self._session else None
         }
+        
+        # Add explicit operator controls (Chief's Truth Panel)
+        if routing_mode and routing_mode != "AUTO":
+            payload["mode"] = routing_mode  # CHAT, RAG, EXEC
+        if pool and pool != "AUTO":
+            payload["pool"] = pool  # FAST, BIG
         
         # Set body
         body_bytes = json.dumps(payload).encode('utf-8')
@@ -477,6 +498,17 @@ class ChatService:
                     # Extract response
                     assistant_text = data.get("result", data.get("response", ""))
                     self._last_expert = data.get("routed_to", data.get("expert", "roxy"))
+                    
+                    # Updates for Chief's Truth Panel metadata
+                    if "metadata" in data:
+                        meta = data["metadata"]
+                        self._last_execution_meta = meta
+                        
+                        # Notify UI if callback registered
+                        if self._on_meta_update:
+                            self._on_meta_update(meta)
+                        
+                        print(f"[ChatService] Execution metadata: {json.dumps(meta)}")
                     
                     if assistant_text:
                         # Create assistant message

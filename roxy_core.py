@@ -1427,6 +1427,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self.send_error(400, "No command provided")
                 return
             
+            # Extract explicit mode and pool from request (Chief's operator controls)
+            explicit_mode = data.get('mode', '').upper()  # CHAT, RAG, EXEC
+            explicit_pool = data.get('pool', '').upper()  # AUTO, FAST, BIG
+            model_override = data.get('model', '')  # Optional model override
+            
             # Security: Sanitize input - CRITICAL SECURITY FEATURE
             try:
                 sys.path.insert(0, str(ROXY_DIR))
@@ -1467,11 +1472,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            logger.info(f"Executing command: {command}")
+            logger.info(f"Executing command: {command} mode={explicit_mode or 'auto'} pool={explicit_pool or 'auto'}")
             
-            # Route through existing roxy_commands.py
-            result = self._execute_command(command, request_id=request_id)
-            response_time = time.time() - start_time
+            # Track execution timing for metadata
+            exec_start = time.time()
+            
+            # Route through existing roxy_commands.py with explicit mode/pool
+            result = self._execute_command(
+                command, 
+                request_id=request_id,
+                mode=explicit_mode,
+                pool=explicit_pool,
+                model_override=model_override
+            )
+            exec_end = time.time()
+            response_time = exec_end - start_time
+            total_ms = round((exec_end - exec_start) * 1000, 1)
             
             # Record metrics for successful execution
             if METRICS_AVAILABLE and metrics_ctx:
@@ -1558,9 +1574,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "result": result,
                 "response_time": round(response_time, 3),
                 "metadata": {
-                    "mode": exec_meta.get("mode", "unknown"),
+                    "mode": exec_meta.get("mode", "auto"),
                     "model_used": exec_meta.get("model_used"),
                     "route": exec_meta.get("route", "unknown"),
+                    "pool": exec_meta.get("pool", "auto"),
+                    "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
+                    "total_ms": total_ms if 'total_ms' in locals() else None,
                     "tools_count": len(exec_meta.get("tools_executed", []))
                 }
             }
@@ -1759,14 +1778,25 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             response = {"status": "error", "message": str(e)}
             self.wfile.write(json.dumps(response).encode())
     
-    def _execute_command(self, command: str, request_id: Optional[str] = None) -> str:
-        """Execute command via roxy_commands.py with caching and validation"""
+    def _execute_command(self, command: str, request_id: Optional[str] = None,
+                          mode: str = "", pool: str = "", model_override: str = "") -> str:
+        """Execute command via roxy_commands.py with caching and validation
+        
+        Args:
+            command: The user command to execute
+            request_id: Optional request tracking ID
+            mode: Explicit mode (CHAT, RAG, EXEC) - empty means auto-route
+            pool: Explicit pool (AUTO, FAST, BIG) - empty means auto
+            model_override: Optional model name override
+        """
         
         # Initialize execution metadata for this call
         self._last_execution_metadata = {
-            "mode": "unknown",
-            "model_used": None,
+            "mode": mode.lower() if mode else "auto",
+            "model_used": model_override or None,
             "route": "unknown",
+            "pool": pool.lower() if pool else "auto",
+            "base_url_used": _get_ollama_base_url(),
             "tools_executed": []
         }
         
@@ -1855,6 +1885,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env["ROXY_REQUEST_ID"] = request_id
                 else:
                     env.pop("ROXY_REQUEST_ID", None)
+                
+                # Pass explicit operator controls as env vars (Chief's mode/pool)
+                if mode:
+                    env["ROXY_MODE"] = mode.upper()
+                if pool:
+                    env["ROXY_POOL"] = pool.upper()
+                if model_override:
+                    env["ROXY_MODEL"] = model_override
 
                 result = subprocess.run(
                     ["python3", str(commands_script), command],
