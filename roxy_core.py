@@ -481,6 +481,88 @@ def _github_api_call(endpoint: str, token: Optional[str] = None, params: dict = 
         }
 
 
+# ========== GITHUB ENDPOINT CACHE ==========
+# Unified cache for all GitHub endpoints to prevent rate limit abuse
+
+GITHUB_CACHE_LOCK = threading.Lock()
+_github_cache = {}  # key -> {data, timestamp, ttl}
+
+GITHUB_CACHE_TTL = {
+    "repos": 120,      # 2 min - repo list changes rarely
+    "repo": 120,       # 2 min - single repo
+    "issues": 60,      # 1 min - issues change more often
+    "pulls": 60,       # 1 min - PRs change often
+    "contents": 300,   # 5 min - file contents stable
+    "status": 60       # 1 min - rate limit status
+}
+
+def _github_cache_key(endpoint: str, params: dict = None) -> str:
+    """Generate cache key for GitHub endpoint."""
+    param_str = "&".join(f"{k}={v}" for k, v in sorted((params or {}).items()))
+    return f"{endpoint}?{param_str}" if param_str else endpoint
+
+def _github_cache_get(cache_key: str, endpoint_type: str) -> Optional[dict]:
+    """Get cached GitHub response if valid."""
+    with GITHUB_CACHE_LOCK:
+        entry = _github_cache.get(cache_key)
+        if entry:
+            ttl = GITHUB_CACHE_TTL.get(endpoint_type, 60)
+            if time.time() - entry["timestamp"] < ttl:
+                return entry["data"]
+    return None
+
+def _github_cache_set(cache_key: str, data: dict) -> None:
+    """Cache GitHub response."""
+    with GITHUB_CACHE_LOCK:
+        _github_cache[cache_key] = {
+            "data": data,
+            "timestamp": time.time()
+        }
+        # LRU eviction if cache grows too large
+        if len(_github_cache) > 100:
+            oldest_key = min(_github_cache.keys(), key=lambda k: _github_cache[k]["timestamp"])
+            del _github_cache[oldest_key]
+
+def _get_default_repo() -> Optional[dict]:
+    """Get default repo from environment or config."""
+    # Check environment
+    repo_str = os.environ.get("GITHUB_DEFAULT_REPO", "")
+    if repo_str and "/" in repo_str:
+        parts = repo_str.split("/")
+        return {"owner": parts[0], "repo": parts[1], "ref": os.environ.get("GITHUB_DEFAULT_REF", "main")}
+    
+    # Check config
+    gh_config = config.get("github", {})
+    if gh_config.get("default_owner") and gh_config.get("default_repo"):
+        return {
+            "owner": gh_config["default_owner"],
+            "repo": gh_config["default_repo"],
+            "ref": gh_config.get("default_ref", "main")
+        }
+    
+    return None
+
+def _github_api_cached(endpoint: str, endpoint_type: str, token: Optional[str] = None, params: dict = None) -> dict:
+    """Make GitHub API call with caching."""
+    cache_key = _github_cache_key(endpoint, params)
+    
+    # Check cache
+    cached = _github_cache_get(cache_key, endpoint_type)
+    if cached:
+        cached["_cached"] = True
+        return cached
+    
+    # Make API call
+    result = _github_api_call(endpoint, token, params)
+    
+    # Cache successful results
+    if result.get("success"):
+        result["_cached"] = False
+        _github_cache_set(cache_key, result)
+    
+    return result
+
+
 def query_ollama_direct(prompt: str, model: str = "qwen2.5-coder:14b", 
                         temperature: float = 0.0, max_tokens: int = 512,
                         timeout: int = 60) -> str:
@@ -583,6 +665,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_info()
         elif path == "/github/status" or path == "/v1/github/status":
             self._handle_github_status()
+        elif path == "/github/repos" or path == "/v1/github/repos":
+            self._handle_github_repos()
+        elif path == "/github/repo" or path == "/v1/github/repo":
+            self._handle_github_repo()
+        elif path == "/github/issues" or path == "/v1/github/issues":
+            self._handle_github_issues()
+        elif path == "/github/pulls" or path == "/v1/github/pulls":
+            self._handle_github_pulls()
+        elif path.startswith("/github/contents") or path.startswith("/v1/github/contents"):
+            self._handle_github_contents()
         elif path.startswith("/stream") or path.startswith("/v1/stream"):
             # Streaming endpoint (SSE)
             self._handle_streaming()
@@ -1598,6 +1690,485 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             
         except Exception as e:
             logger.error(f"GitHub status check failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+    
+    def _github_auth_check(self) -> bool:
+        """Check X-ROXY-Token for GitHub endpoints. Returns False if unauthorized (and sends 403)."""
+        if AUTH_TOKEN:
+            provided_token = self.headers.get('X-ROXY-Token')
+            if not provided_token or provided_token != AUTH_TOKEN:
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Unauthorized - X-ROXY-Token required"}).encode())
+                return False
+        return True
+    
+    def _parse_query_params(self) -> dict:
+        """Parse query parameters from URL."""
+        from urllib.parse import urlparse, parse_qs
+        parsed = urlparse(self.path)
+        params = parse_qs(parsed.query)
+        # Flatten single-value lists
+        return {k: v[0] if len(v) == 1 else v for k, v in params.items()}
+    
+    def _handle_github_repos(self):
+        """GET /github/repos - List repos for authenticated user"""
+        if not self._github_auth_check():
+            return
+        
+        try:
+            github_token = _get_github_token()
+            if not github_token:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "GitHub not configured",
+                    "hint": "Set GITHUB_TOKEN or GITHUB_PAT in systemd drop-in or config.json"
+                }).encode())
+                return
+            
+            params = self._parse_query_params()
+            api_params = {
+                "per_page": min(int(params.get("per_page", 30)), 100),
+                "page": int(params.get("page", 1)),
+                "sort": params.get("sort", "updated"),
+                "type": params.get("type", "all")
+            }
+            
+            result = _github_api_cached("/user/repos", "repos", github_token, api_params)
+            
+            if not result.get("success"):
+                self.send_response(502)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": result.get("error", "GitHub API error")}).encode())
+                return
+            
+            # Normalize response
+            repos = []
+            for repo in result.get("data", []):
+                repos.append({
+                    "full_name": repo.get("full_name"),
+                    "owner": repo.get("owner", {}).get("login"),
+                    "name": repo.get("name"),
+                    "description": repo.get("description"),
+                    "private": repo.get("private"),
+                    "fork": repo.get("fork"),
+                    "language": repo.get("language"),
+                    "default_branch": repo.get("default_branch"),
+                    "updated_at": repo.get("updated_at"),
+                    "pushed_at": repo.get("pushed_at"),
+                    "stargazers_count": repo.get("stargazers_count"),
+                    "open_issues_count": repo.get("open_issues_count"),
+                    "html_url": repo.get("html_url")
+                })
+            
+            response = {
+                "repos": repos,
+                "count": len(repos),
+                "cached": result.get("_cached", False),
+                "rate_limit": result.get("rate_limit")
+            }
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(response, indent=2).encode())
+            
+        except Exception as e:
+            logger.error(f"GitHub repos failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+    
+    def _handle_github_repo(self):
+        """GET /github/repo - Get default repo info"""
+        if not self._github_auth_check():
+            return
+        
+        try:
+            github_token = _get_github_token()
+            default_repo = _get_default_repo()
+            
+            if not default_repo:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "No default repo configured",
+                    "hint": "Set GITHUB_DEFAULT_REPO=owner/repo in env or github.default_owner/repo in config.json"
+                }).encode())
+                return
+            
+            if not github_token:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "GitHub not configured",
+                    "hint": "Set GITHUB_TOKEN or GITHUB_PAT"
+                }).encode())
+                return
+            
+            endpoint = f"/repos/{default_repo['owner']}/{default_repo['repo']}"
+            result = _github_api_cached(endpoint, "repo", github_token)
+            
+            if not result.get("success"):
+                self.send_response(502)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": result.get("error")}).encode())
+                return
+            
+            repo = result.get("data", {})
+            response = {
+                "full_name": repo.get("full_name"),
+                "owner": repo.get("owner", {}).get("login"),
+                "name": repo.get("name"),
+                "description": repo.get("description"),
+                "private": repo.get("private"),
+                "default_branch": repo.get("default_branch"),
+                "language": repo.get("language"),
+                "topics": repo.get("topics", []),
+                "open_issues_count": repo.get("open_issues_count"),
+                "open_pr_count": None,  # Would need separate API call
+                "html_url": repo.get("html_url"),
+                "clone_url": repo.get("clone_url"),
+                "ssh_url": repo.get("ssh_url"),
+                "ref": default_repo.get("ref", "main"),
+                "cached": result.get("_cached", False),
+                "rate_limit": result.get("rate_limit")
+            }
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(response, indent=2).encode())
+            
+        except Exception as e:
+            logger.error(f"GitHub repo failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+    
+    def _handle_github_issues(self):
+        """GET /github/issues - List issues for default repo or specified owner/repo"""
+        if not self._github_auth_check():
+            return
+        
+        try:
+            github_token = _get_github_token()
+            if not github_token:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "GitHub not configured"}).encode())
+                return
+            
+            params = self._parse_query_params()
+            
+            # Get repo from params or default
+            owner = params.get("owner")
+            repo = params.get("repo")
+            
+            if not owner or not repo:
+                default_repo = _get_default_repo()
+                if default_repo:
+                    owner = owner or default_repo["owner"]
+                    repo = repo or default_repo["repo"]
+                else:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "error": "No repo specified and no default configured",
+                        "hint": "Use ?owner=X&repo=Y or set GITHUB_DEFAULT_REPO"
+                    }).encode())
+                    return
+            
+            api_params = {
+                "state": params.get("state", "open"),
+                "per_page": min(int(params.get("limit", 50)), 100),
+                "sort": params.get("sort", "updated"),
+                "direction": params.get("direction", "desc")
+            }
+            
+            endpoint = f"/repos/{owner}/{repo}/issues"
+            result = _github_api_cached(endpoint, "issues", github_token, api_params)
+            
+            if not result.get("success"):
+                self.send_response(502)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": result.get("error")}).encode())
+                return
+            
+            # Normalize issues (filter out PRs - they also come through issues endpoint)
+            issues = []
+            for issue in result.get("data", []):
+                if "pull_request" not in issue:  # Skip PRs
+                    issues.append({
+                        "number": issue.get("number"),
+                        "title": issue.get("title"),
+                        "state": issue.get("state"),
+                        "updated_at": issue.get("updated_at"),
+                        "created_at": issue.get("created_at"),
+                        "labels": [l.get("name") for l in issue.get("labels", [])],
+                        "assignees": [a.get("login") for a in issue.get("assignees", [])],
+                        "comments": issue.get("comments", 0),
+                        "html_url": issue.get("html_url"),
+                        "user": issue.get("user", {}).get("login")
+                    })
+            
+            response = {
+                "repo": f"{owner}/{repo}",
+                "issues": issues,
+                "count": len(issues),
+                "state_filter": api_params["state"],
+                "cached": result.get("_cached", False),
+                "rate_limit": result.get("rate_limit")
+            }
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(response, indent=2).encode())
+            
+        except Exception as e:
+            logger.error(f"GitHub issues failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+    
+    def _handle_github_pulls(self):
+        """GET /github/pulls - List pull requests for default repo or specified owner/repo"""
+        if not self._github_auth_check():
+            return
+        
+        try:
+            github_token = _get_github_token()
+            if not github_token:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "GitHub not configured"}).encode())
+                return
+            
+            params = self._parse_query_params()
+            
+            # Get repo from params or default
+            owner = params.get("owner")
+            repo = params.get("repo")
+            
+            if not owner or not repo:
+                default_repo = _get_default_repo()
+                if default_repo:
+                    owner = owner or default_repo["owner"]
+                    repo = repo or default_repo["repo"]
+                else:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "error": "No repo specified and no default configured"
+                    }).encode())
+                    return
+            
+            api_params = {
+                "state": params.get("state", "open"),
+                "per_page": min(int(params.get("limit", 50)), 100),
+                "sort": params.get("sort", "updated"),
+                "direction": params.get("direction", "desc")
+            }
+            
+            endpoint = f"/repos/{owner}/{repo}/pulls"
+            result = _github_api_cached(endpoint, "pulls", github_token, api_params)
+            
+            if not result.get("success"):
+                self.send_response(502)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": result.get("error")}).encode())
+                return
+            
+            # Normalize PRs
+            pulls = []
+            for pr in result.get("data", []):
+                pulls.append({
+                    "number": pr.get("number"),
+                    "title": pr.get("title"),
+                    "state": pr.get("state"),
+                    "draft": pr.get("draft", False),
+                    "updated_at": pr.get("updated_at"),
+                    "created_at": pr.get("created_at"),
+                    "merged_at": pr.get("merged_at"),
+                    "head_branch": pr.get("head", {}).get("ref"),
+                    "base_branch": pr.get("base", {}).get("ref"),
+                    "labels": [l.get("name") for l in pr.get("labels", [])],
+                    "assignees": [a.get("login") for a in pr.get("assignees", [])],
+                    "html_url": pr.get("html_url"),
+                    "user": pr.get("user", {}).get("login"),
+                    "mergeable": pr.get("mergeable"),
+                    "review_comments": pr.get("review_comments", 0),
+                    "commits": pr.get("commits", 0),
+                    "additions": pr.get("additions"),
+                    "deletions": pr.get("deletions")
+                })
+            
+            response = {
+                "repo": f"{owner}/{repo}",
+                "pulls": pulls,
+                "count": len(pulls),
+                "state_filter": api_params["state"],
+                "cached": result.get("_cached", False),
+                "rate_limit": result.get("rate_limit")
+            }
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(response, indent=2).encode())
+            
+        except Exception as e:
+            logger.error(f"GitHub pulls failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+    
+    def _handle_github_contents(self):
+        """GET /github/contents - Get file/directory contents"""
+        if not self._github_auth_check():
+            return
+        
+        try:
+            github_token = _get_github_token()
+            if not github_token:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "GitHub not configured"}).encode())
+                return
+            
+            params = self._parse_query_params()
+            
+            # Get repo from params or default
+            owner = params.get("owner")
+            repo = params.get("repo")
+            path = params.get("path", "")
+            ref = params.get("ref")
+            
+            if not owner or not repo:
+                default_repo = _get_default_repo()
+                if default_repo:
+                    owner = owner or default_repo["owner"]
+                    repo = repo or default_repo["repo"]
+                    ref = ref or default_repo.get("ref", "main")
+                else:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "error": "No repo specified and no default configured"
+                    }).encode())
+                    return
+            
+            api_params = {}
+            if ref:
+                api_params["ref"] = ref
+            
+            endpoint = f"/repos/{owner}/{repo}/contents/{path.lstrip('/')}"
+            result = _github_api_cached(endpoint, "contents", github_token, api_params)
+            
+            if not result.get("success"):
+                self.send_response(502)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": result.get("error")}).encode())
+                return
+            
+            data = result.get("data", {})
+            
+            # Handle directory listing
+            if isinstance(data, list):
+                contents = []
+                for item in data:
+                    contents.append({
+                        "name": item.get("name"),
+                        "path": item.get("path"),
+                        "type": item.get("type"),  # "file" or "dir"
+                        "size": item.get("size"),
+                        "sha": item.get("sha"),
+                        "html_url": item.get("html_url")
+                    })
+                
+                response = {
+                    "repo": f"{owner}/{repo}",
+                    "path": path or "/",
+                    "ref": ref or "default",
+                    "type": "directory",
+                    "contents": contents,
+                    "count": len(contents),
+                    "cached": result.get("_cached", False),
+                    "rate_limit": result.get("rate_limit")
+                }
+            
+            # Handle file
+            else:
+                import base64
+                
+                content = None
+                is_binary = False
+                encoding = data.get("encoding")
+                
+                if encoding == "base64" and data.get("content"):
+                    try:
+                        raw_content = base64.b64decode(data.get("content", ""))
+                        # Check if binary (simple heuristic)
+                        try:
+                            content = raw_content.decode("utf-8")
+                        except UnicodeDecodeError:
+                            is_binary = True
+                            content = f"[Binary file, {len(raw_content)} bytes]"
+                    except Exception:
+                        content = "[Decode error]"
+                
+                # Size limit for text content
+                if content and len(content) > 100000:
+                    content = content[:100000] + f"\n\n... [Truncated, total {len(content)} chars]"
+                
+                response = {
+                    "repo": f"{owner}/{repo}",
+                    "path": data.get("path", path),
+                    "ref": ref or "default",
+                    "type": "file",
+                    "name": data.get("name"),
+                    "size": data.get("size"),
+                    "sha": data.get("sha"),
+                    "encoding": encoding,
+                    "is_binary": is_binary,
+                    "content": content,
+                    "html_url": data.get("html_url"),
+                    "download_url": data.get("download_url"),
+                    "cached": result.get("_cached", False),
+                    "rate_limit": result.get("rate_limit")
+                }
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(response, indent=2).encode())
+            
+        except Exception as e:
+            logger.error(f"GitHub contents failed: {e}")
             self.send_response(500)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
