@@ -484,6 +484,13 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         # Ollama state
         ollama_base = os.getenv("OLLAMA_HOST", os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
         ollama_fast = os.getenv("OLLAMA_FAST_URL", ollama_base)
+        
+        # CHIEF'S TRUTH CONTRACT: Expose pool configuration derived from env
+        # This allows UI to map URLs to "BIG" or "FAST" labels authoritatively
+        info["ollama"]["pools"] = {
+            "big": ollama_base,
+            "fast": ollama_fast
+        }
         info["ollama"]["base_url"] = ollama_base
         info["ollama"]["fast_url"] = ollama_fast
         
@@ -1887,10 +1894,27 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env.pop("ROXY_REQUEST_ID", None)
                 
                 # Pass explicit operator controls as env vars (Chief's mode/pool)
+                # --- CHIEF'S LOGIC: Default to BIG for Chat ---
+                # If CHAT mode and no explicit pool (or AUTO pool), FORCE BIG to prevent "tiny model" errors
+                effective_mode = mode.upper() if mode else "AUTO"
+                effective_pool = pool.upper() if pool else "AUTO"
+                
+                if effective_mode == "CHAT" and effective_pool == "AUTO":
+                    effective_pool = "BIG"
+                    logger.info(f"CHAT mode requested with AUTO pool -> Enforcing BIG pool for quality")
+
+                # Update metadata so it reflects the forced decision even if parsing fails later
+                self._last_execution_metadata["pool"] = effective_pool.lower()
+                self._last_execution_metadata["mode"] = effective_mode.lower()
+
                 if mode:
-                    env["ROXY_MODE"] = mode.upper()
-                if pool:
-                    env["ROXY_POOL"] = pool.upper()
+                    env["ROXY_MODE"] = effective_mode
+                
+                # Only set ROXY_POOL if it's not AUTO (let roxy_commands decide if truly auto, 
+                # but here we might have forced it to BIG)
+                if effective_pool != "AUTO":
+                    env["ROXY_POOL"] = effective_pool
+
                 if model_override:
                     env["ROXY_MODEL"] = model_override
 
@@ -1928,6 +1952,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "mode": mode,
                                 "model_used": metadata.get("model", metadata.get("model_used")),
                                 "route": mode,  # rag, tool_direct, etc.
+                                "pool": metadata.get("pool", effective_pool.lower()),
                                 "tools_executed": tools_executed
                             }
                         except json.JSONDecodeError as e:
