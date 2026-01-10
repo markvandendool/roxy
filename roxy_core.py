@@ -286,9 +286,15 @@ def _snapshot_ollama_health() -> dict:
 # Read-only GitHub API integration for repo awareness
 
 def _get_github_token() -> Optional[str]:
-    """Get GitHub token from environment/config"""
-    # Check environment first
-    token = os.environ.get("GITHUB_TOKEN")
+    """Get GitHub token from environment/config
+    
+    Priority order:
+    1. GITHUB_TOKEN env var (preferred)
+    2. GITHUB_PAT env var (alternative)
+    3. config.json github.token
+    """
+    # Check environment first (preferred)
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_PAT")
     if token:
         return token
     
@@ -297,8 +303,8 @@ def _get_github_token() -> Optional[str]:
     if config_file.exists():
         try:
             with open(config_file, 'r') as f:
-                config = json.load(f)
-                return config.get("github", {}).get("token")
+                config_data = json.load(f)
+                return config_data.get("github", {}).get("token")
         except Exception as e:
             logger.debug(f"Failed to read GitHub token from config: {e}")
     
@@ -319,17 +325,25 @@ def _check_github_reachability(token: Optional[str] = None, timeout: float = 2.0
         resp = requests.get("https://api.github.com/rate_limit", headers=headers, timeout=timeout)
         latency_ms = round((time.time() - start) * 1000, 2)
         
+        # Extract rate limit from response body (more reliable than headers)
+        rate_data = {}
+        if resp.status_code == 200:
+            try:
+                rate_data = resp.json().get("rate", {})
+            except:
+                pass
+        
         rate_limit = {
-            "limit": resp.headers.get("X-RateLimit-Limit"),
-            "remaining": resp.headers.get("X-RateLimit-Remaining"),
-            "reset": resp.headers.get("X-RateLimit-Reset"),
-            "used": resp.headers.get("X-RateLimit-Used")
+            "limit": rate_data.get("limit") or resp.headers.get("X-RateLimit-Limit"),
+            "remaining": rate_data.get("remaining") or resp.headers.get("X-RateLimit-Remaining"),
+            "reset": rate_data.get("reset") or resp.headers.get("X-RateLimit-Reset"),
+            "used": rate_data.get("used") or resp.headers.get("X-RateLimit-Used")
         }
         
         return {
             "reachable": resp.status_code == 200,
             "latency_ms": latency_ms,
-            "error": None,
+            "error": None if resp.status_code == 200 else f"HTTP {resp.status_code}",
             "rate_limit": rate_limit
         }
     except Exception as e:
@@ -501,6 +515,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_feedback_stats()
         elif path == "/info" or path == "/v1/info":
             self._handle_info()
+        elif path == "/github/status" or path == "/v1/github/status":
+            self._handle_github_status()
         elif path.startswith("/stream") or path.startswith("/v1/stream"):
             # Streaming endpoint (SSE)
             self._handle_streaming()
@@ -1012,7 +1028,17 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         elif path == "/warmup" or path == "/v1/warmup":
             self._handle_warmup()
         elif path == "/github/status" or path == "/v1/github/status":
-            self._handle_github_status()
+            # POST deprecated: use GET for read-only status
+            self.send_response(405)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Allow", "GET")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Method Not Allowed",
+                "message": "Use GET /github/status for read-only status",
+                "status_code": 405
+            }).encode())
+            return
         elif path.startswith("/mcp/"):
             self._handle_mcp_tool(path)
         else:
