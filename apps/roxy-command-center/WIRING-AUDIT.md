@@ -247,8 +247,8 @@ e5a62ce feat: Apollo bridge MCP wiring + dual wake-word persona routing
 | 4899 | ROXY Command Gateway | HTTP |
 | 8765 | Citadel Health | HTTP |
 | 8766 | Citadel Control | HTTP |
-| 11434 | Ollama BIG | HTTP |
-| 11435 | Ollama FAST | HTTP |
+| 11434 | Ollama W5700X | HTTP (accepts BIG alias) |
+| 11435 | Ollama 6900XT | HTTP (accepts FAST alias) |
 
 ---
 

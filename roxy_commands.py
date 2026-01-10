@@ -443,16 +443,20 @@ def chat_direct(query):
     
     # Check for explicit pool/model from env (passed from roxy_core)
     model_override = os.environ.get("ROXY_MODEL", "")
-    pool = os.environ.get("ROXY_POOL", "AUTO")
-    
+    pool = os.environ.get("ROXY_POOL", "AUTO").upper()
+
+    # Normalize pool names: accept legacy BIG/FAST, prefer hardware names
+    POOL_ALIASES = {"BIG": "W5700X", "FAST": "6900XT"}
+    pool_canonical = POOL_ALIASES.get(pool, pool)
+
     # Default model logic
     model = "qwen2.5-coder:14b"
     if model_override:
         model = model_override
-    elif pool == "FAST":
-        model = "qwen2.5-coder:32b" # 6900XT preferred
-    elif pool == "BIG":
-        model = "llama3.1:8b" # Until 70b is online
+    elif pool_canonical == "6900XT":
+        model = "qwen2.5-coder:32b"  # 6900XT has more VRAM
+    elif pool_canonical == "W5700X":
+        model = "llama3.1:8b"  # W5700X - smaller model
         
     prompt = f"""You are ROXY, a helpful, concise AI assistant.
 

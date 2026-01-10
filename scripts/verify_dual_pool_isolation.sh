@@ -23,5 +23,5 @@ curl -sS -m 120 -X POST http://127.0.0.1:11435/api/generate \
 B1="$(vram)"; echo "$B1"
 
 echo
-echo "NOTE: Expect FAST to primarily increase GPU0/card0 and BIG to primarily increase GPU1/card1."
+echo "NOTE: Expect W5700X (port 11434) to increase GPU0/card0 and 6900XT (port 11435) to increase GPU1/card1."
 echo "If both increase the same card consistently, service pinning/env is not being honored."

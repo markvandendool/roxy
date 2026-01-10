@@ -325,7 +325,7 @@ DISPATCH_COOLDOWN = 5     # seconds between same-story dispatches
 | 8000 | roxy-core | **Single entry point** |
 | 3847 | Podium | Orchestrator (internal) |
 | 4899 | Gateway | Voice commands (parallel path) |
-| 11434 | Ollama BIG | Model serving |
-| 11435 | Ollama FAST | Model serving |
+| 11434 | Ollama W5700X | Model serving (accepts BIG alias) |
+| 11435 | Ollama 6900XT | Model serving (accepts FAST alias) |
 
 The Command Center only talks to **8000**. Everything else is internal.

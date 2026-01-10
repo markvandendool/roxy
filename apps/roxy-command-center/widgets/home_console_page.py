@@ -557,9 +557,11 @@ class TalkColumn(Gtk.Box):
     """Center column: Roxy Conversation - REAL roxy-core integration."""
     
     def __init__(self):
+        print("[TalkColumn] ========== INIT BEGIN ==========" )
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add_css_class("talk-column")
         self.set_hexpand(True)
+        print("[TalkColumn] Base widget initialized")
         
         self._draft_mode = True  # Human-in-the-loop default
         self._speak_mode = False  # Option B: speak button, not auto-speak
@@ -567,11 +569,13 @@ class TalkColumn(Gtk.Box):
         
         # Operator controls (Chief's Truth Panel)
         self._routing_mode = "AUTO"  # CHAT, RAG, EXEC, AUTO
-        self._pool_mode = "AUTO"  # AUTO, FAST, BIG
+        self._pool_mode = "AUTO"  # AUTO, W5700X, 6900XT
         
         # Services
+        print("[TalkColumn] Getting services...")
         self._chat_service = get_chat_service()
         self._voice_service = get_voice_service()
+        print("[TalkColumn] Services acquired")
         
         # UI references
         self._status_chip: Optional[Gtk.Label] = None
@@ -591,10 +595,15 @@ class TalkColumn(Gtk.Box):
         # Per-message meta display
         self._last_meta_chip: Optional[Gtk.Label] = None
         
+        print("[TalkColumn] Building UI...")
         self._build_ui()
+        print("[TalkColumn] Loading settings...")
         self._load_settings()  # Sticky settings (Phase 2C)
+        print("[TalkColumn] Connecting to roxy...")
         self._connect_to_roxy()
+        print("[TalkColumn] Starting info polling...")
         self._start_info_polling()
+        print("[TalkColumn] ========== INIT COMPLETE ==========" )
     
     def _save_settings(self):
         """Persist sticky settings to JSON."""
@@ -617,7 +626,7 @@ class TalkColumn(Gtk.Box):
                 if idx_route < len(routes):
                     data["route_mode"] = routes[idx_route]
             
-            pools = ["AUTO", "FAST", "BIG"]
+            pools = ["AUTO", "W5700X", "6900XT"]
             if hasattr(self, '_pool_dropdown'):
                 idx_pool = self._pool_dropdown.get_selected()
                 if idx_pool < len(pools):
@@ -646,7 +655,10 @@ class TalkColumn(Gtk.Box):
                 print(f"[Talk] Loaded sticky route: {route}")
             
             pool = data.get("pool_mode", "AUTO")
-            pools = ["AUTO", "FAST", "BIG"]
+            # Normalize legacy aliases to hardware names
+            pool_aliases = {"FAST": "6900XT", "BIG": "W5700X"}
+            pool = pool_aliases.get(pool, pool)
+            pools = ["AUTO", "W5700X", "6900XT"]
             if pool in pools and hasattr(self, '_pool_dropdown'):
                 self._pool_dropdown.set_selected(pools.index(pool))
                 self._pool_mode = pool
@@ -693,6 +705,8 @@ class TalkColumn(Gtk.Box):
         self._status_chip.add_css_class("dim-label")
         self._status_chip.add_css_class("caption")
         self._status_chip.set_tooltip_text("Connection status")
+        self._status_chip.set_xalign(0)
+        self._status_chip.set_width_chars(20)
         chips_box.append(self._status_chip)
         
         # Model chip
@@ -700,6 +714,8 @@ class TalkColumn(Gtk.Box):
         self._model_chip.add_css_class("dim-label")
         self._model_chip.add_css_class("caption")
         self._model_chip.set_tooltip_text("Current model")
+        self._model_chip.set_xalign(0)
+        self._model_chip.set_width_chars(18)
         chips_box.append(self._model_chip)
         
         # Latency chip
@@ -707,6 +723,8 @@ class TalkColumn(Gtk.Box):
         self._latency_chip.add_css_class("dim-label")
         self._latency_chip.add_css_class("caption")
         self._latency_chip.set_tooltip_text("Response latency")
+        self._latency_chip.set_xalign(0)
+        self._latency_chip.set_width_chars(14)
         chips_box.append(self._latency_chip)
         
         # Identity chip
@@ -726,6 +744,8 @@ class TalkColumn(Gtk.Box):
         self._time_chip.add_css_class("dim-label")
         self._time_chip.add_css_class("caption")
         self._time_chip.set_tooltip_text("Server time")
+        self._time_chip.set_xalign(0)
+        self._time_chip.set_width_chars(18)  # Fixed width to prevent layout thrash
         truth_box.append(self._time_chip)
         
         # Git state chip
@@ -733,6 +753,8 @@ class TalkColumn(Gtk.Box):
         self._git_chip.add_css_class("dim-label")
         self._git_chip.add_css_class("caption")
         self._git_chip.set_tooltip_text("Git branch & commit")
+        self._git_chip.set_xalign(0)
+        self._git_chip.set_width_chars(22)  # Fixed width to prevent layout thrash
         truth_box.append(self._git_chip)
         
         # Ollama status chip
@@ -740,6 +762,8 @@ class TalkColumn(Gtk.Box):
         self._ollama_chip.add_css_class("dim-label")
         self._ollama_chip.add_css_class("caption")
         self._ollama_chip.set_tooltip_text("Ollama connection")
+        self._ollama_chip.set_xalign(0)
+        self._ollama_chip.set_width_chars(22)  # Fixed width to prevent layout thrash
         truth_box.append(self._ollama_chip)
         
         # GitHub status chip
@@ -747,6 +771,8 @@ class TalkColumn(Gtk.Box):
         self._github_chip.add_css_class("dim-label")
         self._github_chip.add_css_class("caption")
         self._github_chip.set_tooltip_text("GitHub API status")
+        self._github_chip.set_xalign(0)
+        self._github_chip.set_width_chars(10)  # Fixed width to prevent layout thrash
         truth_box.append(self._github_chip)
 
         status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -840,15 +866,15 @@ class TalkColumn(Gtk.Box):
         self._route_dropdown.connect("notify::selected", self._on_route_changed)
         operator_box.append(self._route_dropdown)
         
-        # Pool: AUTO/FAST/BIG
+        # Pool: AUTO/W5700X/6900XT (hardware canonical names)
         pool_label = Gtk.Label(label="Pool:")
         pool_label.add_css_class("dim-label")
         pool_label.set_margin_start(12)
         operator_box.append(pool_label)
-        
-        self._pool_dropdown = Gtk.DropDown.new_from_strings(["AUTO", "FAST", "BIG"])
+
+        self._pool_dropdown = Gtk.DropDown.new_from_strings(["AUTO", "W5700X", "6900XT"])
         self._pool_dropdown.set_selected(0)  # AUTO by default
-        self._pool_dropdown.set_tooltip_text("AUTO=smart selection, FAST=6900XT, BIG=main GPU")
+        self._pool_dropdown.set_tooltip_text("AUTO=smart selection, W5700X=port 11434, 6900XT=port 11435")
         self._pool_dropdown.connect("notify::selected", self._on_pool_changed)
         operator_box.append(self._pool_dropdown)
         
@@ -931,8 +957,8 @@ class TalkColumn(Gtk.Box):
     
     def _start_info_polling(self):
         """Start polling /info endpoint for Truth Panel."""
-        # Poll every 3 seconds
-        self._info_poll_id = GLib.timeout_add_seconds(3, self._poll_info)
+        # Poll every 5 seconds (reduced from 3 to prevent thrashing)
+        self._info_poll_id = GLib.timeout_add_seconds(5, self._poll_info)
         # Also do immediate fetch
         GLib.idle_add(self._poll_info)
     
@@ -945,7 +971,7 @@ class TalkColumn(Gtk.Box):
                 import json
                 req = urllib.request.Request("http://127.0.0.1:8766/info")
                 req.add_header("User-Agent", "roxy-command-center/truth-panel")
-                with urllib.request.urlopen(req, timeout=2) as resp:
+                with urllib.request.urlopen(req, timeout=5) as resp:
                     data = json.loads(resp.read().decode())
                     GLib.idle_add(self._update_truth_panel, data)
             except Exception as e:
@@ -979,25 +1005,25 @@ class TalkColumn(Gtk.Box):
             ollama = data.get("ollama", {})
             pools = ollama.get("pools", {})
             
-            # Show pool status: BIG: ok/err, FAST: ok/err
-            big_status = "unset"
-            if pools.get("big", {}).get("configured"):
-                big_status = "ok" if pools["big"].get("reachable") else "err"
-            
-            fast_status = "unset"
-            if pools.get("fast", {}).get("configured"):
-                fast_status = "ok" if pools["fast"].get("reachable") else "err"
-            
-            self._ollama_chip.set_label(f"🦙 BIG:{big_status} FAST:{fast_status}")
-            
+            # Show pool status: W5700X: ok/err, 6900XT: ok/err
+            w5700x_status = "unset"
+            if pools.get("w5700x", {}).get("configured"):
+                w5700x_status = "ok" if pools["w5700x"].get("reachable") else "err"
+
+            xt6900_status = "unset"
+            if pools.get("6900xt", {}).get("configured"):
+                xt6900_status = "ok" if pools["6900xt"].get("reachable") else "err"
+
+            self._ollama_chip.set_label(f"🦙 W5700X:{w5700x_status} 6900XT:{xt6900_status}")
+
             # Tooltip with details
             tooltip_parts = []
-            if pools.get("big", {}).get("configured"):
-                big = pools["big"]
-                tooltip_parts.append(f"BIG: {big['url']} ({big.get('latency_ms', '??')}ms)" + (f" err: {big['error']}" if not big.get("reachable") else ""))
-            if pools.get("fast", {}).get("configured"):
-                fast = pools["fast"]
-                tooltip_parts.append(f"FAST: {fast['url']} ({fast.get('latency_ms', '??')}ms)" + (f" err: {fast['error']}" if not fast.get("reachable") else ""))
+            if pools.get("w5700x", {}).get("configured"):
+                w5700x = pools["w5700x"]
+                tooltip_parts.append(f"W5700X: {w5700x['url']} ({w5700x.get('latency_ms', '??')}ms)" + (f" err: {w5700x['error']}" if not w5700x.get("reachable") else ""))
+            if pools.get("6900xt", {}).get("configured"):
+                xt6900 = pools["6900xt"]
+                tooltip_parts.append(f"6900XT: {xt6900['url']} ({xt6900.get('latency_ms', '??')}ms)" + (f" err: {xt6900['error']}" if not xt6900.get("reachable") else ""))
             
             self._ollama_chip.set_tooltip_text("\n".join(tooltip_parts) if tooltip_parts else "No pools configured")
             
@@ -1167,8 +1193,8 @@ class TalkColumn(Gtk.Box):
         self._save_settings()
     
     def _on_pool_changed(self, dropdown, _pspec):
-        """Handle pool change (AUTO/FAST/BIG)."""
-        pools = ["AUTO", "FAST", "BIG"]
+        """Handle pool change (AUTO/W5700X/6900XT)."""
+        pools = ["AUTO", "W5700X", "6900XT"]
         idx = dropdown.get_selected()
         self._pool_mode = pools[idx] if idx < len(pools) else "AUTO"
         print(f"[Talk] Pool: {self._pool_mode}")

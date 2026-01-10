@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Ollama panel widget with pool tabs.
-ROXY-CMD-STORY-015: Pool tabs (BIG/FAST), model list, VRAM display.
+ROXY-CMD-STORY-015: Pool tabs (W5700X/6900XT), model list, VRAM display.
 """
 
 import gi
@@ -159,10 +159,10 @@ class PoolTab(Gtk.Box):
 class OllamaPanel(Gtk.Box):
     """
     Ollama management panel with pool tabs.
-    
+
     Shows:
-    - BIG pool tab (port 11435)
-    - FAST pool tab (port 11435)
+    - W5700X pool tab (port 11434)
+    - 6900XT pool tab (port 11435)
     - Model list per pool
     - Unload actions
     """
@@ -204,17 +204,17 @@ class OllamaPanel(Gtk.Box):
         self.notebook = Gtk.Notebook()
         self.notebook.set_margin_top(8)
         
-        # BIG pool tab
-        self.big_tab = PoolTab("BIG", 11435, self._on_model_unload_request)
-        big_label = Gtk.Label(label="BIG (:11435)")
-        big_label.add_css_class("accent-big")
-        self.notebook.append_page(self.big_tab, big_label)
-        
-        # FAST pool tab
-        self.fast_tab = PoolTab("FAST", 11435, self._on_model_unload_request)
-        fast_label = Gtk.Label(label="FAST (:11435)")
-        fast_label.add_css_class("accent-fast")
-        self.notebook.append_page(self.fast_tab, fast_label)
+        # W5700X pool tab (port 11434, accepts BIG alias)
+        self.w5700x_tab = PoolTab("W5700X", 11434, self._on_model_unload_request)
+        w5700x_label = Gtk.Label(label="W5700X (:11434)")
+        w5700x_label.add_css_class("accent-big")
+        self.notebook.append_page(self.w5700x_tab, w5700x_label)
+
+        # 6900XT pool tab (port 11435, accepts FAST alias)
+        self.xt6900_tab = PoolTab("6900XT", 11435, self._on_model_unload_request)
+        xt6900_label = Gtk.Label(label="6900XT (:11435)")
+        xt6900_label.add_css_class("accent-fast")
+        self.notebook.append_page(self.xt6900_tab, xt6900_label)
         
         self.append(self.notebook)
     
@@ -249,24 +249,24 @@ class OllamaPanel(Gtk.Box):
     def update_from_daemon(self, data: dict):
         """Update from daemon response."""
         services = data.get("services", {})
-        
-        # BIG pool (ollama_big)
-        big_service = services.get("ollama_big", {})
-        big_health = big_service.get("health", "unknown")
-        big_models = data.get("ollama_big_models", [])
-        big_vram = sum(m.get("vram_gb", 0) for m in big_models)
-        
-        self.big_tab.set_status(big_health, len(big_models), big_vram)
-        self.big_tab.update_models(big_models)
-        
-        # FAST pool (ollama_fast)
-        fast_service = services.get("ollama_fast", {})
-        fast_health = fast_service.get("health", "unknown")
-        fast_models = data.get("ollama_fast_models", [])
-        fast_vram = sum(m.get("vram_gb", 0) for m in fast_models)
-        
-        self.fast_tab.set_status(fast_health, len(fast_models), fast_vram)
-        self.fast_tab.update_models(fast_models)
+
+        # W5700X pool (systemd: ollama_big, port 11434)
+        w5700x_service = services.get("ollama_big", {})
+        w5700x_health = w5700x_service.get("health", "unknown")
+        w5700x_models = data.get("ollama_big_models", [])
+        w5700x_vram = sum(m.get("vram_gb", 0) for m in w5700x_models)
+
+        self.w5700x_tab.set_status(w5700x_health, len(w5700x_models), w5700x_vram)
+        self.w5700x_tab.update_models(w5700x_models)
+
+        # 6900XT pool (systemd: ollama_fast, port 11435)
+        xt6900_service = services.get("ollama_fast", {})
+        xt6900_health = xt6900_service.get("health", "unknown")
+        xt6900_models = data.get("ollama_fast_models", [])
+        xt6900_vram = sum(m.get("vram_gb", 0) for m in xt6900_models)
+
+        self.xt6900_tab.set_status(xt6900_health, len(xt6900_models), xt6900_vram)
+        self.xt6900_tab.update_models(xt6900_models)
     
     def update(self, data: dict):
         """Alias for update_from_daemon - compatibility method."""

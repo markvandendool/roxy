@@ -195,12 +195,12 @@ class ChatService:
     def send_message(self, text: str, routing_mode: str = "", pool: str = "") -> Optional[ChatMessage]:
         """
         Send a message to Roxy and get a response.
-        
+
         Args:
             text: The user's message
             routing_mode: Explicit routing mode (CHAT/RAG/EXEC) - empty means auto
-            pool: Explicit pool (FAST/BIG) - empty means auto
-            
+            pool: Explicit pool (W5700X/6900XT or legacy BIG/FAST) - empty means auto
+
         Returns:
             The user message (assistant response comes via callback)
         """
@@ -270,18 +270,23 @@ class ChatService:
     # Internal: roxy-core communication
     # -------------------------------------------------------------------------
     
-    def _ping_roxy_core(self):
-        """Test connection to roxy-core via /health endpoint."""
+    def _ping_roxy_core(self, retry_count: int = 0):
+        """Test connection to roxy-core via /health endpoint.
+        
+        Args:
+            retry_count: Current retry attempt (max 2 retries on timeout)
+        """
         uri = f"{ROXY_CORE_URL}/health"
         message = Soup.Message.new("GET", uri)
         
         if self._auth_token:
             message.get_request_headers().append("X-ROXY-Token", self._auth_token)
         
-        self._soup_session.send_async(message, GLib.PRIORITY_DEFAULT, None, self._on_ping_response, None)
+        self._soup_session.send_async(message, GLib.PRIORITY_DEFAULT, None, self._on_ping_response, retry_count)
     
-    def _on_ping_response(self, session, result, user_data):
+    def _on_ping_response(self, session, result, retry_count):
         """Handle ping response from /health."""
+        retry_count = retry_count if isinstance(retry_count, int) else 0
         try:
             input_stream = session.send_finish(result)
             
@@ -348,16 +353,25 @@ class ChatService:
                 self._set_status(ConnectionStatus.CONNECTED, "Connected (no status)")
                 
         except Exception as e:
+            error_str = str(e)
+            is_timeout = "timed out" in error_str.lower() or "timeout" in error_str.lower()
+            
+            # Retry up to 2 times on timeout errors
+            if is_timeout and retry_count < 2:
+                print(f"[ChatService] Ping timeout, retry {retry_count + 1}/2...")
+                GLib.timeout_add_seconds(1, lambda: self._ping_roxy_core(retry_count + 1) or False)
+                return
+            
             print(f"[ChatService] Ping failed: {e}")
             self._set_status(ConnectionStatus.ERROR, f"Connection failed: {e}")
     
     def _send_to_roxy_core(self, text: str, routing_mode: str = "", pool: str = ""):
         """Send message to roxy-core /run endpoint.
-        
+
         Args:
             text: The message to send
             routing_mode: Explicit routing mode (CHAT/RAG/EXEC/AUTO) - empty means auto
-            pool: Explicit pool (AUTO/FAST/BIG) - empty means auto
+            pool: Explicit pool (AUTO/W5700X/6900XT or legacy BIG/FAST) - empty means auto
         """
         uri = f"{ROXY_CORE_URL}/run"
         message = Soup.Message.new("POST", uri)
@@ -380,7 +394,7 @@ class ChatService:
         if routing_mode and routing_mode != "AUTO":
             payload["mode"] = routing_mode  # CHAT, RAG, EXEC
         if pool and pool != "AUTO":
-            payload["pool"] = pool  # FAST, BIG
+            payload["pool"] = pool  # W5700X, 6900XT (or legacy BIG/FAST)
         
         # Set body
         body_bytes = json.dumps(payload).encode('utf-8')

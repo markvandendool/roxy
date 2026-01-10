@@ -122,9 +122,11 @@ except ImportError as e:
     def get_all_stats(): return {}
 
 # Load config
+config = {}  # Default empty config
 if CONFIG_FILE.exists():
     with open(CONFIG_FILE) as f:
         config = json.load(f)
+        logger.info(f"Loaded config from {CONFIG_FILE}: {list(config.keys())}")
         IPC_HOST = config.get("host", "127.0.0.1")
         IPC_PORT = int(os.getenv("ROXY_PORT", config.get("port", 8766)))
 else:
@@ -204,46 +206,47 @@ def _normalize_url(url: Optional[str]) -> Optional[str]:
 
 def _resolve_ollama_pools() -> dict:
     """
-    Resolve BIG and FAST pools authoritatively from config/env.
-    
+    Resolve W5700X and 6900XT pools authoritatively from config/env.
+    CHIEF DIRECTIVE: Pool names match hardware, not semantic roles.
+
     Returns:
         {
-            "big": {"url": str|None, "configured": bool},
-            "fast": {"url": str|None, "configured": bool},
+            "w5700x": {"url": str|None, "configured": bool},
+            "6900xt": {"url": str|None, "configured": bool},
             "default": str (primary URL),
-            "misconfigured": bool  # True if BIG==FAST (not distinct)
+            "misconfigured": bool  # True if pools point to same endpoint
         }
-    
+
     Policy:
     - Normalizes localhost -> 127.0.0.1 consistently
-    - BIG comes from OLLAMA_BIG_URL (or ROXY_OLLAMA_BIG_URL)
-    - FAST comes from OLLAMA_FAST_URL (or ROXY_OLLAMA_FAST_URL)
+    - W5700X comes from ROXY_OLLAMA_W5700X_URL (or legacy OLLAMA_BIG_URL)
+    - 6900XT comes from ROXY_OLLAMA_6900XT_URL (or legacy OLLAMA_FAST_URL)
     - OLLAMA_HOST/OLLAMA_BASE_URL maps to default fallback
     - NO PORT GUESSING
-    - HARD INVARIANT: If normalize(BIG) == normalize(FAST), pools are MISCONFIGURED
+    - HARD INVARIANT: If normalize(W5700X) == normalize(6900XT), pools are MISCONFIGURED
     """
-    # 1. Read explicit pools first
-    big_in = os.getenv("ROXY_OLLAMA_BIG_URL") or os.getenv("OLLAMA_BIG_URL")
-    fast_in = os.getenv("ROXY_OLLAMA_FAST_URL") or os.getenv("OLLAMA_FAST_URL")
-    
+    # 1. Read explicit pools first (canonical names, then legacy aliases)
+    w5700x_in = os.getenv("ROXY_OLLAMA_W5700X_URL") or os.getenv("OLLAMA_BIG_URL") or os.getenv("ROXY_OLLAMA_BIG_URL")
+    xt6900_in = os.getenv("ROXY_OLLAMA_6900XT_URL") or os.getenv("OLLAMA_FAST_URL") or os.getenv("ROXY_OLLAMA_FAST_URL")
+
     # OLLAMA_HOST is just the default/fallback if no specific pool is chosen
     default_in = os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL")
 
-    big_url = _normalize_url(big_in)
-    fast_url = _normalize_url(fast_in)
-    
+    w5700x_url = _normalize_url(w5700x_in)
+    xt6900_url = _normalize_url(xt6900_in)
+
     # default fallback if nothing set
-    default_url = _normalize_url(default_in) or big_url or fast_url or "http://127.0.0.1:11434"
-    
+    default_url = _normalize_url(default_in) or w5700x_url or xt6900_url or "http://127.0.0.1:11434"
+
     # HARD INVARIANT: Check if pools are distinct
     misconfigured = False
-    if big_url and fast_url and big_url == fast_url:
+    if w5700x_url and xt6900_url and w5700x_url == xt6900_url:
         misconfigured = True
-        logger.error(f"POOL MISCONFIGURATION: BIG and FAST point to same endpoint: {big_url}")
+        logger.error(f"POOL MISCONFIGURATION: W5700X and 6900XT point to same endpoint: {w5700x_url}")
 
     return {
-        "big": {"url": big_url, "configured": bool(big_url)},
-        "fast": {"url": fast_url, "configured": bool(fast_url)},
+        "w5700x": {"url": w5700x_url, "configured": bool(w5700x_url)},
+        "6900xt": {"url": xt6900_url, "configured": bool(xt6900_url)},
         "default": default_url,
         "misconfigured": misconfigured
     }
@@ -336,20 +339,31 @@ def _is_placeholder_token(token: Optional[str]) -> bool:
     return any(pattern in token_upper for pattern in placeholder_patterns)
 
 def _get_github_token() -> Optional[str]:
-    """Get GitHub token from environment/config
-    
+    """Get GitHub token from environment/config/file
+
     Priority order:
     1. GITHUB_TOKEN env var (preferred)
     2. GITHUB_PAT env var (alternative)
-    3. config.json github.token
-    
+    3. ~/.roxy/github.token file
+    4. config.json github.token
+
     Returns None if token is placeholder/fake.
     """
     # Check environment first (preferred)
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_PAT")
     if token and not _is_placeholder_token(token):
         return token
-    
+
+    # Check dedicated token file
+    token_file = ROXY_DIR / "github.token"
+    if token_file.exists():
+        try:
+            token = token_file.read_text().strip()
+            if token and not _is_placeholder_token(token):
+                return token
+        except Exception as e:
+            logger.debug(f"Failed to read GitHub token from file: {e}")
+
     # Check config file
     config_file = ROXY_DIR / "config.json"
     if config_file.exists():
@@ -361,7 +375,7 @@ def _get_github_token() -> Optional[str]:
                     return token
         except Exception as e:
             logger.debug(f"Failed to read GitHub token from config: {e}")
-    
+
     return None
 
 
@@ -449,12 +463,12 @@ def _github_api_call(endpoint: str, token: Optional[str] = None, params: dict = 
     """Make a GitHub API call with proper error handling"""
     try:
         import requests
-        
+
         url = f"https://api.github.com{endpoint}"
         headers = {"User-Agent": "roxy-core/github-api"}
         if token:
             headers["Authorization"] = f"token {token}"
-        
+
         resp = requests.get(url, headers=headers, params=params, timeout=timeout)
         resp.raise_for_status()
         
@@ -529,8 +543,9 @@ def _get_default_repo() -> Optional[dict]:
     repo_str = os.environ.get("GITHUB_DEFAULT_REPO", "")
     if repo_str and "/" in repo_str:
         parts = repo_str.split("/")
+        logger.debug(f"Using default repo from env: {repo_str}")
         return {"owner": parts[0], "repo": parts[1], "ref": os.environ.get("GITHUB_DEFAULT_REF", "main")}
-    
+
     # Check config
     gh_config = config.get("github", {})
     if gh_config.get("default_owner") and gh_config.get("default_repo"):
@@ -539,7 +554,7 @@ def _get_default_repo() -> Optional[dict]:
             "repo": gh_config["default_repo"],
             "ref": gh_config.get("default_ref", "main")
         }
-    
+
     return None
 
 def _github_api_cached(endpoint: str, endpoint_type: str, token: Optional[str] = None, params: dict = None) -> dict:
@@ -663,6 +678,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_feedback_stats()
         elif path == "/info" or path == "/v1/info":
             self._handle_info()
+        elif path == "/auth/status" or path == "/v1/auth/status":
+            self._handle_auth_status()
         elif path == "/github/status" or path == "/v1/github/status":
             self._handle_github_status()
         elif path == "/github/repos" or path == "/v1/github/repos":
@@ -671,13 +688,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_github_repo()
         elif path == "/github/issues" or path == "/v1/github/issues":
             self._handle_github_issues()
-        elif path == "/github/pulls" or path == "/v1/github/pulls":
+        elif path in ("/github/pulls", "/github/prs", "/v1/github/pulls", "/v1/github/prs"):
             self._handle_github_pulls()
         elif path.startswith("/github/contents") or path.startswith("/v1/github/contents"):
             self._handle_github_contents()
         elif path.startswith("/stream") or path.startswith("/v1/stream"):
             # Streaming endpoint (SSE)
             self._handle_streaming()
+        # Benchmark endpoints (PHASE 1 - lm-eval harness wrapper)
+        elif path == "/bench/status" or path == "/v1/bench/status":
+            self._handle_bench_status()
+        elif path == "/bench/history" or path == "/v1/bench/history":
+            self._handle_bench_history()
+        elif path == "/bench/artifact" or path == "/v1/bench/artifact":
+            self._handle_bench_artifact()
+        elif path == "/bench/tasks" or path == "/v1/bench/tasks":
+            self._handle_bench_tasks()
         else:
             self.send_response(404)
             self.end_headers()
@@ -833,31 +859,73 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         # Ollama state
         pools = _resolve_ollama_pools()
         ollama_base = pools["default"]
-        
+
         # CHIEF'S TRUTH CONTRACT: Expose pool configuration + reachability + MISCONFIGURATION
-        # configured: from env, reachable: actual socket check
-        big_reach = _check_ollama_reachability(pools["big"]["url"])
-        fast_reach = _check_ollama_reachability(pools["fast"]["url"])
-        
+        # CHIEF DIRECTIVE: Pool names match hardware (w5700x, 6900xt), not semantic roles
+        w5700x_reach = _check_ollama_reachability(pools["w5700x"]["url"])
+        xt6900_reach = _check_ollama_reachability(pools["6900xt"]["url"])
+
+        # Port -> service mapping (single source of truth)
+        PORT_SERVICE_MAP = {
+            11434: {"service": "ollama-w5700x.service", "gpu": "W5700X"},
+            11435: {"service": "ollama-6900xt.service", "gpu": "6900XT"},
+        }
+
+        def _get_pool_hints(url: str) -> dict:
+            """Get service/pid hints for a pool URL (best-effort)"""
+            import re
+            import subprocess
+            hints = {"service_name": None, "gpu": None, "pid": None}
+            if not url:
+                return hints
+            port_match = re.search(r':(\d+)', url)
+            if not port_match:
+                return hints
+            port = int(port_match.group(1))
+            # Service/GPU from mapping
+            if port in PORT_SERVICE_MAP:
+                hints["service_name"] = PORT_SERVICE_MAP[port]["service"]
+                hints["gpu"] = PORT_SERVICE_MAP[port]["gpu"]
+            # PID from lsof (best-effort)
+            try:
+                result = subprocess.run(
+                    ["lsof", "-i", f":{port}", "-t"],
+                    capture_output=True, text=True, timeout=1
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    hints["pid"] = int(result.stdout.strip().split('\n')[0])
+            except:
+                pass
+            return hints
+
+        w5700x_hints = _get_pool_hints(pools["w5700x"]["url"])
+        xt6900_hints = _get_pool_hints(pools["6900xt"]["url"])
+
         info["ollama"]["pools"] = {
-            "big": {
-                "url": pools["big"]["url"],
-                "configured": pools["big"]["configured"],
-                "reachable": big_reach["reachable"],
-                "latency_ms": big_reach["latency_ms"],
-                "error": big_reach["error"]
+            "w5700x": {
+                "url": pools["w5700x"]["url"],
+                "configured": pools["w5700x"]["configured"],
+                "reachable": w5700x_reach["reachable"],
+                "latency_ms": w5700x_reach["latency_ms"],
+                "error": w5700x_reach["error"],
+                "service_name": w5700x_hints["service_name"],
+                "gpu": w5700x_hints["gpu"],
+                "pid": w5700x_hints["pid"],
             },
-            "fast": {
-                "url": pools["fast"]["url"],
-                "configured": pools["fast"]["configured"],
-                "reachable": fast_reach["reachable"],
-                "latency_ms": fast_reach["latency_ms"],
-                "error": fast_reach["error"]
+            "6900xt": {
+                "url": pools["6900xt"]["url"],
+                "configured": pools["6900xt"]["configured"],
+                "reachable": xt6900_reach["reachable"],
+                "latency_ms": xt6900_reach["latency_ms"],
+                "error": xt6900_reach["error"],
+                "service_name": xt6900_hints["service_name"],
+                "gpu": xt6900_hints["gpu"],
+                "pid": xt6900_hints["pid"],
             }
         }
         info["ollama"]["base_url"] = ollama_base
-        # Legacy field for compatibility, but populated correctly now
-        info["ollama"]["fast_url"] = pools["fast"]["url"]
+        # Legacy field for compatibility
+        info["ollama"]["fast_url"] = pools["6900xt"]["url"]
         # HARD INVARIANT: Expose misconfiguration state
         info["ollama"]["misconfigured"] = pools["misconfigured"]
         
@@ -875,7 +943,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             info["ollama"]["ok"] = False
             info["ollama"]["error"] = str(e)
             info["ollama"]["latency_ms"] = None
-        
+
+        # CHIEF DIRECTIVE: Add pool invariants check (startup latency validation)
+        try:
+            from benchmark_service import check_pool_invariants
+            info["ollama"]["pool_invariants"] = check_pool_invariants()
+        except Exception as e:
+            info["ollama"]["pool_invariants"] = {"error": str(e), "ok": False}
+
         # GitHub state
         github_token = _get_github_token()
         github_reach = _check_github_reachability(github_token)
@@ -892,6 +967,38 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(info, indent=2).encode())
+
+    def _handle_auth_status(self):
+        """GET /auth/status - Auth configuration info (no secrets exposed).
+
+        Returns instructions for using authenticated endpoints.
+        CHIEF DIRECTIVE: Auth clarity for operators.
+        """
+        # Determine token source
+        token_source = None
+        if TOKEN_FILE.exists():
+            token_source = str(TOKEN_FILE)
+        elif os.getenv("AUTH_TOKEN"):
+            token_source = "AUTH_TOKEN environment variable"
+
+        status = {
+            "auth_enabled": bool(AUTH_TOKEN),
+            "header": "X-ROXY-Token",
+            "token_source": token_source,
+            "token_file_path": str(TOKEN_FILE),
+            "usage_example": 'curl -H "X-ROXY-Token: YOUR_TOKEN" http://127.0.0.1:8766/bench/run ...',
+            "protected_endpoints": [
+                "/bench/run",
+                "/bench/cancel",
+                "/run",
+                "/github/*",
+            ],
+        }
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(status, indent=2).encode())
 
     def _handle_metrics(self):
         """Expose Prometheus metrics with graceful degradation."""
@@ -1201,10 +1308,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             return
         elif path.startswith("/mcp/"):
             self._handle_mcp_tool(path)
+        # Benchmark run endpoint (PHASE 1)
+        elif path == "/bench/run" or path == "/v1/bench/run":
+            self._handle_bench_run()
+        # Benchmark cancel endpoint (P0 operator control)
+        elif path == "/bench/cancel" or path == "/v1/bench/cancel":
+            self._handle_bench_cancel()
         else:
             self.send_response(404)
             self.end_headers()
-    
+
     def _handle_mcp_tool(self, path: str):
         """Handle MCP tool calls - /mcp/{module}/{tool}"""
         try:
@@ -1842,6 +1955,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "clone_url": repo.get("clone_url"),
                 "ssh_url": repo.get("ssh_url"),
                 "ref": default_repo.get("ref", "main"),
+                "default_repo_used": f"{default_repo['owner']}/{default_repo['repo']}",
                 "cached": result.get("_cached", False),
                 "rate_limit": result.get("rate_limit")
             }
@@ -1862,7 +1976,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         """GET /github/issues - List issues for default repo or specified owner/repo"""
         if not self._github_auth_check():
             return
-        
+
         try:
             github_token = _get_github_token()
             if not github_token:
@@ -1871,18 +1985,20 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": "GitHub not configured"}).encode())
                 return
-            
+
             params = self._parse_query_params()
-            
+
             # Get repo from params or default
             owner = params.get("owner")
             repo = params.get("repo")
-            
+            default_repo_used = None
+
             if not owner or not repo:
                 default_repo = _get_default_repo()
                 if default_repo:
                     owner = owner or default_repo["owner"]
                     repo = repo or default_repo["repo"]
+                    default_repo_used = f"{default_repo['owner']}/{default_repo['repo']}"
                 else:
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
@@ -1932,6 +2048,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "issues": issues,
                 "count": len(issues),
                 "state_filter": api_params["state"],
+                "default_repo_used": default_repo_used,
                 "cached": result.get("_cached", False),
                 "rate_limit": result.get("rate_limit")
             }
@@ -1952,7 +2069,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         """GET /github/pulls - List pull requests for default repo or specified owner/repo"""
         if not self._github_auth_check():
             return
-        
+
         try:
             github_token = _get_github_token()
             if not github_token:
@@ -1961,18 +2078,20 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": "GitHub not configured"}).encode())
                 return
-            
+
             params = self._parse_query_params()
-            
+
             # Get repo from params or default
             owner = params.get("owner")
             repo = params.get("repo")
-            
+            default_repo_used = None
+
             if not owner or not repo:
                 default_repo = _get_default_repo()
                 if default_repo:
                     owner = owner or default_repo["owner"]
                     repo = repo or default_repo["repo"]
+                    default_repo_used = f"{default_repo['owner']}/{default_repo['repo']}"
                 else:
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
@@ -2028,15 +2147,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "pulls": pulls,
                 "count": len(pulls),
                 "state_filter": api_params["state"],
+                "default_repo_used": default_repo_used,
                 "cached": result.get("_cached", False),
                 "rate_limit": result.get("rate_limit")
             }
-            
+
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(response, indent=2).encode())
-            
+
         except Exception as e:
             logger.error(f"GitHub pulls failed: {e}")
             self.send_response(500)
@@ -2059,19 +2179,21 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return
             
             params = self._parse_query_params()
-            
+
             # Get repo from params or default
             owner = params.get("owner")
             repo = params.get("repo")
             path = params.get("path", "")
             ref = params.get("ref")
-            
+            default_repo_used = None
+
             if not owner or not repo:
                 default_repo = _get_default_repo()
                 if default_repo:
                     owner = owner or default_repo["owner"]
                     repo = repo or default_repo["repo"]
                     ref = ref or default_repo.get("ref", "main")
+                    default_repo_used = f"{default_repo['owner']}/{default_repo['repo']}"
                 else:
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
@@ -2117,6 +2239,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "type": "directory",
                     "contents": contents,
                     "count": len(contents),
+                    "default_repo_used": default_repo_used,
                     "cached": result.get("_cached", False),
                     "rate_limit": result.get("rate_limit")
                 }
@@ -2158,6 +2281,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "content": content,
                     "html_url": data.get("html_url"),
                     "download_url": data.get("download_url"),
+                    "default_repo_used": default_repo_used,
                     "cached": result.get("_cached", False),
                     "rate_limit": result.get("rate_limit")
                 }
@@ -2363,7 +2487,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             
             # Extract explicit mode and pool from request (Chief's operator controls)
             explicit_mode = data.get('mode', '').upper()  # CHAT, RAG, EXEC
-            explicit_pool = data.get('pool', '').upper()  # AUTO, FAST, BIG
+            explicit_pool = data.get('pool', '').upper()  # AUTO, W5700X, 6900XT (or legacy BIG/FAST)
             model_override = data.get('model', '')  # Optional model override
             
             # Security: Sanitize input - CRITICAL SECURITY FEATURE
@@ -2749,12 +2873,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     def _execute_command(self, command: str, request_id: Optional[str] = None,
                           mode: str = "", pool: str = "", model_override: str = "") -> str:
         """Execute command via roxy_commands.py with caching and validation
-        
+
         Args:
             command: The user command to execute
             request_id: Optional request tracking ID
             mode: Explicit mode (CHAT, RAG, EXEC) - empty means auto-route
-            pool: Explicit pool (AUTO, FAST, BIG) - empty means auto
+            pool: Explicit pool (AUTO, W5700X, 6900XT or legacy BIG/FAST) - empty means auto
             model_override: Optional model name override
         """
         
@@ -2860,48 +2984,51 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 effective_pool = pool.upper() if pool else "AUTO"
                 pool_config = _resolve_ollama_pools()
 
-                # HARD INVARIANT: Check for misconfiguration (BIG == FAST)
-                if pool_config["misconfigured"]:
-                    if effective_mode == "CHAT" and effective_pool == "AUTO":
-                        return "ERROR: CHAT mode requires distinct BIG/FAST pools. Pools are MISCONFIGURED (BIG and FAST point to same endpoint). Fix OLLAMA_BIG_URL and OLLAMA_FAST_URL."
-                    elif effective_pool == "BIG" or effective_pool == "FAST":
-                        return f"ERROR: Pool {effective_pool} requested but pools are MISCONFIGURED (BIG and FAST point to same endpoint). Fix OLLAMA_BIG_URL and OLLAMA_FAST_URL."
+                # Normalize pool aliases: BIG->W5700X, FAST->6900XT (case-insensitive)
+                POOL_ALIASES = {"BIG": "W5700X", "FAST": "6900XT"}
+                pool_normalized = POOL_ALIASES.get(effective_pool.upper(), effective_pool.upper())
 
-                # If CHAT mode and no explicit pool, we MUST use BIG (if configured AND reachable).
-                if effective_mode == "CHAT" and effective_pool == "AUTO":
-                    big_reach = _check_ollama_reachability(pool_config["big"]["url"])
-                    if pool_config["big"]["configured"] and big_reach["reachable"]:
-                        effective_pool = "BIG"
-                        logger.info(f"CHAT mode -> enforcing BIG pool ({pool_config['big']['url']})")
+                # HARD INVARIANT: Check for misconfiguration (W5700X == 6900XT)
+                if pool_config["misconfigured"]:
+                    if effective_mode == "CHAT" and pool_normalized == "AUTO":
+                        return "ERROR: CHAT mode requires distinct W5700X/6900XT pools. Pools are MISCONFIGURED (both point to same endpoint). Fix ROXY_OLLAMA_W5700X_URL and ROXY_OLLAMA_6900XT_URL."
+                    elif pool_normalized in ("W5700X", "6900XT"):
+                        return f"ERROR: Pool {pool_normalized} requested but pools are MISCONFIGURED (both point to same endpoint). Fix ROXY_OLLAMA_W5700X_URL and ROXY_OLLAMA_6900XT_URL."
+
+                # If CHAT mode and no explicit pool, we MUST use W5700X (if configured AND reachable).
+                if effective_mode == "CHAT" and pool_normalized == "AUTO":
+                    w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
+                    if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
+                        pool_normalized = "W5700X"
+                        logger.info(f"CHAT mode -> enforcing W5700X pool ({pool_config['w5700x']['url']})")
                     else:
                         # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
-                        # If BIG is expected but not configured/reachable, we fail fast.
-                        reason = "not configured" if not pool_config["big"]["configured"] else "not reachable"
-                        return f"ERROR: CHAT mode requires a configured and reachable BIG pool (OLLAMA_BIG_URL). {reason}. Explicitly set pool=FAST if you want to use the smaller model."
-                
+                        reason = "not configured" if not pool_config["w5700x"]["configured"] else "not reachable"
+                        return f"ERROR: CHAT mode requires a configured and reachable W5700X pool (ROXY_OLLAMA_W5700X_URL). {reason}. Explicitly set pool=6900XT if you want to use the faster GPU."
+
                 # Validate explicit requests (also check reachability)
-                if effective_pool == "BIG":
-                    if not pool_config["big"]["configured"]:
-                        return "ERROR: Pool BIG requested but not configured (OLLAMA_BIG_URL missing)."
-                    big_reach = _check_ollama_reachability(pool_config["big"]["url"])
-                    if not big_reach["reachable"]:
-                        return f"ERROR: Pool BIG requested but not reachable ({pool_config['big']['url']}: {big_reach['error']})."
-                if effective_pool == "FAST":
-                    if not pool_config["fast"]["configured"]:
-                        return "ERROR: Pool FAST requested but not configured (OLLAMA_FAST_URL missing)."
-                    fast_reach = _check_ollama_reachability(pool_config["fast"]["url"])
-                    if not fast_reach["reachable"]:
-                        return f"ERROR: Pool FAST requested but not reachable ({pool_config['fast']['url']}: {fast_reach['error']})."
+                if pool_normalized == "W5700X":
+                    if not pool_config["w5700x"]["configured"]:
+                        return "ERROR: Pool W5700X requested but not configured (ROXY_OLLAMA_W5700X_URL missing)."
+                    w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
+                    if not w5700x_reach["reachable"]:
+                        return f"ERROR: Pool W5700X requested but not reachable ({pool_config['w5700x']['url']}: {w5700x_reach['error']})."
+                if pool_normalized == "6900XT":
+                    if not pool_config["6900xt"]["configured"]:
+                        return "ERROR: Pool 6900XT requested but not configured (ROXY_OLLAMA_6900XT_URL missing)."
+                    xt6900_reach = _check_ollama_reachability(pool_config["6900xt"]["url"])
+                    if not xt6900_reach["reachable"]:
+                        return f"ERROR: Pool 6900XT requested but not reachable ({pool_config['6900xt']['url']}: {xt6900_reach['error']})."
 
                 # Update metadata so it reflects the forced decision even if parsing fails later
-                self._last_execution_metadata["pool"] = effective_pool.lower()
+                self._last_execution_metadata["pool"] = pool_normalized.lower()
                 self._last_execution_metadata["mode"] = effective_mode.lower()
-                
+
                 # Set base_url_used based on effective pool
-                if effective_pool == "BIG" and pool_config["big"]["configured"]:
-                    self._last_execution_metadata["base_url_used"] = pool_config["big"]["url"]
-                elif effective_pool == "FAST" and pool_config["fast"]["configured"]:
-                    self._last_execution_metadata["base_url_used"] = pool_config["fast"]["url"]
+                if pool_normalized == "W5700X" and pool_config["w5700x"]["configured"]:
+                    self._last_execution_metadata["base_url_used"] = pool_config["w5700x"]["url"]
+                elif pool_normalized == "6900XT" and pool_config["6900xt"]["configured"]:
+                    self._last_execution_metadata["base_url_used"] = pool_config["6900xt"]["url"]
                 else:
                     self._last_execution_metadata["base_url_used"] = pool_config["default"]
 
@@ -3102,6 +3229,272 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.warning(f"Validation failed: {e}")
             return response
+
+    # -------------------------------------------------------------------------
+    # BENCHMARK ENDPOINTS (PHASE 1 - lm-eval harness wrapper)
+    # -------------------------------------------------------------------------
+
+    def _handle_bench_status(self):
+        """GET /bench/status - Get current benchmark status"""
+        try:
+            from benchmark_service import get_status
+            status = get_status()
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(status, indent=2).encode())
+        except ImportError as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Benchmark service not available",
+                "detail": str(e)
+            }).encode())
+        except Exception as e:
+            logger.error(f"Benchmark status failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_bench_history(self):
+        """GET /bench/history - List benchmark evidence bundles (auth required for paths)"""
+        try:
+            from benchmark_service import get_history
+
+            # Auth check - required for path exposure
+            authenticated = False
+            if AUTH_TOKEN:
+                provided_token = self.headers.get('X-ROXY-Token')
+                if provided_token and provided_token == AUTH_TOKEN:
+                    authenticated = True
+
+            params = self._parse_query_params()
+            limit = int(params.get("limit", 10))
+
+            history = get_history(limit=limit, include_paths=authenticated)
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "history": history,
+                "count": len(history),
+                "limit": limit,
+                "authenticated": authenticated
+            }, indent=2).encode())
+        except ImportError as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Benchmark service not available",
+                "detail": str(e)
+            }).encode())
+        except Exception as e:
+            logger.error(f"Benchmark history failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_bench_artifact(self):
+        """GET /bench/artifact - Get evidence bundle details (auth required)"""
+        try:
+            # Auth check - required for artifact access
+            if AUTH_TOKEN:
+                provided_token = self.headers.get('X-ROXY-Token')
+                if not provided_token or provided_token != AUTH_TOKEN:
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "error": "Unauthorized",
+                        "hint": "X-ROXY-Token header required for artifact access"
+                    }).encode())
+                    return
+
+            from benchmark_service import get_artifact
+
+            params = self._parse_query_params()
+            evidence_id = params.get("id")
+
+            if not evidence_id:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "Missing required parameter: id",
+                    "hint": "Use ?id=<evidence_id> from /bench/history"
+                }).encode())
+                return
+
+            artifact = get_artifact(evidence_id)
+
+            if not artifact:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": f"Evidence bundle not found: {evidence_id}"
+                }).encode())
+                return
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(artifact, indent=2).encode())
+        except ImportError as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Benchmark service not available",
+                "detail": str(e)
+            }).encode())
+        except Exception as e:
+            logger.error(f"Benchmark artifact failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_bench_tasks(self):
+        """GET /bench/tasks - List supported benchmark tasks"""
+        try:
+            from benchmark_service import list_tasks
+            tasks = list_tasks()
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(tasks, indent=2).encode())
+        except ImportError as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Benchmark service not available",
+                "detail": str(e)
+            }).encode())
+        except Exception as e:
+            logger.error(f"Benchmark tasks failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_bench_run(self):
+        """POST /bench/run - Start a benchmark run (gated + queued)"""
+        try:
+            # Auth check
+            if AUTH_TOKEN:
+                provided_token = self.headers.get('X-ROXY-Token')
+                if not provided_token or provided_token != AUTH_TOKEN:
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Unauthorized"}).encode())
+                    return
+
+            from benchmark_service import start_run
+
+            # Parse request body
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b'{}'
+            params = json.loads(body.decode('utf-8')) if body else {}
+
+            # Extract parameters with defaults
+            task = params.get("task", "gsm8k")
+            model = params.get("model", "qwen2.5-coder:14b")
+            pool = params.get("pool", "W5700X")  # Default W5700X (hardware name)
+            num_fewshot = params.get("num_fewshot", 5)
+            limit = params.get("limit", 50)  # Default 50 samples for quick runs
+
+            result = start_run(
+                task=task,
+                model=model,
+                pool=pool,
+                num_fewshot=num_fewshot,
+                limit=limit
+            )
+
+            if "error" in result:
+                self.send_response(409 if "already running" in result.get("error", "") else 400)
+            else:
+                self.send_response(202)  # Accepted
+
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result, indent=2).encode())
+
+        except ImportError as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Benchmark service not available",
+                "detail": str(e)
+            }).encode())
+        except json.JSONDecodeError as e:
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Invalid JSON in request body",
+                "detail": str(e)
+            }).encode())
+        except Exception as e:
+            logger.error(f"Benchmark run failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_bench_cancel(self):
+        """POST /bench/cancel - Cancel running benchmark (P0 operator control)"""
+        try:
+            # Auth check - required for cancel
+            if AUTH_TOKEN:
+                provided_token = self.headers.get('X-ROXY-Token')
+                if not provided_token or provided_token != AUTH_TOKEN:
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Unauthorized"}).encode())
+                    return
+
+            from benchmark_service import cancel_run
+
+            result = cancel_run()
+
+            if "error" in result:
+                # 404 if nothing running, 500 for other errors
+                status_code = 404 if result.get("status") == "idle" else 500
+                self.send_response(status_code)
+            else:
+                self.send_response(200)
+
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result, indent=2).encode())
+
+        except ImportError as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Benchmark service not available",
+                "detail": str(e)
+            }).encode())
+        except Exception as e:
+            logger.error(f"Benchmark cancel failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
 
 
 class RoxyCore:

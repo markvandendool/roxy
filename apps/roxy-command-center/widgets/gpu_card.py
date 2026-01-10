@@ -203,12 +203,13 @@ class GPUCard(Gtk.Box):
             self.gpu_name = name
             self.name_label.set_text(name)
         
-        # Detect pool from index (6900 XT = BIG, W5700X = FAST)
-        # This is a heuristic - could be improved with explicit mapping
+        # Detect pool from GPU name (hardware canonical names)
+        # W5700X → port 11434 (accepts BIG alias)
+        # 6900XT → port 11435 (accepts FAST alias)
         if "6900" in name:
-            self.set_pool("BIG")
+            self.set_pool("6900XT")
         elif "5700" in name or "W5700" in name:
-            self.set_pool("FAST")
+            self.set_pool("W5700X")
         
         self.set_values(vram_used, vram_total, temp, util, power)
     
