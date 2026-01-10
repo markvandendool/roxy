@@ -32,6 +32,9 @@ _current_process: Optional[subprocess.Popen] = None
 _run_lock = threading.Lock()
 _run_history: list[dict] = []
 
+# Deprecation warning tracking (log once per process)
+_deprecated_alias_warned: set[str] = set()
+
 # lm-eval binary path (in ROXY venv)
 ROXY_VENV = Path.home() / ".roxy" / "venv"
 LM_EVAL_BIN = ROXY_VENV / "bin" / "lm_eval"
@@ -697,8 +700,15 @@ def _resolve_benchmark_pool(pool_requested: str) -> dict:
     # Resolve legacy aliases to canonical names (case-insensitive)
     pool_key = pool_requested.lower()
     if pool_key in POOL_ALIASES:
-        pool_key = POOL_ALIASES[pool_key]
-        # Legacy alias used - canonical form will be different from raw
+        canonical = POOL_ALIASES[pool_key]
+        # DEPRECATION WARNING: log once per process per alias
+        if pool_key not in _deprecated_alias_warned:
+            _deprecated_alias_warned.add(pool_key)
+            logger.warning(
+                f"Pool alias '{pool_key.upper()}' is deprecated; "
+                f"use '{canonical.upper()}' instead (still accepted)"
+            )
+        pool_key = canonical
 
     # Get pool URLs from environment - NO HARDCODED DEFAULTS for operator-grade
     w5700x_url_raw = os.getenv("ROXY_OLLAMA_W5700X_URL") or os.getenv("OLLAMA_BIG_URL") or os.getenv("ROXY_OLLAMA_BIG_URL")

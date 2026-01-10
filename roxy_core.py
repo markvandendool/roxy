@@ -3425,8 +3425,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 dry_run=dry_run,
             )
 
-            if "error" in result:
-                self.send_response(409 if "already running" in result.get("error", "") else 400)
+            # Bulletproof error check (immune to error: None)
+            err = result.get("error") or ""
+            if err:
+                self.send_response(409 if "already running" in err else 400)
             elif dry_run:
                 self.send_response(200)  # OK for dry_run (no async work started)
             else:
