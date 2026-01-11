@@ -1,36 +1,22 @@
 [Unit]
-Description=ROXY Command Center - Unified AI Assistant
-Documentation=https://github.com/your-repo/roxy
-After=network.target
+Description=ROXY Core (always-on background service)
+After=default.target
+# Prevent restart storms
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
 Type=simple
-User=mark
-Group=mark
-WorkingDirectory=/home/mark/.roxy
-Environment="PATH=/home/mark/.roxy/venv/bin:/usr/local/bin:/usr/bin:/bin"
-Environment="PYTHONUNBUFFERED=1"
-Environment="ROXY_HOME=/home/mark/.roxy"
-
-ExecStart=/home/mark/.roxy/venv/bin/python3 /home/mark/.roxy/roxy_core.py
-ExecReload=/bin/kill -HUP $MAINPID
-ExecStop=/bin/kill -TERM $MAINPID
-
-Restart=always
-RestartSec=10
-TimeoutStartSec=30
-TimeoutStopSec=30
-
-# Logging
-StandardOutput=append:/home/mark/.roxy/logs/roxy-core.log
-StandardError=append:/home/mark/.roxy/logs/roxy-core-error.log
-
-# Security
-NoNewPrivileges=true
-ProtectSystem=strict
-ProtectHome=read-only
-ReadWritePaths=/home/mark/.roxy
-PrivateTmp=true
+WorkingDirectory=%h/.roxy
+ExecStart=%h/.roxy/venv/bin/python %h/.roxy/roxy_core.py
+# Verify service is actually ready before reporting success
+ExecStartPost=%h/.roxy/scripts/wait-for-ready.sh 30
+Restart=on-failure
+RestartSec=2
+# Allow time for startup + readiness check
+TimeoutStartSec=45
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-%h/.roxy/.env
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
