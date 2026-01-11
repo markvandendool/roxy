@@ -1,0 +1,69 @@
+{
+  "test_name": "theater_control_hub_selftest",
+  "timestamp": "2026-01-11T16:33:57.987Z",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "name": "test_hub_status_query",
+      "status": "PASS",
+      "expected": "HUB_STATUS_RESPONSE",
+      "actual": "HUB_STATUS_RESPONSE"
+    },
+    {
+      "name": "test_stage_connection",
+      "status": "PASS",
+      "expected": "stage_connected",
+      "actual": "stage_connected"
+    },
+    {
+      "name": "test_command_relay_to_stage",
+      "status": "PASS",
+      "expected": "COMMAND_RELAYED",
+      "actual": "COMMAND_RELAYED"
+    },
+    {
+      "name": "test_event_broadcast_to_director",
+      "status": "PASS",
+      "expected": "EVENT_BROADCAST",
+      "actual": "EVENT_BROADCAST"
+    },
+    {
+      "name": "test_observer_cannot_send_commands",
+      "status": "PASS",
+      "expected": "UNAUTHORIZED_ERROR",
+      "actual": "UNAUTHORIZED_ERROR"
+    },
+    {
+      "name": "test_stage_cannot_send_commands",
+      "status": "PASS",
+      "expected": "UNAUTHORIZED_ERROR",
+      "actual": "UNAUTHORIZED_ERROR"
+    },
+    {
+      "name": "test_director_cannot_emit_events",
+      "status": "PASS",
+      "expected": "UNAUTHORIZED_ERROR",
+      "actual": "UNAUTHORIZED_ERROR"
+    },
+    {
+      "name": "test_command_without_stage_returns_error",
+      "status": "PASS",
+      "expected": "STAGE_NOT_CONNECTED",
+      "actual": "STAGE_NOT_CONNECTED"
+    },
+    {
+      "name": "test_multiple_directors_receive_events",
+      "status": "PASS",
+      "expected": "BOTH_DIRECTORS_RECEIVED",
+      "actual": "BOTH_DIRECTORS_RECEIVED"
+    },
+    {
+      "name": "test_stage_disconnect_broadcasts_event",
+      "status": "PASS",
+      "expected": "stage_disconnected",
+      "actual": "stage_disconnected"
+    }
+  ]
+}

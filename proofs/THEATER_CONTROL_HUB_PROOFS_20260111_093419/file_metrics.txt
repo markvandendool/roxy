@@ -1,0 +1,19 @@
+=== THEATER CONTROL HUB FILE METRICS ===
+Generated: 2026-01-11T09:34:19-07:00
+Updated: 2026-01-11T16:52:05Z
+
+=== Hub Files ===
+442 lines: /home/mark/mindsong-juke-hub/tools/theater-control-hub/src/hub.ts
+550 lines: /home/mark/mindsong-juke-hub/tools/theater-control-hub/src/selftest.ts
+196 lines: /home/mark/mindsong-juke-hub/tools/theater-control-hub/src/types.ts
+1188 lines: Hub total
+
+=== MindSong Stage Client Files (VERIFIED) ===
+557 lines: /home/mark/mindsong-juke-hub/src/services/theater/TheaterControlStageClient.ts
+  8 lines: /home/mark/mindsong-juke-hub/src/services/theater/index.ts
+179 lines: /home/mark/mindsong-juke-hub/src/services/theater/types.ts
+644 lines: /home/mark/mindsong-juke-hub/src/services/theater/selftest_stage_client.ts
+1388 lines: Stage Client total
+
+=== Grand Total ===
+2576 lines: All Theater Control code

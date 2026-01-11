@@ -1,0 +1,48 @@
+{
+  "test_name": "gate_c_preset_scene",
+  "timestamp": "2026-01-11T20:19:41.063113+00:00",
+  "mapping_file": "/home/mark/.roxy/config/theater_obs_mapping.json",
+  "presets_tested": [
+    "default",
+    "drums"
+  ],
+  "tests": [
+    {
+      "preset": "default",
+      "expected_scene": "Scene",
+      "actual_scene": "Scene",
+      "switch_success": true,
+      "verification_success": true,
+      "result": "PASS"
+    },
+    {
+      "preset": "drums",
+      "expected_scene": "Scene",
+      "actual_scene": "Scene",
+      "switch_success": true,
+      "verification_success": true,
+      "result": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "mapping_file_loaded": true,
+  "available_presets": [
+    "default",
+    "drums",
+    "analysis",
+    "performance",
+    "teaching",
+    "minimal",
+    "composer"
+  ],
+  "obs_connected": true,
+  "obs_version": "5.6.3",
+  "available_scenes": [
+    "Scene"
+  ],
+  "summary": "2/2 presets passed",
+  "ensure_obs": {
+    "used": true,
+    "success": true
+  }
+}

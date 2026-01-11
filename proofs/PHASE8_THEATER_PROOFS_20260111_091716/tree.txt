@@ -1,0 +1,14 @@
+=== PROOF DIRECTORY TREE (FINAL) ===
+Generated: 2026-01-11T09:20:01-07:00
+
+/home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716
+├── file_metrics.txt
+├── handoff_manifest.json
+├── handoff_selftest_results.json
+├── obs_director_dryrun_log.txt
+├── obs_director_dryrun_results.json
+├── sha256_manifest.txt
+├── theater_session_selftest_results.json
+└── tree.txt
+
+1 directory, 8 files

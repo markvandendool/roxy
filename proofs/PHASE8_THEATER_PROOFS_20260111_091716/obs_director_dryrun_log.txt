@@ -1,0 +1,16 @@
+[16:35:36.309] ============================================================
+[16:35:36.309] SELFTEST: OBS Director Dry-Run (Mocked)
+[16:35:36.309] ============================================================
+[16:35:36.310] 
+[16:35:36.379] [PASS] test_manifest_loading: expected=VALID, actual=VALID
+[16:35:36.379] [PASS] test_preroll_logic: expected=pre_roll=3, actual=pre_roll=3
+[16:35:36.379] [PASS] test_postroll_logic: expected=post_roll=5, actual=post_roll=5
+[16:35:36.379] [PASS] test_deterministic_no_real_sleep: expected=NO_REAL_SLEEP, actual=NO_REAL_SLEEP
+[16:35:36.379] [PASS] test_state_transitions: expected=['pending', 'recording', 'completed'], actual=['pending', 'recording', 'completed']
+[16:35:36.379] [PASS] test_mock_obs_calls: expected=['connect', 'start_recording', 'stop_recording', 'disconnect'], actual=['connect', 'start_recording', 'stop_recording', 'disconnect']
+[16:35:36.379] [PASS] test_mock_theater_ws_calls: expected=['set_preset', 'start_ndi', 'play', 'stop', 'stop_ndi'], actual=['set_preset', 'start_ndi', 'play', 'stop', 'stop_ndi']
+[16:35:36.379] [PASS] test_recording_workflow_sequence: expected=CORRECT_SEQUENCE, actual=CORRECT_SEQUENCE
+[16:35:36.380] 
+[16:35:36.380] ============================================================
+[16:35:36.380] SUMMARY: 8 passed, 0 failed
+[16:35:36.380] ============================================================

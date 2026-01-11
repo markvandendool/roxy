@@ -1,0 +1,19 @@
+{
+  "handoff_id": "HANDOFF_20260111_162001_ef1d3197",
+  "session_id": "SESSION_20260111_162001_3d7736b7",
+  "job_id": "JOB_20260111_162001_a72d6f4b",
+  "timestamp": "2026-01-11T16:20:01.298498+00:00",
+  "files": {
+    "landscape": {
+      "source": "/tmp/tmpzsfdy3ek/source/landscape.mp4",
+      "destination": "/tmp/tmpzsfdy3ek/pipeline/input/JOB_20260111_162001_a72d6f4b/landscape.mp4",
+      "sha256": "16d4aeca1436014c7f85704857c94573f9e95c8af414293a3b86cf4d02dc7616",
+      "resolution": "3840x2160"
+    }
+  },
+  "metadata": {
+    "song_title": "Manifest Test",
+    "theater_preset": "performance",
+    "auto_process": true
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "test_name": "silent_mode_selftest",
+  "timestamp": "2026-01-11T17:10:52.252275+00:00",
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "results": [
+    {
+      "name": "test_initial_mode_is_normal",
+      "status": "PASS",
+      "expected": "NORMAL_MODE",
+      "actual": "NORMAL_MODE"
+    },
+    {
+      "name": "test_enter_recording_mode",
+      "status": "PASS",
+      "expected": "RECORDING_MODE",
+      "actual": "RECORDING_MODE"
+    },
+    {
+      "name": "test_exit_recording_mode",
+      "status": "PASS",
+      "expected": "NORMAL_MODE",
+      "actual": "NORMAL_MODE"
+    },
+    {
+      "name": "test_enter_mode_publishes_event",
+      "status": "PASS",
+      "expected": "EVENT_PUBLISHED",
+      "actual": "EVENT_PUBLISHED"
+    },
+    {
+      "name": "test_event_contains_actions",
+      "status": "PASS",
+      "expected": "ACTIONS_PRESENT",
+      "actual": "ACTIONS_PRESENT"
+    },
+    {
+      "name": "test_skip_duplicate_enter",
+      "status": "PASS",
+      "expected": "DUPLICATE_SKIPPED",
+      "actual": "DUPLICATE_SKIPPED"
+    },
+    {
+      "name": "test_skip_duplicate_exit",
+      "status": "PASS",
+      "expected": "NO_EVENT_PUBLISHED",
+      "actual": "NO_EVENT_PUBLISHED"
+    },
+    {
+      "name": "test_full_recording_cycle",
+      "status": "PASS",
+      "expected": "FULL_CYCLE_COMPLETE",
+      "actual": "FULL_CYCLE_COMPLETE"
+    }
+  ]
+}

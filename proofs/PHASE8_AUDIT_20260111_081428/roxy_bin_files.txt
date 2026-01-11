@@ -1,0 +1,6 @@
+/home/mark/.roxy/bin/obs-clean
+/home/mark/.roxy/bin/roxy
+/home/mark/.roxy/bin/selftest_skybeam.py
+/home/mark/.roxy/bin/selftest_skybeam_inject.py
+/home/mark/.roxy/bin/skybeam
+/home/mark/.roxy/bin/validate_credentials.py

@@ -1,0 +1,35 @@
+[2026-01-11 20:19:41] Loading preset mapping...
+[2026-01-11 20:19:41] Available presets: ['default', 'drums', 'analysis', 'performance', 'teaching', 'minimal', 'composer']
+[2026-01-11 20:19:41] Connecting to OBS WebSocket at ws://127.0.0.1:4455
+[2026-01-11 20:19:41] WebSocket connection established
+[2026-01-11 20:19:41] Received Hello: obsWebSocketVersion=5.6.3
+[2026-01-11 20:19:41] Sending Identify (no auth required)
+[2026-01-11 20:19:41] Successfully identified with OBS
+[2026-01-11 20:19:41] Sending GetSceneList request
+[2026-01-11 20:19:41] GetSceneList succeeded
+[2026-01-11 20:19:41] Available OBS scenes: ['Scene']
+[2026-01-11 20:19:41] Preset 'default' → Scene 'Scene'
+[2026-01-11 20:19:41] Calling SetCurrentProgramScene('Scene')
+[2026-01-11 20:19:41] Sending SetCurrentProgramScene request
+[2026-01-11 20:19:41] SetCurrentProgramScene succeeded
+[2026-01-11 20:19:41] Sending GetCurrentProgramScene request
+[2026-01-11 20:19:41] GetCurrentProgramScene succeeded
+[2026-01-11 20:19:41] GetCurrentProgramScene returned: 'Scene'
+[2026-01-11 20:19:41] ✓ Preset 'default' test PASSED
+[2026-01-11 20:19:41] Preset 'drums' → Scene 'Scene'
+[2026-01-11 20:19:41] Calling SetCurrentProgramScene('Scene')
+[2026-01-11 20:19:41] Sending SetCurrentProgramScene request
+[2026-01-11 20:19:41] SetCurrentProgramScene succeeded
+[2026-01-11 20:19:41] Sending GetCurrentProgramScene request
+[2026-01-11 20:19:41] GetCurrentProgramScene succeeded
+[2026-01-11 20:19:41] GetCurrentProgramScene returned: 'Scene'
+[2026-01-11 20:19:41] ✓ Preset 'drums' test PASSED
+[2026-01-11 20:19:41] Disconnected from OBS
+
+=== ENSURE OBS OUTPUT ===
+OBS started successfully (PID: 4064739)
+
+=== WAIT OUTPUT ===
+[2026-01-11T13:19:40-07:00] Waiting for OBS WebSocket on port 4455 (timeout: 30s)...
+[2026-01-11T13:19:41-07:00] OBS WebSocket ready on port 4455
+SUCCESS: OBS WebSocket listening on port 4455 (owner: obs)

@@ -1,0 +1,26 @@
+NEXT                            LEFT LAST                              PASSED UNIT                            ACTIVATES
+Sun 2026-01-11 08:20:09 MST  2min 2s Sun 2026-01-11 07:20:10 MST    57min ago roxy-asset-briefs.timer         roxy-asset-briefs.service
+Sun 2026-01-11 08:22:03 MST 3min 55s Sun 2026-01-11 07:22:16 MST    55min ago roxy-prompt-packs.timer         roxy-prompt-packs.service
+Sun 2026-01-11 08:24:10 MST     6min Sun 2026-01-11 07:24:03 MST    54min ago roxy-storyboards.timer          roxy-storyboards.service
+Sun 2026-01-11 08:26:04 MST     7min Sun 2026-01-11 07:26:09 MST    51min ago roxy-asset-qa.timer             roxy-asset-qa.service
+Sun 2026-01-11 08:28:03 MST     9min Sun 2026-01-11 07:28:15 MST    49min ago roxy-prod-render-requests.timer roxy-prod-render-requests.service
+Sun 2026-01-11 08:30:01 MST    11min Sun 2026-01-11 07:30:04 MST    48min ago roxy-prod-renderer.timer        roxy-prod-renderer.service
+Sun 2026-01-11 08:32:03 MST    13min Sun 2026-01-11 07:32:06 MST    46min ago roxy-prod-master.timer          roxy-prod-master.service
+Sun 2026-01-11 08:34:04 MST    15min Sun 2026-01-11 07:34:10 MST    43min ago roxy-prod-qa.timer              roxy-prod-qa.service
+Sun 2026-01-11 08:36:05 MST    17min Sun 2026-01-11 07:36:02 MST    42min ago roxy-publish-queue.timer        roxy-publish-queue.service
+Sun 2026-01-11 08:38:10 MST    20min Sun 2026-01-11 07:38:03 MST    40min ago roxy-publish-packager.timer     roxy-publish-packager.service
+Sun 2026-01-11 08:40:13 MST    22min Sun 2026-01-11 07:40:15 MST    37min ago roxy-youtube-publisher.timer    roxy-youtube-publisher.service
+Sun 2026-01-11 08:42:11 MST    24min Sun 2026-01-11 07:42:05 MST    36min ago roxy-tiktok-publisher.timer     roxy-tiktok-publisher.service
+Sun 2026-01-11 08:44:03 MST    25min Sun 2026-01-11 07:44:11 MST    33min ago roxy-publish-metrics.timer      roxy-publish-metrics.service
+Sun 2026-01-11 08:46:09 MST    28min Sun 2026-01-11 07:46:06 MST    32min ago roxy-publish-health.timer       roxy-publish-health.service
+Sun 2026-01-11 09:00:13 MST    42min Sun 2026-01-11 08:00:01 MST    18min ago roxy-trend-detector.timer       roxy-trend-detector.service
+Sun 2026-01-11 09:02:04 MST    43min Sun 2026-01-11 08:02:02 MST    16min ago roxy-seed-ingestor.timer        roxy-seed-ingestor.service
+Sun 2026-01-11 09:05:13 MST    47min Sun 2026-01-11 08:05:11 MST    12min ago roxy-deep-research.timer        roxy-deep-research.service
+Sun 2026-01-11 09:10:03 MST    51min Sun 2026-01-11 08:10:15 MST     7min ago roxy-competitor-analyzer.timer  roxy-competitor-analyzer.service
+Sun 2026-01-11 09:12:16 MST    54min Sun 2026-01-11 08:12:13 MST     5min ago roxy-bundle-writer.timer        roxy-bundle-writer.service
+Sun 2026-01-11 09:14:07 MST    56min Sun 2026-01-11 08:14:26 MST 3min 41s ago roxy-template-library.timer     roxy-template-library.service
+Sun 2026-01-11 09:16:20 MST    58min Sun 2026-01-11 08:16:17 MST 1min 49s ago roxy-script-generator.timer     roxy-script-generator.service
+Sun 2026-01-11 09:18:16 MST  1h 0min Sun 2026-01-11 08:18:02 MST       4s ago roxy-script-reviewer.timer      roxy-script-reviewer.service
+
+22 timers listed.
+Pass --all to see loaded but inactive timers, too.

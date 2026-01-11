@@ -1,0 +1,12 @@
+   396 /home/mark/.roxy/mcp-servers/ai-orchestrator/server.py
+    98 /home/mark/.roxy/mcp-servers/browser/server.py
+   504 /home/mark/.roxy/mcp-servers/business/server.py
+   218 /home/mark/.roxy/mcp-servers/content/server.py
+   246 /home/mark/.roxy/mcp-servers/desktop/server.py
+   176 /home/mark/.roxy/mcp-servers/email/server.py
+   314 /home/mark/.roxy/mcp-servers/obs/ndi_bridge.py
+   258 /home/mark/.roxy/mcp-servers/obs/server.py
+   418 /home/mark/.roxy/mcp-servers/social/server.py
+   296 /home/mark/.roxy/mcp-servers/test_integrations.py
+    87 /home/mark/.roxy/mcp-servers/voice/server.py
+  3011 total

@@ -1,0 +1,45 @@
+{
+  "test_name": "hub_e2e_integration_selftest",
+  "timestamp": "2026-01-11T16:58:40.708Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "test_command_flow",
+      "status": "PASS",
+      "expected": "COMMAND_RECEIVED",
+      "actual": "COMMAND_RECEIVED"
+    },
+    {
+      "name": "test_event_flow",
+      "status": "PASS",
+      "expected": "EVENT_RECEIVED",
+      "actual": "EVENT_RECEIVED"
+    },
+    {
+      "name": "test_query_response",
+      "status": "PASS",
+      "expected": "RESPONSE_CORRELATED",
+      "actual": "RESPONSE_CORRELATED"
+    },
+    {
+      "name": "test_playback_event",
+      "status": "PASS",
+      "expected": "PLAYBACK_EVENT_RECEIVED",
+      "actual": "PLAYBACK_EVENT_RECEIVED"
+    },
+    {
+      "name": "test_set_preset_command",
+      "status": "PASS",
+      "expected": "PRESET_COMMAND_RECEIVED",
+      "actual": "PRESET_COMMAND_RECEIVED"
+    },
+    {
+      "name": "test_song_ended_event",
+      "status": "PASS",
+      "expected": "SONG_ENDED_RECEIVED",
+      "actual": "SONG_ENDED_RECEIVED"
+    }
+  ]
+}

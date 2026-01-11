@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "description": "Maps MindSong theater presets to OBS scenes and configures NDI sources",
+  "mappings": {
+    "presets": {
+      "default": {
+        "obs_scene_landscape": "Scene",
+        "obs_scene_portrait": "Scene",
+        "description": "Default preset - maps to basic OBS scene",
+        "widgets_visible": ["Piano", "Braid"]
+      },
+      "drums": {
+        "obs_scene_landscape": "Scene",
+        "obs_scene_portrait": "Scene",
+        "description": "Drums preset - maps to basic OBS scene for drum widget testing",
+        "widgets_visible": ["DrumKit", "Piano", "Metronome"]
+      },
+      "analysis": {
+        "obs_scene_landscape": "MindSong Analysis 8K",
+        "obs_scene_portrait": "MindSong Analysis Portrait",
+        "description": "Full widget layout for educational content",
+        "widgets_visible": ["Piano", "Fretboard", "Braid", "COF", "HarmonicProfile", "ScoreTab"]
+      },
+      "performance": {
+        "obs_scene_landscape": "MindSong Performance 8K",
+        "obs_scene_portrait": "MindSong Performance Portrait",
+        "description": "Minimal UI, focus on visualization",
+        "widgets_visible": ["Piano", "Braid"]
+      },
+      "teaching": {
+        "obs_scene_landscape": "MindSong Teaching 8K",
+        "obs_scene_portrait": "MindSong Teaching Portrait",
+        "description": "Score and keyboard prominent",
+        "widgets_visible": ["Piano", "ScoreTab", "Metronome"]
+      },
+      "minimal": {
+        "obs_scene_landscape": "MindSong Minimal 8K",
+        "obs_scene_portrait": "MindSong Minimal Portrait",
+        "description": "Clean visualization only",
+        "widgets_visible": ["Braid"]
+      },
+      "composer": {
+        "obs_scene_landscape": "MindSong Composer 8K",
+        "obs_scene_portrait": "MindSong Composer Portrait",
+        "description": "Full toolset visible",
+        "widgets_visible": ["Piano", "Fretboard", "Braid", "COF", "HarmonicProfile", "ScoreTab", "Metronome", "TempoGeometry"]
+      }
+    },
+    "ndi_sources": {
+      "landscape": {
+        "name": "MindSong Landscape 8K",
+        "resolutions": {
+          "8k": { "width": 7680, "height": 4320 },
+          "4k": { "width": 3840, "height": 2160 },
+          "1080p": { "width": 1920, "height": 1080 }
+        },
+        "default_resolution": "4k",
+        "fallback_resolution": "1080p"
+      },
+      "portrait": {
+        "name": "MindSong Portrait 4K",
+        "resolutions": {
+          "4k": { "width": 2160, "height": 3840 },
+          "1080p": { "width": 1080, "height": 1920 }
+        },
+        "default_resolution": "1080p",
+        "fallback_resolution": "1080p"
+      }
+    },
+    "aitum_vertical": {
+      "enabled": true,
+      "portrait_canvas": "Canvas 2",
+      "recording_mode": "simultaneous",
+      "fallback_mode": "sequential",
+      "notes": "Aitum Vertical plugin required for dual-canvas recording"
+    }
+  },
+  "obs_config": {
+    "websocket_port": 4455,
+    "recording_path": "~/.roxy/content-pipeline/input",
+    "filename_template": "{session_id}_{orientation}",
+    "encoder": {
+      "landscape": {
+        "encoder": "amd_amf_h264",
+        "bitrate": 50000,
+        "preset": "quality"
+      },
+      "portrait": {
+        "encoder": "amd_amf_h264",
+        "bitrate": 25000,
+        "preset": "quality"
+      }
+    }
+  },
+  "scene_templates": {
+    "landscape": {
+      "sources": [
+        {
+          "name": "NDI Landscape",
+          "type": "ndi_source",
+          "settings": {
+            "ndi_source_name": "MindSong Landscape 8K",
+            "bandwidth": "highest",
+            "sync": "ndi_timestamp"
+          }
+        }
+      ]
+    },
+    "portrait": {
+      "sources": [
+        {
+          "name": "NDI Portrait",
+          "type": "ndi_source",
+          "settings": {
+            "ndi_source_name": "MindSong Portrait 4K",
+            "bandwidth": "highest",
+            "sync": "ndi_timestamp"
+          }
+        }
+      ]
+    }
+  },
+  "nats_topics": {
+    "preset_change": "ghost.theater.preset.changed",
+    "scene_switch": "ghost.obs.scene.switch",
+    "status": "ghost.theater.status"
+  }
+}

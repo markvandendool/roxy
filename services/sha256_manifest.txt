@@ -1,0 +1,25 @@
+# ROXY OBS Integration - SHA256 Manifest
+# Generated: 2026-01-11T20:23:11Z
+# Gate B: OBS WebSocket Connection (PASS)
+# Gate C: Preset to Scene Bridge (PASS - 2/2 presets)
+# Gate D: Recording Mode (PASS - 5/5 tests)
+
+## Phase 0: OBS Ensure Primitives
+55c0d20deb05489dde8dbf472c82969982bb362e0015a385f59b3ca84e2fbdaa  obs_launch_clean.sh
+b290866d3776431d5871b2e86e5db9d5cc954ca78d874faaba41f647ce5e52b6  obs_wait_ws.sh
+
+## Gate B: OBS WebSocket Connection
+6c96164a360dc4a779479cbef03eda2e8bcb9ee7a849be6d8e02488f44f8477f  selftest_obs_ws_real.py
+
+## Gate C: Preset to Scene Bridge
+6f1d6ab4f9345ede31b4688385e18b4b4b8d1df365eb6c6f97dd02f9d67bf1cf  selftest_gate_c_preset_scene.py
+142d97eb7dbc11ea82e9d11165acb20dff892b1741d1b8637916d374ee2cf930  gate_c_transcript.json
+68c5280e7963566648b6b82d7d28ec90d0470432c5977648ab31d7996f0b7b66  gate_c_log_excerpt.txt
+
+## Gate D: Recording Mode
+3b0132f2216a440eef654c7dd066d52fa0d337548a33395f8e74050428f54b53  selftest_gate_d_recording.py
+294e5f455a0f2067e59411bf8ed75d01564ec17773c7a420d1732a90bc3bce43  gate_d_transcript.json
+9ff662f55fc2bc46fa906ff8e347b5e47f0622f31e8036c5f144d9a086a861ed  gate_d_log_excerpt.txt
+
+## Configuration
+8e29af3530d1d02ce50b25dd75af4cdd12caa91e8af595c6af7f031cdf87fabf  /home/mark/.roxy/config/theater_obs_mapping.json

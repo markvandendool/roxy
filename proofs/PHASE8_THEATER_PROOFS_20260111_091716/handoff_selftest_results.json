@@ -1,0 +1,60 @@
+{
+  "suite": "theater_handoff_selftest",
+  "timestamp": "2026-01-11T16:20:01.299275+00:00",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "success_rate": "100.0%"
+  },
+  "results": [
+    {
+      "test": "test_dummy_file_creation",
+      "expected": "EXISTS+SIZE_MATCH+HASH_MATCH",
+      "actual": "exists=True, size=True, hash=True",
+      "passed": true,
+      "details": "Size: 2048, SHA256: c2bae3546230ee49...",
+      "timestamp": "2026-01-11T16:20:01.296048+00:00"
+    },
+    {
+      "test": "test_handoff_copies_files",
+      "expected": "JOB_DIR+FILES_COPIED",
+      "actual": "job=True, land=True, port=True",
+      "passed": true,
+      "details": "Job ID: JOB_20260111_162001_fc787250",
+      "timestamp": "2026-01-11T16:20:01.296862+00:00"
+    },
+    {
+      "test": "test_handoff_file_sizes_match",
+      "expected": "SIZE=8192",
+      "actual": "SIZE=8192",
+      "passed": true,
+      "details": "Source: 8192, Dest: 8192",
+      "timestamp": "2026-01-11T16:20:01.297503+00:00"
+    },
+    {
+      "test": "test_handoff_sha256_matches",
+      "expected": "SHA=35bdb0ef4114ace7...",
+      "actual": "SHA=35bdb0ef4114ace7...",
+      "passed": true,
+      "details": "Full match: True",
+      "timestamp": "2026-01-11T16:20:01.298089+00:00"
+    },
+    {
+      "test": "test_handoff_manifest_exists",
+      "expected": "MANIFEST_OK+STRUCTURE_OK",
+      "actual": "exists=True, structure=True",
+      "passed": true,
+      "details": "Path: /tmp/tmpzsfdy3ek/pipeline/input/JOB_20260111_162001_a72d6f4b/handoff_manifest.json",
+      "timestamp": "2026-01-11T16:20:01.298645+00:00"
+    },
+    {
+      "test": "test_job_id_generation",
+      "expected": "PATTERN_MATCH",
+      "actual": "PATTERN_MATCH",
+      "passed": true,
+      "details": "Generated: JOB_20260111_162001_47c10a85",
+      "timestamp": "2026-01-11T16:20:01.299262+00:00"
+    }
+  ]
+}

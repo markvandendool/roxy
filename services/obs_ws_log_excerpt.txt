@@ -1,0 +1,79 @@
+[2026-01-11 20:17:09] Connecting to OBS WebSocket at ws://127.0.0.1:4455
+[2026-01-11 20:17:09] WebSocket connection established
+[2026-01-11 20:17:09] Received Hello: obsWebSocketVersion=5.6.3
+[2026-01-11 20:17:09] Sending Identify (no auth required)
+[2026-01-11 20:17:09] Successfully identified with OBS
+[2026-01-11 20:17:09] Sending GetVersion request
+[2026-01-11 20:17:09] GetVersion succeeded
+[2026-01-11 20:17:09] OBS Version: 32.0.2
+[2026-01-11 20:17:09] WebSocket Version: 5.6.3
+[2026-01-11 20:17:09] Platform: ubuntu
+[2026-01-11 20:17:09] Sending GetSceneList request
+[2026-01-11 20:17:09] GetSceneList succeeded
+[2026-01-11 20:17:09] Available scenes (1): Scene...
+[2026-01-11 20:17:09] Sending SetCurrentProgramScene request
+[2026-01-11 20:17:09] SetCurrentProgramScene succeeded
+[2026-01-11 20:17:09] Sending GetCurrentProgramScene request
+[2026-01-11 20:17:09] GetCurrentProgramScene succeeded
+[2026-01-11 20:17:09] Current scene: Scene
+[2026-01-11 20:17:09] Disconnected from OBS
+
+=== ENSURE OBS OUTPUT ===
+OBS started successfully (PID: 3980396)
+
+=== WAIT OUTPUT ===
+[2026-01-11T13:17:09-07:00] Waiting for OBS WebSocket on port 4455 (timeout: 30s)...
+[2026-01-11T13:17:09-07:00] OBS WebSocket ready on port 4455
+SUCCESS: OBS WebSocket listening on port 4455 (owner: obs)
+
+=== STARTUP LOG TAIL ===
+info:     obs-noise.so
+info:     obs-midi-mg.so
+info:     obs-libfdk.so
+info:     obs-filters.so
+info:     obs-ffmpeg.so
+info:     obs-composite-blur.so
+info:     obs-browser.so
+info:     obs-advanced-masks.so
+info:     linux-v4l2.so
+info:     linux-pulseaudio.so
+info:     linux-pipewire.so
+info:     linux-jack.so
+info:     linux-capture.so
+info:     linux-alsa.so
+info:     image-source.so
+info:     frontend-tools.so
+info:     decklink.so
+info:     decklink-output-ui.so
+info:     decklink-captions.so
+info: ---------------------------------
+info: [obs-websocket] [obs_module_post_load] WebSocket server is enabled, starting...
+info: [obs-websocket] [WebSocketServer::Start] Not locked to IPv4 bindings
+info: [obs-websocket] [WebSocketServer::ServerRunner] IO thread started.
+info: [obs-websocket] [WebSocketServer::Start] Server started successfully on port 4455. Possible connect address: 10.0.0.69
+info: ---------------------------------
+info: Available Encoders:
+info:   Video Encoders:
+info: 	- ffmpeg_svt_av1 (SVT-AV1)
+info: 	- ffmpeg_aom_av1 (AOM AV1)
+info: 	- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)
+info: 	- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)
+info: 	- obs_x264 (x264)
+info:   Audio Encoders:
+info: 	- ffmpeg_aac (FFmpeg AAC)
+info: 	- ffmpeg_opus (FFmpeg Opus)
+info: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+info: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+info: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+info: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+info: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+info: 	- libfdk_aac (libfdk AAC)
+info: ==== Startup complete ===============================================
+info: All scene data cleared
+info: ------------------------------------------------
+info: Switched to scene 'Scene'
+info: ------------------------------------------------
+info: Loaded scenes:
+info: - scene 'Scene':
+info: ------------------------------------------------
+[2026-01-11T13:17:09-07:00] OBS running successfully (PID: 3980396)

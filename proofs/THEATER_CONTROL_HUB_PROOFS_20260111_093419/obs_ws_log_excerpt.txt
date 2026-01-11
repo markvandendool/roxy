@@ -1,0 +1,19 @@
+[2026-01-11 19:53:00] Connecting to OBS WebSocket at ws://127.0.0.1:4455
+[2026-01-11 19:53:00] WebSocket connection established
+[2026-01-11 19:53:00] Received Hello: obsWebSocketVersion=5.6.3
+[2026-01-11 19:53:00] Sending Identify (no auth required)
+[2026-01-11 19:53:00] Successfully identified with OBS
+[2026-01-11 19:53:00] Sending GetVersion request
+[2026-01-11 19:53:00] GetVersion succeeded
+[2026-01-11 19:53:00] OBS Version: 32.0.2
+[2026-01-11 19:53:00] WebSocket Version: 5.6.3
+[2026-01-11 19:53:00] Platform: ubuntu
+[2026-01-11 19:53:00] Sending GetSceneList request
+[2026-01-11 19:53:00] GetSceneList succeeded
+[2026-01-11 19:53:00] Available scenes (1): Scene...
+[2026-01-11 19:53:00] Sending SetCurrentProgramScene request
+[2026-01-11 19:53:00] SetCurrentProgramScene succeeded
+[2026-01-11 19:53:00] Sending GetCurrentProgramScene request
+[2026-01-11 19:53:00] GetCurrentProgramScene succeeded
+[2026-01-11 19:53:00] Current scene: Scene
+[2026-01-11 19:53:00] Disconnected from OBS

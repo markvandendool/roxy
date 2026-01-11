@@ -1,0 +1,48 @@
+{
+  "test_name": "gate_d_recording",
+  "timestamp": "2026-01-11T20:23:07.936432+00:00",
+  "recording_duration_seconds": 3,
+  "tests": [
+    {
+      "name": "get_initial_status",
+      "result": "PASS",
+      "outputActive": false,
+      "outputPaused": false
+    },
+    {
+      "name": "start_recording",
+      "result": "PASS",
+      "start_time": "2026-01-11T20:23:07.953851+00:00",
+      "outputActive_after_start": true
+    },
+    {
+      "name": "recording_active_during_wait",
+      "duration_seconds": 3,
+      "result": "PASS",
+      "outputActive": true,
+      "outputTimecode": "00:00:03.399"
+    },
+    {
+      "name": "stop_recording",
+      "result": "PASS",
+      "stop_time": "2026-01-11T20:23:11.458748+00:00",
+      "outputPath": "/home/mark/Videos/2026-01-11 13-23-07.mkv",
+      "outputActive_after_stop": false
+    },
+    {
+      "name": "verify_output_file",
+      "result": "PASS",
+      "path": "/home/mark/Videos/2026-01-11 13-23-07.mkv",
+      "exists": true,
+      "size_bytes": 1377608
+    }
+  ],
+  "result": "PASS",
+  "obs_connected": true,
+  "obs_version": "5.6.3",
+  "summary": "5/5 tests passed",
+  "ensure_obs": {
+    "used": true,
+    "success": true
+  }
+}

@@ -1,0 +1,37 @@
+[2026-01-11 20:23:07] Connecting to OBS WebSocket at ws://127.0.0.1:4455
+[2026-01-11 20:23:07] WebSocket connection established
+[2026-01-11 20:23:07] Received Hello: obsWebSocketVersion=5.6.3
+[2026-01-11 20:23:07] Sending Identify (no auth required)
+[2026-01-11 20:23:07] Successfully identified with OBS
+[2026-01-11 20:23:07] Getting initial recording status...
+[2026-01-11 20:23:07] Sending GetRecordStatus request
+[2026-01-11 20:23:07] GetRecordStatus succeeded
+[2026-01-11 20:23:07] Initial status: active=False, paused=False
+[2026-01-11 20:23:07] Calling StartRecord...
+[2026-01-11 20:23:07] Sending StartRecord request
+[2026-01-11 20:23:07] StartRecord succeeded
+[2026-01-11 20:23:07] StartRecord succeeded
+[2026-01-11 20:23:08] Sending GetRecordStatus request
+[2026-01-11 20:23:08] GetRecordStatus succeeded
+[2026-01-11 20:23:08] ✓ Recording is active
+[2026-01-11 20:23:08] Recording for 3 seconds...
+[2026-01-11 20:23:11] Sending GetRecordStatus request
+[2026-01-11 20:23:11] GetRecordStatus succeeded
+[2026-01-11 20:23:11] ✓ Recording still active, timecode: 00:00:03.399
+[2026-01-11 20:23:11] Calling StopRecord...
+[2026-01-11 20:23:11] Sending StopRecord request
+[2026-01-11 20:23:11] StopRecord succeeded
+[2026-01-11 20:23:11] StopRecord succeeded, output: /home/mark/Videos/2026-01-11 13-23-07.mkv
+[2026-01-11 20:23:11] Sending GetRecordStatus request
+[2026-01-11 20:23:11] GetRecordStatus succeeded
+[2026-01-11 20:23:11] ✓ Recording is stopped
+[2026-01-11 20:23:11] ✓ Output file exists: /home/mark/Videos/2026-01-11 13-23-07.mkv (1377608 bytes)
+[2026-01-11 20:23:11] Disconnected from OBS
+
+=== ENSURE OBS OUTPUT ===
+OBS started successfully (PID: 4177996)
+
+=== WAIT OUTPUT ===
+[2026-01-11T13:23:07-07:00] Waiting for OBS WebSocket on port 4455 (timeout: 30s)...
+[2026-01-11T13:23:07-07:00] OBS WebSocket ready on port 4455
+SUCCESS: OBS WebSocket listening on port 4455 (owner: obs)

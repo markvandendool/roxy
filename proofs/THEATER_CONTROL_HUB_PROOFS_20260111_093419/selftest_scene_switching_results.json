@@ -1,0 +1,57 @@
+{
+  "test_name": "scene_switching_selftest",
+  "timestamp": "2026-01-11T17:08:10.201655+00:00",
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "results": [
+    {
+      "name": "test_switch_landscape_scene",
+      "status": "PASS",
+      "expected": "SCENE_SWITCHED",
+      "actual": "SCENE_SWITCHED"
+    },
+    {
+      "name": "test_switch_portrait_scene",
+      "status": "PASS",
+      "expected": "SCENE_SWITCHED",
+      "actual": "SCENE_SWITCHED"
+    },
+    {
+      "name": "test_all_presets_landscape",
+      "status": "PASS",
+      "expected": "ALL_PRESETS_VALID",
+      "actual": "ALL_PRESETS_VALID"
+    },
+    {
+      "name": "test_skip_duplicate_switch",
+      "status": "PASS",
+      "expected": "DUPLICATE_SKIPPED",
+      "actual": "DUPLICATE_SKIPPED"
+    },
+    {
+      "name": "test_invalid_preset",
+      "status": "PASS",
+      "expected": "GRACEFUL_FAILURE",
+      "actual": "GRACEFUL_FAILURE"
+    },
+    {
+      "name": "test_obs_disconnected",
+      "status": "PASS",
+      "expected": "GRACEFUL_FAILURE",
+      "actual": "GRACEFUL_FAILURE"
+    },
+    {
+      "name": "test_obs_switch_failure",
+      "status": "PASS",
+      "expected": "FAILURE_HANDLED",
+      "actual": "FAILURE_HANDLED"
+    },
+    {
+      "name": "test_event_published",
+      "status": "PASS",
+      "expected": "EVENT_PUBLISHED",
+      "actual": "EVENT_PUBLISHED"
+    }
+  ]
+}

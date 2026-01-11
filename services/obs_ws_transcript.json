@@ -1,0 +1,42 @@
+{
+  "test_name": "obs_real_connection",
+  "timestamp": "2026-01-11T20:17:09.158031+00:00",
+  "connection": {
+    "host": "127.0.0.1",
+    "port": 4455,
+    "connected": true,
+    "protocol_version": "5.6.3"
+  },
+  "get_version": {
+    "request_id": "9718efbb-d479-44aa-be9d-06fab5e73848",
+    "obs_version": "32.0.2",
+    "obs_web_socket_version": "5.6.3",
+    "platform": "ubuntu"
+  },
+  "scene_switch": {
+    "request": {
+      "request_type": "SetCurrentProgramScene",
+      "scene_name": "Scene"
+    },
+    "response": {
+      "request_status": {
+        "result": true,
+        "code": 100
+      }
+    }
+  },
+  "verify_scene": {
+    "request_type": "GetCurrentProgramScene",
+    "current_scene_name": "Scene"
+  },
+  "result": "PASS",
+  "available_scenes": [
+    "Scene"
+  ],
+  "ensure_obs": {
+    "used": true,
+    "launch_output": "OBS started successfully (PID: 3980396)\n",
+    "wait_output": "[2026-01-11T13:17:09-07:00] Waiting for OBS WebSocket on port 4455 (timeout: 30s)...\n[2026-01-11T13:17:09-07:00] OBS WebSocket ready on port 4455\nSUCCESS: OBS WebSocket listening on port 4455 (owner: obs)\n",
+    "startup_log_tail": "coders:\ninfo:   Video Encoders:\ninfo: \t- ffmpeg_svt_av1 (SVT-AV1)\ninfo: \t- ffmpeg_aom_av1 (AOM AV1)\ninfo: \t- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)\ninfo: \t- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)\ninfo: \t- obs_x264 (x264)\ninfo:   Audio Encoders:\ninfo: \t- ffmpeg_aac (FFmpeg AAC)\ninfo: \t- ffmpeg_opus (FFmpeg Opus)\ninfo: \t- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))\ninfo: \t- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))\ninfo: \t- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))\ninfo: \t- ffmpeg_alac (FFmpeg ALAC (24-bit))\ninfo: \t- ffmpeg_flac (FFmpeg FLAC (16-bit))\ninfo: \t- libfdk_aac (libfdk AAC)\ninfo: ==== Startup complete ===============================================\ninfo: All scene data cleared\ninfo: ------------------------------------------------\ninfo: Switched to scene 'Scene'\ninfo: ------------------------------------------------\ninfo: Loaded scenes:\ninfo: - scene 'Scene':\ninfo: ------------------------------------------------\n[2026-01-11T13:17:09-07:00] OBS running successfully (PID: 3980396)\n"
+  }
+}

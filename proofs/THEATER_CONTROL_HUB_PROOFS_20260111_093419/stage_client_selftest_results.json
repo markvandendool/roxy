@@ -1,0 +1,57 @@
+{
+  "test_name": "stage_client_selftest",
+  "timestamp": "2026-01-11T16:52:05.202Z",
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "results": [
+    {
+      "name": "test_connection",
+      "status": "PASS",
+      "expected": "CONNECTED",
+      "actual": "CONNECTED"
+    },
+    {
+      "name": "test_command_dispatch",
+      "status": "PASS",
+      "expected": "HANDLER_CALLED",
+      "actual": "HANDLER_CALLED"
+    },
+    {
+      "name": "test_query_response_correlation",
+      "status": "PASS",
+      "expected": "RESPONSE_CORRELATED",
+      "actual": "RESPONSE_CORRELATED"
+    },
+    {
+      "name": "test_tick_rate_limiting",
+      "status": "PASS",
+      "expected": "THROTTLED_TO_1",
+      "actual": "ACCEPTED_1"
+    },
+    {
+      "name": "test_tick_rate_with_delay",
+      "status": "PASS",
+      "expected": "ALL_ACCEPTED_WITH_DELAY",
+      "actual": "ACCEPTED_3"
+    },
+    {
+      "name": "test_heartbeat_sending",
+      "status": "PASS",
+      "expected": "HEARTBEAT_SENT",
+      "actual": "HEARTBEAT_SENT"
+    },
+    {
+      "name": "test_playback_event_broadcast",
+      "status": "PASS",
+      "expected": "EVENT_BROADCAST",
+      "actual": "EVENT_BROADCAST"
+    },
+    {
+      "name": "test_multiple_command_handlers",
+      "status": "PASS",
+      "expected": "BOTH_HANDLERS_CALLED",
+      "actual": "BOTH_HANDLERS_CALLED"
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TheaterSessionManifest",
+  "description": "Contract between ROXY and MindSong for automated theater recording sessions",
+  "type": "object",
+  "required": ["session_id", "created_at", "song", "recording", "theater"],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "pattern": "^SESSION_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$",
+      "description": "Unique session identifier with timestamp and hash"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when session was created"
+    },
+    "song": {
+      "type": "object",
+      "description": "Song metadata and file references",
+      "required": ["file_path", "duration_seconds", "bpm"],
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "description": "Absolute path to audio file"
+        },
+        "title": {
+          "type": "string",
+          "description": "Song title for metadata"
+        },
+        "artist": {
+          "type": "string",
+          "description": "Artist name for metadata"
+        },
+        "duration_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total duration in seconds"
+        },
+        "bpm": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 400,
+          "description": "Beats per minute for KHRONOS sync"
+        },
+        "time_signature": {
+          "type": "string",
+          "default": "4/4",
+          "pattern": "^[0-9]+/[0-9]+$",
+          "description": "Time signature (e.g., 4/4, 3/4, 6/8)"
+        },
+        "key": {
+          "type": "string",
+          "description": "Musical key (e.g., C, Am, F#m)"
+        },
+        "event_spine_path": {
+          "type": "string",
+          "description": "Path to EventSpine JSON for markers/sections"
+        }
+      }
+    },
+    "recording": {
+      "type": "object",
+      "description": "Recording configuration",
+      "required": ["mode", "outputs"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["landscape_only", "portrait_only", "dual"],
+          "description": "Recording mode - dual uses Aitum Vertical"
+        },
+        "outputs": {
+          "type": "object",
+          "description": "Output configurations per orientation",
+          "properties": {
+            "landscape": {
+              "type": "object",
+              "properties": {
+                "resolution": {
+                  "type": "string",
+                  "enum": ["7680x4320", "3840x2160", "1920x1080"],
+                  "default": "3840x2160",
+                  "description": "Output resolution (8K, 4K, or 1080p)"
+                },
+                "output_path": {
+                  "type": "string",
+                  "description": "Override output file path"
+                },
+                "ndi_source": {
+                  "type": "string",
+                  "default": "MindSong Landscape 8K",
+                  "description": "NDI source name to capture"
+                }
+              }
+            },
+            "portrait": {
+              "type": "object",
+              "properties": {
+                "resolution": {
+                  "type": "string",
+                  "enum": ["2160x3840", "1080x1920"],
+                  "default": "1080x1920",
+                  "description": "Portrait output resolution"
+                },
+                "output_path": {
+                  "type": "string",
+                  "description": "Override output file path"
+                },
+                "ndi_source": {
+                  "type": "string",
+                  "default": "MindSong Portrait 4K",
+                  "description": "NDI source name to capture"
+                }
+              }
+            }
+          }
+        },
+        "pre_roll_seconds": {
+          "type": "number",
+          "default": 2,
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Seconds to record before playback starts"
+        },
+        "post_roll_seconds": {
+          "type": "number",
+          "default": 2,
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Seconds to record after playback ends"
+        }
+      }
+    },
+    "theater": {
+      "type": "object",
+      "description": "MindSong Theater configuration",
+      "required": ["preset"],
+      "properties": {
+        "preset": {
+          "type": "string",
+          "enum": ["analysis", "performance", "teaching", "minimal", "composer"],
+          "description": "Initial theater preset to load"
+        },
+        "widgets": {
+          "type": "array",
+          "description": "Widget overrides for custom layouts",
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "visible"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Widget instance ID"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Piano", "Fretboard", "Braid", "COF", "HarmonicProfile", "ScoreTab", "Metronome", "TempoGeometry"],
+                "description": "Widget type"
+              },
+              "visible": {
+                "type": "boolean",
+                "description": "Whether widget is visible"
+              },
+              "position": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" }
+                },
+                "description": "Widget position (0-1 normalized)"
+              },
+              "size": {
+                "type": "object",
+                "properties": {
+                  "width": { "type": "number" },
+                  "height": { "type": "number" }
+                },
+                "description": "Widget size (0-1 normalized)"
+              }
+            }
+          }
+        },
+        "camera_automation": {
+          "type": "array",
+          "description": "Automated camera/scene transitions",
+          "items": {
+            "type": "object",
+            "required": ["trigger", "trigger_value", "camera_preset"],
+            "properties": {
+              "trigger": {
+                "type": "string",
+                "enum": ["section_change", "time", "marker"],
+                "description": "What triggers the transition"
+              },
+              "trigger_value": {
+                "type": "string",
+                "description": "Section name, timestamp, or marker ID"
+              },
+              "camera_preset": {
+                "type": "string",
+                "description": "Camera preset name to switch to"
+              }
+            }
+          }
+        }
+      }
+    },
+    "skybeam": {
+      "type": "object",
+      "description": "SKYBEAM pipeline integration settings",
+      "properties": {
+        "auto_ingest": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically ingest recordings into SKYBEAM"
+        },
+        "job_type": {
+          "type": "string",
+          "enum": ["shorts", "longform", "both"],
+          "default": "shorts",
+          "description": "Type of content to generate"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Metadata templates for publishing",
+          "properties": {
+            "title_template": {
+              "type": "string",
+              "description": "Title template with {song_title}, {artist} placeholders"
+            },
+            "description_template": {
+              "type": "string",
+              "description": "Description template"
+            },
+            "tags": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Tags to apply to published content"
+            }
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "recording", "completed", "failed", "ingested"],
+      "default": "pending",
+      "description": "Current session status"
+    },
+    "error": {
+      "type": "object",
+      "description": "Error details if status is failed",
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "description": "Recording results when status is completed/ingested",
+      "properties": {
+        "landscape_path": { "type": "string" },
+        "portrait_path": { "type": "string" },
+        "duration_seconds": { "type": "number" },
+        "job_id": { "type": "string" }
+      }
+    }
+  }
+}

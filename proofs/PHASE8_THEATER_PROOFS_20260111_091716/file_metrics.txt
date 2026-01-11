@@ -1,0 +1,17 @@
+=== FILE METRICS ===
+Generated: 2026-01-11T09:20:00-07:00
+
+=== Line Counts ===
+  790 services/obs_director.py
+  345 services/theater_session.py
+  308 services/selftest_theater_session.py
+  391 services/selftest_theater_handoff.py
+  525 services/selftest_obs_director_dryrun.py
+ 2359 total
+
+=== Python Syntax Check ===
+obs_director.py: SYNTAX OK
+theater_session.py: SYNTAX OK
+selftest_theater_session.py: SYNTAX OK
+selftest_theater_handoff.py: SYNTAX OK
+selftest_obs_director_dryrun.py: SYNTAX OK

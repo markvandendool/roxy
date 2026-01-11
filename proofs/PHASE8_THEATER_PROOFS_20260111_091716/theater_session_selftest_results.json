@@ -1,0 +1,60 @@
+{
+  "suite": "theater_session_selftest",
+  "timestamp": "2026-01-11T16:20:01.226173+00:00",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "success_rate": "100.0%"
+  },
+  "results": [
+    {
+      "test": "test_valid_manifest",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "details": "Valid",
+      "timestamp": "2026-01-11T16:20:01.203772+00:00"
+    },
+    {
+      "test": "test_missing_required_field",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "passed": true,
+      "details": "Validation error: 'song' is a required property",
+      "timestamp": "2026-01-11T16:20:01.212607+00:00"
+    },
+    {
+      "test": "test_invalid_enum_value",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "passed": true,
+      "details": "Validation error: 'invalid_preset_name' is not one of ['analysis', 'performance', 'teaching', 'minimal', 'composer']",
+      "timestamp": "2026-01-11T16:20:01.216997+00:00"
+    },
+    {
+      "test": "test_invalid_session_id_pattern",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "passed": true,
+      "details": "Validation error: 'INVALID_ID_FORMAT' does not match '^SESSION_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$'",
+      "timestamp": "2026-01-11T16:20:01.221356+00:00"
+    },
+    {
+      "test": "test_session_id_generation",
+      "expected": "PATTERN_MATCH",
+      "actual": "PATTERN_MATCH",
+      "passed": true,
+      "details": "Generated: SESSION_20260111_162001_fecb1ee2",
+      "timestamp": "2026-01-11T16:20:01.221395+00:00"
+    },
+    {
+      "test": "test_manifest_save_load_roundtrip",
+      "expected": "ROUNDTRIP_OK",
+      "actual": "ROUNDTRIP_OK",
+      "passed": true,
+      "details": "session_id match: True",
+      "timestamp": "2026-01-11T16:20:01.226060+00:00"
+    }
+  ]
+}

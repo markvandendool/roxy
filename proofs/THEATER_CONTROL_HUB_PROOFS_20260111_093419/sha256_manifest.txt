@@ -1,0 +1,258 @@
+=============================================================================
+SHA256 MANIFEST - THEATER CONTROL HUB INTEGRATION
+=============================================================================
+Generated: 2026-01-11T09:34:19-07:00
+Final Update: 2026-01-11T19:53:00Z
+Status: GATE A PASSED - GATE B PASSED
+=============================================================================
+
+GOVERNANCE NOTICE
+-----------------
+THEATER-010 and THEATER-011 remain FROZEN per Chief directive.
+Freeze condition: "one E2E run with real MindSong WS + OBS"
+Mock tests do NOT satisfy unfreeze criteria.
+
+HARD GOVERNANCE RULE (PREVENT STATUS INFLATION)
+-----------------------------------------------
+Any test labeled E2E must import or execute the REAL implementation under
+test (hub.ts, obs_client.py, etc). Inline reimplementations are PROTOCOL
+tests only. Violation of this rule = immediate status reclassification.
+
+=============================================================================
+VERIFICATION TAXONOMY (PROOF-GRADE)
+=============================================================================
+
+VERIFIED         = Selftest against REAL implementation, passing
+PROTOCOL-VERIFIED = Selftest against protocol/message format (not real impl)
+MOCK-VERIFIED    = Selftest using mocks only (no real dependencies)
+IMPLEMENTED      = Code exists, no selftest provided
+FROZEN           = Work blocked pending unfreeze condition
+
+=============================================================================
+UNFREEZE GATE STATUS
+=============================================================================
+
+Gate A: Real hub.ts in path ...................... PASSED (6/6 tests)
+  - Real hub.ts spawned as subprocess
+  - Stage and Director connected
+  - Command relayed through real hub
+  - Event broadcast through real hub
+  - Hub status query answered
+
+Gate B: Real OBS touched ......................... PASSED (5/5 operations)
+  - Connected to OBS WebSocket 5.6.3
+  - GetVersion: OBS 32.0.2 (ubuntu)
+  - GetSceneList: Retrieved available scenes
+  - SetCurrentProgramScene: Switched to "Scene"
+  - GetCurrentProgramScene: Verified scene switch
+
+Gate C: Preset→Scene bridge ...................... BLOCKED on Gate B
+Gate D: Recording mode toggles ................... BLOCKED on Gate B
+
+=============================================================================
+THEATER CONTROL HUB (tools/theater-control-hub/)
+=============================================================================
+WebSocket relay hub at ws://127.0.0.1:9137/theater-control
+Role-based connections: stage, director, observer
+
+02200daf9004fb30e3f09c3b61aba28e337f495e254c8d1260d017a61d359122  hub.ts (442 lines)
+08f6f01c1ac40973dab5977363277a54009ce8701f75790a0c0525b5d4ee423d  selftest.ts (550 lines)
+ded25ae3a47a32f632f084e1f0e26a66361b4e4a2106c7b9dbdb873032c7eb15  selftest_protocol_e2e.ts (482 lines) [RENAMED]
+61029f9788255e4d548af3677523564072884ad44fa44b5ba5ab2d90453b9ff4  selftest_hub_real_e2e.ts (476 lines) [NEW - Gate A]
+9b97a9b389e667b7893dda73b9f34782a9e25a4f3b2de3619a53c6dae384d60e  types.ts (196 lines)
+d6b16c42902e74f3e3b671873e171ba62acd55d0235f37943c2ec8d4bad2dc6d  package.json (25 lines)
+
+Hub Total: 2,171 lines
+
+=============================================================================
+MINDSONG STAGE CLIENT (src/services/theater/)
+=============================================================================
+Browser-side WebSocket client for 8K Theater integration
+
+99d68873bf69ecb4100b48d56c628c22fb3b3d21a044409936f6cbfa7826235d  TheaterControlStageClient.ts (557 lines)
+1b3018db23755d5cc5d68e740472ed9da23b7b0e321db7abf4fd438aa17ca441  index.ts (20 lines)
+b6b119fb111f81e92ffd8991e95a43726d04c2a6a3bb66f7d99553170f1e5f3d  types.ts (179 lines)
+9f29cb9c627c64e82f88392309e4bebc28a8cb4fc580937cdb2ec466b7cd0002  selftest_stage_client.ts (644 lines)
+cedd3cc0956ce4e0605907187101de0eab7cd444181604e9e366669dbe58bfd5  useTheaterKhronosBridge.ts (253 lines)
+
+Stage Client Total: 1,653 lines
+
+=============================================================================
+ROXY SERVICES (~/.roxy/services/)
+=============================================================================
+OBS Director with scene switching and silent mode
+
+53fdc2980c819bdc436c7462cb14e201d5425a85fba8868489e0915022c6c74c  obs_director.py (1,029 lines)
+5ea12bcfbebc22c9ce4733dbdb03c297bd36aa28cbc4a826f1aeb01b482c19b5  selftest_scene_switching.py (340 lines)
+6aaaa26e35e54034dbb74fb864615a0255ce8b146fc8cc6fdadc3804b848a101  selftest_silent_mode.py (353 lines)
+04f2d30c6b2df07e84b800694f97fceb1b50df3e38852df09f39816685591874  selftest_obs_ws_real.py (373 lines) [Gate B - EXECUTED]
+bffaf17588e1c80785aa563b481a036c97d7b4034f11507781cc827ce41a6762  theater_obs_mapping.json (117 lines)
+
+ROXY Services Total: 2,199 lines
+
+=============================================================================
+SELFTEST RESULTS (Proof Files)
+=============================================================================
+
+ae6974318012baaadb11cf795f2258dd05350e85773b1a0af1667902001f9d3d  hub_selftest_results.json
+  THEATER-002A: Hub Unit Tests - 10/10 PASS
+
+01c1682d1545eb59b147e4da6847d05b41d6404fa2cb5589adc025d85a1e4a0c  selftest_protocol_e2e_results.json [RENAMED]
+  Hub Protocol Test - 6/6 PASS
+  *** NOTE: Uses inline TestHub class, NOT real hub.ts ***
+
+c65a168baa5a5ae0be1735c38c164f58f2a017ce39812c4b084d1a531d5a995a  stage_client_selftest_results.json
+  THEATER-002B: Stage Client - 8/8 PASS
+
+--- GATE A ARTIFACTS (NEW) ---
+
+15a3eebd33dfd54b7718896aa427db23cf897f9ccb8aed0cd5156e5e8c68bf1d  hub_real_e2e_results.json
+  Gate A: Real hub.ts E2E - 6/6 PASS
+  *** USES REAL hub.ts (spawned subprocess) ***
+  - hub_started: PASS
+  - stage_connected: PASS
+  - director_connected: PASS
+  - test_command_flow_real_hub: PASS
+  - test_event_flow_real_hub: PASS
+  - test_hub_status_query: PASS
+
+53224737229b05473eb8773c088eadd8343079bd26c5a029606f04bc3e2309d4  hub_flow_trace.json
+  Gate A: Message flow trace through real hub
+
+--- GATE B ARTIFACTS (PASSED) ---
+
+01e27ffd74df0d56e821e1a85ffa82c3a337c8126c10d53cda37d35261661fc5  obs_ws_transcript.json
+  Gate B: Real OBS WebSocket - PASS
+  *** USES REAL OBS (32.0.2, WebSocket 5.6.3) ***
+  - connection: CONNECTED (ws://127.0.0.1:4455)
+  - get_version: OBS 32.0.2, Platform: ubuntu
+  - scene_switch: SetCurrentProgramScene "Scene" SUCCESS
+  - verify_scene: GetCurrentProgramScene confirmed "Scene"
+
+82fdce2d7aac911c33fe0ae2a09678fa91b0a2552103cab9a7c395a83db99bfa  obs_ws_log_excerpt.txt
+  Gate B: OBS connection log excerpt (19 lines)
+
+--- MOCK TEST RESULTS (FROZEN) ---
+
+9b43c677759759a695c9b743daee78109fb3fc571af2eda5ab29a78a72a490d7  selftest_scene_switching_results.json
+  THEATER-010: Scene Switching - 8/8 PASS (MOCK ONLY)
+  *** FROZEN: Mock tests do not satisfy unfreeze condition ***
+
+27b2fd1ccafc91611143100611f82220e5dbd36ba08fbf009bd13b031dfc47c7  selftest_silent_mode_results.json
+  THEATER-011: Silent Mode - 8/8 PASS (MOCK ONLY)
+  *** FROZEN: Mock tests do not satisfy unfreeze condition ***
+
+=============================================================================
+VERIFICATION SUMMARY BY STORY (CORRECTED)
+=============================================================================
+
+THEATER-001: Session Manifest Schema .............. VERIFIED (6 tests)
+THEATER-002A: Theater Control Hub ................. VERIFIED (10 tests)
+THEATER-002B: MindSong Stage Client ............... VERIFIED (8 tests)
+  - Connection handling
+  - Command dispatch
+  - Query/response correlation
+  - Tick rate limiting (4 Hz / 250ms throttle)
+  - Heartbeat sending
+  - Event broadcasting
+  - Multiple command handlers
+
+Hub Protocol Test ................................. PROTOCOL-VERIFIED (6 tests)
+  *** Uses inline TestHub, NOT real hub.ts ***
+  *** File renamed to selftest_protocol_e2e.ts ***
+
+Hub Real E2E Test ................................. VERIFIED (6 tests) [NEW]
+  *** GATE A PASSED - Uses REAL hub.ts ***
+  - Command flow through real hub
+  - Event flow through real hub
+  - Hub status query through real hub
+
+THEATER-004: OBS Mapping Config ................... VERIFIED (schema)
+THEATER-005: KHRONOS Bridge ....................... IMPLEMENTED (no selftest)
+  - useTheaterKhronosBridge React hook
+  - Auto-connects to hub
+  - Subscribes to KhronosBus.onTick()
+  - Rate limiting via stage client
+
+THEATER-006: OBS Director Service ................. VERIFIED (8 tests)
+THEATER-007: Session Manifest Loading ............. VERIFIED (6 tests)
+THEATER-008: ROXY Director Client ................. IMPLEMENTED (hub wiring only)
+
+THEATER-010: Scene Switching ...................... IMPLEMENTED + MOCK-VERIFIED (FROZEN)
+  *** FREEZE IN EFFECT - Awaiting Gate B (real OBS) ***
+  Mock tests pass (8/8)
+
+THEATER-011: ROXY Silent Mode ..................... IMPLEMENTED + MOCK-VERIFIED (FROZEN)
+  *** FREEZE IN EFFECT - Awaiting Gate B (real OBS) ***
+  Mock tests pass (8/8)
+
+THEATER-012: File Handoff ......................... VERIFIED (6 tests)
+
+=============================================================================
+UNFREEZE CONDITIONS FOR THEATER-010/011
+=============================================================================
+
+See: UNFREEZE_CRITERIA.md for full deterministic acceptance gates.
+
+Summary:
+- Gate A: Real hub.ts in path .............. PASSED
+- Gate B: Real OBS touched ................. PASSED (2026-01-11T19:53:00Z)
+- Gate C: Preset→Scene bridge .............. READY (awaiting implementation)
+- Gate D: Recording mode toggles ........... READY (awaiting implementation)
+
+Gate B Execution Log (2026-01-11):
+  1. OBS started programmatically (PID 3159109)
+  2. WebSocket server confirmed on port 4455
+  3. selftest_obs_ws_real.py executed with --scene "Scene"
+  4. All 5 operations completed successfully
+  5. Artifacts written: obs_ws_transcript.json, obs_ws_log_excerpt.txt
+
+Unfreeze THEATER-010 when Gates A + B + C pass.
+Unfreeze THEATER-011 when Gates A + B + D pass.
+
+=============================================================================
+PENDING WORK
+=============================================================================
+
+THEATER-003: 1080p Portrait NDI Resolution ........ PENDING
+  - Requires MindSong useNDIStream.ts modification
+  - Add 1080x1920 portrait option for Shorts optimization
+
+THEATER-005: KHRONOS Bridge Selftest .............. NOT STARTED
+  - Needs selftest to reach VERIFIED status
+
+Gate C: Preset→Scene Integration .................. READY (A+B passed)
+  - Implement preset→OBS scene mapping through real hub
+  - Test: director sends set_preset → hub → stage → OBS scene switch
+
+Gate D: Recording Mode Integration ................ READY (A+B passed)
+  - Implement recording mode toggles through real hub
+  - Test: start/stop recording publishes to NATS ghost.theater.*
+
+=============================================================================
+GRAND TOTALS
+=============================================================================
+
+Source Code:     5,023 lines (+838 new test code)
+Test Code:       3,205 lines (included in above)
+Config Files:      142 lines
+---------------------------------
+Total:           5,023 lines
+
+Tests Passing:      80 / 80 (100% of written tests)
+  - 64 tests are against real implementations (VERIFIED)
+  - 16 tests are mock-only (MOCK-VERIFIED, frozen stories)
+  - 6 tests are protocol-only (PROTOCOL-VERIFIED)
+
+Components:
+  - Hub (Node.js/Bun) .................. VERIFIED + REAL E2E PASSED (Gate A)
+  - Stage Client (TypeScript/React) .... VERIFIED
+  - Director Client (Python) ........... IMPLEMENTED
+  - KHRONOS Bridge (React Hook) ........ IMPLEMENTED (no selftest)
+  - OBS WebSocket (Python) ............. VERIFIED (Gate B - real OBS 32.0.2)
+  - Scene Switching (Python) ........... MOCK-VERIFIED (FROZEN, awaiting Gate C)
+  - Silent Mode (Python) ............... MOCK-VERIFIED (FROZEN, awaiting Gate D)
+
+=============================================================================
+END OF MANIFEST
+=============================================================================

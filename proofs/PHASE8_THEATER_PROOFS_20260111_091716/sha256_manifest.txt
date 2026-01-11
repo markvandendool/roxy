@@ -1,0 +1,27 @@
+=== SHA256 MANIFEST (FINAL) ===
+Generated: 2026-01-11T09:20:13-07:00
+
+=== Service Files ===
+6421825698e011ceaea2a5155d6842f72a442b33706534506331a317bac88a42  /home/mark/.roxy/services/obs_director.py
+9ea8de0848733f5415789197fb5564f71bc722e3b0fc7f8bc8d0964cdfed431a  /home/mark/.roxy/services/theater_session.py
+
+=== Schema/Config Files ===
+26288a190d2c0551856406c93858a9a07ecda973469da91bd0fae39534c15e11  /home/mark/.roxy/theater-sessions/session_manifest_schema.json
+d15cf4935e6abd8006c7865c5b2622944ac7cca9739161eea44ebc47c33d6248  /home/mark/.roxy/theater-sessions/session_manifest_example.json
+bffaf17588e1c80785aa563b481a036c97d7b4034f11507781cc827ce41a6762  /home/mark/.roxy/config/theater_obs_mapping.json
+
+=== Selftest Files ===
+4f5ee2b34c71e74aebe30121281b1db5ba545aaf08611d7137ce9465079ca1ae  /home/mark/.roxy/services/selftest_theater_session.py
+965e0bd5c9cf86e443d6e917d42ee404d9b45713422a1bc17e169cf292d9122c  /home/mark/.roxy/services/selftest_theater_handoff.py
+7fcffbfb35b30dbd6f1c0a1b893f3026ca595e6cbc3896ea53be949842342337  /home/mark/.roxy/services/selftest_obs_director_dryrun.py
+35fed927e93a249a07e743e10250d1e2f850104116bd68247d14eaeff0b67460  /home/mark/.roxy/services/run_theater_proofs.sh
+
+=== Proof Results ===
+46f53265954fb141f1d83c2a092eca8cd26ea46b6d4931ea21354512ba968af3  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/handoff_manifest.json
+b562c42d36008e58ea91eea38509a58ae11881dd878bbf70753f9d6db1072257  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/handoff_selftest_results.json
+34cbb9ea99fb81f2f5ac97894f661d420a04bd51ff3a1c8dd763b77b4b0d6f16  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/obs_director_dryrun_results.json
+ce1dbe7831c853a78841b1ed7926c03c798ce5b2b68d4ecef4869bceffca6d83  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/theater_session_selftest_results.json
+097df10957aca48a86c21101c7cf775cf109bfc891af72c81156ee6f5d00f5f1  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/file_metrics.txt
+0795c27dd8e8145b03e70ba5cff5dee1dcd321db41a4720cfe3ab213998bcdf9  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/obs_director_dryrun_log.txt
+ed14c2b521b208c620cbf670379f2c03d63cabb914148e545b1aee67f9f9d49b  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/sha256_manifest.txt
+74a9dc25b146094cb3c897d3352eef5a31af3d9287514389f3ec25d0160a54ec  /home/mark/.roxy/proofs/PHASE8_THEATER_PROOFS_20260111_091716/tree.txt

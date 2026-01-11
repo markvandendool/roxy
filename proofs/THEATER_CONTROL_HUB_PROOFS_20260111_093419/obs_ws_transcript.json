@@ -1,0 +1,36 @@
+{
+  "test_name": "obs_real_connection",
+  "timestamp": "2026-01-11T19:53:00.439831+00:00",
+  "connection": {
+    "host": "127.0.0.1",
+    "port": 4455,
+    "connected": true,
+    "protocol_version": "5.6.3"
+  },
+  "get_version": {
+    "request_id": "68fd60ef-f78d-4b51-8271-de2fe1c96ec8",
+    "obs_version": "32.0.2",
+    "obs_web_socket_version": "5.6.3",
+    "platform": "ubuntu"
+  },
+  "scene_switch": {
+    "request": {
+      "request_type": "SetCurrentProgramScene",
+      "scene_name": "Scene"
+    },
+    "response": {
+      "request_status": {
+        "result": true,
+        "code": 100
+      }
+    }
+  },
+  "verify_scene": {
+    "request_type": "GetCurrentProgramScene",
+    "current_scene_name": "Scene"
+  },
+  "result": "PASS",
+  "available_scenes": [
+    "Scene"
+  ]
+}
