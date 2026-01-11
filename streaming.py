@@ -118,16 +118,20 @@ class SSEStreamer:
         else:
             self.ollama_circuit = None
     
-    def stream_ollama_response(self, 
+    def stream_ollama_response(self,
                                model: str,
                                prompt: str,
                                context: Optional[str] = None,
                                temperature: float = 0.7,
                                num_predict: int = 300,
-                               request_id: Optional[str] = None) -> Iterator[str]:
+                               request_id: Optional[str] = None,
+                               base_url: Optional[str] = None) -> Iterator[str]:
         """
         Stream tokens from Ollama API
-        
+
+        Args:
+            base_url: Optional override for Ollama endpoint (from router)
+
         Yields:
             str: JSON-encoded SSE event data
         """
@@ -135,15 +139,18 @@ class SSEStreamer:
         request_tag = request_id or "n/a"
         if context:
             full_prompt = f"Context:\n{context}\n\nQuestion: {prompt}\n\nAnswer:"
-        
+
+        # Use provided base_url or fall back to instance default
+        effective_url = base_url or self.ollama_url
+
         start_time = time.time()
-        
+
         try:
             # Call Ollama streaming API with retry and circuit breaker protection
             @retry(max_attempts=3, delay=1.0, backoff=2.0) if RESILIENCE_AVAILABLE else lambda f: f
             def _make_request():
                 return requests.post(
-                    f"{self.ollama_url}/api/generate",
+                    f"{effective_url}/api/generate",
                     json={
                         "model": model,
                         "prompt": full_prompt,
@@ -288,7 +295,8 @@ class SSEStreamer:
                            context: Optional[str] = None,
                            model: str = "llama3:8b",
                            temperature: float = 0.7,
-                           request_id: Optional[str] = None) -> Iterator[str]:
+                           request_id: Optional[str] = None,
+                           base_url: Optional[str] = None) -> Iterator[str]:
         """
         Stream RAG response with context.
 
@@ -303,6 +311,7 @@ class SSEStreamer:
             context: RAG context chunks (optional)
             model: Ollama model name
             temperature: Generation temperature
+            base_url: Optional Ollama endpoint from router (Directive #8)
 
         Yields:
             str: SSE event data
@@ -386,14 +395,15 @@ the TRUTH PACKET is AUTHORITATIVE for current date/time and system state."""
 
         logger.debug(f"[RAG] Built prompt for requestId={request_tag}, context_len={len(context) if context else 0}")
 
-        # Stream response
+        # Stream response (pass endpoint from router if provided)
         for event in self.stream_ollama_response(
             model=model,
             prompt=prompt,
             context=None,  # Already included in prompt
             temperature=temperature,
             num_predict=500,
-            request_id=request_id
+            request_id=request_id,
+            base_url=base_url
         ):
             yield event
 

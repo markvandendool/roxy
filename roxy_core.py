@@ -1457,23 +1457,46 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             except ImportError:
                 pass
 
-            # Build routing metadata (Directive #10)
+            # Build routing metadata (Directive #10) + Expert routing (Directive #8)
             import time as time_mod
             route_start = time_mod.time()
-            routing_meta = {
-                "routed_mode": "rag" if not is_command else "command",
-                "selected_pool": "6900xt",  # Default pool
-                "selected_model": "qwen2.5-coder:14b",
-                "skip_rag": skip_rag,
-                "skip_rag_reason": skip_rag_reason,
-                "request_id": request_id,
-            }
+
+            # Check for /deep prefix to force BIG pool
+            force_deep = command.lower().startswith("/deep ")
+            if force_deep:
+                command = command[6:].strip()  # Remove /deep prefix
+
+            # Route query using router_integration
+            try:
+                from router_integration import route_query, to_routing_meta
+                routing_decision = route_query(command, force_deep=force_deep)
+                routing_meta = to_routing_meta(routing_decision)
+                routing_meta["routed_mode"] = "rag" if not is_command else "command"
+                routing_meta["skip_rag"] = skip_rag
+                routing_meta["skip_rag_reason"] = skip_rag_reason
+                routing_meta["request_id"] = request_id
+                selected_model = routing_decision.selected_model
+                selected_endpoint = routing_decision.selected_endpoint
+            except ImportError:
+                logger.warning("[ROUTING] router_integration not available, using defaults")
+                routing_meta = {
+                    "routed_mode": "rag" if not is_command else "command",
+                    "selected_pool": "big",
+                    "selected_endpoint": "http://127.0.0.1:11434",
+                    "selected_model": "qwen2.5-coder:14b",
+                    "skip_rag": skip_rag,
+                    "skip_rag_reason": skip_rag_reason,
+                    "request_id": request_id,
+                }
+                selected_model = "qwen2.5-coder:14b"
+                selected_endpoint = "http://127.0.0.1:11434"
 
             if not is_command:
                 # Likely RAG query - get context and stream
                 # But skip RAG for time/date queries (Directive #3)
                 context = ""
                 rag_skipped = False
+                rag_sources = []  # Top 3 RAG sources for routing_meta
 
                 if skip_rag:
                     # Time/date query - TruthPacket will handle it, no RAG needed
@@ -1527,23 +1550,33 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         context_chunks = results["documents"][0] if results and results["documents"] else []
                         context = "\n\n".join(context_chunks[:3]) if context_chunks else ""
 
+                        # Extract top 3 sources for routing_meta (Directive B)
+                        rag_sources = []
+                        if results and results.get("metadatas"):
+                            for meta in results["metadatas"][0][:3]:
+                                if meta and "source" in meta:
+                                    rag_sources.append(meta["source"])
+
                     except Exception as e:
                         logger.debug(f"RAG context fetch failed: {e}, continuing with empty context")
                         context = ""
+                        # rag_sources already initialized to [] at start
 
                 # Stream RAG response (with or without context)
                 try:
                     # Emit routing metadata event (Directive #10)
                     routing_meta["latency_ms"] = int((time_mod.time() - route_start) * 1000)
                     routing_meta["rag_context_len"] = len(context) if context else 0
+                    routing_meta["rag_sources_top3"] = rag_sources
                     routing_event = f"event: routing_meta\ndata: {json.dumps(routing_meta)}\n\n"
                     self._safe_write(routing_event, request_id)
 
                     for sse_event in streamer.stream_rag_response(
                         query=command,
                         context=context if not rag_skipped else "",
-                        model="qwen2.5-coder:14b",
-                        request_id=request_id
+                        model=selected_model,
+                        request_id=request_id,
+                        base_url=selected_endpoint
                     ):
                         if not self._safe_write(sse_event, request_id):
                             return

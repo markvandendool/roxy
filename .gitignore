@@ -54,3 +54,16 @@ tuya-raw.json
 
 # Nested git repositories (third-party clones)
 gesture-control/midiGesture-base/
+
+# Artifacts - generated audit/test logs (keep only canonical refs)
+artifacts/rag_audit_*.json
+artifacts/gateBRAIN_*.log
+artifacts/perf_probe_*.json
+# Keep: artifacts/last_good_candidate_commit.txt (canonical)
+# Keep: artifacts/rag_audit_*.md (forensic reports)
+
+# RAG index caches (regeneratable)
+rag/cache/
+rag/*.cache
+# Keep: rag/index_manifest.json (reproducibility reference)
+# Keep: rag/rebuild_index_clean.py (canonical rebuild script)
