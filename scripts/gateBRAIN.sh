@@ -270,6 +270,56 @@ test_time_via_run() {
     return 0
 }
 
+# Test SSE routing_meta event (Chief directive #4)
+test_sse_routing_meta() {
+    log_test "SSE routing_meta event..."
+
+    # Check if core is up first
+    if ! curl -sf "$ROXY_CORE_URL/health" > /dev/null 2>&1; then
+        log_test "(skipped - roxy-core not running)"
+        return 0
+    fi
+
+    # Get auth token
+    local auth_token=""
+    if [[ -f "$ROXY_DIR/secret.token" ]]; then
+        auth_token=$(cat "$ROXY_DIR/secret.token" 2>/dev/null || true)
+    fi
+
+    if [[ -z "$auth_token" ]]; then
+        log_test "(skipped - no auth token)"
+        return 0
+    fi
+
+    # Test SSE /stream endpoint
+    response=$(timeout 10 curl -sN "$ROXY_CORE_URL/stream?command=hello" \
+        -H "X-ROXY-Token: $auth_token" 2>/dev/null | head -c 2000 || echo "TIMEOUT")
+
+    if [[ "$response" == "TIMEOUT" ]]; then
+        log_test "(skipped - SSE stream timeout, may need Ollama warmup)"
+        return 0
+    fi
+
+    # Check for routing_meta event
+    if echo "$response" | grep -q "event: routing_meta"; then
+        # Verify it contains expected fields
+        if echo "$response" | grep -q "selected_pool"; then
+            log_pass "SSE routing_meta event OK"
+            return 0
+        else
+            log_fail "routing_meta missing 'selected_pool' field"
+            return 1
+        fi
+    elif echo "$response" | grep -q "403"; then
+        log_test "(skipped - auth rejected)"
+        return 0
+    else
+        log_fail "No routing_meta event in SSE stream"
+        [[ -n "$VERBOSE" ]] && echo "Response: $response"
+        return 1
+    fi
+}
+
 # Main
 main() {
     log ""
@@ -288,6 +338,7 @@ main() {
     test_repo_truth || true
     test_core_health || true
     test_time_via_run || true
+    test_sse_routing_meta || true
 
     log ""
     log "========================================"

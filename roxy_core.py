@@ -1479,17 +1479,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 selected_endpoint = routing_decision.selected_endpoint
             except ImportError:
                 logger.warning("[ROUTING] router_integration not available, using defaults")
+                # Default to FAST pool for speed (Chief directive: FAST unless router says BIG)
                 routing_meta = {
                     "routed_mode": "rag" if not is_command else "command",
-                    "selected_pool": "big",
-                    "selected_endpoint": "http://127.0.0.1:11434",
-                    "selected_model": "qwen2.5-coder:14b",
+                    "selected_pool": "fast",
+                    "selected_endpoint": "http://127.0.0.1:11435",
+                    "selected_model": "llama3:8b",
                     "skip_rag": skip_rag,
                     "skip_rag_reason": skip_rag_reason,
                     "request_id": request_id,
                 }
-                selected_model = "qwen2.5-coder:14b"
-                selected_endpoint = "http://127.0.0.1:11434"
+                selected_model = "llama3:8b"
+                selected_endpoint = "http://127.0.0.1:11435"
 
             if not is_command:
                 # Likely RAG query - get context and stream
@@ -1532,8 +1533,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             collection = client.get_collection("mindsong_docs", embedding_function=ef)
                             return collection.query(
                                 query_embeddings=[embedding],
-                                n_results=3,
-                                include=["documents", "metadatas"]
+                                n_results=5,  # Get more for boosting, use top 3
+                                include=["documents", "metadatas", "distances"]
                             )
 
                         # Use circuit breaker if available
@@ -1546,6 +1547,13 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 results = {"documents": [[]], "metadatas": [[]]}
                         else:
                             results = _query_chromadb()
+
+                        # Apply ops docs priority boosts (Chief directive #6)
+                        try:
+                            from rag.rebuild_index_clean import apply_ops_boosts
+                            results = apply_ops_boosts(results, command)
+                        except ImportError:
+                            pass  # Boost not available, continue with raw results
 
                         context_chunks = results["documents"][0] if results and results["documents"] else []
                         context = "\n\n".join(context_chunks[:3]) if context_chunks else ""

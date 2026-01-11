@@ -360,6 +360,79 @@ def rebuild_index(dry_run: bool = False) -> Dict:
     return manifest
 
 
+# ============================================================================
+# OPS DOCS PRIORITY BOOSTS
+# ============================================================================
+
+OPS_PRIORITY_DOCS = {
+    # Query patterns -> docs that should rank first
+    "port": ["docs/ROXY_RUNTIME_PORTS.md", "ROXY_RUNTIME_PORTS.md"],
+    "ports": ["docs/ROXY_RUNTIME_PORTS.md", "ROXY_RUNTIME_PORTS.md"],
+    "11434": ["docs/ROXY_RUNTIME_PORTS.md", "docs/ROXY_DUAL_POOL_CONTRACT.md"],
+    "11435": ["docs/ROXY_RUNTIME_PORTS.md", "docs/ROXY_DUAL_POOL_CONTRACT.md"],
+    "pool": ["docs/ROXY_DUAL_POOL_CONTRACT.md", "pool_identity.py"],
+    "big": ["docs/ROXY_DUAL_POOL_CONTRACT.md"],
+    "fast": ["docs/ROXY_DUAL_POOL_CONTRACT.md"],
+    "restart": ["docs/ROXY_RUNBOOK_CORE.md", "README_DAEMON.md"],
+    "service": ["docs/ROXY_RUNBOOK_CORE.md"],
+    "daemon": ["docs/ROXY_RUNBOOK_CORE.md", "README_DAEMON.md"],
+    "systemctl": ["docs/ROXY_RUNBOOK_CORE.md"],
+    "identity": ["ROXY_IDENTITY.md"],
+    "brain": ["ROXY_BRAIN_CONTRACT.md"],
+    "truthpacket": ["truth_packet.py", "ROXY_BRAIN_CONTRACT.md"],
+}
+
+
+def apply_ops_boosts(results: dict, query: str) -> dict:
+    """
+    Reorder retrieval results to boost ops docs for matching queries.
+
+    Args:
+        results: ChromaDB query results with 'documents', 'metadatas', 'distances'
+        query: User query string
+
+    Returns:
+        Reordered results with priority docs first
+    """
+    if not results or not results.get("metadatas"):
+        return results
+
+    query_lower = query.lower()
+    priority_sources = set()
+
+    # Find which priority docs should be boosted
+    for keyword, docs in OPS_PRIORITY_DOCS.items():
+        if keyword in query_lower:
+            priority_sources.update(docs)
+
+    if not priority_sources:
+        return results
+
+    # Separate into priority and non-priority
+    metas = results["metadatas"][0]
+    docs = results.get("documents", [[]])[0] or [None] * len(metas)
+    dists = results.get("distances", [[]])[0] or [0] * len(metas)
+
+    priority_items = []
+    other_items = []
+
+    for i, (doc, meta, dist) in enumerate(zip(docs, metas, dists)):
+        source = meta.get("source", "") if meta else ""
+        if any(p in source for p in priority_sources):
+            priority_items.append((doc, meta, dist))
+        else:
+            other_items.append((doc, meta, dist))
+
+    # Recombine with priority first
+    reordered = priority_items + other_items
+
+    return {
+        "documents": [[item[0] for item in reordered]],
+        "metadatas": [[item[1] for item in reordered]],
+        "distances": [[item[2] for item in reordered]],
+    }
+
+
 def add_retrieval_filter(chunks: List[Dict], query: str) -> List[Dict]:
     """
     Filter retrieved chunks to remove poisoning sources.

@@ -27,6 +27,9 @@ POOL_CONFIG = {
     },
 }
 
+# Default pool for general queries (FAST for speed, BIG only when needed)
+DEFAULT_POOL = "fast"
+
 
 class QueryType(Enum):
     """Query types for routing."""
@@ -71,33 +74,55 @@ KEYWORD_PATTERNS = {
     ],
 }
 
-# Query types that prefer FAST pool
-FAST_POOL_TYPES = {QueryType.SUMMARY}
+# Query types that prefer FAST pool (quick responses, cheap inference)
+FAST_POOL_TYPES = {QueryType.SUMMARY, QueryType.GENERAL}
 
-# Query types that prefer BIG pool
+# Query types that REQUIRE BIG pool (quality-critical)
 BIG_POOL_TYPES = {QueryType.CODE, QueryType.TECHNICAL, QueryType.CREATIVE}
 
 
 def classify_query(query: str) -> Tuple[QueryType, float]:
     """
-    Classify query type using keyword matching.
+    Classify query type using keyword matching with precedence ordering.
+
+    Precedence (Chief directive): SUMMARY > CODE > TECHNICAL > CREATIVE > GENERAL
+    Intent keywords (summarize, code, write) should beat domain keywords (roxy, pool).
 
     Returns:
         (query_type, confidence)
     """
     query_lower = query.lower()
-    best_type = QueryType.GENERAL
-    best_score = 0.0
 
+    # Precedence order: intent types beat domain types
+    PRECEDENCE = [
+        QueryType.SUMMARY,   # "summarize" always wins
+        QueryType.CODE,      # "code", "function", "implement"
+        QueryType.TECHNICAL, # "explain", "how does"
+        QueryType.CREATIVE,  # "write story", "poem"
+        QueryType.GENERAL,   # fallback
+    ]
+
+    # Score each type
+    scores = {}
     for qtype, keywords in KEYWORD_PATTERNS.items():
         matches = sum(1 for kw in keywords if kw in query_lower)
         if matches > 0:
-            score = min(1.0, matches / 3.0)  # 3 keywords = 100% confidence
-            if score > best_score:
-                best_score = score
-                best_type = qtype
+            scores[qtype] = min(1.0, matches / 3.0)  # 3 keywords = 100% confidence
 
-    return best_type, best_score
+    if not scores:
+        return QueryType.GENERAL, 0.0
+
+    # Find highest score
+    max_score = max(scores.values())
+
+    # Among types with max score, pick by precedence
+    for qtype in PRECEDENCE:
+        if scores.get(qtype) == max_score:
+            return qtype, max_score
+
+    # Fallback (shouldn't reach here)
+    best_type = max(scores, key=scores.get)
+    return best_type, scores[best_type]
 
 
 def get_pool_for_type(query_type: QueryType, force_deep: bool = False) -> str:
@@ -114,10 +139,13 @@ def get_pool_for_type(query_type: QueryType, force_deep: bool = False) -> str:
     if force_deep:
         return "big"
 
+    if query_type in BIG_POOL_TYPES:
+        return "big"
+
     if query_type in FAST_POOL_TYPES:
         return "fast"
 
-    return "big"  # Default to BIG for quality
+    return DEFAULT_POOL  # Default to FAST for speed
 
 
 def get_model_for_type(query_type: QueryType, pool: str) -> str:

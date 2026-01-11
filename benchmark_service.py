@@ -631,19 +631,36 @@ def check_pool_invariants() -> dict:
     w5700x_latency = w5700x_info["latency_ms"]
     xt6900_latency = xt6900_info["latency_ms"]
 
-    # If W5700X responds much faster than 6900XT on basic health check,
-    # the services might be swapped. Allow 50% tolerance for network noise.
-    if w5700x_latency > 0 and xt6900_latency > w5700x_latency * 1.5:
+    # CHIEF DIRECTIVE: Downgrade to WARN unless meaningful + persistent
+    # - Sub-millisecond jitter is noise, not signal
+    # - Only alert if: delta > 3ms AND ratio > 1.5x AND both > 1ms baseline
+    MIN_LATENCY_BASELINE_MS = 1.0  # Ignore sub-ms jitter
+    MIN_DELTA_MS = 3.0  # Minimum meaningful difference
+    RATIO_THRESHOLD = 1.5  # 50% slower is concerning
+
+    delta_ms = xt6900_latency - w5700x_latency
+    ratio = xt6900_latency / w5700x_latency if w5700x_latency > 0 else 1.0
+
+    if (w5700x_latency > MIN_LATENCY_BASELINE_MS and
+        xt6900_latency > MIN_LATENCY_BASELINE_MS and
+        delta_ms > MIN_DELTA_MS and
+        ratio > RATIO_THRESHOLD):
+        # Significant anomaly - this is a real warning
         result["ok"] = False
         warning_msg = (
             f"POOL LATENCY ANOMALY: 6900XT ({xt6900_latency:.1f}ms) slower than "
-            f"W5700X ({w5700x_latency:.1f}ms). Check if ollama services are on correct ports. "
+            f"W5700X ({w5700x_latency:.1f}ms) by {delta_ms:.1f}ms. Check if ollama services are on correct ports. "
             f"Expected: 6900XT on port 11435 (http://127.0.0.1:11435), "
             f"W5700X on port 11434 (http://127.0.0.1:11434)."
         )
         result["warning"] = warning_msg
-        # CHIEF DIRECTIVE: Make failures LOUD
-        logger.error(f"POOL INVARIANT FAILURE: {warning_msg}")
+        logger.warning(f"POOL LATENCY WARNING: {warning_msg}")
+    elif (w5700x_latency < MIN_LATENCY_BASELINE_MS or xt6900_latency < MIN_LATENCY_BASELINE_MS):
+        # Sub-ms readings - noise, log debug only
+        logger.debug(
+            f"[POOL] Latency check: 6900XT={xt6900_latency:.2f}ms, W5700X={w5700x_latency:.2f}ms "
+            f"(sub-ms, within noise floor)"
+        )
 
     return result
 
