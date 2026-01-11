@@ -107,6 +107,7 @@ log ""
 run_gate "Gate A (Resilience)" "$SCRIPT_DIR/gateA_resilience.sh"
 run_gate "Gate B (Overload)" "$SCRIPT_DIR/gateB_overload.sh"
 run_gate "Gate E (Observability)" "$SCRIPT_DIR/gateE_observability.sh"
+run_gate "Gate F (Auth)" "$SCRIPT_DIR/gateF_auth_audit.sh"
 
 # Summary
 log "========================================================"
