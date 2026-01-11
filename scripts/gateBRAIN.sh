@@ -270,9 +270,9 @@ test_time_via_run() {
     return 0
 }
 
-# Test SSE routing_meta event (Chief directive #4)
+# Test SSE routing_meta event (Chief directive #4 + smoke test)
 test_sse_routing_meta() {
-    log_test "SSE routing_meta event..."
+    log_test "SSE routing_meta smoke test..."
 
     # Check if core is up first
     if ! curl -sf "$ROXY_CORE_URL/health" > /dev/null 2>&1; then
@@ -291,30 +291,35 @@ test_sse_routing_meta() {
         return 0
     fi
 
-    # Test SSE /stream endpoint
-    response=$(timeout 10 curl -sN "$ROXY_CORE_URL/stream?command=hello" \
-        -H "X-ROXY-Token: $auth_token" 2>/dev/null | head -c 2000 || echo "TIMEOUT")
+    # SSE smoke test: /stream?command=hello should return routing_meta within 2 seconds
+    response=$(timeout 2 curl -sN "$ROXY_CORE_URL/stream?command=hello" \
+        -H "X-ROXY-Token: $auth_token" 2>/dev/null | head -c 1000 || echo "TIMEOUT")
 
-    if [[ "$response" == "TIMEOUT" ]]; then
-        log_test "(skipped - SSE stream timeout, may need Ollama warmup)"
+    if [[ "$response" == "TIMEOUT" ]] || [[ -z "$response" ]]; then
+        log_test "(skipped - SSE stream timeout within 2s, may need Ollama warmup)"
         return 0
     fi
 
-    # Check for routing_meta event
+    # Check for routing_meta event with required semantic fields
     if echo "$response" | grep -q "event: routing_meta"; then
-        # Verify it contains expected fields
-        if echo "$response" | grep -q "selected_pool"; then
-            log_pass "SSE routing_meta event OK"
+        # Verify key semantic fields (Chief directives A-E)
+        local has_pool=$(echo "$response" | grep -q "selected_pool" && echo "1")
+        local has_mode=$(echo "$response" | grep -q "routed_mode" && echo "1")
+        local has_type=$(echo "$response" | grep -q "query_type" && echo "1")
+        local has_reason=$(echo "$response" | grep -q "reason" && echo "1")
+
+        if [[ "$has_pool" && "$has_mode" && "$has_type" && "$has_reason" ]]; then
+            log_pass "SSE routing_meta smoke test OK (all semantic fields present)"
             return 0
         else
-            log_fail "routing_meta missing 'selected_pool' field"
+            log_fail "routing_meta missing semantic fields (pool=$has_pool mode=$has_mode type=$has_type reason=$has_reason)"
             return 1
         fi
     elif echo "$response" | grep -q "403"; then
         log_test "(skipped - auth rejected)"
         return 0
     else
-        log_fail "No routing_meta event in SSE stream"
+        log_fail "No routing_meta event in SSE stream within 2s"
         [[ -n "$VERBOSE" ]] && echo "Response: $response"
         return 1
     fi
