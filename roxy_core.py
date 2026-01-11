@@ -1471,20 +1471,56 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 from router_integration import route_query, to_routing_meta
                 routing_decision = route_query(command, force_deep=force_deep)
                 routing_meta = to_routing_meta(routing_decision)
-                routing_meta["routed_mode"] = "rag" if not is_command else "command"
+
+                # Chief directive A: routed_mode must reflect reality
+                if is_command:
+                    routing_meta["routed_mode"] = "command"
+                elif skip_rag:
+                    routing_meta["routed_mode"] = "truth_only"  # No RAG, TruthPacket handles it
+                else:
+                    routing_meta["routed_mode"] = "rag"
+
                 routing_meta["skip_rag"] = skip_rag
                 routing_meta["skip_rag_reason"] = skip_rag_reason
                 routing_meta["request_id"] = request_id
+
+                # Chief directive B: override query_type for time/repo queries
+                if skip_rag_reason == "time_date_query":
+                    routing_meta["query_type"] = "time_date"
+                    routing_meta["reason"] = "skip_rag:time_date_query"
+                elif skip_rag_reason == "repo_query":
+                    routing_meta["query_type"] = "repo"
+                    routing_meta["reason"] = "skip_rag:repo_query"
+
                 selected_model = routing_decision.selected_model
                 selected_endpoint = routing_decision.selected_endpoint
             except ImportError:
                 logger.warning("[ROUTING] router_integration not available, using defaults")
                 # Default to FAST pool for speed (Chief directive: FAST unless router says BIG)
+                # Chief directive A: routed_mode must reflect reality
+                if is_command:
+                    mode = "command"
+                elif skip_rag:
+                    mode = "truth_only"
+                else:
+                    mode = "rag"
+
+                # Chief directive B/D: override query_type and reason for time/repo
+                if skip_rag_reason == "time_date_query":
+                    qtype, reason = "time_date", "skip_rag:time_date_query"
+                elif skip_rag_reason == "repo_query":
+                    qtype, reason = "repo", "skip_rag:repo_query"
+                else:
+                    qtype, reason = "general", "fallback:general:no_router"
+
                 routing_meta = {
-                    "routed_mode": "rag" if not is_command else "command",
+                    "routed_mode": mode,
+                    "query_type": qtype,
+                    "reason": reason,
                     "selected_pool": "fast",
                     "selected_endpoint": "http://127.0.0.1:11435",
                     "selected_model": "llama3:8b",
+                    "confidence": 0.0,
                     "skip_rag": skip_rag,
                     "skip_rag_reason": skip_rag_reason,
                     "request_id": request_id,
@@ -1559,11 +1595,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         context = "\n\n".join(context_chunks[:3]) if context_chunks else ""
 
                         # Extract top 3 sources for routing_meta (Directive B)
+                        # Chief directive C: Deduplicate sources while preserving order
                         rag_sources = []
+                        seen_sources = set()
                         if results and results.get("metadatas"):
-                            for meta in results["metadatas"][0][:3]:
+                            for meta in results["metadatas"][0]:
                                 if meta and "source" in meta:
-                                    rag_sources.append(meta["source"])
+                                    source = meta["source"]
+                                    if source and source not in seen_sources:
+                                        seen_sources.add(source)
+                                        rag_sources.append(source)
+                                        if len(rag_sources) >= 3:
+                                            break
 
                     except Exception as e:
                         logger.debug(f"RAG context fetch failed: {e}, continuing with empty context")

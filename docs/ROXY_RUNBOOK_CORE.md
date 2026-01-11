@@ -68,6 +68,31 @@ curl http://127.0.0.1:11434/api/tags
 curl http://127.0.0.1:11435/api/tags
 ```
 
+## API Endpoints (Chief Directive H)
+
+| Endpoint | Method | Auth | Response | Notes |
+|----------|--------|------|----------|-------|
+| `/stream` | GET | X-ROXY-Token | SSE | Primary streaming endpoint; emits `routing_meta` event |
+| `/run` | POST | X-ROXY-Token | JSON | Non-streaming (legacy-friendly) |
+| `/health` | GET | None | JSON | Health check |
+
+**SSE Endpoint: `/stream`**
+- Token via `X-ROXY-Token` header
+- Emits `event: routing_meta` with pool/model/confidence data
+- Example: `curl -sN "http://127.0.0.1:8766/stream?command=hello" -H "X-ROXY-Token: $TOKEN"`
+
+**JSON Endpoint: `/run`**
+- Non-streaming JSON response
+- Use for scripts/automation that don't need SSE
+
+**routing_meta event fields:**
+- `query_type`: time_date | repo | ops | code | summary | technical | general
+- `routed_mode`: truth_only | rag | command
+- `selected_pool`: fast | big
+- `selected_endpoint`: http://127.0.0.1:11435 (fast) or :11434 (big)
+- `skip_rag`: true/false
+- `rag_sources_top3`: deduplicated top sources
+
 ## RAG Index Management
 
 ### Rebuild Index

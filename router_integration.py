@@ -37,6 +37,7 @@ class QueryType(Enum):
     TECHNICAL = "technical"
     CREATIVE = "creative"
     SUMMARY = "summary"
+    OPS = "ops"  # Chief directive E: ops queries -> FAST pool
     GENERAL = "general"
 
 
@@ -62,7 +63,7 @@ KEYWORD_PATTERNS = {
     QueryType.TECHNICAL: [
         'explain', 'how does', 'what is', 'documentation', 'architecture',
         'system', 'design', 'protocol', 'configure', 'setup', 'install',
-        'deploy', 'service', 'server', 'roxy', 'ollama', 'pool', 'gpu'
+        'deploy', 'gpu'
     ],
     QueryType.CREATIVE: [
         'write', 'story', 'poem', 'creative', 'imagine', 'fiction',
@@ -72,10 +73,16 @@ KEYWORD_PATTERNS = {
         'summarize', 'summary', 'tl;dr', 'tldr', 'key points', 'highlights',
         'overview', 'gist', 'recap', 'condense', 'bullet'
     ],
+    # Chief directive E: ops queries -> FAST pool (cheaper/faster, ops docs already boosted)
+    QueryType.OPS: [
+        'port', 'ports', 'service', 'server', 'restart', 'start', 'stop',
+        'status', 'runbook', 'systemctl', 'daemon', 'health', 'pool',
+        'ollama', 'roxy', '11434', '11435', '8766'
+    ],
 }
 
 # Query types that prefer FAST pool (quick responses, cheap inference)
-FAST_POOL_TYPES = {QueryType.SUMMARY, QueryType.GENERAL}
+FAST_POOL_TYPES = {QueryType.SUMMARY, QueryType.OPS, QueryType.GENERAL}
 
 # Query types that REQUIRE BIG pool (quality-critical)
 BIG_POOL_TYPES = {QueryType.CODE, QueryType.TECHNICAL, QueryType.CREATIVE}
@@ -94,9 +101,11 @@ def classify_query(query: str) -> Tuple[QueryType, float]:
     query_lower = query.lower()
 
     # Precedence order: intent types beat domain types
+    # Chief directive E: OPS beats TECHNICAL for port/service queries
     PRECEDENCE = [
         QueryType.SUMMARY,   # "summarize" always wins
         QueryType.CODE,      # "code", "function", "implement"
+        QueryType.OPS,       # "port", "service", "restart" -> FAST pool
         QueryType.TECHNICAL, # "explain", "how does"
         QueryType.CREATIVE,  # "write story", "poem"
         QueryType.GENERAL,   # fallback
@@ -185,9 +194,11 @@ def route_query(query: str, force_deep: bool = False) -> RoutingDecision:
     # Select model
     model = get_model_for_type(query_type, pool)
 
-    # Build reason
+    # Build reason (Chief directive D: explain fallback when confidence=0)
     if force_deep:
         reason = f"force_deep:{query_type.value}"
+    elif confidence == 0.0 and query_type == QueryType.GENERAL:
+        reason = "fallback:general:no_keywords"
     else:
         reason = f"classified:{query_type.value}:{confidence:.2f}"
 
