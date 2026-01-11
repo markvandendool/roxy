@@ -142,6 +142,56 @@ print('SKIP' if is_time_date_query('$query') else 'NO_SKIP')
     return 0
 }
 
+# Test repo/git classifier (Directive #5)
+test_repo_classifier() {
+    log_test "Repo/git query classifier..."
+
+    local repo_queries=(
+        "what branch are we on"
+        "what is the current commit"
+        "is the repo dirty"
+        "what was the last commit"
+    )
+
+    for query in "${repo_queries[@]}"; do
+        result=$(python3 -c "
+from streaming import is_repo_query
+print('SKIP' if is_repo_query(\"$query\") else 'NO_SKIP')
+" 2>/dev/null || echo "ERROR")
+
+        if [[ "$result" != "SKIP" ]]; then
+            log_fail "Query '$query' should skip RAG but got: $result"
+            return 1
+        fi
+    done
+
+    log_pass "Repo/git classifier OK"
+    return 0
+}
+
+# Test repo state matches TruthPacket
+test_repo_truth() {
+    log_test "Repo state matches TruthPacket..."
+
+    # Get actual git branch
+    actual_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "ERROR")
+
+    # Get TruthPacket branch
+    truth_branch=$(python3 -c "
+from truth_packet import generate_truth_packet
+packet = generate_truth_packet(include_pools=False)
+print(packet.get('git', {}).get('branch', 'unknown'))
+" 2>/dev/null || echo "ERROR")
+
+    if [[ "$actual_branch" != "$truth_branch" ]]; then
+        log_fail "TruthPacket branch mismatch: actual=$actual_branch, truth=$truth_branch"
+        return 1
+    fi
+
+    log_pass "Repo state matches TruthPacket"
+    return 0
+}
+
 # Test roxy-core is responding
 test_core_health() {
     log_test "roxy-core health..."
@@ -234,6 +284,8 @@ main() {
     test_truth_packet || true
     test_identity || true
     test_time_classifier || true
+    test_repo_classifier || true
+    test_repo_truth || true
     test_core_health || true
     test_time_via_run || true
 

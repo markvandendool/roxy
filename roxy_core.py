@@ -1441,14 +1441,33 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "git", "obs", "health", "open", "launch", "start", "stop"
             ])
 
-            # Import time/date classifier (Directive #3)
+            # Import query classifiers (Directives #3, #5)
+            skip_rag = False
+            skip_rag_reason = None
             try:
-                from streaming import is_time_date_query
-                skip_rag = is_time_date_query(command)
-                if skip_rag:
+                from streaming import is_time_date_query, is_repo_query
+                if is_time_date_query(command):
+                    skip_rag = True
+                    skip_rag_reason = "time_date_query"
                     logger.info(f"[ROUTING] Time/date query detected - skipping RAG requestId={request_id}")
+                elif is_repo_query(command):
+                    skip_rag = True
+                    skip_rag_reason = "repo_query"
+                    logger.info(f"[ROUTING] Repo/git query detected - skipping RAG requestId={request_id}")
             except ImportError:
-                skip_rag = False
+                pass
+
+            # Build routing metadata (Directive #10)
+            import time as time_mod
+            route_start = time_mod.time()
+            routing_meta = {
+                "routed_mode": "rag" if not is_command else "command",
+                "selected_pool": "6900xt",  # Default pool
+                "selected_model": "qwen2.5-coder:14b",
+                "skip_rag": skip_rag,
+                "skip_rag_reason": skip_rag_reason,
+                "request_id": request_id,
+            }
 
             if not is_command:
                 # Likely RAG query - get context and stream
@@ -1514,6 +1533,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
 
                 # Stream RAG response (with or without context)
                 try:
+                    # Emit routing metadata event (Directive #10)
+                    routing_meta["latency_ms"] = int((time_mod.time() - route_start) * 1000)
+                    routing_meta["rag_context_len"] = len(context) if context else 0
+                    routing_event = f"event: routing_meta\ndata: {json.dumps(routing_meta)}\n\n"
+                    self._safe_write(routing_event, request_id)
+
                     for sse_event in streamer.stream_rag_response(
                         query=command,
                         context=context if not rag_skipped else "",
