@@ -56,12 +56,30 @@ try:
 except ImportError:
     SERVICE_BRIDGE_AVAILABLE = False
     logger.debug("Service bridge not available, using basic mode")
+
+# Pool identity - single source of truth for pool configuration
+try:
+    from pool_identity import normalize_pool_key, POOL_ALIASES as POOL_IDENTITY_ALIASES
+    POOL_IDENTITY_AVAILABLE = True
+except ImportError:
+    POOL_IDENTITY_AVAILABLE = False
+    logger.debug("Pool identity module not available, using local aliases")
+    # Fallback to local aliases if module not found (should not happen)
+    def normalize_pool_key(pool_requested):
+        """Fallback normalize function."""
+        raw = pool_requested
+        key = pool_requested.lower()
+        local_aliases = {"big": "w5700x", "fast": "6900xt"}
+        return (raw, local_aliases.get(key, key))
+    POOL_IDENTITY_ALIASES = {"big": "w5700x", "fast": "6900xt"}
+
 # Import Prometheus metrics (graceful fallback)
 try:
     from prometheus_metrics import (
         init_prometheus, MetricsMiddleware,
         record_rag_query, record_cache_hit, record_cache_miss,
         record_ollama_call, record_blocked_command, record_rate_limit,
+        record_pool_status, record_bench_dry_run, record_ready_check,
         is_available as prometheus_available,
         export_metrics,
     )
@@ -666,6 +684,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         
         if path == "/health" or path == "/v1/health":
             self._handle_health_check()
+        elif path == "/ready" or path == "/v1/ready":
+            self._handle_ready_check()
+        elif path == "/version" or path == "/v1/version":
+            self._handle_version()
         elif path == "/metrics" or path == "/v1/metrics":
             self._handle_metrics()
         elif path == "/modes" or path == "/v1/modes":
@@ -811,6 +833,146 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(health_status).encode())
+
+    def _handle_ready_check(self):
+        """
+        Production readiness check - stricter than /health.
+
+        Returns 200 only if:
+        - Pool invariants OK (both pools configured correctly)
+        - Both W5700X and 6900XT pools reachable
+
+        Returns 503 with actionable error details if not ready.
+        """
+        from benchmark_service import check_pool_invariants
+
+        ready_status = {
+            "ready": False,
+            "timestamp": datetime.now().isoformat(),
+            "checks": {},
+        }
+
+        try:
+            invariants = check_pool_invariants()
+            ready_status["checks"]["pool_invariants"] = invariants
+
+            # Record pool metrics
+            if METRICS_AVAILABLE:
+                pools = invariants.get("pools", {})
+                for pool_name, pool_info in pools.items():
+                    record_pool_status(
+                        pool=pool_name,
+                        reachable=pool_info.get("reachable", False),
+                        latency_ms=pool_info.get("latency_ms")
+                    )
+
+            # Check if invariants passed
+            if not invariants.get("ok", False):
+                ready_status["error_code"] = "POOL_INVARIANT_FAILURE"
+                ready_status["message"] = invariants.get("warning") or "Pool invariants check failed"
+                ready_status["remediation_hint"] = "Check ollama-w5700x.service and ollama-6900xt.service are running on correct ports (11434/11435)"
+                if METRICS_AVAILABLE:
+                    record_ready_check(ready=False)
+                self.send_response(503)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(ready_status, indent=2).encode())
+                return
+
+            # Check both pools are reachable
+            pools = invariants.get("pools", {})
+            w5700x_ok = pools.get("w5700x", {}).get("reachable", False)
+            xt6900_ok = pools.get("6900xt", {}).get("reachable", False)
+
+            unreachable = []
+            if not w5700x_ok:
+                unreachable.append("w5700x")
+            if not xt6900_ok:
+                unreachable.append("6900xt")
+
+            if unreachable:
+                ready_status["error_code"] = "POOLS_UNREACHABLE"
+                ready_status["message"] = f"Pools not reachable: {unreachable}"
+                ready_status["remediation_hint"] = f"Start services: systemctl --user start ollama-{''.join(unreachable[0])}.service"
+                if METRICS_AVAILABLE:
+                    record_ready_check(ready=False)
+                self.send_response(503)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(ready_status, indent=2).encode())
+                return
+
+            # All checks passed
+            ready_status["ready"] = True
+            ready_status["message"] = "All pools configured and reachable"
+            if METRICS_AVAILABLE:
+                record_ready_check(ready=True)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(ready_status, indent=2).encode())
+
+        except Exception as e:
+            ready_status["error_code"] = "INTERNAL_ERROR"
+            ready_status["message"] = str(e)
+            ready_status["remediation_hint"] = "Check roxy-core logs: journalctl --user -u roxy-core -f"
+            if METRICS_AVAILABLE:
+                record_ready_check(ready=False)
+            self.send_response(503)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(ready_status, indent=2).encode())
+
+    def _handle_version(self):
+        """
+        Return version information for release tracking.
+        GET /version - Returns {version, git_sha, build_time, python_version}
+        """
+        version_info = {
+            "version": "1.0.0-rc1",
+            "service": "roxy-core",
+        }
+
+        # Get git SHA
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            version_info["git_sha"] = result.stdout.strip() if result.returncode == 0 else "unknown"
+
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            version_info["git_sha_full"] = result.stdout.strip() if result.returncode == 0 else "unknown"
+
+            # Check if dirty
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+            )
+            version_info["git_dirty"] = bool(result.stdout.strip()) if result.returncode == 0 else None
+        except Exception:
+            version_info["git_sha"] = "unknown"
+            version_info["git_sha_full"] = "unknown"
+            version_info["git_dirty"] = None
+
+        # Build time (file mtime of roxy_core.py as proxy)
+        try:
+            import platform
+            roxy_core_path = ROXY_DIR / "roxy_core.py"
+            mtime = roxy_core_path.stat().st_mtime
+            version_info["build_time"] = datetime.fromtimestamp(mtime).isoformat()
+            version_info["python_version"] = platform.python_version()
+            version_info["platform"] = platform.system()
+        except Exception:
+            version_info["build_time"] = "unknown"
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(version_info, indent=2).encode())
 
     def _handle_info(self):
         """Return server info: time, hostname, git state, ollama status, routing policy.
@@ -2984,9 +3146,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 effective_pool = pool.upper() if pool else "AUTO"
                 pool_config = _resolve_ollama_pools()
 
-                # Normalize pool aliases: BIG->W5700X, FAST->6900XT (case-insensitive)
-                POOL_ALIASES = {"BIG": "W5700X", "FAST": "6900XT"}
-                pool_normalized = POOL_ALIASES.get(effective_pool.upper(), effective_pool.upper())
+                # Normalize pool aliases using pool_identity module (handles deprecation warnings)
+                _, pool_canonical = normalize_pool_key(effective_pool)
+                pool_normalized = pool_canonical.upper()  # This code expects uppercase
 
                 # HARD INVARIANT: Check for misconfiguration (W5700X == 6900XT)
                 if pool_config["misconfigured"]:

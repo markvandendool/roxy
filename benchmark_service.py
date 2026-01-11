@@ -32,8 +32,14 @@ _current_process: Optional[subprocess.Popen] = None
 _run_lock = threading.Lock()
 _run_history: list[dict] = []
 
-# Deprecation warning tracking (log once per process)
-_deprecated_alias_warned: set[str] = set()
+# Import pool identity (single source of truth)
+from pool_identity import (
+    CANONICAL_POOLS,
+    POOL_ALIASES,
+    normalize_pool_key,
+    resolve_pool as _pool_identity_resolve,
+    get_all_pools_status,
+)
 
 # lm-eval binary path (in ROXY venv)
 ROXY_VENV = Path.home() / ".roxy" / "venv"
@@ -547,27 +553,8 @@ def _capture_daemon_info() -> dict:
     except Exception as e:
         return {"error": str(e), "captured": False}
 
-# Pool -> Service -> GPU mapping (single source of truth)
-# CHIEF DIRECTIVE: Pool names match hardware, not semantic roles
-# This prevents "BIG means fast" confusion forever
-POOL_IDENTITY = {
-    "w5700x": {
-        "port": 11434,
-        "service": "ollama-w5700x.service",
-        "gpu": "W5700X",
-    },
-    "6900xt": {
-        "port": 11435,
-        "service": "ollama-6900xt.service",
-        "gpu": "6900XT",
-    },
-}
-
-# Backwards compatibility aliases (deprecated, will warn)
-POOL_ALIASES = {
-    "big": "w5700x",    # Legacy: "big" was port 11434
-    "fast": "6900xt",   # Legacy: "fast" was port 11435
-}
+# Pool identity now imported from pool_identity.py (single source of truth)
+# CANONICAL_POOLS and POOL_ALIASES are imported at module level
 
 
 def check_pool_invariants() -> dict:
@@ -613,14 +600,14 @@ def check_pool_invariants() -> dict:
         except Exception as e:
             return False, 0, str(e)
 
-    # Probe each pool
-    for pool_name, identity in POOL_IDENTITY.items():
-        url = f"http://127.0.0.1:{identity['port']}"
+    # Probe each pool (using CANONICAL_POOLS from pool_identity.py)
+    for pool_name, pool_info in CANONICAL_POOLS.items():
+        url = f"http://127.0.0.1:{pool_info['port']}"
         reachable, latency_ms, error = probe_latency(url)
         result["pools"][pool_name] = {
-            "port": identity["port"],
-            "gpu": identity["gpu"],
-            "service": identity["service"],
+            "port": pool_info["port"],
+            "gpu": pool_info["gpu"],
+            "service": pool_info["service"],
             "reachable": reachable,
             "latency_ms": round(latency_ms, 2) if reachable else None,
             "error": error,
@@ -694,21 +681,8 @@ def _resolve_benchmark_pool(pool_requested: str) -> dict:
     import urllib.request
     import os
 
-    # Store raw input for audit trail
-    pool_requested_raw = pool_requested
-
-    # Resolve legacy aliases to canonical names (case-insensitive)
-    pool_key = pool_requested.lower()
-    if pool_key in POOL_ALIASES:
-        canonical = POOL_ALIASES[pool_key]
-        # DEPRECATION WARNING: log once per process per alias
-        if pool_key not in _deprecated_alias_warned:
-            _deprecated_alias_warned.add(pool_key)
-            logger.warning(
-                f"Pool alias '{pool_key.upper()}' is deprecated; "
-                f"use '{canonical.upper()}' instead (still accepted)"
-            )
-        pool_key = canonical
+    # Normalize pool input using pool_identity module (handles deprecation warnings)
+    pool_requested_raw, pool_key = normalize_pool_key(pool_requested)
 
     # Get pool URLs from environment - NO HARDCODED DEFAULTS for operator-grade
     w5700x_url_raw = os.getenv("ROXY_OLLAMA_W5700X_URL") or os.getenv("OLLAMA_BIG_URL") or os.getenv("ROXY_OLLAMA_BIG_URL")
@@ -741,12 +715,12 @@ def _resolve_benchmark_pool(pool_requested: str) -> dict:
         port_match = re.search(r':(\d+)', url)
         port = int(port_match.group(1)) if port_match else None
 
-        # Look up identity by port
-        for pool_name, identity in POOL_IDENTITY.items():
-            if identity["port"] == port:
+        # Look up identity by port (using CANONICAL_POOLS from pool_identity.py)
+        for pool_name, pool_info in CANONICAL_POOLS.items():
+            if pool_info["port"] == port:
                 return {
-                    "ollama_service_hint": identity["service"],
-                    "gpu_hint": identity["gpu"],
+                    "ollama_service_hint": pool_info["service"],
+                    "gpu_hint": pool_info["gpu"],
                 }
 
         # Unknown port - no hints

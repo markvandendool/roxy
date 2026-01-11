@@ -102,6 +102,31 @@ if PROMETHEUS_AVAILABLE:
         ['endpoint']
     )
 
+    # Pool metrics
+    pool_reachable = Gauge(
+        'roxy_pool_reachable',
+        'Pool reachability (1=reachable, 0=unreachable)',
+        ['pool']
+    )
+
+    pool_latency = Gauge(
+        'roxy_pool_latency_ms',
+        'Pool latency in milliseconds',
+        ['pool']
+    )
+
+    bench_dry_runs = Counter(
+        'roxy_bench_dry_runs_total',
+        'Total benchmark dry run requests',
+        ['pool']
+    )
+
+    ready_checks = Counter(
+        'roxy_ready_checks_total',
+        'Total /ready endpoint checks',
+        ['status']  # ready, not_ready
+    )
+
 
 def init_prometheus(port: int = 9091):
     """Initialize Prometheus metrics server"""
@@ -121,16 +146,16 @@ def init_prometheus(port: int = 9091):
         return False
 
 
-    def export_metrics():
-        """Return current Prometheus metrics exposition and content type"""
-        if not PROMETHEUS_AVAILABLE:
-            raise RuntimeError("prometheus_client not installed")
+def export_metrics():
+    """Return current Prometheus metrics exposition and content type"""
+    if not PROMETHEUS_AVAILABLE:
+        raise RuntimeError("prometheus_client not installed")
 
-        try:
-            data = generate_latest(REGISTRY)
-            return data, CONTENT_TYPE_LATEST
-        except Exception as exc:
-            raise RuntimeError(f"failed to generate metrics: {exc}") from exc
+    try:
+        data = generate_latest(REGISTRY)
+        return data, CONTENT_TYPE_LATEST
+    except Exception as exc:
+        raise RuntimeError(f"failed to generate metrics: {exc}") from exc
 
 
 class MetricsMiddleware:
@@ -218,6 +243,26 @@ def record_rate_limit(endpoint: str):
     """Record a rate limited request"""
     if PROMETHEUS_AVAILABLE:
         rate_limited.labels(endpoint=endpoint).inc()
+
+
+def record_pool_status(pool: str, reachable: bool, latency_ms: Optional[float] = None):
+    """Record pool reachability and latency"""
+    if PROMETHEUS_AVAILABLE:
+        pool_reachable.labels(pool=pool).set(1 if reachable else 0)
+        if latency_ms is not None:
+            pool_latency.labels(pool=pool).set(latency_ms)
+
+
+def record_bench_dry_run(pool: str):
+    """Record a benchmark dry run"""
+    if PROMETHEUS_AVAILABLE:
+        bench_dry_runs.labels(pool=pool).inc()
+
+
+def record_ready_check(ready: bool):
+    """Record a /ready endpoint check"""
+    if PROMETHEUS_AVAILABLE:
+        ready_checks.labels(status="ready" if ready else "not_ready").inc()
 
 
 # Global availability flag
