@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Competitor Analysis Schema",
+  "type": "object",
+  "required": ["analysis_id", "timestamp", "status", "source_trends", "analyses", "meta"],
+  "properties": {
+    "analysis_id": {
+      "type": "string",
+      "pattern": "^COMP_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_trends": {
+      "type": ["string", "null"],
+      "description": "Snapshot ID from trend detector"
+    },
+    "analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["trend_title", "relevant_competitors", "coverage_angle", "differentiation"],
+        "properties": {
+          "trend_title": {
+            "type": "string"
+          },
+          "relevant_competitors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "category", "likelihood", "angle"],
+              "properties": {
+                "name": {"type": "string"},
+                "category": {"type": "string"},
+                "likelihood": {"type": "string", "enum": ["high", "medium", "low"]},
+                "angle": {"type": "string"}
+              }
+            }
+          },
+          "coverage_angle": {
+            "type": "string",
+            "description": "Suggested unique angle for SKYBEAM"
+          },
+          "differentiation": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "analysis_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "analysis_count": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

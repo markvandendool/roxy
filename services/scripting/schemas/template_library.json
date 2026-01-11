@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Template Library Schema",
+  "type": "object",
+  "required": ["library_id", "timestamp", "status", "templates", "meta"],
+  "properties": {
+    "library_id": {
+      "type": "string",
+      "pattern": "^TMPL_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "category", "format", "duration_range", "structure", "variables"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique template identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable template name"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["news", "tutorial", "explainer", "review", "comparison", "deep_dive", "quick_hit"],
+            "description": "Content category this template serves"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["short", "standard", "long"],
+            "description": "Video length format"
+          },
+          "duration_range": {
+            "type": "object",
+            "required": ["min_seconds", "max_seconds"],
+            "properties": {
+              "min_seconds": {"type": "integer"},
+              "max_seconds": {"type": "integer"}
+            }
+          },
+          "structure": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["section", "purpose", "duration_pct"],
+              "properties": {
+                "section": {"type": "string"},
+                "purpose": {"type": "string"},
+                "duration_pct": {"type": "number", "minimum": 0, "maximum": 100}
+              }
+            }
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "required"],
+              "properties": {
+                "name": {"type": "string"},
+                "type": {"type": "string", "enum": ["string", "array", "object", "number", "boolean"]},
+                "required": {"type": "boolean"},
+                "description": {"type": "string"}
+              }
+            }
+          },
+          "tone": {
+            "type": "string",
+            "enum": ["professional", "casual", "energetic", "authoritative", "conversational"]
+          },
+          "hooks": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Example hook patterns for this template"
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "template_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "template_count": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

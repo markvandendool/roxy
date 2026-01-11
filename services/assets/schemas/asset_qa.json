@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Asset QA Schema",
+  "type": "object",
+  "required": ["qa_id", "timestamp", "status", "source_storyboard", "qa_reports", "summary", "meta"],
+  "properties": {
+    "qa_id": {
+      "type": "string",
+      "pattern": "^QA_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_storyboard": {
+      "type": ["string", "null"]
+    },
+    "qa_reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["script_id", "checks", "passed", "failed", "warnings"],
+        "properties": {
+          "script_id": {"type": "string"},
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["check_id", "check_type", "target", "result", "message"],
+              "properties": {
+                "check_id": {"type": "string"},
+                "check_type": {"type": "string"},
+                "target": {"type": "string"},
+                "result": {
+                  "type": "string",
+                  "enum": ["pass", "fail", "warn"]
+                },
+                "message": {"type": "string"},
+                "details": {"type": "object"}
+              }
+            }
+          },
+          "passed": {"type": "integer"},
+          "failed": {"type": "integer"},
+          "warnings": {"type": "integer"},
+          "gate_status": {
+            "type": "string",
+            "enum": ["approved", "blocked", "review_required"]
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_checks", "total_passed", "total_failed", "total_warnings", "gate_result"],
+      "properties": {
+        "total_checks": {"type": "integer"},
+        "total_passed": {"type": "integer"},
+        "total_failed": {"type": "integer"},
+        "total_warnings": {"type": "integer"},
+        "gate_result": {
+          "type": "string",
+          "enum": ["approved", "blocked", "review_required"]
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "report_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "report_count": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

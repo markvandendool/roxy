@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Script Output Schema",
+  "type": "object",
+  "required": ["script_id", "timestamp", "status", "source_bundle", "source_templates", "scripts", "meta"],
+  "properties": {
+    "script_id": {
+      "type": "string",
+      "pattern": "^SCRIPT_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_bundle": {
+      "type": ["string", "null"],
+      "description": "Bundle ID from research bundle"
+    },
+    "source_templates": {
+      "type": ["string", "null"],
+      "description": "Library ID from template library"
+    },
+    "scripts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "trend_title", "template_id", "format", "estimated_duration", "sections", "variables"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique script identifier"
+          },
+          "trend_title": {
+            "type": "string",
+            "description": "Source trend this script covers"
+          },
+          "template_id": {
+            "type": "string",
+            "description": "Template used for this script"
+          },
+          "template_name": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["short", "standard", "long"]
+          },
+          "estimated_duration": {
+            "type": "integer",
+            "description": "Estimated duration in seconds"
+          },
+          "hook": {
+            "type": "string",
+            "description": "Generated hook line"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["section", "content", "duration_seconds"],
+              "properties": {
+                "section": {"type": "string"},
+                "content": {"type": "string"},
+                "duration_seconds": {"type": "integer"},
+                "notes": {"type": "string"}
+              }
+            }
+          },
+          "variables": {
+            "type": "object",
+            "description": "Filled template variables"
+          },
+          "differentiation": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Unique angles from competitor analysis"
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "script_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "script_count": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "version": "1.0.0",
+  "description": "SKYBEAM Script Templates Library",
+  "templates": [
+    {
+      "id": "news-quick-hit",
+      "name": "AI News Quick Hit",
+      "category": "quick_hit",
+      "format": "short",
+      "duration_range": {"min_seconds": 30, "max_seconds": 60},
+      "structure": [
+        {"section": "hook", "purpose": "Attention-grabbing statement about the news", "duration_pct": 15},
+        {"section": "what", "purpose": "What happened - core facts", "duration_pct": 40},
+        {"section": "why_matters", "purpose": "Why this matters to viewers", "duration_pct": 30},
+        {"section": "cta", "purpose": "Call to action - follow for more", "duration_pct": 15}
+      ],
+      "variables": [
+        {"name": "headline", "type": "string", "required": true, "description": "Main news headline"},
+        {"name": "source", "type": "string", "required": true, "description": "News source"},
+        {"name": "key_facts", "type": "array", "required": true, "description": "2-3 key facts"},
+        {"name": "impact", "type": "string", "required": true, "description": "Why it matters"}
+      ],
+      "tone": "energetic",
+      "hooks": [
+        "Breaking: {headline}",
+        "This just dropped: {headline}",
+        "{source} just announced something huge"
+      ]
+    },
+    {
+      "id": "news-standard",
+      "name": "AI News Coverage",
+      "category": "news",
+      "format": "standard",
+      "duration_range": {"min_seconds": 120, "max_seconds": 180},
+      "structure": [
+        {"section": "hook", "purpose": "Why you should care about this", "duration_pct": 10},
+        {"section": "context", "purpose": "Background and context", "duration_pct": 15},
+        {"section": "details", "purpose": "Core story details", "duration_pct": 35},
+        {"section": "analysis", "purpose": "What this means for the industry", "duration_pct": 25},
+        {"section": "takeaway", "purpose": "Key takeaway for viewers", "duration_pct": 10},
+        {"section": "cta", "purpose": "Subscribe/follow prompt", "duration_pct": 5}
+      ],
+      "variables": [
+        {"name": "headline", "type": "string", "required": true, "description": "Main headline"},
+        {"name": "source", "type": "string", "required": true, "description": "Primary source"},
+        {"name": "background", "type": "string", "required": true, "description": "Context/background"},
+        {"name": "key_points", "type": "array", "required": true, "description": "3-5 key points"},
+        {"name": "implications", "type": "array", "required": true, "description": "Industry implications"},
+        {"name": "takeaway", "type": "string", "required": true, "description": "One-line takeaway"}
+      ],
+      "tone": "authoritative",
+      "hooks": [
+        "Here's why {headline} changes everything",
+        "The AI world is buzzing about {headline}",
+        "What {source}'s announcement really means"
+      ]
+    },
+    {
+      "id": "explainer-short",
+      "name": "Quick Explainer",
+      "category": "explainer",
+      "format": "short",
+      "duration_range": {"min_seconds": 45, "max_seconds": 90},
+      "structure": [
+        {"section": "hook", "purpose": "Question or curiosity gap", "duration_pct": 15},
+        {"section": "simple_answer", "purpose": "Simple explanation", "duration_pct": 45},
+        {"section": "example", "purpose": "Real-world example", "duration_pct": 30},
+        {"section": "cta", "purpose": "Follow for more explainers", "duration_pct": 10}
+      ],
+      "variables": [
+        {"name": "topic", "type": "string", "required": true, "description": "Topic to explain"},
+        {"name": "simple_definition", "type": "string", "required": true, "description": "ELI5 definition"},
+        {"name": "example", "type": "string", "required": true, "description": "Concrete example"},
+        {"name": "analogy", "type": "string", "required": false, "description": "Optional analogy"}
+      ],
+      "tone": "conversational",
+      "hooks": [
+        "What is {topic}? Let me explain in 60 seconds",
+        "Everyone's talking about {topic}. Here's what it actually means",
+        "{topic} explained simply"
+      ]
+    },
+    {
+      "id": "tutorial-standard",
+      "name": "AI Tool Tutorial",
+      "category": "tutorial",
+      "format": "standard",
+      "duration_range": {"min_seconds": 180, "max_seconds": 300},
+      "structure": [
+        {"section": "hook", "purpose": "What you'll learn/build", "duration_pct": 8},
+        {"section": "intro", "purpose": "Tool overview and prerequisites", "duration_pct": 12},
+        {"section": "step_1", "purpose": "First major step", "duration_pct": 20},
+        {"section": "step_2", "purpose": "Second major step", "duration_pct": 20},
+        {"section": "step_3", "purpose": "Third major step", "duration_pct": 20},
+        {"section": "demo", "purpose": "Show the final result", "duration_pct": 12},
+        {"section": "tips", "purpose": "Pro tips and gotchas", "duration_pct": 5},
+        {"section": "cta", "purpose": "Subscribe for more tutorials", "duration_pct": 3}
+      ],
+      "variables": [
+        {"name": "tool_name", "type": "string", "required": true, "description": "Tool being taught"},
+        {"name": "outcome", "type": "string", "required": true, "description": "What viewer will achieve"},
+        {"name": "prerequisites", "type": "array", "required": false, "description": "Required setup"},
+        {"name": "steps", "type": "array", "required": true, "description": "Tutorial steps"},
+        {"name": "tips", "type": "array", "required": false, "description": "Pro tips"}
+      ],
+      "tone": "professional",
+      "hooks": [
+        "Learn {tool_name} in under 5 minutes",
+        "Here's how to {outcome} with {tool_name}",
+        "The fastest way to get started with {tool_name}"
+      ]
+    },
+    {
+      "id": "comparison-standard",
+      "name": "AI Tool Comparison",
+      "category": "comparison",
+      "format": "standard",
+      "duration_range": {"min_seconds": 150, "max_seconds": 240},
+      "structure": [
+        {"section": "hook", "purpose": "The comparison question", "duration_pct": 8},
+        {"section": "overview", "purpose": "What we're comparing", "duration_pct": 12},
+        {"section": "criteria", "purpose": "Comparison criteria", "duration_pct": 10},
+        {"section": "option_a", "purpose": "First option deep dive", "duration_pct": 22},
+        {"section": "option_b", "purpose": "Second option deep dive", "duration_pct": 22},
+        {"section": "verdict", "purpose": "Winner and recommendations", "duration_pct": 18},
+        {"section": "cta", "purpose": "Subscribe for more comparisons", "duration_pct": 8}
+      ],
+      "variables": [
+        {"name": "option_a", "type": "string", "required": true, "description": "First option"},
+        {"name": "option_b", "type": "string", "required": true, "description": "Second option"},
+        {"name": "criteria", "type": "array", "required": true, "description": "Comparison criteria"},
+        {"name": "option_a_pros", "type": "array", "required": true, "description": "First option pros"},
+        {"name": "option_a_cons", "type": "array", "required": true, "description": "First option cons"},
+        {"name": "option_b_pros", "type": "array", "required": true, "description": "Second option pros"},
+        {"name": "option_b_cons", "type": "array", "required": true, "description": "Second option cons"},
+        {"name": "winner", "type": "string", "required": true, "description": "Recommended choice"}
+      ],
+      "tone": "authoritative",
+      "hooks": [
+        "{option_a} vs {option_b}: Which should you use?",
+        "I tested {option_a} and {option_b}. Here's my honest verdict",
+        "The definitive {option_a} vs {option_b} comparison"
+      ]
+    },
+    {
+      "id": "deep-dive-long",
+      "name": "AI Deep Dive",
+      "category": "deep_dive",
+      "format": "long",
+      "duration_range": {"min_seconds": 300, "max_seconds": 600},
+      "structure": [
+        {"section": "hook", "purpose": "Why this topic deserves a deep dive", "duration_pct": 5},
+        {"section": "intro", "purpose": "Topic overview and scope", "duration_pct": 8},
+        {"section": "background", "purpose": "Historical context and foundation", "duration_pct": 12},
+        {"section": "core_concept_1", "purpose": "First major concept", "duration_pct": 18},
+        {"section": "core_concept_2", "purpose": "Second major concept", "duration_pct": 18},
+        {"section": "core_concept_3", "purpose": "Third major concept", "duration_pct": 15},
+        {"section": "implications", "purpose": "What this means for the future", "duration_pct": 12},
+        {"section": "summary", "purpose": "Key takeaways recap", "duration_pct": 8},
+        {"section": "cta", "purpose": "Subscribe and comment", "duration_pct": 4}
+      ],
+      "variables": [
+        {"name": "topic", "type": "string", "required": true, "description": "Deep dive topic"},
+        {"name": "background", "type": "string", "required": true, "description": "Historical context"},
+        {"name": "concepts", "type": "array", "required": true, "description": "Core concepts to cover"},
+        {"name": "implications", "type": "array", "required": true, "description": "Future implications"},
+        {"name": "key_takeaways", "type": "array", "required": true, "description": "Summary points"}
+      ],
+      "tone": "authoritative",
+      "hooks": [
+        "Everything you need to know about {topic}",
+        "The complete guide to {topic}",
+        "Let's go deep on {topic}"
+      ]
+    },
+    {
+      "id": "review-standard",
+      "name": "AI Tool Review",
+      "category": "review",
+      "format": "standard",
+      "duration_range": {"min_seconds": 150, "max_seconds": 240},
+      "structure": [
+        {"section": "hook", "purpose": "Is this tool worth it?", "duration_pct": 8},
+        {"section": "overview", "purpose": "What the tool does", "duration_pct": 12},
+        {"section": "features", "purpose": "Key features walkthrough", "duration_pct": 25},
+        {"section": "demo", "purpose": "Live demonstration", "duration_pct": 25},
+        {"section": "pros_cons", "purpose": "Honest pros and cons", "duration_pct": 15},
+        {"section": "verdict", "purpose": "Final rating and recommendation", "duration_pct": 10},
+        {"section": "cta", "purpose": "Subscribe for more reviews", "duration_pct": 5}
+      ],
+      "variables": [
+        {"name": "tool_name", "type": "string", "required": true, "description": "Tool being reviewed"},
+        {"name": "category", "type": "string", "required": true, "description": "Tool category"},
+        {"name": "features", "type": "array", "required": true, "description": "Key features"},
+        {"name": "pros", "type": "array", "required": true, "description": "Pros"},
+        {"name": "cons", "type": "array", "required": true, "description": "Cons"},
+        {"name": "rating", "type": "number", "required": true, "description": "Rating out of 10"},
+        {"name": "recommendation", "type": "string", "required": true, "description": "Who should use this"}
+      ],
+      "tone": "professional",
+      "hooks": [
+        "Is {tool_name} worth it? My honest review",
+        "I tested {tool_name} so you don't have to",
+        "{tool_name} review: The good, the bad, and the verdict"
+      ]
+    }
+  ]
+}

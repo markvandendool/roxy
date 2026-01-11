@@ -1,0 +1,696 @@
+#!/usr/bin/env python3
+"""
+SKYBEAM Operator Console CLI (STORY-027, STORY-030, STORY-032)
+
+Usage:
+    skybeam status              Compact dashboard of pipeline health
+    skybeam status --json       Machine-readable JSON output
+    skybeam inject <url>        Inject a video URL as manual seed
+    skybeam inject <url> --priority high --tags "tag1,tag2"
+    skybeam drain               Process all queued items through pipeline
+    skybeam ack <alert_id>      Acknowledge an alert
+
+Exit codes:
+    0 = success/healthy
+    1 = warning/error
+    2 = critical
+"""
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
+from urllib.parse import urlparse, parse_qs
+
+# ANSI colors
+GREEN = "\033[0;32m"
+YELLOW = "\033[0;33m"
+RED = "\033[0;31m"
+CYAN = "\033[0;36m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
+# Paths
+PIPELINE_BASE = Path.home() / ".roxy" / "content-pipeline" / "publish"
+SEEDS_DIR = Path.home() / ".roxy" / "content-pipeline" / "seeds"
+MANUAL_SEEDS_DIR = SEEDS_DIR / "manual"
+INJECT_INDEX = MANUAL_SEEDS_DIR / ".inject_index.json"
+HEALTH_LATEST = PIPELINE_BASE / "health" / "publish_health_latest.json"
+ALERTS_LATEST = PIPELINE_BASE / "health" / "alerts_latest.json"
+QUEUE_LATEST = PIPELINE_BASE / "queue" / "publish_queue_latest.json"
+RECEIPTS_DIR = PIPELINE_BASE / "receipts"
+
+
+def load_json(path: Path) -> Optional[Dict[str, Any]]:
+    """Load JSON file, return None if missing or invalid."""
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def get_timer_status() -> List[Dict[str, Any]]:
+    """Get systemd timer status for roxy-* timers."""
+    try:
+        result = subprocess.run(
+            ["systemctl", "--user", "list-timers", "roxy-*", "--no-pager"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        lines = result.stdout.strip().split("\n")
+        timers = []
+        for line in lines[1:]:  # Skip header
+            if "roxy-" in line and ".timer" in line:
+                parts = line.split()
+                if len(parts) >= 7:
+                    # Parse: NEXT LEFT LAST PASSED UNIT ACTIVATES
+                    next_time = " ".join(parts[0:5]) if parts[0] != "n/a" else "n/a"
+                    unit = None
+                    for p in parts:
+                        if p.endswith(".timer"):
+                            unit = p.replace(".timer", "")
+                            break
+                    if unit:
+                        timers.append({
+                            "unit": unit,
+                            "next": next_time[:30] if next_time != "n/a" else "n/a"
+                        })
+        return timers
+    except Exception:
+        return []
+
+
+def get_latest_receipt() -> Optional[Dict[str, Any]]:
+    """Get the most recent receipt."""
+    try:
+        # Try *_latest.json first (youtube_latest.json, tiktok_latest.json)
+        latest_files = list(RECEIPTS_DIR.glob("*_latest.json"))
+        if latest_files:
+            latest = max(latest_files, key=lambda p: p.stat().st_mtime)
+            return load_json(latest)
+        # Fallback to any receipt file
+        receipts = list(RECEIPTS_DIR.glob("*.json"))
+        if not receipts:
+            return None
+        latest = max(receipts, key=lambda p: p.stat().st_mtime)
+        return load_json(latest)
+    except Exception:
+        return None
+
+
+def format_age(timestamp_str: str) -> str:
+    """Format timestamp as age string."""
+    try:
+        ts = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+        now = datetime.now(timezone.utc)
+        delta = now - ts
+        hours = delta.total_seconds() / 3600
+        if hours < 1:
+            minutes = int(delta.total_seconds() / 60)
+            return f"{minutes}m ago"
+        elif hours < 24:
+            return f"{hours:.1f}h ago"
+        else:
+            days = int(hours / 24)
+            return f"{days}d ago"
+    except Exception:
+        return "?"
+
+
+def status_color(result: str) -> str:
+    """Get color for status."""
+    if result in ("pass", "approved"):
+        return GREEN
+    elif result == "warning":
+        return YELLOW
+    elif result == "critical":
+        return RED
+    return RESET
+
+
+def run_status(json_output: bool = False) -> int:
+    """Run the status command."""
+    # Load data
+    health = load_json(HEALTH_LATEST)
+    alerts = load_json(ALERTS_LATEST)
+    queue = load_json(QUEUE_LATEST)
+    receipt = get_latest_receipt()
+    timers = get_timer_status()
+
+    # Determine gate result
+    gate_result = "unknown"
+    if health:
+        gate_result = health.get("gate_result", "unknown")
+
+    # Count alerts
+    alert_count = 0
+    alert_list = []
+    if alerts and "alerts" in alerts:
+        alert_list = alerts["alerts"]
+        alert_count = len(alert_list)
+
+    # Queue info
+    queue_length = 0
+    oldest_age_hours = 0.0
+    if queue:
+        queue_length = queue.get("queue_length", 0)
+        entries = queue.get("entries", [])
+        if entries:
+            oldest_ts = entries[0].get("enqueue_timestamp", "")
+            if oldest_ts:
+                try:
+                    ts = datetime.fromisoformat(oldest_ts.replace("Z", "+00:00"))
+                    oldest_age_hours = (datetime.now(timezone.utc) - ts).total_seconds() / 3600
+                except Exception:
+                    pass
+
+    # Receipt info
+    receipt_status = "none"
+    receipt_id = "n/a"
+    receipt_age = "n/a"
+    if receipt:
+        receipt_status = receipt.get("status", "unknown")
+        receipt_id = receipt.get("receipt_id", receipt.get("youtube_receipt_id", receipt.get("tiktok_receipt_id", "?")))[:20]
+        receipt_ts = receipt.get("timestamp", "")
+        if receipt_ts:
+            receipt_age = format_age(receipt_ts)
+
+    # JSON output mode
+    if json_output:
+        output = {
+            "gate_result": gate_result,
+            "alert_count": alert_count,
+            "alerts": alert_list,
+            "queue": {
+                "length": queue_length,
+                "oldest_age_hours": round(oldest_age_hours, 2)
+            },
+            "latest_receipt": {
+                "id": receipt_id,
+                "status": receipt_status,
+                "age": receipt_age
+            },
+            "timers": timers,
+            "health_file": str(HEALTH_LATEST),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        print(json.dumps(output, indent=2))
+    else:
+        # Console dashboard
+        print(f"{BOLD}╔══════════════════════════════════════════════════════════════════╗{RESET}")
+        print(f"{BOLD}║                     SKYBEAM STATUS DASHBOARD                     ║{RESET}")
+        print(f"{BOLD}╚══════════════════════════════════════════════════════════════════╝{RESET}")
+        print()
+
+        # Health Gate
+        gate_color = status_color(gate_result)
+        print(f"  {BOLD}Health Gate:{RESET}  {gate_color}{gate_result.upper()}{RESET}")
+        print(f"  {BOLD}Alerts:{RESET}       {YELLOW if alert_count > 0 else GREEN}{alert_count}{RESET} active")
+        print()
+
+        # Queue Status
+        print(f"  {BOLD}Queue:{RESET}        {queue_length} items")
+        if oldest_age_hours > 0:
+            age_color = YELLOW if oldest_age_hours > 2 else GREEN
+            print(f"  {BOLD}Oldest:{RESET}       {age_color}{oldest_age_hours:.1f}h{RESET}")
+        print()
+
+        # Latest Receipt
+        print(f"  {BOLD}Last Receipt:{RESET} {receipt_id}")
+        print(f"  {BOLD}Status:{RESET}       {status_color(receipt_status)}{receipt_status}{RESET}")
+        print(f"  {BOLD}Age:{RESET}          {receipt_age}")
+        print()
+
+        # Timer Summary
+        print(f"  {BOLD}Timers:{RESET}       {len(timers)} active")
+        if timers:
+            # Show next 3 timers
+            sorted_timers = timers[:3]
+            for t in sorted_timers:
+                name = t["unit"].replace("roxy-", "")[:20]
+                print(f"    {CYAN}→{RESET} {name}")
+        print()
+
+        # Alerts
+        if alert_list:
+            print(f"  {BOLD}{YELLOW}Active Alerts:{RESET}")
+            for alert in alert_list[:3]:
+                severity = alert.get("severity", "?")
+                title = alert.get("title", "?")[:40]
+                sev_color = RED if severity == "critical" else YELLOW
+                print(f"    {sev_color}●{RESET} [{severity.upper()}] {title}")
+            if len(alert_list) > 3:
+                print(f"    ... and {len(alert_list) - 3} more")
+            print()
+
+        print(f"  {CYAN}Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{RESET}")
+        print()
+
+    # Exit code
+    if gate_result == "critical":
+        return 2
+    elif gate_result == "warning":
+        return 1
+    else:
+        return 0
+
+
+# ============================================================================
+# INJECT SUBCOMMAND (STORY-030)
+# ============================================================================
+
+def generate_seed_id() -> str:
+    """Generate a timestamped unique seed ID."""
+    now = datetime.now(timezone.utc)
+    ts = now.strftime("%Y%m%d_%H%M%S")
+    h = hashlib.sha256(f"{ts}{now.microsecond}".encode()).hexdigest()[:8]
+    return f"SEED_{ts}_{h}"
+
+
+def normalize_url(url: str) -> str:
+    """Normalize URL for deduplication."""
+    parsed = urlparse(url)
+    # Extract video ID for common platforms
+    if "youtube.com" in parsed.netloc or "youtu.be" in parsed.netloc:
+        if "youtu.be" in parsed.netloc:
+            video_id = parsed.path.strip("/")
+        else:
+            qs = parse_qs(parsed.query)
+            video_id = qs.get("v", [""])[0]
+        if video_id:
+            return f"youtube:{video_id}"
+    elif "tiktok.com" in parsed.netloc:
+        # Extract video ID from path like /@user/video/123456
+        match = re.search(r"/video/(\d+)", parsed.path)
+        if match:
+            return f"tiktok:{match.group(1)}"
+    # Fallback: hash the full URL
+    return f"url:{hashlib.sha256(url.encode()).hexdigest()[:16]}"
+
+
+def url_hash(url: str) -> str:
+    """Create hash of normalized URL."""
+    normalized = normalize_url(url)
+    return hashlib.sha256(normalized.encode()).hexdigest()[:16]
+
+
+def load_inject_index() -> Dict[str, Any]:
+    """Load the injection index for deduplication."""
+    try:
+        with open(INJECT_INDEX, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"injections": {}}
+
+
+def save_inject_index(index: Dict[str, Any]) -> None:
+    """Save the injection index."""
+    MANUAL_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
+    with open(INJECT_INDEX, "w") as f:
+        json.dump(index, f, indent=2)
+
+
+def check_duplicate(url: str, hours: int = 24) -> Optional[str]:
+    """Check if URL was injected within the last N hours. Returns seed_id if duplicate."""
+    index = load_inject_index()
+    h = url_hash(url)
+
+    if h in index["injections"]:
+        entry = index["injections"][h]
+        inject_time = datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
+        if datetime.now(timezone.utc) - inject_time < timedelta(hours=hours):
+            return entry["seed_id"]
+    return None
+
+
+def validate_url(url: str) -> Tuple[bool, str]:
+    """Validate URL format. Returns (is_valid, error_message)."""
+    try:
+        parsed = urlparse(url)
+        if not parsed.scheme:
+            return False, "URL must include scheme (http:// or https://)"
+        if parsed.scheme not in ("http", "https"):
+            return False, f"Invalid scheme: {parsed.scheme}"
+        if not parsed.netloc:
+            return False, "URL must include domain"
+        return True, ""
+    except Exception as e:
+        return False, str(e)
+
+
+def extract_platform(url: str) -> str:
+    """Extract platform name from URL."""
+    parsed = urlparse(url)
+    if "youtube.com" in parsed.netloc or "youtu.be" in parsed.netloc:
+        return "youtube"
+    elif "tiktok.com" in parsed.netloc:
+        return "tiktok"
+    elif "instagram.com" in parsed.netloc:
+        return "instagram"
+    elif "twitter.com" in parsed.netloc or "x.com" in parsed.netloc:
+        return "twitter"
+    else:
+        return "unknown"
+
+
+def run_inject(
+    url: str,
+    priority: str = "normal",
+    tags: Optional[str] = None,
+    source: str = "cli_inject",
+    dry_run: bool = False
+) -> int:
+    """Inject a URL as a manual seed."""
+
+    # Validate URL
+    is_valid, error = validate_url(url)
+    if not is_valid:
+        print(f"{RED}Error:{RESET} {error}")
+        return 1
+
+    # Check for duplicate
+    existing_id = check_duplicate(url)
+    if existing_id:
+        print(f"{YELLOW}Duplicate detected:{RESET} URL was injected within last 24h")
+        print(f"  Existing seed: {existing_id}")
+        print(f"  Use --force to override (not implemented)")
+        return 0  # Not an error, just a no-op
+
+    # Generate seed
+    seed_id = generate_seed_id()
+    platform = extract_platform(url)
+    now = datetime.now(timezone.utc)
+
+    # Parse tags
+    tag_list = []
+    if tags:
+        tag_list = [t.strip() for t in tags.split(",") if t.strip()]
+
+    # Build seed document
+    seed = {
+        "seed_id": seed_id,
+        "created": now.isoformat(),
+        "type": "manual_inject",
+        "priority": priority,
+        "source": source,
+        "url": url,
+        "platform": platform,
+        "tags": tag_list,
+        "request": {
+            "source_url": url,
+            "inject_priority": priority,
+            "manual_injection": True
+        },
+        "meta": {
+            "version": "1.0.0",
+            "service": "skybeam_inject",
+            "story_id": "SKYBEAM-STORY-030",
+            "injected_at": now.isoformat()
+        }
+    }
+
+    # Output path
+    filename = f"inject_{seed_id}.json"
+    output_path = MANUAL_SEEDS_DIR / filename
+
+    if dry_run:
+        print(f"{CYAN}[DRY-RUN]{RESET} Would create seed:")
+        print(f"  ID: {seed_id}")
+        print(f"  URL: {url}")
+        print(f"  Platform: {platform}")
+        print(f"  Priority: {priority}")
+        print(f"  Tags: {tag_list}")
+        print(f"  Path: {output_path}")
+        print()
+        print("Seed content:")
+        print(json.dumps(seed, indent=2))
+        return 0
+
+    # Create directory and write seed
+    MANUAL_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w") as f:
+        json.dump(seed, f, indent=2)
+
+    # Update index
+    index = load_inject_index()
+    index["injections"][url_hash(url)] = {
+        "seed_id": seed_id,
+        "url": url,
+        "timestamp": now.isoformat()
+    }
+    save_inject_index(index)
+
+    # Success output
+    print(f"{GREEN}Seed injected successfully{RESET}")
+    print(f"  ID: {BOLD}{seed_id}{RESET}")
+    print(f"  URL: {url}")
+    print(f"  Platform: {platform}")
+    print(f"  Priority: {priority}")
+    if tag_list:
+        print(f"  Tags: {', '.join(tag_list)}")
+    print(f"  Path: {output_path}")
+    print()
+    print(f"{CYAN}Seed will be picked up by pipeline on next run{RESET}")
+
+    return 0
+
+
+# ============================================================================
+# DRAIN SUBCOMMAND (STORY-032)
+# ============================================================================
+
+PHASE_6_SERVICES = [
+    "roxy-youtube-publisher.service",
+    "roxy-tiktok-publisher.service",
+    "roxy-publish-health.service",
+    "roxy-publish-metrics.service"
+]
+
+
+def run_drain(dry_run: bool = False) -> int:
+    """Process all queued items by triggering Phase 6 services."""
+
+    # Load queue to see what needs processing
+    queue = load_json(QUEUE_LATEST)
+    if not queue:
+        print(f"{YELLOW}No queue found{RESET}")
+        return 0
+
+    queue_length = queue.get("queue_length", 0)
+    if queue_length == 0:
+        print(f"{GREEN}Queue is empty - nothing to drain{RESET}")
+        return 0
+
+    print(f"{BOLD}SKYBEAM Queue Drain{RESET}")
+    print(f"  Queue length: {queue_length} items")
+    print()
+
+    if dry_run:
+        print(f"{CYAN}[DRY-RUN]{RESET} Would trigger the following services:")
+        for svc in PHASE_6_SERVICES:
+            print(f"  → {svc}")
+        return 0
+
+    # Trigger Phase 6 services
+    success_count = 0
+    for svc in PHASE_6_SERVICES:
+        try:
+            result = subprocess.run(
+                ["systemctl", "--user", "start", svc],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            if result.returncode == 0:
+                print(f"  {GREEN}✓{RESET} {svc}")
+                success_count += 1
+            else:
+                print(f"  {RED}✗{RESET} {svc}: {result.stderr.strip()}")
+        except subprocess.TimeoutExpired:
+            print(f"  {YELLOW}⏱{RESET} {svc}: timeout")
+        except Exception as e:
+            print(f"  {RED}✗{RESET} {svc}: {str(e)}")
+
+    print()
+    if success_count == len(PHASE_6_SERVICES):
+        print(f"{GREEN}All services triggered successfully{RESET}")
+        print(f"{CYAN}Check receipts with: skybeam status{RESET}")
+        return 0
+    else:
+        print(f"{YELLOW}Some services failed to trigger{RESET}")
+        return 1
+
+
+# ============================================================================
+# ACK SUBCOMMAND (STORY-032)
+# ============================================================================
+
+ACKED_ALERTS_FILE = PIPELINE_BASE / "health" / ".acked_alerts.json"
+
+
+def load_acked_alerts() -> Dict[str, Any]:
+    """Load acknowledged alerts."""
+    try:
+        with open(ACKED_ALERTS_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"acked": {}}
+
+
+def save_acked_alerts(data: Dict[str, Any]) -> None:
+    """Save acknowledged alerts."""
+    ACKED_ALERTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(ACKED_ALERTS_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def run_ack(alert_id: str, comment: Optional[str] = None) -> int:
+    """Acknowledge an alert."""
+
+    # Load current alerts
+    alerts = load_json(ALERTS_LATEST)
+    if not alerts or "alerts" not in alerts:
+        print(f"{YELLOW}No alerts found{RESET}")
+        return 0
+
+    # Find the alert
+    target_alert = None
+    for alert in alerts["alerts"]:
+        if alert.get("alert_id") == alert_id:
+            target_alert = alert
+            break
+        # Also match partial IDs
+        if alert.get("alert_id", "").startswith(alert_id):
+            target_alert = alert
+            break
+
+    if not target_alert:
+        print(f"{RED}Alert not found:{RESET} {alert_id}")
+        print()
+        print("Active alerts:")
+        for alert in alerts["alerts"]:
+            print(f"  {alert.get('alert_id', '?')}: {alert.get('title', '?')}")
+        return 1
+
+    full_id = target_alert["alert_id"]
+
+    # Record acknowledgment
+    acked = load_acked_alerts()
+    acked["acked"][full_id] = {
+        "acked_at": datetime.now(timezone.utc).isoformat(),
+        "comment": comment or "",
+        "severity": target_alert.get("severity", "unknown"),
+        "title": target_alert.get("title", "Unknown")
+    }
+    save_acked_alerts(acked)
+
+    print(f"{GREEN}Alert acknowledged{RESET}")
+    print(f"  ID: {full_id}")
+    print(f"  Title: {target_alert.get('title', 'Unknown')}")
+    print(f"  Severity: {target_alert.get('severity', 'unknown')}")
+    if comment:
+        print(f"  Comment: {comment}")
+    print()
+    print(f"{CYAN}Alert will still appear but marked as acknowledged{RESET}")
+
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="SKYBEAM Operator Console",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    skybeam status                          Show dashboard
+    skybeam status --json                   Machine-readable output
+    skybeam inject <url>                    Inject video URL as seed
+    skybeam inject <url> --priority high    Inject with high priority
+    skybeam inject <url> --dry-run          Preview without writing
+    skybeam drain                           Process queue items
+    skybeam drain --dry-run                 Preview drain actions
+    skybeam ack ALERT_xxx                   Acknowledge an alert
+
+Exit codes:
+    0 = success/healthy
+    1 = warning/error
+    2 = critical
+"""
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # status subcommand
+    status_parser = subparsers.add_parser("status", help="Show pipeline status dashboard")
+    status_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    # inject subcommand (STORY-030)
+    inject_parser = subparsers.add_parser("inject", help="Inject a video URL as manual seed")
+    inject_parser.add_argument("url", help="Video URL to inject")
+    inject_parser.add_argument(
+        "--priority", "-p",
+        choices=["low", "normal", "high"],
+        default="normal",
+        help="Seed priority (default: normal)"
+    )
+    inject_parser.add_argument(
+        "--tags", "-t",
+        help="Comma-separated tags (e.g., 'breaking,urgent')"
+    )
+    inject_parser.add_argument(
+        "--source", "-s",
+        default="cli_inject",
+        help="Source label (default: cli_inject)"
+    )
+    inject_parser.add_argument(
+        "--dry-run", "-n",
+        action="store_true",
+        help="Preview without writing seed file"
+    )
+
+    # drain subcommand (STORY-032)
+    drain_parser = subparsers.add_parser("drain", help="Process queue items through Phase 6")
+    drain_parser.add_argument(
+        "--dry-run", "-n",
+        action="store_true",
+        help="Preview without triggering services"
+    )
+
+    # ack subcommand (STORY-032)
+    ack_parser = subparsers.add_parser("ack", help="Acknowledge an alert")
+    ack_parser.add_argument("alert_id", help="Alert ID to acknowledge (partial match supported)")
+    ack_parser.add_argument(
+        "--comment", "-c",
+        help="Optional comment for the acknowledgment"
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "status":
+        return run_status(json_output=args.json)
+    elif args.command == "inject":
+        return run_inject(
+            url=args.url,
+            priority=args.priority,
+            tags=args.tags,
+            source=args.source,
+            dry_run=args.dry_run
+        )
+    elif args.command == "drain":
+        return run_drain(dry_run=args.dry_run)
+    elif args.command == "ack":
+        return run_ack(alert_id=args.alert_id, comment=args.comment)
+    else:
+        parser.print_help()
+        return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

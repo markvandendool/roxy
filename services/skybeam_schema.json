@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project SKYBEAM Ghost Protocol Schema",
+  "description": "NATS topic schemas for ROXY infrastructure visualization",
+  "version": "1.0.0",
+  "topics": {
+    "ghost.skybeam.machines": {
+      "description": "Machine health - Docker containers and systemd services",
+      "schema": {
+        "type": "object",
+        "required": ["type", "timestamp", "source", "containers", "services"],
+        "properties": {
+          "type": { "const": "machines" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string" },
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "status": { "type": "string" },
+                "ports": { "type": "string" },
+                "healthy": { "type": "boolean" }
+              }
+            }
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "load": { "type": "string" },
+                "active": { "type": "string" },
+                "sub": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ghost.skybeam.agents": {
+      "description": "AI agent state - Ollama models and GPU allocation",
+      "schema": {
+        "type": "object",
+        "required": ["type", "timestamp", "source", "models", "gpus"],
+        "properties": {
+          "type": { "const": "agents" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string" },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "size": { "type": "string" },
+                "modified": { "type": "string" }
+              }
+            }
+          },
+          "gpus": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer" },
+                "name": { "type": "string" },
+                "port": { "type": "integer" },
+                "purpose": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ghost.skybeam.links": {
+      "description": "Service connections - port status and health",
+      "schema": {
+        "type": "object",
+        "required": ["type", "timestamp", "source", "links"],
+        "properties": {
+          "type": { "const": "links" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string" },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "service": { "type": "string" },
+                "port": { "type": "integer" },
+                "healthy": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ghost.skybeam.full": {
+      "description": "Complete infrastructure snapshot",
+      "schema": {
+        "type": "object",
+        "required": ["type", "timestamp", "source", "machines", "agents", "links", "meta"],
+        "properties": {
+          "type": { "const": "full" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string" },
+          "hostname": { "type": "string" },
+          "ip": { "type": "string" },
+          "machines": { "$ref": "#/topics/ghost.skybeam.machines/schema" },
+          "agents": { "$ref": "#/topics/ghost.skybeam.agents/schema" },
+          "links": { "$ref": "#/topics/ghost.skybeam.links/schema" },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "project": { "type": "string" },
+              "version": { "type": "string" },
+              "mcp_servers": { "type": "integer" },
+              "mcp_tools": { "type": "integer" },
+              "ollama_models": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "nats_config": {
+    "stream_name": "SKYBEAM",
+    "subjects": [
+      "ghost.skybeam.>",
+      "ghost.agents",
+      "ghost.tasks",
+      "ghost.machines",
+      "ghost.links"
+    ],
+    "retention": "limits",
+    "max_age_hours": 24,
+    "storage": "file"
+  }
+}

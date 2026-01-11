@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skybeam.publish.package.v1",
+  "title": "SKYBEAM Publish Package Schema (STORY-022)",
+  "description": "Schema for publish-ready package with metadata, captions, and platform preparation.",
+  "definitions": {
+    "caption_segment": {
+      "type": "object",
+      "required": ["index", "start_time", "end_time", "text"],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "SRT sequence number"
+        },
+        "start_time": {
+          "type": "string",
+          "pattern": "^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}$",
+          "description": "Start timestamp in SRT format (HH:MM:SS,mmm)"
+        },
+        "end_time": {
+          "type": "string",
+          "pattern": "^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}$",
+          "description": "End timestamp in SRT format (HH:MM:SS,mmm)"
+        },
+        "text": {
+          "type": "string",
+          "description": "Caption text content"
+        }
+      }
+    },
+    "publish_package": {
+      "type": "object",
+      "required": [
+        "package_id",
+        "timestamp",
+        "publish_id",
+        "master_sha256",
+        "title",
+        "description",
+        "hashtags",
+        "captions",
+        "status"
+      ],
+      "properties": {
+        "package_id": {
+          "type": "string",
+          "description": "Unique package ID",
+          "pattern": "^PKG_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publish_id": {
+          "type": "string",
+          "description": "Source publish queue entry ID"
+        },
+        "master_id": {
+          "type": "string",
+          "description": "Source master manifest ID"
+        },
+        "master_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA256 of master.mp4 for idempotency"
+        },
+        "script_id": {
+          "type": "string",
+          "description": "Source script ID"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Video title for platforms"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Video description for platforms"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Hashtags for social platforms"
+        },
+        "captions": {
+          "type": "object",
+          "required": ["format", "segment_count", "duration_seconds", "file_path"],
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": ["srt", "vtt"]
+            },
+            "segment_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "duration_seconds": {
+              "type": "number"
+            },
+            "file_path": {
+              "type": "string"
+            },
+            "segments": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/caption_segment" }
+            }
+          }
+        },
+        "thumbnail": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["pending", "generated", "skipped"] },
+            "file_path": { "type": "string" }
+          }
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["youtube_shorts", "tiktok", "instagram_reels"]
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["healthy", "degraded"],
+          "description": "Package status"
+        },
+        "degraded_reason": {
+          "type": "string",
+          "description": "Reason if status is degraded"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "version": { "type": "string" },
+            "service": { "type": "string" },
+            "story_id": { "type": "string" },
+            "host": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "$ref": "#/definitions/publish_package"
+}

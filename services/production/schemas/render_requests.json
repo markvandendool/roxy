@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Render Requests Schema",
+  "type": "object",
+  "required": ["request_id", "timestamp", "status", "source_review", "source_storyboard", "source_qa", "requests", "meta"],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "pattern": "^RENDER_REQ_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_review": {
+      "type": ["string", "null"]
+    },
+    "source_storyboard": {
+      "type": ["string", "null"]
+    },
+    "source_qa": {
+      "type": ["string", "null"]
+    },
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["script_id", "title", "score", "render_spec"],
+        "properties": {
+          "script_id": {"type": "string"},
+          "title": {"type": "string"},
+          "score": {"type": "number"},
+          "storyboard_id": {"type": "string"},
+          "render_spec": {
+            "type": "object",
+            "required": ["format", "aspect", "resolution", "fps", "max_duration_seconds", "audio"],
+            "properties": {
+              "format": {"type": "string", "enum": ["mp4"]},
+              "aspect": {"type": "string", "enum": ["9:16"]},
+              "resolution": {"type": "string", "enum": ["1080x1920"]},
+              "fps": {"type": "integer", "enum": [30, 60]},
+              "max_duration_seconds": {"type": "integer"},
+              "audio": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "request_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "request_count": {"type": "integer"},
+        "degraded": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

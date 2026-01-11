@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skybeam.publish.youtube_receipt.v1",
+  "title": "SKYBEAM YouTube Shorts Receipt Schema (STORY-023)",
+  "description": "Schema for YouTube Shorts publish receipts - supports dry_run and live modes.",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "timestamp",
+    "publish_id",
+    "master_sha256",
+    "mode",
+    "status"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "description": "Unique receipt ID",
+      "pattern": "^YT_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "publish_id": {
+      "type": "string",
+      "description": "Source publish queue entry ID"
+    },
+    "package_id": {
+      "type": "string",
+      "description": "Source package ID"
+    },
+    "master_id": {
+      "type": "string",
+      "description": "Source master manifest ID"
+    },
+    "master_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 of master.mp4 for verification"
+    },
+    "script_id": {
+      "type": "string",
+      "description": "Source script ID"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["dry_run", "live"],
+      "description": "Publish mode"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["dry_run", "pending", "uploading", "processing", "published", "failed", "degraded"],
+      "description": "Receipt status"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["youtube_shorts"],
+      "default": "youtube_shorts"
+    },
+    "upload_metadata": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "unlisted", "public"],
+          "default": "private"
+        },
+        "category_id": {
+          "type": "string",
+          "description": "YouTube category ID (e.g., '28' for Science & Technology)"
+        },
+        "shorts": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mark as YouTube Short"
+        }
+      }
+    },
+    "file_paths": {
+      "type": "object",
+      "properties": {
+        "video": {
+          "type": "string",
+          "description": "Path to master.mp4"
+        },
+        "captions": {
+          "type": "string",
+          "description": "Path to captions.srt"
+        },
+        "thumbnail": {
+          "type": "string",
+          "description": "Path to thumbnail if available"
+        }
+      }
+    },
+    "youtube_response": {
+      "type": "object",
+      "description": "YouTube API response (live mode only)",
+      "properties": {
+        "video_id": {
+          "type": "string",
+          "description": "YouTube video ID"
+        },
+        "channel_id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "upload_status": {
+          "type": "string"
+        }
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Next required action (for dry_run mode)",
+      "enum": ["none", "manual_upload_required", "retry", "investigate"]
+    },
+    "retry_info": {
+      "type": "object",
+      "properties": {
+        "retry_allowed": {
+          "type": "boolean",
+          "default": true
+        },
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "max_retries": {
+          "type": "integer",
+          "default": 3
+        },
+        "last_error": {
+          "type": "string"
+        }
+      }
+    },
+    "degraded_reason": {
+      "type": "string",
+      "description": "Reason if status is degraded"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "service": { "type": "string" },
+        "story_id": { "type": "string" },
+        "host": { "type": "string" },
+        "credentials_present": { "type": "boolean" }
+      }
+    }
+  }
+}

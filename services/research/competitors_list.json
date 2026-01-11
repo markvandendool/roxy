@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "description": "AI/Tech content creators and channels to track for competitive analysis",
+  "competitors": [
+    {
+      "name": "MKBHD",
+      "category": "tech_review",
+      "platforms": ["youtube", "twitter"],
+      "focus": ["consumer tech", "smartphones", "EVs"]
+    },
+    {
+      "name": "Fireship",
+      "category": "developer",
+      "platforms": ["youtube"],
+      "focus": ["web dev", "AI coding", "programming tutorials"]
+    },
+    {
+      "name": "AI Explained",
+      "category": "ai_deep_dive",
+      "platforms": ["youtube"],
+      "focus": ["AI research", "model analysis", "technical breakdowns"]
+    },
+    {
+      "name": "Matt Wolfe",
+      "category": "ai_tools",
+      "platforms": ["youtube", "newsletter"],
+      "focus": ["AI tools", "productivity", "AI news"]
+    },
+    {
+      "name": "Two Minute Papers",
+      "category": "ai_research",
+      "platforms": ["youtube"],
+      "focus": ["research papers", "computer graphics", "AI breakthroughs"]
+    },
+    {
+      "name": "Linus Tech Tips",
+      "category": "tech_review",
+      "platforms": ["youtube"],
+      "focus": ["hardware", "PC builds", "tech news"]
+    },
+    {
+      "name": "Marques Brownlee",
+      "category": "tech_review",
+      "platforms": ["youtube", "podcast"],
+      "focus": ["tech reviews", "interviews", "automotive"]
+    },
+    {
+      "name": "The AI Advantage",
+      "category": "ai_tools",
+      "platforms": ["youtube"],
+      "focus": ["AI tutorials", "ChatGPT", "productivity"]
+    },
+    {
+      "name": "Yannic Kilcher",
+      "category": "ai_research",
+      "platforms": ["youtube"],
+      "focus": ["ML papers", "research analysis", "AI news"]
+    },
+    {
+      "name": "sentdex",
+      "category": "developer",
+      "platforms": ["youtube"],
+      "focus": ["Python", "ML tutorials", "trading bots"]
+    },
+    {
+      "name": "Lex Fridman",
+      "category": "ai_interviews",
+      "platforms": ["youtube", "podcast"],
+      "focus": ["AI interviews", "philosophy", "science"]
+    },
+    {
+      "name": "AI Jason",
+      "category": "ai_tools",
+      "platforms": ["youtube"],
+      "focus": ["AI agents", "tutorials", "automation"]
+    },
+    {
+      "name": "NetworkChuck",
+      "category": "developer",
+      "platforms": ["youtube"],
+      "focus": ["IT", "cybersecurity", "AI tools"]
+    },
+    {
+      "name": "Theo - t3.gg",
+      "category": "developer",
+      "platforms": ["youtube", "twitch"],
+      "focus": ["web dev", "React", "TypeScript"]
+    },
+    {
+      "name": "Bycloud",
+      "category": "ai_research",
+      "platforms": ["youtube"],
+      "focus": ["AI papers", "technical deep dives", "implementations"]
+    },
+    {
+      "name": "The Verge",
+      "category": "tech_news",
+      "platforms": ["website", "youtube"],
+      "focus": ["tech news", "reviews", "culture"]
+    },
+    {
+      "name": "TechCrunch",
+      "category": "tech_news",
+      "platforms": ["website", "podcast"],
+      "focus": ["startups", "AI", "venture capital"]
+    },
+    {
+      "name": "Wired",
+      "category": "tech_news",
+      "platforms": ["website", "youtube"],
+      "focus": ["tech culture", "AI ethics", "long-form"]
+    },
+    {
+      "name": "Sam Witteveen",
+      "category": "ai_developer",
+      "platforms": ["youtube"],
+      "focus": ["LangChain", "RAG", "AI development"]
+    }
+  ]
+}

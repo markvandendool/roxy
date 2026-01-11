@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Render Result Schema",
+  "type": "object",
+  "required": ["result_id", "timestamp", "status", "source_request", "renders", "meta"],
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "pattern": "^RENDER_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded", "failed"]
+    },
+    "source_request": {
+      "type": ["string", "null"]
+    },
+    "renders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["script_id", "render_path", "render_status"],
+        "properties": {
+          "script_id": {"type": "string"},
+          "title": {"type": "string"},
+          "render_path": {"type": ["string", "null"]},
+          "render_status": {
+            "type": "string",
+            "enum": ["success", "failed", "skipped"]
+          },
+          "file_proof": {
+            "type": "object",
+            "properties": {
+              "path": {"type": "string"},
+              "bytes": {"type": "integer"},
+              "sha256": {"type": "string"},
+              "ffprobe_summary": {
+                "type": "object",
+                "properties": {
+                  "duration": {"type": "number"},
+                  "width": {"type": "integer"},
+                  "height": {"type": "integer"},
+                  "video_codec": {"type": "string"},
+                  "audio_codec": {"type": ["string", "null"]},
+                  "fps": {"type": "number"}
+                }
+              }
+            }
+          },
+          "error": {"type": "string"}
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "render_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "render_count": {"type": "integer"},
+        "success_count": {"type": "integer"},
+        "failed_count": {"type": "integer"},
+        "degraded": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skybeam.publish.metrics.v1",
+  "title": "SKYBEAM Publish Metrics Schema (STORY-025)",
+  "description": "Schema for publish metrics collection - aggregates receipt statuses and platform metrics.",
+  "type": "object",
+  "required": [
+    "metrics_id",
+    "timestamp",
+    "collection_window",
+    "receipts_summary",
+    "status"
+  ],
+  "properties": {
+    "metrics_id": {
+      "type": "string",
+      "description": "Unique metrics snapshot ID",
+      "pattern": "^METRICS_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "collection_window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "duration_hours": {
+          "type": "number"
+        }
+      }
+    },
+    "receipts_summary": {
+      "type": "object",
+      "properties": {
+        "total_receipts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "by_platform": {
+          "type": "object",
+          "properties": {
+            "youtube_shorts": {
+              "$ref": "#/definitions/platform_stats"
+            },
+            "tiktok": {
+              "$ref": "#/definitions/platform_stats"
+            }
+          }
+        },
+        "by_status": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "latest_receipt": {
+          "type": "object",
+          "properties": {
+            "receipt_id": { "type": "string" },
+            "platform": { "type": "string" },
+            "status": { "type": "string" },
+            "timestamp": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "queue_stats": {
+      "type": "object",
+      "properties": {
+        "queue_length": {
+          "type": "integer"
+        },
+        "oldest_queued_age_hours": {
+          "type": "number"
+        },
+        "latest_enqueue": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "platform_metrics": {
+      "type": "object",
+      "description": "Platform-specific metrics (views, likes, etc.) - requires API access",
+      "properties": {
+        "youtube": {
+          "$ref": "#/definitions/engagement_metrics"
+        },
+        "tiktok": {
+          "$ref": "#/definitions/engagement_metrics"
+        }
+      }
+    },
+    "api_access": {
+      "type": "object",
+      "properties": {
+        "youtube": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "last_check": { "type": "string", "format": "date-time" },
+            "reason": { "type": "string" }
+          }
+        },
+        "tiktok": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "last_check": { "type": "string", "format": "date-time" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "degraded"],
+      "description": "Metrics collection status"
+    },
+    "degraded_reason": {
+      "type": "string",
+      "description": "Reason if status is degraded"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "service": { "type": "string" },
+        "story_id": { "type": "string" },
+        "host": { "type": "string" },
+        "collection_duration_ms": { "type": "integer" }
+      }
+    }
+  },
+  "definitions": {
+    "platform_stats": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" },
+        "published": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "pending": { "type": "integer" },
+        "dry_run": { "type": "integer" },
+        "handoff_ready": { "type": "integer" }
+      }
+    },
+    "engagement_metrics": {
+      "type": "object",
+      "description": "Engagement metrics from platform APIs",
+      "properties": {
+        "available": { "type": "boolean" },
+        "videos_tracked": { "type": "integer" },
+        "total_views": { "type": "integer" },
+        "total_likes": { "type": "integer" },
+        "total_comments": { "type": "integer" },
+        "total_shares": { "type": "integer" },
+        "last_updated": { "type": "string", "format": "date-time" },
+        "degraded_reason": { "type": "string" }
+      }
+    }
+  }
+}

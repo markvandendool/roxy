@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Script Review Schema",
+  "type": "object",
+  "required": ["review_id", "timestamp", "status", "source_scripts", "reviewed_scripts", "meta"],
+  "properties": {
+    "review_id": {
+      "type": "string",
+      "pattern": "^REVIEW_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_scripts": {
+      "type": ["string", "null"],
+      "description": "Script ID from script generator"
+    },
+    "reviewed_scripts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["script_id", "review_status", "scores", "recommendations"],
+        "properties": {
+          "script_id": {
+            "type": "string",
+            "description": "Original script ID"
+          },
+          "trend_title": {
+            "type": "string"
+          },
+          "template_id": {
+            "type": "string"
+          },
+          "review_status": {
+            "type": "string",
+            "enum": ["approved", "needs_revision", "rejected"],
+            "description": "Review decision"
+          },
+          "scores": {
+            "type": "object",
+            "required": ["hook_strength", "content_depth", "structure_flow", "differentiation", "overall"],
+            "properties": {
+              "hook_strength": {"type": "integer", "minimum": 1, "maximum": 10},
+              "content_depth": {"type": "integer", "minimum": 1, "maximum": 10},
+              "structure_flow": {"type": "integer", "minimum": 1, "maximum": 10},
+              "differentiation": {"type": "integer", "minimum": 1, "maximum": 10},
+              "overall": {"type": "integer", "minimum": 1, "maximum": 10}
+            }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Improvement suggestions"
+          },
+          "approved_sections": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Sections that passed review"
+          },
+          "revision_needed": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "section": {"type": "string"},
+                "issue": {"type": "string"},
+                "suggestion": {"type": "string"}
+              }
+            }
+          },
+          "production_ready": {
+            "type": "boolean",
+            "description": "Whether script is ready for production"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_reviewed": {"type": "integer"},
+        "approved": {"type": "integer"},
+        "needs_revision": {"type": "integer"},
+        "rejected": {"type": "integer"},
+        "average_score": {"type": "number"}
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "review_count"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "review_count": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

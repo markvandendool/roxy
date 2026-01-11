@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Research Brief Schema",
+  "description": "Schema for deep research agent output (STORY-007)",
+  "type": "object",
+  "required": ["brief_id", "timestamp", "status", "source_snapshot", "briefs", "meta"],
+  "properties": {
+    "brief_id": {
+      "type": "string",
+      "description": "Unique identifier for this research brief"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when brief was generated"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"],
+      "description": "Overall status of the research brief"
+    },
+    "source_snapshot": {
+      "type": "string",
+      "description": "ID of the trend snapshot used as input"
+    },
+    "briefs": {
+      "type": "array",
+      "description": "Array of research briefs for top trends",
+      "items": {
+        "type": "object",
+        "required": ["title", "source", "category", "claims", "followups"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the trend"
+          },
+          "source": {
+            "type": "string",
+            "description": "Source feed name"
+          },
+          "category": {
+            "type": "string",
+            "description": "Category (tech/ai/ai_research)"
+          },
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the original article"
+          },
+          "claims": {
+            "type": "array",
+            "description": "5 key claims/insights extracted from the trend",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "followups": {
+            "type": "array",
+            "description": "Questions to research further",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "description": "Brief summary of the trend"
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "brief_count", "degraded"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "brief_count": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

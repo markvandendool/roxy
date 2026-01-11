@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skybeam.publish.tiktok_receipt.v1",
+  "title": "SKYBEAM TikTok Receipt Schema (STORY-024)",
+  "description": "Schema for TikTok publish receipts - supports dry_run, live, and handoff modes.",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "timestamp",
+    "publish_id",
+    "master_sha256",
+    "mode",
+    "status"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "description": "Unique receipt ID",
+      "pattern": "^TT_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "publish_id": {
+      "type": "string",
+      "description": "Source publish queue entry ID"
+    },
+    "package_id": {
+      "type": "string",
+      "description": "Source package ID"
+    },
+    "master_id": {
+      "type": "string",
+      "description": "Source master manifest ID"
+    },
+    "master_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 of master.mp4 for verification"
+    },
+    "script_id": {
+      "type": "string",
+      "description": "Source script ID"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["dry_run", "live", "handoff"],
+      "description": "Publish mode"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["dry_run", "handoff_ready", "pending", "uploading", "processing", "published", "failed", "degraded"],
+      "description": "Receipt status"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["tiktok"],
+      "default": "tiktok"
+    },
+    "upload_metadata": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2200
+        },
+        "hashtags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "friends", "public"],
+          "default": "private"
+        },
+        "allow_comments": {
+          "type": "boolean",
+          "default": true
+        },
+        "allow_duet": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_stitch": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "file_paths": {
+      "type": "object",
+      "properties": {
+        "video": {
+          "type": "string",
+          "description": "Absolute path to master.mp4"
+        },
+        "captions": {
+          "type": "string",
+          "description": "Absolute path to captions.srt"
+        }
+      }
+    },
+    "handoff_pack": {
+      "type": "object",
+      "description": "Manual handoff package (when API unavailable)",
+      "properties": {
+        "export_dir": {
+          "type": "string",
+          "description": "Directory containing handoff files"
+        },
+        "video_file": {
+          "type": "string"
+        },
+        "captions_file": {
+          "type": "string"
+        },
+        "metadata_file": {
+          "type": "string"
+        },
+        "checklist_file": {
+          "type": "string"
+        },
+        "copy_paste_text": {
+          "type": "string",
+          "description": "Ready-to-paste caption text with hashtags"
+        }
+      }
+    },
+    "tiktok_response": {
+      "type": "object",
+      "description": "TikTok API response (live mode only)",
+      "properties": {
+        "video_id": {
+          "type": "string",
+          "description": "TikTok video ID"
+        },
+        "share_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "upload_status": {
+          "type": "string"
+        }
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Next required action",
+      "enum": ["none", "manual_upload_required", "use_handoff_pack", "retry", "investigate"]
+    },
+    "retry_info": {
+      "type": "object",
+      "properties": {
+        "retry_allowed": {
+          "type": "boolean",
+          "default": true
+        },
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "max_retries": {
+          "type": "integer",
+          "default": 3
+        },
+        "last_error": {
+          "type": "string"
+        }
+      }
+    },
+    "degraded_reason": {
+      "type": "string",
+      "description": "Reason if status is degraded"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "service": { "type": "string" },
+        "story_id": { "type": "string" },
+        "host": { "type": "string" },
+        "credentials_present": { "type": "boolean" },
+        "handoff_mode": { "type": "boolean" }
+      }
+    }
+  }
+}

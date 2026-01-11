@@ -1,0 +1,21 @@
+#!/bin/bash
+# Clean OBS launch script - strips snap pollution
+
+# Save essential vars
+MY_HOME="$HOME"
+MY_USER="$USER"
+MY_DISPLAY="$DISPLAY"
+MY_XDG_RUNTIME="/run/user/$(id -u)"
+MY_XAUTHORITY="$XAUTHORITY"
+
+# Clear everything and rebuild minimal env
+exec env -i \
+  HOME="$MY_HOME" \
+  USER="$MY_USER" \
+  DISPLAY="$MY_DISPLAY" \
+  XAUTHORITY="$MY_XAUTHORITY" \
+  PATH="/usr/local/bin:/usr/bin:/bin" \
+  XDG_RUNTIME_DIR="$MY_XDG_RUNTIME" \
+  XDG_SESSION_TYPE="x11" \
+  DBUS_SESSION_BUS_ADDRESS="unix:path=$MY_XDG_RUNTIME/bus" \
+  /usr/bin/obs "$@"

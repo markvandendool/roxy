@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Master Output Schema",
+  "type": "object",
+  "required": ["master_id", "timestamp", "status", "source_review", "source_storyboard", "source_qa", "render_spec", "file_proof", "meta"],
+  "properties": {
+    "master_id": {
+      "type": "string",
+      "pattern": "^MASTER_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded", "failed"]
+    },
+    "source_review": {
+      "type": ["string", "null"]
+    },
+    "source_storyboard": {
+      "type": ["string", "null"]
+    },
+    "source_qa": {
+      "type": ["string", "null"]
+    },
+    "source_render": {
+      "type": ["string", "null"]
+    },
+    "script_id": {
+      "type": ["string", "null"]
+    },
+    "title": {
+      "type": ["string", "null"]
+    },
+    "render_spec": {
+      "type": "object",
+      "required": ["format", "aspect", "resolution", "fps", "max_duration_seconds", "audio"],
+      "properties": {
+        "format": {"type": "string"},
+        "aspect": {"type": "string"},
+        "resolution": {"type": "string"},
+        "fps": {"type": "integer"},
+        "max_duration_seconds": {"type": "integer"},
+        "audio": {"type": "boolean"}
+      }
+    },
+    "file_proof": {
+      "type": ["object", "null"],
+      "properties": {
+        "path": {"type": "string"},
+        "bytes": {"type": "integer"},
+        "sha256": {"type": "string"},
+        "ffprobe_summary": {
+          "type": "object",
+          "properties": {
+            "duration": {"type": "number"},
+            "width": {"type": "integer"},
+            "height": {"type": "integer"},
+            "video_codec": {"type": "string"},
+            "audio_codec": {"type": ["string", "null"]},
+            "fps": {"type": "number"}
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "pipeline_version": {"type": "string"},
+        "host": {"type": "string"},
+        "degraded": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

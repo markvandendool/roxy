@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Production QA Schema",
+  "type": "object",
+  "required": ["qa_id", "timestamp", "status", "source_master", "checks", "gate_result", "meta"],
+  "properties": {
+    "qa_id": {
+      "type": "string",
+      "pattern": "^PROD_QA_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_master": {
+      "type": ["string", "null"]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "check_type", "result", "message"],
+        "properties": {
+          "check_id": {"type": "string"},
+          "check_type": {"type": "string"},
+          "result": {
+            "type": "string",
+            "enum": ["pass", "fail", "warn"]
+          },
+          "message": {"type": "string"},
+          "expected": {"type": ["string", "number", "null"]},
+          "actual": {"type": ["string", "number", "null"]}
+        }
+      }
+    },
+    "gate_result": {
+      "type": "string",
+      "enum": ["approved", "rejected"]
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "check_count", "passed", "failed"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "check_count": {"type": "integer"},
+        "passed": {"type": "integer"},
+        "failed": {"type": "integer"},
+        "degraded": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

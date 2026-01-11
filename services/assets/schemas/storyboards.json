@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SKYBEAM Storyboards Schema",
+  "type": "object",
+  "required": ["storyboard_id", "timestamp", "status", "source_pack", "storyboards", "meta"],
+  "properties": {
+    "storyboard_id": {
+      "type": "string",
+      "pattern": "^STORYBOARD_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["healthy", "partial", "degraded"]
+    },
+    "source_pack": {
+      "type": ["string", "null"]
+    },
+    "storyboards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["script_id", "frames", "shotlist"],
+        "properties": {
+          "script_id": {"type": "string"},
+          "frames": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["frame_id", "scene_id", "asset_id", "timecode", "description"],
+              "properties": {
+                "frame_id": {"type": "string"},
+                "scene_id": {"type": "string"},
+                "asset_id": {"type": "string"},
+                "timecode": {"type": "string"},
+                "description": {"type": "string"},
+                "camera": {"type": "string"},
+                "composition": {"type": "string"},
+                "notes": {"type": "string"}
+              }
+            }
+          },
+          "shotlist": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["shot_id", "asset_type", "duration", "description"],
+              "properties": {
+                "shot_id": {"type": "string"},
+                "asset_type": {"type": "string"},
+                "duration": {"type": "number"},
+                "description": {"type": "string"},
+                "priority": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["version", "service", "story_id", "storyboard_count", "total_frames", "total_shots"],
+      "properties": {
+        "version": {"type": "string"},
+        "service": {"type": "string"},
+        "story_id": {"type": "string"},
+        "storyboard_count": {"type": "integer"},
+        "total_frames": {"type": "integer"},
+        "total_shots": {"type": "integer"},
+        "degraded": {"type": "boolean"}
+      }
+    }
+  }
+}

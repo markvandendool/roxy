@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skybeam.publish.health.v1",
+  "title": "SKYBEAM Publish Health Schema (STORY-026)",
+  "description": "Schema for publish pipeline health checks and alerting.",
+  "type": "object",
+  "required": [
+    "health_id",
+    "timestamp",
+    "checks",
+    "gate_result",
+    "alerts"
+  ],
+  "properties": {
+    "health_id": {
+      "type": "string",
+      "description": "Unique health check ID",
+      "pattern": "^HEALTH_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/health_check"
+      }
+    },
+    "gate_result": {
+      "type": "string",
+      "enum": ["approved", "warning", "critical"],
+      "description": "Overall health gate result"
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/alert"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_checks": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "warnings": { "type": "integer" },
+        "critical": { "type": "integer" },
+        "active_alerts": { "type": "integer" }
+      }
+    },
+    "heartbeat": {
+      "type": "object",
+      "properties": {
+        "last_beat": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "beat_interval_seconds": {
+          "type": "integer"
+        },
+        "consecutive_beats": {
+          "type": "integer"
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "service": { "type": "string" },
+        "story_id": { "type": "string" },
+        "host": { "type": "string" },
+        "check_duration_ms": { "type": "integer" }
+      }
+    }
+  },
+  "definitions": {
+    "health_check": {
+      "type": "object",
+      "required": ["check_id", "check_type", "result", "message"],
+      "properties": {
+        "check_id": {
+          "type": "string",
+          "description": "Unique check identifier"
+        },
+        "check_type": {
+          "type": "string",
+          "enum": [
+            "queue_stuck",
+            "timer_drift",
+            "receipt_freshness",
+            "metrics_freshness",
+            "master_consistency",
+            "failed_receipts",
+            "api_access"
+          ]
+        },
+        "result": {
+          "type": "string",
+          "enum": ["pass", "warning", "critical"]
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "threshold": {
+          "type": "object",
+          "properties": {
+            "warning": { "type": "number" },
+            "critical": { "type": "number" },
+            "actual": { "type": "number" }
+          }
+        }
+      }
+    },
+    "alert": {
+      "type": "object",
+      "required": ["alert_id", "severity", "title", "description"],
+      "properties": {
+        "alert_id": {
+          "type": "string",
+          "pattern": "^ALERT_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["warning", "critical"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "source_check": {
+          "type": "string",
+          "description": "check_id that triggered this alert"
+        },
+        "remediation": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Steps to resolve the alert"
+        },
+        "first_seen": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "acknowledged": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

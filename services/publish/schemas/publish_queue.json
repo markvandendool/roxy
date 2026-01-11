@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skybeam.publish.queue.v1",
+  "title": "SKYBEAM Publish Queue Schema (STORY-021)",
+  "description": "Schema for publish queue entries and snapshot. Append-only queue with idempotency via master_sha256.",
+  "definitions": {
+    "queue_entry": {
+      "type": "object",
+      "required": [
+        "publish_id",
+        "enqueue_timestamp",
+        "master_id",
+        "master_sha256",
+        "source_qa_id",
+        "script_id",
+        "status"
+      ],
+      "properties": {
+        "publish_id": {
+          "type": "string",
+          "description": "Unique identifier for this publish request (PUB_YYYYMMDD_HHMMSS_hash8)",
+          "pattern": "^PUB_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+        },
+        "enqueue_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO8601 timestamp when enqueued"
+        },
+        "master_id": {
+          "type": "string",
+          "description": "Source master manifest ID"
+        },
+        "master_sha256": {
+          "type": "string",
+          "description": "SHA256 of master.mp4 - idempotency key",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "master_path": {
+          "type": "string",
+          "description": "Absolute path to master.mp4 at enqueue time"
+        },
+        "source_qa_id": {
+          "type": "string",
+          "description": "QA gate ID that approved this master"
+        },
+        "script_id": {
+          "type": "string",
+          "description": "Script ID from master manifest"
+        },
+        "title": {
+          "type": "string",
+          "description": "Video title from master manifest"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["queued", "packaging", "publishing", "published", "failed", "degraded"],
+          "description": "Current status in publish pipeline"
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["youtube_shorts", "tiktok", "instagram_reels"]
+          },
+          "description": "Target platforms for publishing"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "version": { "type": "string" },
+            "service": { "type": "string" },
+            "story_id": { "type": "string" },
+            "host": { "type": "string" }
+          }
+        }
+      }
+    },
+    "queue_snapshot": {
+      "type": "object",
+      "required": [
+        "snapshot_id",
+        "timestamp",
+        "queue_length",
+        "entries",
+        "status"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "type": "string",
+          "description": "Unique snapshot ID",
+          "pattern": "^QUEUE_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "queue_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "known_hashes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "All master_sha256 values seen (for idempotency)"
+        },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/queue_entry" }
+        },
+        "latest_entry": {
+          "$ref": "#/definitions/queue_entry",
+          "description": "Most recently enqueued item"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["healthy", "degraded"],
+          "description": "Queue builder status"
+        },
+        "degraded_reason": {
+          "type": "string",
+          "description": "Reason if status is degraded"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "version": { "type": "string" },
+            "service": { "type": "string" },
+            "story_id": { "type": "string" },
+            "host": { "type": "string" },
+            "last_run": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/queue_entry" },
+    { "$ref": "#/definitions/queue_snapshot" }
+  ]
+}
