@@ -13,6 +13,18 @@ This document defines the **mandatory protocol** for ALL AI agents working with 
 
 ---
 
+## ROXY CORE — API CONTRACT
+
+**SSE streaming:** `GET /stream` (primary) — **JSON:** `POST /run` (non-streaming)
+
+- `/stream` emits `event: routing_meta` with: `routed_mode`, `query_type`, `selected_pool`, `reason`, `skip_rag`
+- Skip-RAG: time/repo queries → TruthPacket (truth_only mode)
+- OPS queries → FAST pool; CODE/TECHNICAL → BIG pool; `/deep` forces BIG
+
+**Full contract:** `docs/ROXY_DUAL_POOL_CONTRACT.md` | **Ops:** `docs/RUNBOOK.md`
+
+---
+
 ## THE 10 COMMANDMENTS OF MINDSONG AGENTS
 
 ### 1. THOU SHALT READ BEFORE WRITING

@@ -291,8 +291,9 @@ test_sse_routing_meta() {
         return 0
     fi
 
-    # SSE smoke test: /stream?command=hello should return routing_meta within 2 seconds
-    response=$(timeout 2 curl -sN "$ROXY_CORE_URL/stream?command=hello" \
+    # SSE smoke test: /stream should return routing_meta within 2 seconds
+    # Use "what time" query which goes through RAG path and emits routing_meta
+    response=$(timeout 2 curl -sN "$ROXY_CORE_URL/stream?command=what%20time%20is%20it" \
         -H "X-ROXY-Token: $auth_token" 2>/dev/null | head -c 1000 || echo "TIMEOUT")
 
     if [[ "$response" == "TIMEOUT" ]] || [[ -z "$response" ]]; then

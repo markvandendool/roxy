@@ -37,6 +37,37 @@
 
 ---
 
+## ROXY CORE — ROUTING & SSE CONTRACT
+
+**Primary API:** `GET /stream` (SSE) — `POST /run` (JSON, non-streaming)
+
+### SSE Streaming (`/stream`)
+```bash
+curl -sN "http://127.0.0.1:8766/stream?command=hello" -H "X-ROXY-Token: $TOKEN"
+```
+
+Emits `event: routing_meta` with semantic fields:
+- `routed_mode`: truth_only | rag | command
+- `query_type`: time_date | repo | ops | code | technical | creative | summary | general
+- `reason`: skip_rag:* | classified:* | fallback:* | force_deep:*
+- `selected_pool`: fast | big
+- `skip_rag`: true/false
+
+### Skip-RAG Behaviors
+- **time/date queries** → TruthPacket (routed_mode=truth_only, pool=fast)
+- **repo/git queries** → TruthPacket (routed_mode=truth_only, pool=fast)
+
+### Pool Routing
+- **OPS queries** (port/service/restart) → FAST pool by default
+- **CODE/TECHNICAL** → BIG pool
+- **GENERAL/SUMMARY** → FAST pool
+- `/deep` prefix forces BIG pool
+
+**Full contract:** `docs/ROXY_DUAL_POOL_CONTRACT.md`
+**Operations:** `docs/ROXY_RUNBOOK_CORE.md`, `docs/RUNBOOK.md`
+
+---
+
 ## EXECUTIVE SUMMARY
 
 **MindSong Juke Hub** is an enterprise-grade Musical Operating System with:
