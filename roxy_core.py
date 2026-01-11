@@ -291,6 +291,111 @@ def _get_ollama_base_url() -> str:
     return _resolve_ollama_pools()["default"]
 
 
+# Global startup config validation result (set at boot)
+STARTUP_CONFIG_VALIDATION = None
+
+def validate_startup_config() -> dict:
+    """
+    Comprehensive startup configuration validation.
+    Runs at boot and caches result. /ready uses this for config health.
+
+    Returns:
+        {
+            "valid": bool,
+            "errors": [str],
+            "warnings": [str],
+            "config_summary": {
+                "auth_token": bool,
+                "pools": {...},
+                "log_path": str,
+                "port": int,
+            }
+        }
+    """
+    global STARTUP_CONFIG_VALIDATION
+
+    errors = []
+    warnings = []
+
+    # 1. AUTH_TOKEN (already fails fast at module load, but double-check)
+    auth_ok = bool(AUTH_TOKEN)
+    if not auth_ok:
+        errors.append("AUTH_TOKEN not configured")
+
+    # 2. Pool configuration
+    pools = _resolve_ollama_pools()
+    if pools["misconfigured"]:
+        errors.append(f"Pool misconfiguration: W5700X and 6900XT point to same endpoint")
+    if not pools["w5700x"]["configured"]:
+        warnings.append("W5700X pool not explicitly configured (using default)")
+    if not pools["6900xt"]["configured"]:
+        warnings.append("6900XT pool not explicitly configured (using default)")
+
+    # 3. Log directory
+    log_dir = Path.home() / ".roxy" / "logs"
+    log_path = str(log_dir / "roxy-core.log")
+    if not log_dir.exists():
+        try:
+            log_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            errors.append(f"Cannot create log directory: {e}")
+
+    # 4. Proofs directory
+    proofs_dir = Path.home() / ".roxy" / "proofs"
+    if not proofs_dir.exists():
+        try:
+            proofs_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            warnings.append(f"Cannot create proofs directory: {e}")
+
+    # 5. Config file
+    config_file = Path.home() / ".roxy" / "config.json"
+    if not config_file.exists():
+        warnings.append("config.json not found, using defaults")
+
+    # Build result
+    result = {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "warnings": warnings,
+        "config_summary": {
+            "auth_token": auth_ok,
+            "pools": {
+                "w5700x": pools["w5700x"]["url"],
+                "6900xt": pools["6900xt"]["url"],
+                "default": pools["default"],
+                "misconfigured": pools["misconfigured"],
+            },
+            "log_path": log_path,
+            "port": IPC_PORT,
+            "host": IPC_HOST,
+        },
+        "validated_at": datetime.now().isoformat(),
+    }
+
+    # Log summary at startup
+    logger.info("=" * 50)
+    logger.info("STARTUP CONFIG VALIDATION")
+    logger.info("=" * 50)
+    logger.info(f"Auth token: {'OK' if auth_ok else 'MISSING'}")
+    logger.info(f"W5700X pool: {pools['w5700x']['url'] or 'not configured'}")
+    logger.info(f"6900XT pool: {pools['6900xt']['url'] or 'not configured'}")
+    logger.info(f"Default pool: {pools['default']}")
+    logger.info(f"Port: {IPC_PORT}")
+    if errors:
+        for err in errors:
+            logger.error(f"CONFIG ERROR: {err}")
+    if warnings:
+        for warn in warnings:
+            logger.warning(f"CONFIG WARNING: {warn}")
+    logger.info(f"Config valid: {result['valid']}")
+    logger.info("=" * 50)
+
+    # Cache for /ready
+    STARTUP_CONFIG_VALIDATION = result
+    return result
+
+
 OLLAMA_HEALTH_LOCK = threading.Lock()
 _ollama_health_state = {
     "last_ok_ts": None,
@@ -3790,7 +3895,16 @@ def main():
         logger.error(f"ERROR: {roxy_dir} does not exist")
         logger.error("ROXY infrastructure not found")
         sys.exit(1)
-    
+
+    # Validate configuration at startup
+    config_result = validate_startup_config()
+    if not config_result["valid"]:
+        logger.error("FATAL: Configuration validation failed")
+        for err in config_result["errors"]:
+            logger.error(f"  - {err}")
+        logger.error("Fix configuration errors and restart. See docs/RUNBOOK.md")
+        sys.exit(1)
+
     # Start core service
     core = RoxyCore()
     core.start()
