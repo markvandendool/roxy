@@ -27,6 +27,54 @@ except ImportError:
     RESILIENCE_AVAILABLE = False
     logger.warning("Retry and circuit breaker not available")
 
+# Import TruthPacket for reality grounding
+try:
+    from truth_packet import generate_truth_packet, format_truth_for_prompt, get_system_prompt_header
+    TRUTH_PACKET_AVAILABLE = True
+except ImportError:
+    TRUTH_PACKET_AVAILABLE = False
+    logger.warning("TruthPacket module not available - time grounding disabled")
+
+
+# Time/date query patterns that should SKIP RAG (Directive #3)
+import re
+
+TIME_DATE_PATTERNS = [
+    # Direct time questions
+    r"\bwhat\s+(?:is\s+)?(?:the\s+)?(?:current\s+)?(?:time|date|day|month|year)\b",
+    r"\bwhat\s+time\s+is\s+it\b",
+    r"\bwhat\s+day\s+(?:is\s+)?(?:it|today)\b",
+    r"\bwhat(?:'s|\s+is)\s+today(?:'s)?\s+date\b",
+    r"\btoday(?:'s)?\s+date\b",
+    r"\bcurrent\s+(?:time|date|day|timestamp)\b",
+    # Time-relative questions
+    r"\bwhat\s+(?:is\s+)?(?:the\s+)?(?:current\s+)?(?:weekday|week\s+day)\b",
+    r"\bis\s+it\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+    r"\bwhat\s+(?:month|year)\s+(?:is\s+)?(?:it|this)\b",
+    # Time now patterns
+    r"\bright\s+now\b.*\b(?:time|date)\b",
+    r"\b(?:time|date)\b.*\bright\s+now\b",
+    # Tell me the time
+    r"\btell\s+me\s+(?:the\s+)?(?:current\s+)?(?:time|date)\b",
+]
+
+_TIME_DATE_REGEX = re.compile("|".join(TIME_DATE_PATTERNS), re.IGNORECASE)
+
+
+def is_time_date_query(query: str) -> bool:
+    """
+    Detect if query is asking about current time/date.
+
+    These queries should SKIP RAG entirely (Directive #3) because:
+    1. RAG context may contain historical dates that confuse the model
+    2. Time/date answers come solely from TruthPacket
+    3. No indexed content is relevant for "what time is it"
+
+    Returns:
+        True if query is about time/date and should skip RAG
+    """
+    return bool(_TIME_DATE_REGEX.search(query))
+
 
 class SSEStreamer:
     """Server-Sent Events streamer for LLM responses"""
@@ -216,29 +264,33 @@ class SSEStreamer:
                            temperature: float = 0.7,
                            request_id: Optional[str] = None) -> Iterator[str]:
         """
-        Stream RAG response with context
-        
+        Stream RAG response with context.
+
+        PROMPT LAYOUT (Chief's Directive #2):
+        A) SYSTEM: identity + hard rules
+        B) TRUTH PACKET (authoritative - overrides all other sources)
+        C) USER QUERY
+        D) OPTIONAL REFERENCE MATERIAL (RAG) marked as historical/may be stale
+
         Args:
             query: User query
             context: RAG context chunks (optional)
             model: Ollama model name
             temperature: Generation temperature
-            
+
         Yields:
             str: SSE event data
         """
         start_time = time.time()
-        from datetime import datetime
-        import socket
-        import os
+        request_tag = request_id or "n/a"
 
-        # Context Pack - inject essential awareness
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        hostname = socket.gethostname()
-        repo_root = os.getenv("ROXY_DIR", os.path.expanduser("~/.roxy"))
-
-        # ROXY System Prompt - her identity
-        system_prompt = f"""You are ROXY, an advanced AI assistant created by Mark for MindSong operations.
+        # === PART A: SYSTEM PROMPT (identity + hard rules) ===
+        # Load from ROXY_IDENTITY.md via get_system_prompt_header() (Directive #6-7)
+        if TRUTH_PACKET_AVAILABLE:
+            system_prompt = get_system_prompt_header()
+        else:
+            # Fallback hardcoded identity
+            system_prompt = """You are ROXY, an advanced AI assistant created by Mark for MindSong operations.
 
 IDENTITY:
 - Warm, witty, and efficient like JARVIS
@@ -246,10 +298,11 @@ IDENTITY:
 - Proactive and anticipatory
 - Professional with occasional dry humor
 
-CURRENT CONTEXT:
-- Current time: {current_time}
-- Host machine: {hostname}
-- Repository root: {repo_root}
+HARD RULES:
+1. The TRUTH PACKET below contains REAL data from system calls - it is AUTHORITATIVE
+2. If ANY reference material conflicts with the TRUTH PACKET, the TRUTH PACKET wins
+3. For time/date questions, ONLY use the TRUTH PACKET timestamps
+4. Reference material may contain historical dates - these are NOT the current date
 
 RESPONSE GUIDELINES:
 - Be direct and helpful
@@ -257,28 +310,56 @@ RESPONSE GUIDELINES:
 - Cite sources when relevant
 - Keep responses concise unless detail is requested"""
 
-        # Build RAG prompt with identity + context
-        # Put time at the end so model sees it last (recency bias)
-        time_reminder = f"\n\n⏰ IMPORTANT: The current date/time is {current_time}. Any dates in reference material are historical."
-
-        if context:
-            prompt = f"""{system_prompt}
-
-REFERENCE MATERIAL (historical context - use for background only):
-{context}
-
-USER QUERY: {query}
-{time_reminder}
-
-Answer the user's query. Synthesize reference material when relevant. For questions about current time/date, use the CURRENT CONTEXT from above, not reference material."""
+        # === PART B: TRUTH PACKET (authoritative reality) ===
+        if TRUTH_PACKET_AVAILABLE:
+            truth_packet = generate_truth_packet(include_pools=False, include_git=True)
+            truth_section = format_truth_for_prompt(truth_packet)
         else:
-            prompt = f"""{system_prompt}
+            # Fallback if truth_packet module not available
+            from datetime import datetime
+            import socket
+            import os
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            hostname = socket.gethostname()
+            repo_root = os.getenv("ROXY_DIR", os.path.expanduser("~/.roxy"))
+            truth_section = f"""=== TRUTH PACKET (AUTHORITATIVE - OVERRIDES ALL OTHER SOURCES) ===
+Current Date/Time: {current_time}
+Host: {hostname}
+ROXY Directory: {repo_root}
+=== END TRUTH PACKET ==="""
 
-USER QUERY: {query}
-{time_reminder}
+        # === PART C: USER QUERY ===
+        query_section = f"""
+=== USER QUERY ===
+{query}
+=== END USER QUERY ==="""
 
-Provide a helpful response."""
-        
+        # === PART D: REFERENCE MATERIAL (optional, marked as historical) ===
+        if context:
+            rag_section = f"""
+=== REFERENCE MATERIAL (HISTORICAL - MAY BE STALE) ===
+WARNING: This material was indexed at various past dates. Dates mentioned in this
+material are historical and DO NOT represent the current date/time.
+Use for background information only. The TRUTH PACKET above is authoritative.
+
+{context}
+=== END REFERENCE MATERIAL ==="""
+        else:
+            rag_section = ""
+
+        # === BUILD FINAL PROMPT ===
+        # Order: System → Truth → Query → RAG (if any)
+        prompt = f"""{system_prompt}
+
+{truth_section}
+{query_section}
+{rag_section}
+
+Respond to the user's query. If using reference material, synthesize it but remember:
+the TRUTH PACKET is AUTHORITATIVE for current date/time and system state."""
+
+        logger.debug(f"[RAG] Built prompt for requestId={request_tag}, context_len={len(context) if context else 0}")
+
         # Stream response
         for event in self.stream_ollama_response(
             model=model,
@@ -289,7 +370,7 @@ Provide a helpful response."""
             request_id=request_id
         ):
             yield event
-        
+
         # Record RAG query metrics
         latency = time.time() - start_time
         if METRICS_AVAILABLE:

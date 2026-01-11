@@ -1440,60 +1440,83 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             is_command = any(cmd in command.lower() for cmd in [
                 "git", "obs", "health", "open", "launch", "start", "stop"
             ])
-            
+
+            # Import time/date classifier (Directive #3)
+            try:
+                from streaming import is_time_date_query
+                skip_rag = is_time_date_query(command)
+                if skip_rag:
+                    logger.info(f"[ROUTING] Time/date query detected - skipping RAG requestId={request_id}")
+            except ImportError:
+                skip_rag = False
+
             if not is_command:
                 # Likely RAG query - get context and stream
-                try:
-                    # Get RAG context with retry and circuit breaker
-                    import chromadb
-                    from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
-                    from roxy_commands import _expand_query
-                    
-                    # Import resilience utilities
+                # But skip RAG for time/date queries (Directive #3)
+                context = ""
+                rag_skipped = False
+
+                if skip_rag:
+                    # Time/date query - TruthPacket will handle it, no RAG needed
+                    logger.debug(f"[RAG] Skipping RAG for time/date query requestId={request_id}")
+                    rag_skipped = True
+                else:
                     try:
-                        from retry_utils import retry
-                        from circuit_breaker import get_circuit_breaker, CircuitBreakerError
-                        RESILIENCE_AVAILABLE = True
-                    except ImportError:
-                        RESILIENCE_AVAILABLE = False
-                    
-                    expanded_query = _expand_query(command)
-                    ef = DefaultEmbeddingFunction()
-                    
-                    @retry(max_attempts=3, delay=1.0, backoff=2.0) if RESILIENCE_AVAILABLE else lambda f: f
-                    def _get_embedding():
-                        return ef([expanded_query])[0]
-                    
-                    embedding = _get_embedding()
-                    
-                    @retry(max_attempts=3, delay=1.0, backoff=2.0) if RESILIENCE_AVAILABLE else lambda f: f
-                    def _query_chromadb():
-                        client = chromadb.PersistentClient(path=str(ROXY_DIR / "chroma_db"))
-                        collection = client.get_collection("mindsong_docs", embedding_function=ef)
-                        return collection.query(
-                            query_embeddings=[embedding],
-                            n_results=3,
-                            include=["documents", "metadatas"]
-                        )
-                    
-                    # Use circuit breaker if available
-                    if RESILIENCE_AVAILABLE:
-                        chromadb_circuit = get_circuit_breaker("chromadb", failure_threshold=5, timeout=60.0)
+                        # Get RAG context with retry and circuit breaker
+                        import chromadb
+                        from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+                        from roxy_commands import _expand_query
+
+                        # Import resilience utilities
                         try:
-                            results = chromadb_circuit.call(_query_chromadb)
-                        except CircuitBreakerError as e:
-                            logger.error(f"ChromaDB circuit breaker is OPEN: {e}")
-                            results = {"documents": [[]], "metadatas": [[]]}
-                    else:
-                        results = _query_chromadb()
-                    
-                    context_chunks = results["documents"][0] if results and results["documents"] else []
-                    context = "\n\n".join(context_chunks[:3]) if context_chunks else ""
-                    
-                    # Stream RAG response
+                            from retry_utils import retry
+                            from circuit_breaker import get_circuit_breaker, CircuitBreakerError
+                            RESILIENCE_AVAILABLE = True
+                        except ImportError:
+                            RESILIENCE_AVAILABLE = False
+
+                        expanded_query = _expand_query(command)
+                        ef = DefaultEmbeddingFunction()
+
+                        @retry(max_attempts=3, delay=1.0, backoff=2.0) if RESILIENCE_AVAILABLE else lambda f: f
+                        def _get_embedding():
+                            return ef([expanded_query])[0]
+
+                        embedding = _get_embedding()
+
+                        @retry(max_attempts=3, delay=1.0, backoff=2.0) if RESILIENCE_AVAILABLE else lambda f: f
+                        def _query_chromadb():
+                            client = chromadb.PersistentClient(path=str(ROXY_DIR / "chroma_db"))
+                            collection = client.get_collection("mindsong_docs", embedding_function=ef)
+                            return collection.query(
+                                query_embeddings=[embedding],
+                                n_results=3,
+                                include=["documents", "metadatas"]
+                            )
+
+                        # Use circuit breaker if available
+                        if RESILIENCE_AVAILABLE:
+                            chromadb_circuit = get_circuit_breaker("chromadb", failure_threshold=5, timeout=60.0)
+                            try:
+                                results = chromadb_circuit.call(_query_chromadb)
+                            except CircuitBreakerError as e:
+                                logger.error(f"ChromaDB circuit breaker is OPEN: {e}")
+                                results = {"documents": [[]], "metadatas": [[]]}
+                        else:
+                            results = _query_chromadb()
+
+                        context_chunks = results["documents"][0] if results and results["documents"] else []
+                        context = "\n\n".join(context_chunks[:3]) if context_chunks else ""
+
+                    except Exception as e:
+                        logger.debug(f"RAG context fetch failed: {e}, continuing with empty context")
+                        context = ""
+
+                # Stream RAG response (with or without context)
+                try:
                     for sse_event in streamer.stream_rag_response(
                         query=command,
-                        context=context,
+                        context=context if not rag_skipped else "",
                         model="qwen2.5-coder:14b",
                         request_id=request_id
                     ):
