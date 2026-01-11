@@ -228,23 +228,56 @@ class SSEStreamer:
             str: SSE event data
         """
         start_time = time.time()
-        
-        # Build RAG prompt
-        if context:
-            prompt = f"""Based on the following context, answer the question. If the answer is not in the context, say so clearly.
+        from datetime import datetime
+        import socket
+        import os
 
-Context:
+        # Context Pack - inject essential awareness
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        hostname = socket.gethostname()
+        repo_root = os.getenv("ROXY_DIR", os.path.expanduser("~/.roxy"))
+
+        # ROXY System Prompt - her identity
+        system_prompt = f"""You are ROXY, an advanced AI assistant created by Mark for MindSong operations.
+
+IDENTITY:
+- Warm, witty, and efficient like JARVIS
+- Left-brain focused: operations, business, systems, coding
+- Proactive and anticipatory
+- Professional with occasional dry humor
+
+CURRENT CONTEXT:
+- Current time: {current_time}
+- Host machine: {hostname}
+- Repository root: {repo_root}
+
+RESPONSE GUIDELINES:
+- Be direct and helpful
+- When you have context, synthesize it into a clear answer
+- Cite sources when relevant
+- Keep responses concise unless detail is requested"""
+
+        # Build RAG prompt with identity + context
+        # Put time at the end so model sees it last (recency bias)
+        time_reminder = f"\n\n⏰ IMPORTANT: The current date/time is {current_time}. Any dates in reference material are historical."
+
+        if context:
+            prompt = f"""{system_prompt}
+
+REFERENCE MATERIAL (historical context - use for background only):
 {context}
 
-Question: {query}
+USER QUERY: {query}
+{time_reminder}
 
-Answer:"""
+Answer the user's query. Synthesize reference material when relevant. For questions about current time/date, use the CURRENT CONTEXT from above, not reference material."""
         else:
-            prompt = f"""Answer the following question:
+            prompt = f"""{system_prompt}
 
-Question: {query}
+USER QUERY: {query}
+{time_reminder}
 
-Answer:"""
+Provide a helpful response."""
         
         # Stream response
         for event in self.stream_ollama_response(
