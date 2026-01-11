@@ -7,36 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Comprehensive test suite with pytest
-- Prometheus metrics integration
-- Grafana dashboards for monitoring
-- Type hints throughout codebase
-- mypy configuration for type checking
-- Resource limits for Docker services
-- Health check script
-- Backup and restore scripts
-- Automated backup scheduling
-- Retry logic with exponential backoff
-- Circuit breaker pattern implementation
-- API versioning support (/v1/* endpoints)
-- OpenAPI 3.0 specification
-- Comprehensive documentation (architecture, runbooks, API docs)
-- Disaster recovery procedures
-
-### Changed
-- Authentication now mandatory (fail-fast if no token)
-- Rate limiting enabled by default
-- Security modules fail secure instead of silent
-- Observability errors now logged properly (not silent)
-- Enhanced error handling throughout
+## [1.0.0-rc2] - 2026-01-10
 
 ### Fixed
-- ChromaDB healthcheck (uses Python instead of curl)
-- n8n database initialization
-- Silent error handling in security modules
-- Duplicate function definitions in observability.py
-- Mutable default arguments in function signatures
+- Remediation hint in /ready endpoint now provides actionable guidance
+  - Fixed invalid string join syntax
+  - Lists all unreachable pools with their ports
+  - References RUNBOOK.md section 3 for remediation steps
+
+### Changed
+- Updated RUNBOOK.md and gateA contract to match runtime behavior
+
+### Removed
+- 217 stale files: transient reports, legacy/quarantined code
+
+## [1.0.0-rc1] - 2026-01-10
+
+### Added
+- `/ready` endpoint for production readiness (200 if all pools OK, 503 with error details)
+- `/version` endpoint with git SHA, build time, platform info
+- `wait-for-ready.sh` script (replaces manual sleeps)
+- `prod_deploy.sh` Gate0 one-command deploy script
+- Gate scripts: gateA_resilience, gateB_overload, gateE_observability
+- Prometheus metrics: `roxy_pool_reachable`, `roxy_pool_latency_ms`, `roxy_ready_checks_total`
+- RUNBOOK.md operator documentation
+- PROD_CUTOVER_PLAN.md with SLOs and gate definitions
+- Pool identity module (`pool_identity.py`) - single source of truth for pool config
+- Deprecation warnings for BIG/FAST pool aliases
+
+### Changed
+- `/health` vs `/ready` semantics clarified (health=alive, ready=production-ready)
+- Benchmark service uses canonical pool names from pool_identity module
 
 ## [1.0.0] - 2026-01-02
 
