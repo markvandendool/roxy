@@ -1,6 +1,6 @@
 # ROXY Operator Runbook
 
-**Version:** 1.0.0-rc2
+**Version:** 1.0.0-rc3
 **Last Updated:** 2026-01-10
 
 ---
@@ -178,10 +178,29 @@ curl http://127.0.0.1:8766/ready | jq '.checks.pool_invariants.pools'
 | /ready | GET | No | Production readiness |
 | /info | GET | No | Server info, pool status |
 | /metrics | GET | No | Prometheus metrics |
+| /stream | GET | Yes | **Primary SSE streaming endpoint** |
+| /run | POST | Yes | Execute command (JSON, non-streaming) |
 | /bench/run | POST | Yes | Start benchmark |
 | /bench/status | GET | No | Benchmark status |
 | /bench/cancel | POST | Yes | Cancel running benchmark |
-| /run | POST | Yes | Execute command |
+
+### SSE Streaming (/stream)
+
+The `/stream` endpoint is the primary way to interact with ROXY:
+
+```bash
+TOKEN=$(cat ~/.roxy/secret.token)
+curl -sN "http://127.0.0.1:8766/stream?command=hello" -H "X-ROXY-Token: $TOKEN"
+```
+
+**SSE Events:**
+- `event: routing_meta` - Pool selection, query type, skip_rag status
+- `event: token` - Streaming tokens from LLM
+- `event: complete` - Stream finished
+
+**routing_meta fields:** `query_type`, `routed_mode`, `selected_pool`, `reason`, `skip_rag`
+
+See `ROXY_DUAL_POOL_CONTRACT.md` for full routing_meta schema.
 
 ---
 

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc3] - 2026-01-10
+
+### Added
+- OPS query type for port/service/restart queries → routes to FAST pool
+- SSE smoke test in gateBRAIN.sh (2s timeout, validates semantic fields)
+- API Endpoints section in ROXY_RUNBOOK_CORE.md documenting /stream vs /run
+- Ops docs priority boosting in RAG (ROXY_RUNTIME_PORTS.md ranks #1 for port queries)
+
+### Fixed
+- Router defaults: GENERAL queries now route to FAST pool (was BIG)
+- Time/repo queries: `query_type` now shows "time_date"/"repo" (was "general")
+- Time/repo queries: `routed_mode` now shows "truth_only" (was "rag")
+- Reason field: Now shows "skip_rag:*" or "fallback:general:no_keywords" for clarity
+- Classifier precedence: SUMMARY now beats TECHNICAL in keyword ties
+- RAG sources deduplication: `rag_sources_top3` no longer contains duplicates
+- Pool invariant: Downgraded to WARN unless delta > 3ms AND ratio > 1.5x
+
+### Changed
+- routing_meta SSE event now includes all semantic fields (routed_mode, skip_rag_reason)
+- ROXY_DUAL_POOL_CONTRACT.md updated with full routing_meta schema
+
 ## [1.0.0-rc2] - 2026-01-10
 
 ### Fixed

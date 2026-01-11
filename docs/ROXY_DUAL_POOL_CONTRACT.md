@@ -46,8 +46,28 @@ The expert router (`router_integration.py`) makes routing decisions based on que
 | CODE | BIG | qwen2.5-coder:14b | Quality code generation |
 | TECHNICAL | BIG | qwen2.5-coder:14b | Technical accuracy |
 | CREATIVE | BIG | llama3:8b | Narrative quality |
+| OPS | FAST | llama3:8b | Ops queries (port/service/restart) - fast + boosted docs |
 | SUMMARY | FAST | llama3:8b | Speed over depth |
-| GENERAL | BIG | qwen2.5-coder:14b | Default to quality |
+| GENERAL | FAST | llama3:8b | Default to speed (cost-efficient) |
+
+### Special Query Types (RAG-Skipped)
+
+These queries skip RAG retrieval and use TruthPacket for grounding:
+
+| Query Type | Pool | Skip RAG | Reason |
+|------------|------|----------|--------|
+| time_date | FAST | Yes | Time/date queries use TruthPacket |
+| repo | FAST | Yes | Git state queries use TruthPacket |
+
+### Classifier Precedence
+
+When multiple query types match, precedence order is:
+1. SUMMARY (always wins)
+2. CODE
+3. OPS
+4. TECHNICAL
+5. CREATIVE
+6. GENERAL (fallback)
 
 ## Force Deep Mode
 
@@ -60,13 +80,33 @@ This bypasses the router's classification and uses BIG pool regardless of query 
 
 ## Routing Metadata
 
-Every response includes `routing_meta` SSE event with:
-- `selected_pool`: big | fast
-- `selected_endpoint`: http://127.0.0.1:11434 | http://127.0.0.1:11435
-- `selected_model`: actual model name
-- `query_type`: code | technical | creative | summary | general
-- `reason`: routing explanation
-- `confidence`: 0.0-1.0
+Every SSE response on `/stream` includes `event: routing_meta` with:
+
+| Field | Values | Description |
+|-------|--------|-------------|
+| `query_type` | time_date, repo, ops, code, technical, creative, summary, general | Classified query type |
+| `routed_mode` | truth_only, rag, command | How the query was processed |
+| `selected_pool` | big, fast | Which GPU pool was used |
+| `selected_endpoint` | http://127.0.0.1:11434 or :11435 | Ollama endpoint URL |
+| `selected_model` | qwen2.5-coder:14b, llama3:8b | Model used for inference |
+| `reason` | skip_rag:*, classified:*, fallback:*, force_deep:* | Routing explanation |
+| `confidence` | 0.0-1.0 | Classifier confidence score |
+| `skip_rag` | true, false | Whether RAG was skipped |
+| `skip_rag_reason` | time_date_query, repo_query, null | Why RAG was skipped |
+| `latency_ms` | integer | Routing decision latency |
+| `rag_sources_top3` | array | Top 3 RAG sources (deduplicated) |
+
+### Example routing_meta Events
+
+**Time query (skip RAG):**
+```json
+{"query_type": "time_date", "routed_mode": "truth_only", "selected_pool": "fast", "reason": "skip_rag:time_date_query", "skip_rag": true}
+```
+
+**Code query (use RAG + BIG pool):**
+```json
+{"query_type": "code", "routed_mode": "rag", "selected_pool": "big", "reason": "classified:code:0.67", "skip_rag": false}
+```
 
 ## Pool Health
 

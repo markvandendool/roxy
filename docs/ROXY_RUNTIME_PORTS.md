@@ -9,6 +9,16 @@ Quick reference for all ROXY service ports.
 | 8766 | roxy-core | N/A | Main ROXY daemon (SSE streaming) |
 | 8765 | MCP Server | N/A | Model Context Protocol server |
 
+### roxy-core Endpoints (Port 8766)
+
+| Endpoint | Method | Auth | Response | Purpose |
+|----------|--------|------|----------|---------|
+| `/stream` | GET | X-ROXY-Token | SSE | Primary streaming endpoint, emits `routing_meta` |
+| `/run` | POST | X-ROXY-Token | JSON | Non-streaming (legacy-friendly) |
+| `/health` | GET | None | JSON | Liveness check |
+| `/ready` | GET | None | JSON | Production readiness (pool health) |
+| `/info` | GET | None | JSON | Service info |
+
 ## Ollama Pools
 
 | Port | Pool Name | GPU | Canonical Name | Models |
