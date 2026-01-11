@@ -90,7 +90,7 @@ curl -sS http://127.0.0.1:8766/ready | jq
   "ready": false,
   "error_code": "POOLS_UNREACHABLE",
   "message": "Pools not reachable: ['6900xt']",
-  "remediation_hint": "Start services: systemctl --user start ollama-6900xt.service"
+  "remediation_hint": "Verify ollama responding: 6900xt (port 11435). See RUNBOOK.md section 3."
 }
 ```
 

@@ -870,7 +870,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             if not invariants.get("ok", False):
                 ready_status["error_code"] = "POOL_INVARIANT_FAILURE"
                 ready_status["message"] = invariants.get("warning") or "Pool invariants check failed"
-                ready_status["remediation_hint"] = "Check ollama-w5700x.service and ollama-6900xt.service are running on correct ports (11434/11435)"
+                ready_status["remediation_hint"] = "Verify ollama responding on ports 11434 (w5700x) and 11435 (6900xt). See RUNBOOK.md section 3."
                 if METRICS_AVAILABLE:
                     record_ready_check(ready=False)
                 self.send_response(503)
@@ -893,7 +893,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             if unreachable:
                 ready_status["error_code"] = "POOLS_UNREACHABLE"
                 ready_status["message"] = f"Pools not reachable: {unreachable}"
-                ready_status["remediation_hint"] = f"Start services: systemctl --user start ollama-{''.join(unreachable[0])}.service"
+                # Build port hints for unreachable pools
+                port_hints = {"w5700x": "11434", "6900xt": "11435"}
+                hints = [f"{p} (port {port_hints.get(p, '?')})" for p in unreachable]
+                ready_status["remediation_hint"] = f"Verify ollama responding: {', '.join(hints)}. See RUNBOOK.md section 3."
                 if METRICS_AVAILABLE:
                     record_ready_check(ready=False)
                 self.send_response(503)
