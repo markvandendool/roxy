@@ -18,6 +18,7 @@ import hashlib
 from pathlib import Path
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from urllib.parse import parse_qs, urlparse
 import json
 from threading import Thread
@@ -3820,9 +3821,12 @@ class RoxyCore:
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
         
-        # Start HTTP server
+        # Start HTTP server (threaded to prevent deadlock under concurrent requests)
+        class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
+            daemon_threads = True  # Don't block shutdown
+
         try:
-            self.server = HTTPServer((IPC_HOST, IPC_PORT), RoxyCoreHandler)
+            self.server = ThreadingHTTPServer((IPC_HOST, IPC_PORT), RoxyCoreHandler)
             logger.info(f"✓ HTTP IPC server listening on {IPC_HOST}:{IPC_PORT}")
             
             # Run server in background thread

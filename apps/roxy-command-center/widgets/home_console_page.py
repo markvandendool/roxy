@@ -607,6 +607,8 @@ class TalkColumn(Gtk.Box):
     
     def _save_settings(self):
         """Persist sticky settings to JSON."""
+        from pathlib import Path
+        import json
         try:
             settings_dir = Path.home() / ".config" / "roxy-command-center"
             settings_dir.mkdir(parents=True, exist_ok=True)
@@ -957,13 +959,20 @@ class TalkColumn(Gtk.Box):
     
     def _start_info_polling(self):
         """Start polling /info endpoint for Truth Panel."""
-        # Poll every 5 seconds (reduced from 3 to prevent thrashing)
-        self._info_poll_id = GLib.timeout_add_seconds(5, self._poll_info)
+        self._info_fetch_pending = False  # Guard against concurrent fetches
+        # Poll every 10 seconds (increased to reduce load)
+        self._info_poll_id = GLib.timeout_add_seconds(10, self._poll_info)
         # Also do immediate fetch
         GLib.idle_add(self._poll_info)
     
     def _poll_info(self) -> bool:
         """Fetch /info endpoint and update Truth Panel chips."""
+        # Skip if previous fetch still in progress (prevents thread accumulation)
+        if getattr(self, '_info_fetch_pending', False):
+            return True
+
+        self._info_fetch_pending = True
+
         import threading
         def fetch():
             try:
@@ -976,7 +985,9 @@ class TalkColumn(Gtk.Box):
                     GLib.idle_add(self._update_truth_panel, data)
             except Exception as e:
                 GLib.idle_add(self._update_truth_panel_error, str(e))
-        
+            finally:
+                self._info_fetch_pending = False
+
         threading.Thread(target=fetch, daemon=True).start()
         return True  # Keep polling
     
