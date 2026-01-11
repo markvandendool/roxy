@@ -51,3 +51,6 @@ chroma_db.backup*/
 snapshot.json
 tinytuya.json
 tuya-raw.json
+
+# Nested git repositories (third-party clones)
+gesture-control/midiGesture-base/
