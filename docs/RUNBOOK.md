@@ -1,6 +1,6 @@
 # ROXY Operator Runbook
 
-**Version:** 1.0.0-rc1
+**Version:** 1.0.0-rc2
 **Last Updated:** 2026-01-10
 
 ---

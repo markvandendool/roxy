@@ -932,7 +932,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         GET /version - Returns {version, git_sha, build_time, python_version}
         """
         version_info = {
-            "version": "1.0.0-rc1",
+            "version": "1.0.0-rc2",
             "service": "roxy-core",
         }
 
