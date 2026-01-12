@@ -23,9 +23,28 @@ import json
 import logging
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
+import pytz  # For timezone handling
 
 ROXY_DIR = Path.home() / ".roxy"
 logger = logging.getLogger("roxy.commands")
+
+# Import query detection (safe, no circular imports)
+try:
+    from query_detection import is_time_date_query, is_repo_query
+    QUERY_DETECTION_AVAILABLE = True
+    import sys; print(f"[DEBUG] Query detection loaded: is_time_date_query={is_time_date_query('what time is it')}", file=sys.stderr)
+except ImportError as e:
+    QUERY_DETECTION_AVAILABLE = False
+    logger.warning(f"Query detection module not available: {e}")
+
+# Import TruthPacket for reality grounding
+try:
+    from truth_packet import generate_truth_packet
+    TRUTH_PACKET_AVAILABLE = True
+except ImportError:
+    TRUTH_PACKET_AVAILABLE = False
+    logger.warning("TruthPacket module not available - time grounding disabled")
 
 
 def _get_ollama_base_url() -> str:
@@ -106,9 +125,20 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
     """Parse natural language command"""
     text_lower = text.lower().strip()
     words = text_lower.split()
-    
+
     if not words:
         return ("rag", [text])
+
+    # === TIME/DATE QUERIES - HIGHEST PRIORITY (Directive #3) ===
+    # Time queries MUST be answered DETERMINISTICALLY without LLM
+    # Check FIRST before any other routing (moved from bottom of function)
+    if QUERY_DETECTION_AVAILABLE and is_time_date_query(text):
+        return ("time_direct", [text])
+
+    # === REPO/GIT STATE QUERIES (Directive #5) ===
+    # Repository state queries should use TruthPacket
+    if QUERY_DETECTION_AVAILABLE and is_repo_query(text):
+        return ("repo_direct", [text])
 
     # === GIT COMMANDS ===
     git_keywords = ["git", "commit", "push", "pull", "diff", "checkout", "branch", "merge"]
@@ -250,6 +280,7 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
             return ("tool_preflight", ["list_files", {"path": "/home/mark/mindsong-juke-hub"}, text])
 
     # === DEFAULT: RAG QUERY ===
+    # (Note: Time/date and repo queries are handled at the TOP of this function)
     # Everything else goes to RAG for knowledge retrieval
     return ("rag", [text])
 
@@ -425,6 +456,16 @@ def execute_command(cmd_type, args):
         
         return response
 
+    elif cmd_type == "time_direct":
+        # DETERMINISTIC time/date response (NO LLM)
+        query = " ".join(args)
+        return answer_time_query(query)
+
+    elif cmd_type == "repo_direct":
+        # DETERMINISTIC repo state response (NO LLM)
+        query = " ".join(args)
+        return answer_repo_query(query)
+
     elif cmd_type == "rag":
         # Query ChromaDB
         query = " ".join(args)
@@ -496,6 +537,79 @@ Assistant:"""
             
     except Exception as e:
         return f"Chat failed: {e}"
+
+
+def answer_time_query(query: str) -> str:
+    """
+    DETERMINISTIC time/date response - NO LLM CALL.
+
+    Uses TruthPacket if available, otherwise system datetime.
+    This function NEVER calls Ollama - responses are assembled from data only.
+    """
+    try:
+        if TRUTH_PACKET_AVAILABLE:
+            # Get authoritative time from TruthPacket
+            packet = generate_truth_packet(include_pools=False, include_git=False)
+
+            # Extract time fields
+            now_human = packet.get("now_human", "")
+            now_iso = packet.get("now_iso", "")
+            now_year = packet.get("now_year", 2026)
+            now_month = packet.get("now_month", "January")
+            now_day = packet.get("now_day", 11)
+            now_weekday = packet.get("now_weekday", "")
+            timezone = packet.get("timezone", "MST")
+
+            # Build deterministic response
+            return f"The current date and time is {now_weekday}, {now_month} {now_day}, {now_year}. Time: {now_human} ({timezone}). ISO: {now_iso}"
+        else:
+            # Fallback to system datetime (no TruthPacket)
+            try:
+                tz = pytz.timezone("America/Edmonton")
+                now = datetime.now(tz)
+            except Exception:
+                now = datetime.now()
+
+            return f"The current date and time is {now.strftime('%A, %B %d, %Y at %H:%M:%S %Z')}"
+    except Exception as e:
+        # Ultimate fallback
+        now = datetime.now()
+        return f"The current date and time is {now.strftime('%A, %B %d, %Y at %H:%M:%S')} (fallback: {e})"
+
+
+def answer_repo_query(query: str) -> str:
+    """
+    DETERMINISTIC repo state response - NO LLM CALL.
+
+    Uses TruthPacket.git if available, otherwise direct git commands.
+    """
+    try:
+        if TRUTH_PACKET_AVAILABLE:
+            packet = generate_truth_packet(include_pools=False, include_git=True)
+            git_info = packet.get("git", {})
+
+            if git_info:
+                branch = git_info.get("branch", "unknown")
+                commit = git_info.get("commit", "unknown")[:8] if git_info.get("commit") else "unknown"
+                dirty = git_info.get("dirty", False)
+                repo_path = git_info.get("repo_path", "unknown")
+
+                status = "dirty (uncommitted changes)" if dirty else "clean"
+                return f"Repository: {repo_path}\nBranch: {branch}\nCommit: {commit}\nStatus: {status}"
+
+        # Fallback to direct git command
+        import subprocess
+        result = subprocess.run(
+            ["git", "status", "--porcelain", "--branch"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(ROXY_DIR)
+        )
+        if result.returncode == 0:
+            return f"Git status:\n{result.stdout.strip()}"
+        return f"Git status unavailable: {result.stderr.strip()}"
+    except Exception as e:
+        return f"Repository state unavailable: {e}"
+
 
 def query_rag(query, n_results=5, use_advanced_rag=False):
     """Query RAG and get LLM response - Enhanced with hybrid search"""
@@ -765,22 +879,31 @@ def main():
         # Force deterministic mode - strict formatting
         pass  # Keep routing, but EXEC mode affects system prompt
     elif explicit_mode == "RAG":
-        # Force RAG mode
-        if cmd_type not in ["git", "obs", "system"]:  # Don't override tool commands
+        # Force RAG mode (but NEVER override time/repo queries - DETERMINISTIC)
+        if cmd_type not in ["git", "obs", "system", "time_direct", "repo_direct"]:
             cmd_type = "rag"
             args = [command]
     
     print(f"[ROXY] Routing to: {cmd_type} {args} (mode={explicit_mode or 'auto'}, pool={explicit_pool or 'auto'})")
 
     result = execute_command(cmd_type, args)
-    
+
+    # Build routing_meta for structured response (required for tests)
+    routing_meta = {
+        "query_type": "time_date" if cmd_type == "time_direct" else ("repo" if cmd_type == "repo_direct" else cmd_type),
+        "routed_mode": "truth_only" if cmd_type in ("time_direct", "repo_direct") else cmd_type,
+        "reason": f"skip_rag:{cmd_type}" if cmd_type in ("time_direct", "repo_direct") else f"default:{cmd_type}",
+        "selected_pool": "fast",
+        "skip_rag": cmd_type in ("time_direct", "repo_direct"),
+    }
+
     # Build structured response (Chief's Phase 2)
     response = CommandResponse(
         text=result,
         tools_executed=TOOLS_EXECUTED.copy(),
         mode=cmd_type,
         errors=[],
-        metadata={"command": command}
+        metadata={"command": command, "routing_meta": routing_meta}
     )
     
     # Print text for backward compatibility

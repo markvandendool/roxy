@@ -109,7 +109,7 @@ test_time_classifier() {
 
     for query in "${test_queries[@]}"; do
         result=$(python3 -c "
-from streaming import is_time_date_query
+from query_detection import is_time_date_query
 print('SKIP' if is_time_date_query(\"$query\") else 'NO_SKIP')
 " 2>/dev/null || echo "ERROR")
 
@@ -128,7 +128,7 @@ print('SKIP' if is_time_date_query(\"$query\") else 'NO_SKIP')
 
     for query in "${normal_queries[@]}"; do
         result=$(python3 -c "
-from streaming import is_time_date_query
+from query_detection import is_time_date_query
 print('SKIP' if is_time_date_query('$query') else 'NO_SKIP')
 " 2>/dev/null || echo "ERROR")
 
@@ -155,7 +155,7 @@ test_repo_classifier() {
 
     for query in "${repo_queries[@]}"; do
         result=$(python3 -c "
-from streaming import is_repo_query
+from query_detection import is_repo_query
 print('SKIP' if is_repo_query(\"$query\") else 'NO_SKIP')
 " 2>/dev/null || echo "ERROR")
 
@@ -270,6 +270,81 @@ test_time_via_run() {
     return 0
 }
 
+# Test DETERMINISTIC time query via /run (Chief directive #3 - TruthPacket grounded)
+test_time_via_run_deterministic() {
+    log_test "DETERMINISTIC time query via /run..."
+
+    # Check if core is up first
+    if ! curl -sf "$ROXY_CORE_URL/health" > /dev/null 2>&1; then
+        log_test "(skipped - roxy-core not running)"
+        return 0
+    fi
+
+    # Get auth token from secret.token
+    local auth_token=""
+    if [[ -f "$ROXY_DIR/secret.token" ]]; then
+        auth_token=$(cat "$ROXY_DIR/secret.token" 2>/dev/null || true)
+    fi
+
+    if [[ -z "$auth_token" ]]; then
+        log_test "(skipped - no auth token at secret.token)"
+        return 0
+    fi
+
+    # POST /run with JSON body (not SSE streaming)
+    response=$(timeout 30 curl -sf -X POST "$ROXY_CORE_URL/run" \
+        -H "Content-Type: application/json" \
+        -H "X-ROXY-Token: $auth_token" \
+        -d '{"command": "what time is it"}' 2>/dev/null || echo '{"error":"timeout"}')
+
+    if [[ "$response" == '{"error":"timeout"}' ]] || [[ -z "$response" ]]; then
+        log_fail "No response from /run endpoint (timeout or empty)"
+        return 1
+    fi
+
+    # Check for auth failure
+    if echo "$response" | jq -e '.status == "error"' > /dev/null 2>&1; then
+        log_fail "Error response from /run"
+        [[ -n "$VERBOSE" ]] && echo "Response: $response"
+        return 1
+    fi
+
+    # Parse result text
+    local result=$(echo "$response" | jq -r '.result // ""' 2>/dev/null)
+
+    # CHECK 1: Result should show routing to time_direct (NOT rag)
+    # Note: metadata.mode may be stale due to caching, so check result text
+    if ! echo "$result" | grep -q "Routing to: time_direct"; then
+        # Check if it was routed to RAG (the broken case)
+        if echo "$result" | grep -q "Routing to: rag"; then
+            log_fail "Time query routed to 'rag' instead of 'time_direct'"
+            [[ -n "$VERBOSE" ]] && echo "Result: $result"
+            return 1
+        fi
+        log_fail "Time query routing not found in response"
+        [[ -n "$VERBOSE" ]] && echo "Result: $result"
+        return 1
+    fi
+
+    # CHECK 2: Result should contain current year
+    local current_year=$(date +%Y)
+    if ! echo "$result" | grep -q "$current_year"; then
+        log_fail "Response missing current year ($current_year)"
+        [[ -n "$VERBOSE" ]] && echo "Result: $result"
+        return 1
+    fi
+
+    # CHECK 3: Result should NOT contain RAG garbage patterns
+    if echo "$result" | grep -qE "(now_utc|Context 1|\[Context|variables defined)"; then
+        log_fail "Response contains RAG garbage (TruthPacket not used)"
+        [[ -n "$VERBOSE" ]] && echo "Result: $result"
+        return 1
+    fi
+
+    log_pass "DETERMINISTIC time query OK (routed to time_direct, year=$current_year)"
+    return 0
+}
+
 # Test SSE routing_meta event (Chief directive #4 + smoke test)
 test_sse_routing_meta() {
     log_test "SSE routing_meta smoke test..."
@@ -344,6 +419,7 @@ main() {
     test_repo_truth || true
     test_core_health || true
     test_time_via_run || true
+    test_time_via_run_deterministic || true
     test_sse_routing_meta || true
 
     log ""
