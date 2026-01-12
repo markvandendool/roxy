@@ -1,8 +1,28 @@
 # MindSong Juke Hub - Claude Code Master Context
 
-> **Version:** 3.1 (MDF2030 + MOS2030 + UNIVERSE)
+> **Version:** 3.5 (MDF2030 + MOS2030 + UNIVERSE + MEMORY)
 > **Status:** Production-Ready Master Knowledge Base
-> **Last Updated:** 2026-01-09
+> **Last Updated:** 2026-01-11
+
+---
+
+# 🧠 MANDATORY: SHARED MEMORY (L0 RULE)
+
+**All agents MUST use Claude-Mem. This is non-negotiable.**
+
+```bash
+# Verify memory worker is running (REQUIRED)
+curl -s http://localhost:37777/health || echo "FIX: cd ~/.claude/plugins/marketplaces/claude-mem && bun run worker:start"
+```
+
+| Requirement | Details |
+|-------------|---------|
+| **Worker** | Must be running on port 37777 (Linux) / 37778 (Mac Studio) |
+| **Storage** | `~/.claude-mem/claude-mem.db` |
+| **Sync** | Every 5 minutes between machines |
+| **Plugin** | `claude-mem@thedotmack` must be enabled |
+
+**Violation = governance breach. No exceptions.**
 
 ---
 
@@ -65,6 +85,32 @@ Emits `event: routing_meta` with semantic fields:
 
 **Full contract:** `docs/ROXY_DUAL_POOL_CONTRACT.md`
 **Operations:** `docs/ROXY_RUNBOOK_CORE.md`, `docs/RUNBOOK.md`
+
+### /stream Invariant: routing_meta MUST Emit
+
+The `/stream` endpoint MUST emit `event: routing_meta` for ALL queries that are not pure token streaming.
+This is verifiable via `gateBRAIN.sh` test `test_routing_meta_formerly_failing`.
+
+**Required semantic fields:**
+- `routed_mode` (truth_only | rag | command)
+- `query_type` (time_date | repo | ops | code | technical | creative | summary | general)
+- `selected_pool` (fast | big)
+- `reason` (skip_rag:* | classified:* | fallback:* | force_deep:*)
+
+### Command Detection Exclusions
+
+The `is_command` classifier in `/stream` excludes these patterns to prevent false positives:
+
+| Pattern | Exclusion Reason |
+|---------|------------------|
+| Questions (`?`, `what`, `how`, `explain`) | Questions about commands ≠ commands |
+| Comparisons (`vs`, `versus`, `difference`, `compare`) | Comparing behaviors ≠ executing |
+| Time/date queries | Routed to TruthPacket, not command execution |
+| Repo/git queries | Routed to TruthPacket, not command execution |
+| `restart` (vs `start`) | "Restart X" is a question; "start X" is a command |
+| URL patterns (`/health`, `/ready`) | Mentioning URLs ≠ executing health checks |
+
+**Test coverage:** `rig_breaker_test.sh` (20 tests), `roxy_edge_test.sh` (20 tests)
 
 ---
 

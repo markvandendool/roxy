@@ -89,6 +89,30 @@ except ImportError:
     METRICS_AVAILABLE = False
     logger.debug("Prometheus metrics not available")
 METRICS_BOOT_WARNING_EMITTED = False
+
+# ============================================================================
+# W5700X POOL DISABLE SWITCH (2026-01-11)
+# ============================================================================
+# REASON: W5700X (GPU0) service disabled due to HSA_OVERRIDE crash fix (2026-01-09)
+#         The override.conf removed HSA_OVERRIDE_GFX_VERSION=10.3.0 which caused
+#         GPU instruction mismatch and system crashes. Service remains disabled
+#         until hardware/driver issue is resolved.
+#
+# EFFECT: When W5700X_DISABLED=1:
+#   - /ready endpoint passes with just 6900XT pool available
+#   - CHAT mode routes to 6900XT instead of requiring W5700X
+#   - All W5700X wiring remains intact for future re-enablement
+#
+# TO RE-ENABLE:
+#   1. Remove ROXY_W5700X_DISABLED env var (or set to 0)
+#   2. sudo systemctl enable --now ollama-w5700x.service
+#   3. systemctl --user restart roxy-core.service
+# ============================================================================
+W5700X_DISABLED = os.getenv("ROXY_W5700X_DISABLED", "0").lower() in ("1", "true", "yes")
+if W5700X_DISABLED:
+    logger.warning("⚠️  W5700X POOL DISABLED - Running in single-GPU mode (6900XT only)")
+    logger.warning("    To re-enable: unset ROXY_W5700X_DISABLED, start ollama-w5700x.service")
+
 # Truth Gate for response validation (prevent hallucinations)
 try:
     sys.path.insert(0, str(ROXY_DIR))
@@ -985,13 +1009,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(ready_status, indent=2).encode())
                 return
 
-            # Check both pools are reachable
+            # Check pools are reachable
+            # NOTE: If W5700X_DISABLED, skip W5700X check - single-GPU mode (2026-01-11)
             pools = invariants.get("pools", {})
             w5700x_ok = pools.get("w5700x", {}).get("reachable", False)
             xt6900_ok = pools.get("6900xt", {}).get("reachable", False)
 
             unreachable = []
-            if not w5700x_ok:
+            # W5700X check skipped when disabled - wiring preserved for re-enablement
+            if not W5700X_DISABLED and not w5700x_ok:
                 unreachable.append("w5700x")
             if not xt6900_ok:
                 unreachable.append("6900xt")
@@ -1437,9 +1463,29 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return
             
             # Check if it's a RAG query (not a command)
-            is_command = any(cmd in command.lower() for cmd in [
-                "git", "obs", "health", "open", "launch", "start", "stop"
-            ])
+            # Exclude comparison/explanation queries (e.g., "health vs ready difference")
+            # Exclude repo/time queries that happen to contain command keywords
+            command_lower = command.lower()
+            comparison_markers = ["vs", "versus", "difference", "between", "compare", "explain"]
+            question_markers = ["what is", "what's", "show me", "would run", "how to", "how do"]
+            is_comparison = any(marker in command_lower for marker in comparison_markers)
+            is_question = any(marker in command_lower for marker in question_markers)
+            # Import query detection to exclude repo/time queries from is_command
+            try:
+                from query_detection import is_time_date_query, is_repo_query
+                is_time_repo = is_time_date_query(command) or is_repo_query(command)
+            except ImportError:
+                is_time_repo = False
+            # Check command keywords - but "restart" is different from "start"
+            # Exclude URL-like patterns (/health, /ready) from triggering command mode
+            import re
+            has_start = "start" in command_lower and "restart" not in command_lower
+            has_url_health = bool(re.search(r'/health', command_lower))  # /health endpoint reference
+            command_keywords = ["git", "obs", "open", "launch", "stop"]
+            has_health_cmd = "health" in command_lower and not has_url_health and "system health" not in command_lower
+            is_command = not is_comparison and not is_question and not is_time_repo and (
+                has_start or has_health_cmd or any(cmd in command_lower for cmd in command_keywords)
+            )
 
             # Import query classifiers (Directives #3, #5)
             skip_rag = False
@@ -1519,13 +1565,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "reason": reason,
                     "selected_pool": "fast",
                     "selected_endpoint": "http://127.0.0.1:11435",
-                    "selected_model": "llama3:8b",
+                    # DEFAULT MODEL: qwen2.5-coder:14b on 6900XT (2026-01-11)
+                    "selected_model": "qwen2.5-coder:14b",
                     "confidence": 0.0,
                     "skip_rag": skip_rag,
                     "skip_rag_reason": skip_rag_reason,
                     "request_id": request_id,
                 }
-                selected_model = "llama3:8b"
+                # DEFAULT MODEL: qwen2.5-coder:14b on 6900XT (2026-01-11)
+                selected_model = "qwen2.5-coder:14b"
                 selected_endpoint = "http://127.0.0.1:11435"
 
             if not is_command:
@@ -3350,6 +3398,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     # Record cache hit
                     if METRICS_AVAILABLE:
                         record_cache_hit()
+                    # Update metadata to indicate cached response
+                    self._last_execution_metadata["mode"] = "rag"
+                    self._last_execution_metadata["route"] = "rag"
+                    self._last_execution_metadata["cached"] = True
                     if isinstance(cached, dict):
                         response = cached.get("response", "")
                         similarity = cached.get("similarity", 1.0)
@@ -3399,15 +3451,21 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         return f"ERROR: Pool {pool_normalized} requested but pools are MISCONFIGURED (both point to same endpoint). Fix ROXY_OLLAMA_W5700X_URL and ROXY_OLLAMA_6900XT_URL."
 
                 # If CHAT mode and no explicit pool, we MUST use W5700X (if configured AND reachable).
+                # NOTE: If W5700X_DISABLED, route CHAT to 6900XT instead (2026-01-11)
                 if effective_mode == "CHAT" and pool_normalized == "AUTO":
-                    w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
-                    if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
-                        pool_normalized = "W5700X"
-                        logger.info(f"CHAT mode -> enforcing W5700X pool ({pool_config['w5700x']['url']})")
+                    # W5700X disabled - use 6900XT for CHAT mode (wiring preserved for re-enablement)
+                    if W5700X_DISABLED:
+                        pool_normalized = "6900XT"
+                        logger.info(f"CHAT mode -> W5700X disabled, using 6900XT ({pool_config['6900xt']['url']})")
                     else:
-                        # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
-                        reason = "not configured" if not pool_config["w5700x"]["configured"] else "not reachable"
-                        return f"ERROR: CHAT mode requires a configured and reachable W5700X pool (ROXY_OLLAMA_W5700X_URL). {reason}. Explicitly set pool=6900XT if you want to use the faster GPU."
+                        w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
+                        if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
+                            pool_normalized = "W5700X"
+                            logger.info(f"CHAT mode -> enforcing W5700X pool ({pool_config['w5700x']['url']})")
+                        else:
+                            # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
+                            reason = "not configured" if not pool_config["w5700x"]["configured"] else "not reachable"
+                            return f"ERROR: CHAT mode requires a configured and reachable W5700X pool (ROXY_OLLAMA_W5700X_URL). {reason}. Explicitly set pool=6900XT if you want to use the faster GPU."
 
                 # Validate explicit requests (also check reachability)
                 if pool_normalized == "W5700X":
@@ -3554,7 +3612,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return f"ERROR: {str(e)}"
     
     def _is_rag_query(self, command: str) -> bool:
-        """Check if command is a RAG query"""
+        """Check if command is a RAG query (excludes time/repo queries that need special routing)"""
+        # First check if it's a time/repo query (must NOT be cached as RAG)
+        try:
+            from query_detection import is_time_date_query, is_repo_query
+            if is_time_date_query(command) or is_repo_query(command):
+                return False  # Not a RAG query - needs special routing
+        except ImportError:
+            pass
+
         rag_indicators = ["what", "how", "explain", "tell me", "describe", "?"]
         command_lower = command.lower()
         return any(indicator in command_lower for indicator in rag_indicators) or "?" in command

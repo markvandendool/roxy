@@ -13,7 +13,13 @@ from enum import Enum
 
 logger = logging.getLogger("roxy.router_integration")
 
+# W5700X DISABLE SWITCH - mirrors roxy_core.py (2026-01-11)
+# When True, ALL queries route to 6900XT (fast pool), ignoring BIG_POOL_TYPES
+W5700X_DISABLED = os.getenv("ROXY_W5700X_DISABLED", "0").lower() in ("1", "true", "yes")
+
 # Pool configuration
+# NOTE: Both pools now use qwen2.5-coder:14b (2026-01-11)
+# W5700X disabled, all traffic routes to 6900XT
 POOL_CONFIG = {
     "big": {
         "url": os.getenv("OLLAMA_BIG_URL", "http://127.0.0.1:11434"),
@@ -23,7 +29,7 @@ POOL_CONFIG = {
     "fast": {
         "url": os.getenv("OLLAMA_FAST_URL", "http://127.0.0.1:11435"),
         "port": 11435,
-        "default_model": "llama3:8b",
+        "default_model": "qwen2.5-coder:14b",  # Was llama3:8b - upgraded to qwen
     },
 }
 
@@ -145,6 +151,13 @@ def get_pool_for_type(query_type: QueryType, force_deep: bool = False) -> str:
     Returns:
         Pool name ("big" or "fast")
     """
+    # W5700X DISABLED: Route ALL queries to FAST pool (6900XT)
+    # This overrides force_deep and BIG_POOL_TYPES when W5700X is offline
+    if W5700X_DISABLED:
+        if force_deep or query_type in BIG_POOL_TYPES:
+            logger.info(f"[ROUTER] W5700X disabled, routing {query_type.value} to FAST pool instead of BIG")
+        return "fast"
+
     if force_deep:
         return "big"
 
@@ -165,10 +178,11 @@ def get_model_for_type(query_type: QueryType, pool: str) -> str:
         return POOL_CONFIG["fast"]["default_model"]
 
     # BIG pool - choose based on query type
+    # NOTE: All queries now use qwen2.5-coder:14b (2026-01-11)
     if query_type == QueryType.CODE:
         return "qwen2.5-coder:14b"
     elif query_type == QueryType.CREATIVE:
-        return "llama3:8b"
+        return "qwen2.5-coder:14b"  # Was llama3:8b - qwen handles creative too
     else:
         return POOL_CONFIG["big"]["default_model"]
 

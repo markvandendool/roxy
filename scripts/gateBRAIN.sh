@@ -401,6 +401,63 @@ test_sse_routing_meta() {
     fi
 }
 
+# Test routing_meta emission for formerly failing prompts
+# These prompts previously triggered false command classification:
+# - git-related questions (triggered by "git" keyword)
+# - restart questions (triggered by "restart" keyword)
+# - /health URL mentions (triggered by "health" keyword)
+test_routing_meta_formerly_failing() {
+    log_test "routing_meta emission for edge-case prompts..."
+
+    # Check if core is up first
+    if ! curl -sf "$ROXY_CORE_URL/health" > /dev/null 2>&1; then
+        log_test "(skipped - roxy-core not running)"
+        return 0
+    fi
+
+    # Get auth token
+    local auth_token=""
+    if [[ -f "$ROXY_DIR/secret.token" ]]; then
+        auth_token=$(cat "$ROXY_DIR/secret.token" 2>/dev/null || true)
+    fi
+
+    if [[ -z "$auth_token" ]]; then
+        log_test "(skipped - no auth token)"
+        return 0
+    fi
+
+    # Formerly failing prompts that must emit routing_meta
+    local test_prompts=(
+        "What's the current Git HEAD commit date (author date)?"
+        "Restart roxy-core.service and confirm /health and /ready are OK."
+        "Explain the difference between /health and /ready in ROXY"
+    )
+
+    local all_passed=1
+
+    for prompt in "${test_prompts[@]}"; do
+        # URL encode the prompt
+        local encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$prompt'''))" 2>/dev/null)
+
+        # Test /stream endpoint
+        local response=$(set +o pipefail; timeout 10 curl -sN "$ROXY_CORE_URL/stream?command=$encoded" \
+            -H "X-ROXY-Token: $auth_token" 2>/dev/null | head -c 2000; true)
+
+        # Must have routing_meta event
+        if ! echo "$response" | grep -q "event: routing_meta"; then
+            log_fail "Missing routing_meta for: ${prompt:0:50}..."
+            all_passed=0
+        fi
+    done
+
+    if [[ "$all_passed" -eq 1 ]]; then
+        log_pass "routing_meta emission OK for all edge-case prompts"
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Main
 main() {
     log ""
@@ -421,6 +478,7 @@ main() {
     test_time_via_run || true
     test_time_via_run_deterministic || true
     test_sse_routing_meta || true
+    test_routing_meta_formerly_failing || true
 
     log ""
     log "========================================"

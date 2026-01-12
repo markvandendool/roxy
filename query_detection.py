@@ -32,6 +32,22 @@ TIME_DATE_PATTERNS = [
     r"\b(?:time|date)\b.*\bright\s+now\b",
     # Tell me the time
     r"\btell\s+me\s+(?:the\s+)?(?:current\s+)?(?:time|date)\b",
+    # Timezone/UTC queries
+    r"\bwhat\s+(?:is\s+)?(?:the\s+)?(?:current\s+)?timezone\b",
+    r"\btimezone\s+(?:are\s+)?(?:you\s+)?(?:using|in)\b",
+    r"\bwhat\s+(?:is\s+)?(?:the\s+)?(?:utc|gmt)\s+offset\b",
+    r"\butc\s+offset\b",
+    # Unix timestamp / epoch
+    r"\bunix\s+timestamp\b",
+    r"\bepoch\s+(?:time|timestamp|seconds)\b",
+    r"\bseconds\s+since\s+epoch\b",
+    # ISO-8601 format requests
+    r"\biso[-\s]?8601\b",
+    r"\bgive\s+(?:me\s+)?(?:the\s+)?.*\bdate\b",
+    # UTC conversion requests
+    r"\bconvert\s+(?:the\s+)?(?:current\s+)?(?:local\s+)?time\s+to\s+utc\b",
+    r"\b(?:current|local)\s+time\s+(?:to|in)\s+utc\b",
+    r"\bshow\s+(?:me\s+)?(?:both\s+)?(?:local\s+and\s+)?utc\b",
     # Simple single-word queries
     r"^(?:time|date)$",
     r"^\s*(?:the\s+)?time\s*$",
@@ -63,8 +79,21 @@ REPO_PATTERNS = [
     r"\bgit\s+(?:status|branch|log|diff)\b",
     r"\bare\s+(?:there\s+)?(?:any\s+)?(?:uncommitted|unstaged|modified)\s+(?:changes|files)\b",
     r"\bwhat\s+(?:was\s+)?(?:the\s+)?last\s+commit\b",
-    r"\bis\s+(?:the\s+)?(?:repo|repository)\s+(?:clean|dirty)\b",
+    r"\bis\s+(?:the\s+)?(?:repo|repository|working\s+tree)\s+(?:clean|dirty)\b",
     r"\bwhat\s+(?:commit|sha)\s+(?:are\s+)?(?:we\s+)?on\b",
+    # Working tree status
+    r"\bworking\s+tree\s+(?:clean|dirty|status)\b",
+    # Remote/origin queries
+    r"\bremote\s+(?:origin\s+)?url\b",
+    r"\borigin\s+url\b",
+    r"\bgit\s+remote\b",
+    # Commit history queries
+    r"\blast\s+\d+\s+commits?\b",
+    r"\bshow\s+(?:the\s+)?(?:last\s+)?\d+\s+commits?\b",
+    r"\bcommits?\s+(?:that\s+)?touched\b",
+    r"\bcommit\s+date\b",
+    r"\bhead\s+commit\s+date\b",
+    r"\bauthor\s+date\b",
 ]
 
 _REPO_REGEX = re.compile("|".join(REPO_PATTERNS), re.IGNORECASE)

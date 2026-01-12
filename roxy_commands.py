@@ -180,12 +180,15 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
         return ("obs", [text])
 
     # === SYSTEM HEALTH ===
-    # Only explicit health/monitoring requests
+    # Only explicit health/monitoring requests (not comparison questions)
     health_keywords = ["health", "temps", "temperature", "docker", "containers"]
-    if words and words[0] in health_keywords:
-        return ("health", [])
-    if "system health" in text_lower or "check health" in text_lower:
-        return ("health", [])
+    comparison_markers = ["vs", "versus", "difference", "between", "compare", "explain"]
+    is_comparison = any(marker in text_lower for marker in comparison_markers)
+    if not is_comparison:
+        if words and words[0] in health_keywords:
+            return ("health", [])
+        if "system health" in text_lower or "check health" in text_lower:
+            return ("health", [])
     if text_lower.startswith("how is") and any(w in text_lower for w in ["system", "server", "jarvis"]):
         return ("health", [])
 
