@@ -67,3 +67,20 @@ rag/cache/
 rag/*.cache
 # Keep: rag/index_manifest.json (reproducibility reference)
 # Keep: rag/rebuild_index_clean.py (canonical rebuild script)
+
+# Credentials and secrets (NEVER COMMIT)
+github.token
+vault/creds/
+vault/tokens/
+*.token
+*.key
+*.pem
+
+# Runtime data directories
+content-pipeline/jobs/
+content-pipeline/publish/
+content-pipeline/production/
+data/feedback/
+forensics/
+obs-portable/
+obs-acceptance/
