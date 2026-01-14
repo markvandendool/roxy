@@ -1,0 +1,163 @@
+# ROXY OBS Voice Commands
+# Part of SKOREQ-OBS-EPIC-001-STORY-003
+# Created: 2026-01-10
+
+version: "1.0"
+domain: obs
+description: Voice commands for OBS Studio control via ROXY
+
+wake_words:
+  - "hey roxy"
+  - "roxy"
+  - "okay roxy"
+
+intents:
+  # === STREAMING ===
+  start_stream:
+    patterns: ["start streaming", "go live", "begin stream", "start broadcasting"]
+    action: obs_skill.start_stream
+
+  stop_stream:
+    patterns: ["stop streaming", "end stream", "go offline", "stop broadcasting"]
+    action: obs_skill.stop_stream
+
+  # === RECORDING ===
+  start_recording:
+    patterns: ["start recording", "begin recording", "record this", "hit record"]
+    action: obs_skill.start_recording
+
+  stop_recording:
+    patterns: ["stop recording", "end recording", "save recording", "finish recording"]
+    action: obs_skill.stop_recording
+
+  pause_recording:
+    patterns: ["pause recording", "pause the recording"]
+    action: obs_skill.pause_recording
+
+  resume_recording:
+    patterns: ["resume recording", "continue recording", "unpause"]
+    action: obs_skill.resume_recording
+
+  # === SCENES ===
+  switch_scene:
+    patterns: ["switch to {scene}", "go to {scene}", "show {scene}", "{scene} scene"]
+    action: obs_skill.switch_scene
+    slots: {scene: {type: scene_name, required: true}}
+
+  brb:
+    patterns: ["brb", "be right back", "break time"]
+    action: obs_skill.switch_scene
+    args: {scene: "brb"}
+
+  starting_soon:
+    patterns: ["starting soon", "countdown"]
+    action: obs_skill.switch_scene
+    args: {scene: "starting"}
+
+  next_scene:
+    patterns: ["next scene", "go forward", "next"]
+    action: obs_skill.next_scene
+
+  previous_scene:
+    patterns: ["previous scene", "go back", "last scene"]
+    action: obs_skill.previous_scene
+
+  list_scenes:
+    patterns: ["list scenes", "what scenes", "available scenes"]
+    action: obs_skill.list_scenes
+
+  # === SOURCES ===
+  show_source:
+    patterns: ["show {source}", "show the {source}", "enable {source}"]
+    action: obs_skill.show_source
+    slots: {source: {type: source_name, required: true}}
+
+  hide_source:
+    patterns: ["hide {source}", "hide the {source}", "disable {source}"]
+    action: obs_skill.hide_source
+    slots: {source: {type: source_name, required: true}}
+
+  toggle_source:
+    patterns: ["toggle {source}", "toggle the {source}"]
+    action: obs_skill.toggle_source
+    slots: {source: {type: source_name, required: true}}
+
+  # === WIDGET SHORTCUTS ===
+  show_braid:
+    patterns: ["show the braid", "show braid", "braid on"]
+    action: obs_skill.show_source
+    args: {source: "Braid"}
+
+  hide_braid:
+    patterns: ["hide the braid", "hide braid", "braid off"]
+    action: obs_skill.hide_source
+    args: {source: "Braid"}
+
+  show_cof:
+    patterns: ["show the circle", "show circle of fifths", "circle on"]
+    action: obs_skill.show_source
+    args: {source: "COF"}
+
+  hide_cof:
+    patterns: ["hide the circle", "hide circle of fifths", "circle off"]
+    action: obs_skill.hide_source
+    args: {source: "COF"}
+
+  show_fretboard:
+    patterns: ["show the fretboard", "fretboard on"]
+    action: obs_skill.show_source
+    args: {source: "Fretboard"}
+
+  hide_fretboard:
+    patterns: ["hide the fretboard", "fretboard off"]
+    action: obs_skill.hide_source
+    args: {source: "Fretboard"}
+
+  # === AUDIO ===
+  mute_mic:
+    patterns: ["mute mic", "mute microphone", "mic off"]
+    action: obs_skill.mute_source
+    args: {source: "Mic/Aux"}
+
+  unmute_mic:
+    patterns: ["unmute mic", "unmute microphone", "mic on"]
+    action: obs_skill.unmute_source
+    args: {source: "Mic/Aux"}
+
+  # === VIRTUAL CAMERA ===
+  start_vcam:
+    patterns: ["start virtual camera", "start vcam"]
+    action: obs_skill.start_virtual_camera
+
+  stop_vcam:
+    patterns: ["stop virtual camera", "stop vcam"]
+    action: obs_skill.stop_virtual_camera
+
+  # === REPLAY ===
+  start_replay:
+    patterns: ["start replay buffer", "enable replay"]
+    action: obs_skill.start_replay_buffer
+
+  stop_replay:
+    patterns: ["stop replay buffer", "disable replay"]
+    action: obs_skill.stop_replay_buffer
+
+  save_replay:
+    patterns: ["save replay", "clip that", "save clip", "capture that"]
+    action: obs_skill.save_replay
+
+  # === STATUS ===
+  get_status:
+    patterns: ["obs status", "streaming status", "are we live", "am I recording"]
+    action: obs_skill.get_status
+
+slot_types:
+  scene_name:
+    examples: ["main", "game", "camera", "brb", "starting", "braid", "scale", "cof"]
+  source_name:
+    examples: ["camera", "webcam", "mic", "braid", "fretboard", "piano", "cof", "cubes"]
+
+error_responses:
+  not_connected: "Can't connect to OBS. Is it running?"
+  scene_not_found: "Scene not found. Try 'list scenes'."
+  source_not_found: "Source not found in current scene."

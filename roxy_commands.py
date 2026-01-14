@@ -28,11 +28,54 @@ from datetime import datetime
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict, Any, Optional, Tuple
 
-ROXY_DIR = Path.home() / ".roxy"
+ROXY_DIR = Path(os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy")))
 logger = logging.getLogger("roxy.commands")
 
 # Global variable to track last model used
 LAST_MODEL_USED = None
+
+
+def _mount_type_for(path: Path) -> str:
+    """Return filesystem type for a path using /proc/mounts (Linux)."""
+    try:
+        resolved = path.resolve()
+        best_mount = ""
+        best_type = ""
+        with open("/proc/mounts", "r") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 3:
+                    continue
+                mount_point = parts[1]
+                fstype = parts[2]
+                if str(resolved) == mount_point or str(resolved).startswith(mount_point.rstrip("/") + "/"):
+                    if len(mount_point) > len(best_mount):
+                        best_mount = mount_point
+                        best_type = fstype
+        return best_type
+    except Exception:
+        return ""
+
+
+def _select_git_repo() -> Tuple[Path, str]:
+    """Pick a git repo path, avoiding SSHFS unless explicitly overridden."""
+    override = os.getenv("ROXY_GIT_REPO")
+    if override:
+        p = Path(override).expanduser()
+        return p, _mount_type_for(p)
+    candidates = [
+        Path.home() / "mindsong-juke-hub-sandbox",
+        Path.home() / "mindsong-mirror",
+        Path.home() / "mindsong-juke-hub",
+    ]
+    for c in candidates:
+        if (c / ".git").exists():
+            fstype = _mount_type_for(c)
+            if fstype in ("fuse.sshfs", "sshfs"):
+                continue
+            return c, fstype
+    fallback = Path.home() / "mindsong-juke-hub"
+    return fallback, _mount_type_for(fallback)
 
 
 def _get_ollama_base_url() -> str:
@@ -96,13 +139,20 @@ def handle_special_tool(tool_name, tool_args):
     """Handle small, safe special-case tools (non-LLM)"""
     try:
         if tool_name == "git_status":
-            # Safe, read-only git status in the canonical repo path
-            repo_path = os.path.expanduser("~/mindsong-juke-hub")
-            p = Path(repo_path)
+            # Safe, read-only git status in the best available repo path
+            p, fstype = _select_git_repo()
             if not p.exists():
                 track_tool_execution(tool_name, tool_args, None, ok=False, error="Repo not found")
-                return f"ERROR: Repo not found: {repo_path}"
-            result = subprocess.run(["git","-C",str(p),"status","--porcelain"], capture_output=True, text=True, timeout=20)
+                return f"ERROR: Repo not found: {p}"
+            if fstype in ("fuse.sshfs", "sshfs") and not os.getenv("ROXY_GIT_REPO"):
+                msg = "Repo is on SSHFS; set ROXY_GIT_REPO to a local clone"
+                track_tool_execution(tool_name, tool_args, None, ok=False, error=msg)
+                return f"ERROR: {msg}"
+            env = os.environ.copy()
+            env.setdefault("GIT_TERMINAL_PROMPT", "0")
+            env.setdefault("GIT_ASKPASS", "/bin/true")
+            env.setdefault("SSH_ASKPASS", "/bin/true")
+            result = subprocess.run(["git","-C",str(p),"status","--porcelain"], capture_output=True, text=True, timeout=20, env=env)
             out = result.stdout.strip()
             track_tool_execution(tool_name, tool_args, (out[:1000] if out else "CLEAN"), ok=(result.returncode==0))
             return out if out else "CLEAN"
@@ -984,14 +1034,19 @@ def _query_rag_impl(query, n_results=5, use_advanced_rag=False):
     import requests
 
     try:
-        # Try advanced RAG from /opt/roxy/services if available
+        # Try advanced RAG from services dir if available
         if use_advanced_rag:
             try:
-                sys.path.insert(0, "/opt/roxy/services")
+                services_dir = Path(os.environ.get("ROXY_SERVICES_DIR", str(ROXY_DIR / "services")))
+                if str(services_dir) not in sys.path:
+                    sys.path.insert(0, str(services_dir))
                 from adapters.service_bridge import get_rag_service
                 
                 # Try to get RAG service for mindsong repo
-                mindsong_path = "/opt/roxy/mindsong-juke-hub"
+                mindsong_path = os.environ.get("ROXY_MINDSONG_PATH")
+                if not mindsong_path:
+                    candidate = ROXY_DIR / "mindsong-juke-hub"
+                    mindsong_path = str(candidate) if candidate.exists() else str(Path.home() / "mindsong-juke-hub")
                 rag_service = get_rag_service(mindsong_path)
                 if rag_service:
                     import asyncio

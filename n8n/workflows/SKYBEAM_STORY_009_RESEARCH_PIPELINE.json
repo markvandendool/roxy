@@ -1,0 +1,207 @@
+{
+  "name": "SKYBEAM Research Pipeline (STORY-009)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Hourly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "notes": "Runs hourly. Can also be triggered manually."
+    },
+    {
+      "parameters": {
+        "command": "/home/mark/.roxy/venv/bin/python /home/mark/.roxy/services/research/trend_detector.py"
+      },
+      "id": "exec-trends",
+      "name": "Run Trend Detector",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "notes": "STORY-006: Fetches RSS feeds and scores trends"
+    },
+    {
+      "parameters": {
+        "command": "/home/mark/.roxy/venv/bin/python /home/mark/.roxy/services/research/deep_research_agent.py"
+      },
+      "id": "exec-research",
+      "name": "Run Deep Research",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "notes": "STORY-007: Generates research briefs from trends"
+    },
+    {
+      "parameters": {
+        "command": "/home/mark/.roxy/venv/bin/python /home/mark/.roxy/services/research/competitor_analyzer.py"
+      },
+      "id": "exec-competitors",
+      "name": "Run Competitor Analyzer",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "notes": "STORY-008: Analyzes competitors for each trend"
+    },
+    {
+      "parameters": {
+        "command": "/home/mark/.roxy/venv/bin/python /home/mark/.roxy/services/research/bundle_writer.py"
+      },
+      "id": "exec-bundle",
+      "name": "Write Research Bundle",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "notes": "STORY-009: Combines all outputs into single bundle, publishes to NATS"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.exitCode }}",
+              "value2": "0"
+            }
+          ]
+        }
+      },
+      "id": "check-success",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "notes": "Verify bundle_writer completed successfully"
+    },
+    {
+      "parameters": {
+        "message": "SKYBEAM Research Pipeline completed successfully.\n\nBundle: {{ $node['Write Research Bundle'].json.stdout }}"
+      },
+      "id": "success-log",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1560, 200],
+      "notes": "Pipeline completed successfully"
+    },
+    {
+      "parameters": {
+        "message": "SKYBEAM Research Pipeline FAILED.\n\nError: {{ $node['Write Research Bundle'].json.stderr }}"
+      },
+      "id": "failure-log",
+      "name": "Log Failure",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1560, 400],
+      "notes": "Pipeline failed - check stderr"
+    }
+  ],
+  "connections": {
+    "Hourly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Trend Detector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Trend Detector": {
+      "main": [
+        [
+          {
+            "node": "Run Deep Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Deep Research": {
+      "main": [
+        [
+          {
+            "node": "Run Competitor Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Competitor Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Write Research Bundle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Research Bundle": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "SKYBEAM",
+      "createdAt": "2026-01-11T00:00:00.000Z",
+      "updatedAt": "2026-01-11T00:00:00.000Z"
+    },
+    {
+      "name": "Research",
+      "createdAt": "2026-01-11T00:00:00.000Z",
+      "updatedAt": "2026-01-11T00:00:00.000Z"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-11T00:00:00.000Z",
+  "versionId": "STORY-009-v1.0.0",
+  "meta": {
+    "skybeam_story": "SKYBEAM-STORY-009",
+    "description": "n8n Research Workflow - runs trend detector, deep research, competitor analyzer, and bundle writer in sequence",
+    "author": "Claude Opus 4.5 (Master Chief)",
+    "created": "2026-01-11"
+  }
+}

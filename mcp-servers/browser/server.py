@@ -7,6 +7,7 @@ Exposes browser automation as MCP tools for Claude
 import asyncio
 import json
 from pathlib import Path
+import os
 from typing import Any
 
 try:
@@ -21,9 +22,13 @@ except ImportError as e:
 mcp = FastMCP('roxy-browser')
 
 # Configuration
-OLLAMA_HOST = 'http://127.0.0.1:11435'
-MODEL_NAME = 'llama3:8b'
-SESSIONS_DIR = Path('/opt/roxy/secrets/browser-sessions')
+OLLAMA_HOST = os.environ.get('OLLAMA_HOST', 'http://127.0.0.1:11435')
+MODEL_NAME = os.environ.get('OLLAMA_MODEL', 'llama3:8b')
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+SESSIONS_DIR = ROXY_ROOT / 'etc' / 'browser-sessions'
+DATA_DIR = ROXY_ROOT / 'var' / 'data'
+SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_llm():
     return ChatOllama(model=MODEL_NAME, base_url=OLLAMA_HOST, temperature=0.1)
@@ -86,7 +91,7 @@ async def screenshot_page(url: str, filename: str = 'screenshot.png') -> str:
         url: The URL to screenshot
         filename: Output filename
     """
-    output_path = f'/opt/roxy/data/{filename}'
+    output_path = str(DATA_DIR / filename)
     task = f'Go to {url}, wait for page to load, and take a screenshot'
     agent = Agent(task=task, llm=get_llm(), headless=True)
     result = await agent.run()

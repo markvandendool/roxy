@@ -1,0 +1,125 @@
+# ROXY Incident Response Runbook
+# Project SKYBEAM — Operational Procedure
+
+name: Incident Response
+version: "1.0.0"
+description: Standard incident response procedures
+author: Project SKYBEAM
+updated: "2026-01-10"
+
+# Severity levels
+severity_levels:
+  critical:
+    description: "System down, data loss risk"
+    response_time: immediate
+    escalation: true
+  high:
+    description: "Major feature broken, workaround exists"
+    response_time: 15_minutes
+    escalation: false
+  medium:
+    description: "Minor feature broken"
+    response_time: 1_hour
+    escalation: false
+  low:
+    description: "Cosmetic or minor issue"
+    response_time: 24_hours
+    escalation: false
+
+# Common incidents
+incidents:
+  # Docker container down
+  - id: INC-001
+    name: Docker Container Down
+    symptoms:
+      - Container not in `docker ps`
+      - Service returning connection refused
+    diagnosis:
+      - command: docker ps -a --filter "name=roxy-" --format "{{.Names}}: {{.Status}}"
+      - command: docker logs --tail 50 <container_name>
+    resolution:
+      steps:
+        - name: Restart single container
+          command: docker restart <container_name>
+        - name: If persists, recreate
+          command: |
+            cd /home/mark/.roxy/docker && \
+            docker compose up -d <service_name>
+
+  # Ollama not responding
+  - id: INC-002
+    name: Ollama Not Responding
+    symptoms:
+      - curl to 11434/11435 fails
+      - Model loading errors
+    diagnosis:
+      - command: systemctl --user status ollama-6900xt
+      - command: journalctl --user -u ollama-6900xt --since "10 minutes ago"
+      - command: rocm-smi  # Check GPU status
+    resolution:
+      steps:
+        - name: Restart Ollama service
+          command: systemctl --user restart ollama-6900xt
+        - name: If GPU hang, reset
+          command: |
+            sudo rmmod amdgpu
+            sudo modprobe amdgpu
+
+  # NATS connection issues
+  - id: INC-003
+    name: NATS Connection Issues
+    symptoms:
+      - Ghost publisher failing
+      - "connection refused" errors
+    diagnosis:
+      - command: docker logs --tail 50 roxy-nats
+      - command: curl -s http://localhost:8222/varz | jq '.connections'
+    resolution:
+      steps:
+        - name: Restart NATS
+          command: docker restart roxy-nats
+
+  # High memory usage
+  - id: INC-004
+    name: High Memory Usage
+    symptoms:
+      - System sluggish
+      - OOM killer activating
+    diagnosis:
+      - command: free -h
+      - command: ps aux --sort=-%mem | head -20
+      - command: docker stats --no-stream
+    resolution:
+      steps:
+        - name: Clear caches
+          command: sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
+        - name: Restart heavy containers
+          command: docker restart roxy-chromadb roxy-neo4j
+
+  # Disk space low
+  - id: INC-005
+    name: Disk Space Low
+    symptoms:
+      - df shows >90% usage
+      - Write failures
+    diagnosis:
+      - command: df -h
+      - command: du -sh /home/mark/.roxy/* | sort -h | tail -20
+      - command: docker system df
+    resolution:
+      steps:
+        - name: Clean Docker
+          command: docker system prune -f
+        - name: Clean old logs
+          command: find /home/mark/.roxy/logs -name "*.log" -mtime +7 -delete
+
+# Escalation contacts
+escalation:
+  primary: "Human operator"
+  method: "Check terminal or notification"
+
+# Post-incident
+post_incident:
+  - Create incident report in /home/mark/.roxy/logs/incidents/
+  - Update runbook if new resolution found
+  - Consider automation for recurring incidents

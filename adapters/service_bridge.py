@@ -3,6 +3,7 @@
 Service Bridge - Connects ~/.roxy/roxy_core.py to /opt/roxy/services/
 Graceful fallback if advanced services unavailable
 """
+import os
 import sys
 import logging
 from pathlib import Path
@@ -11,8 +12,12 @@ from typing import Optional, Dict, Any, List
 logger = logging.getLogger("roxy.service_bridge")
 
 # Paths
-OPT_ROXY_SERVICES = Path("/opt/roxy/services")
-OPT_ROXY_SERVICES_EXISTS = OPT_ROXY_SERVICES.exists() and OPT_ROXY_SERVICES.is_dir()
+ROXY_ROOT = Path(os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy")))
+ROXY_SERVICES_DIR = Path(os.environ.get("ROXY_SERVICES_DIR", str(ROXY_ROOT / "services")))
+LEGACY_SERVICES_DIR = Path(os.environ.get("ROXY_LEGACY_ROOT", "/opt/roxy")) / "services"
+
+_services_dir = ROXY_SERVICES_DIR if ROXY_SERVICES_DIR.is_dir() else LEGACY_SERVICES_DIR
+_services_dir_exists = _services_dir.exists() and _services_dir.is_dir()
 
 # Track what's available
 _services_available = {}
@@ -34,14 +39,14 @@ def check_services_availability():
         "observability": False,
     }
     
-    if not OPT_ROXY_SERVICES_EXISTS:
+    if not _services_dir_exists:
         logger.debug("Advanced services directory not found, using fallback mode")
         _services_checked = True
         return _services_available
     
     # Check for LLM service
     try:
-        llm_path = OPT_ROXY_SERVICES / "llm_service.py"
+        llm_path = _services_dir / "llm_service.py"
         if llm_path.exists():
             _services_available["llm_service"] = True
             logger.debug("✓ LLM service available")
@@ -50,7 +55,7 @@ def check_services_availability():
     
     # Check for RAG service
     try:
-        rag_path = OPT_ROXY_SERVICES / "repository_rag.py"
+        rag_path = _services_dir / "repository_rag.py"
         if rag_path.exists():
             _services_available["repository_rag"] = True
             logger.debug("✓ Repository RAG available")
@@ -59,7 +64,7 @@ def check_services_availability():
     
     # Check for memory services
     try:
-        memory_dir = OPT_ROXY_SERVICES / "memory"
+        memory_dir = _services_dir / "memory"
         if memory_dir.exists() and memory_dir.is_dir():
             _services_available["memory"] = True
             logger.debug("✓ Memory services available")
@@ -68,7 +73,7 @@ def check_services_availability():
     
     # Check for orchestrator
     try:
-        orch_path = OPT_ROXY_SERVICES / "orchestrator.py"
+        orch_path = _services_dir / "orchestrator.py"
         if orch_path.exists():
             _services_available["orchestrator"] = True
             logger.debug("✓ Orchestrator available")
@@ -77,7 +82,7 @@ def check_services_availability():
     
     # Check for observability
     try:
-        obs_path = OPT_ROXY_SERVICES / "observability.py"
+        obs_path = _services_dir / "observability.py"
         if obs_path.exists():
             _services_available["observability"] = True
             logger.debug("✓ Observability available")
@@ -96,16 +101,16 @@ def get_llm_service():
         return None
     
     try:
-        # Add /opt/roxy/services to path temporarily
-        if str(OPT_ROXY_SERVICES) not in sys.path:
-            sys.path.insert(0, str(OPT_ROXY_SERVICES))
+        # Add services dir to path temporarily
+        if str(_services_dir) not in sys.path:
+            sys.path.insert(0, str(_services_dir))
         
         from llm_service import LLMService, get_llm_service
         
         # Try to get the service
         service = get_llm_service()
         if service and service.is_available():
-            logger.info("Using advanced LLM service from /opt/roxy/services")
+            logger.info("Using advanced LLM service from services dir")
             return service
         
         # Fallback: create new instance
@@ -131,9 +136,9 @@ def get_rag_service(repo_path: str = None):
         return None
     
     try:
-        # Add /opt/roxy/services to path temporarily
-        if str(OPT_ROXY_SERVICES) not in sys.path:
-            sys.path.insert(0, str(OPT_ROXY_SERVICES))
+        # Add services dir to path temporarily
+        if str(_services_dir) not in sys.path:
+            sys.path.insert(0, str(_services_dir))
         
         from repository_rag import RepositoryRAG, get_repo_rag
         
@@ -173,9 +178,9 @@ def get_memory_service():
         return None
     
     try:
-        # Add /opt/roxy/services to path temporarily
-        if str(OPT_ROXY_SERVICES) not in sys.path:
-            sys.path.insert(0, str(OPT_ROXY_SERVICES))
+        # Add services dir to path temporarily
+        if str(_services_dir) not in sys.path:
+            sys.path.insert(0, str(_services_dir))
         
         # Try to import memory services
         from memory.episodic_memory import EpisodicMemory
@@ -188,7 +193,7 @@ def get_memory_service():
             "working": WorkingMemory(),
         }
         
-        logger.info("Using advanced memory services from /opt/roxy/services")
+        logger.info("Using advanced memory services from services dir")
         return memory_services
     except ImportError as e:
         logger.debug(f"Memory services import failed: {e}")
@@ -206,14 +211,14 @@ def get_orchestrator():
         return None
     
     try:
-        # Add /opt/roxy/services to path temporarily
-        if str(OPT_ROXY_SERVICES) not in sys.path:
-            sys.path.insert(0, str(OPT_ROXY_SERVICES))
+        # Add services dir to path temporarily
+        if str(_services_dir) not in sys.path:
+            sys.path.insert(0, str(_services_dir))
         
         from orchestrator import RoxyOrchestrator
         
         orchestrator = RoxyOrchestrator()
-        logger.info("Using advanced orchestrator from /opt/roxy/services")
+        logger.info("Using advanced orchestrator from services dir")
         return orchestrator
     except ImportError as e:
         logger.debug(f"Orchestrator import failed: {e}")
@@ -231,14 +236,14 @@ def get_observability():
         return None
     
     try:
-        # Add /opt/roxy/services to path temporarily
-        if str(OPT_ROXY_SERVICES) not in sys.path:
-            sys.path.insert(0, str(OPT_ROXY_SERVICES))
+        # Add services dir to path temporarily
+        if str(_services_dir) not in sys.path:
+            sys.path.insert(0, str(_services_dir))
         
         from observability import RoxyObservability
         
         obs = RoxyObservability()
-        logger.info("Using advanced observability from /opt/roxy/services")
+        logger.info("Using advanced observability from services dir")
         return obs
     except ImportError as e:
         logger.debug(f"Observability import failed: {e}")
@@ -257,7 +262,6 @@ def is_advanced_mode() -> bool:
 def get_availability_report() -> Dict[str, bool]:
     """Get report of which services are available"""
     return check_services_availability().copy()
-
 
 
 

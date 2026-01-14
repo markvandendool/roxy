@@ -154,7 +154,7 @@ def _ensure_browser():
     return _page
 
 
-def browser_goto(url: str, wait_until: str = "domcontentloaded") -> dict:
+def browser_goto(url: str, wait_until: str = "domcontentloaded", timeout: int = 30000) -> dict:
     """
     Navigate to a URL
     
@@ -172,7 +172,7 @@ def browser_goto(url: str, wait_until: str = "domcontentloaded") -> dict:
     try:
         page = _ensure_browser()
         
-        response = page.goto(url, wait_until=wait_until, timeout=30000)
+        response = page.goto(url, wait_until=wait_until, timeout=timeout)
         
         result = {
             "success": True,
@@ -236,7 +236,13 @@ def browser_screenshot(full_page: bool = False, selector: Optional[str] = None) 
         return {"success": False, "error": str(e)}
 
 
-def browser_extract(selector: str, attribute: Optional[str] = None, all_matches: bool = False) -> dict:
+def browser_extract(
+    selector: str,
+    attribute: Optional[str] = None,
+    all_matches: bool = False,
+    include_links: bool = False,
+    max_items: Optional[int] = None
+) -> dict:
     """
     Extract content from page using CSS selector
     
@@ -254,6 +260,30 @@ def browser_extract(selector: str, attribute: Optional[str] = None, all_matches:
     try:
         page = _ensure_browser()
         
+        # Items mode for skill_web_research compatibility
+        if include_links or max_items is not None:
+            elements = page.query_selector_all(selector)
+            if not elements:
+                return {"success": False, "error": f"No elements found: {selector}"}
+
+            if max_items is not None:
+                elements = elements[:max_items]
+
+            items = []
+            for el in elements:
+                text = el.text_content() or ""
+                links = []
+                if include_links:
+                    for link in el.query_selector_all("a"):
+                        links.append({
+                            "href": link.get_attribute("href") or "",
+                            "text": (link.text_content() or "").strip(),
+                        })
+                items.append({"text": text, "links": links})
+
+            _audit_log("extract", f"Selector: {selector}, items: {len(items)}")
+            return {"success": True, "items": items}
+
         if all_matches:
             elements = page.query_selector_all(selector)
             if not elements:

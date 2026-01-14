@@ -4,7 +4,7 @@
 
 set -e
 
-ROXY_ROOT="/opt/roxy"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 VENV_PYTHON="$ROXY_ROOT/venv/bin/python3"
 
 echo "╔════════════════════════════════════════════════════════════╗"
@@ -27,7 +27,6 @@ echo ""
 echo "To enable auto-growth:"
 echo "  sudo systemctl enable roxy.service"
 echo ""
-
 
 
 

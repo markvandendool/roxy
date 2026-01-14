@@ -14,7 +14,8 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import json
 
-sys.path.insert(0, '/opt/roxy/services')
+ROXY_ROOT = os.environ.get("ROXY_ROOT", os.path.expanduser("~/.roxy"))
+sys.path.insert(0, str(Path(ROXY_ROOT) / "services"))
 
 class RoxyStressTest:
     """Comprehensive stress test for ROXY"""
@@ -298,7 +299,7 @@ class RoxyStressTest:
         try:
             import sqlite3
             
-            db_path = Path('/opt/roxy/data/roxy_memory.db')
+            db_path = Path(ROXY_ROOT) / "data" / "roxy_memory.db"
             if not db_path.exists():
                 self.results['tests']['database_performance'] = 'SKIP'
                 self.log("   ⚠️  Database not found")
@@ -490,7 +491,7 @@ class RoxyStressTest:
         print()
         
         # Save results
-        results_file = Path('/opt/roxy/data/stress_test_results.json')
+        results_file = Path(ROXY_ROOT) / "data" / "stress_test_results.json"
         results_file.parent.mkdir(parents=True, exist_ok=True)
         with open(results_file, 'w') as f:
             json.dump(self.results, f, indent=2)
@@ -513,5 +514,3 @@ if __name__ == '__main__':
     tester = RoxyStressTest()
     success = tester.run_all_tests()
     sys.exit(0 if success else 1)
-
-

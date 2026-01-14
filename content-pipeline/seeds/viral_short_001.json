@@ -1,0 +1,53 @@
+{
+  "seed_id": "SEED_20260111_VIRAL_001",
+  "created": "2026-01-11T01:45:00Z",
+  "type": "viral_short",
+  "priority": "high",
+  "request": {
+    "title": "See Your Pitch Accuracy in Real-Time (No More Guessing)",
+    "hook": "Every guitarist thinks they're in tune. Here's proof you're not.",
+    "core_takeaway": "Traditional tuners show you're 'close enough' - but close enough isn't music. This app shows your EXACT pitch in 100-cent resolution with color-coded feedback: green means perfect, yellow means close, red means you're drifting. Students learn to HEAR pitch differences by SEEING them first.",
+    "payoff_cta": "Stop guessing. Start seeing. Link in bio for early access.",
+    "duration_target": 45,
+    "format": "short",
+    "audience_persona": "intermediate guitarist struggling with intonation",
+    "title_variants": [
+      "See Your Pitch Accuracy in Real-Time",
+      "Why Your Guitar Playing Sounds 'Off' (And How to Fix It)",
+      "This App Shows Exactly Where Your Pitch Goes Wrong"
+    ],
+    "caption_variants": [
+      "Your tuner lies to you. This doesn't. 🎸",
+      "See pitch. Hear pitch. Play pitch. Finally.",
+      "100-cent resolution means no more 'close enough'"
+    ],
+    "hashtags": [
+      "#guitar",
+      "#guitarist",
+      "#musicpractice",
+      "#intonation",
+      "#learnguitar",
+      "#guitarlessons",
+      "#musictips",
+      "#pitchperfect",
+      "#practicemakesperfect",
+      "#musictech"
+    ],
+    "style_notes": {
+      "video_first": true,
+      "punchy": true,
+      "high_signal": true,
+      "demo_heavy": true,
+      "text_overlays": ["100-CENT RESOLUTION", "GREEN = PERFECT", "SEE IT → HEAR IT"]
+    }
+  },
+  "source_docs": [
+    "docs/FRETBOARD_UNIVERSAL_MISSION_COMPLETE.md",
+    "docs/VISION_ANCHORS.md"
+  ],
+  "source_excerpts": [
+    "100-Cent Pitch Resolution - Visualize pitch bends, vibrato, intonation (pedagogical superpower)",
+    "Students LEARN to hear pitch differences by SEEING them first",
+    "Color-coded accuracy feedback (green=perfect, yellow=good, red=off)"
+  ]
+}

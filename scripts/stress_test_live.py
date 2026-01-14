@@ -4,10 +4,15 @@ Live Stress Test for ROXY - Tests all capabilities under load
 """
 import asyncio
 import sys
+import os
 import time
+from pathlib import Path
 from datetime import datetime
-sys.path.insert(0, '/opt/roxy/services')
-sys.path.insert(0, '/opt/roxy/services.LEGACY.20260101_200448')
+
+ROXY_ROOT = os.environ.get("ROXY_ROOT", os.path.expanduser("~/.roxy"))
+LEGACY_ROOT = os.environ.get("ROXY_LEGACY_ROOT", "/opt/roxy")
+sys.path.insert(0, str(Path(ROXY_ROOT) / "services"))
+sys.path.insert(0, str(Path(LEGACY_ROOT) / "services.LEGACY.20260101_200448"))
 
 from roxy_interface import RoxyInterface
 
@@ -216,13 +221,13 @@ class RoxyStressTester:
         print("=" * 80)
 
 async def main():
+    roxy_root = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
+    legacy_root = os.environ.get('ROXY_LEGACY_ROOT', '/opt/roxy')
     tester = RoxyStressTester()
     await tester.run_stress_test()
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
 
 
 

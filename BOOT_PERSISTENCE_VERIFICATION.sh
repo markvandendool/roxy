@@ -99,7 +99,8 @@ if [ $FAILED -gt 0 ]; then
     echo "   ❌ Failed: $FAILED"
     echo ""
     echo "⚠️  Some optimizations may need manual application"
-    echo "   Run: sudo /opt/roxy/scripts/maximize-system-performance.sh"
+    ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
+    echo "   Run: sudo ${ROXY_ROOT}/scripts/maximize-system-performance.sh"
     exit 1
 else
     echo "   ✅ All optimizations verified!"
@@ -107,7 +108,6 @@ else
     echo "🎉 PERMANENT OPTIMIZATIONS ARE WORKING CORRECTLY"
     exit 0
 fi
-
 
 
 

@@ -1,0 +1,213 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mindsong.ai/schemas/content-pipeline/manifest.schema.json",
+  "title": "Content Pipeline Job Manifest",
+  "description": "Schema for idempotent, resumable content pipeline job tracking (SKYBEAM-STORY-003)",
+  "type": "object",
+  "required": ["job_id", "source", "stages", "timestamps", "version"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Manifest schema version",
+      "const": "1.0.0"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Unique job identifier (UUID v4)",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "source": {
+      "type": "object",
+      "description": "Source file information",
+      "required": ["filename", "path", "size_bytes", "checksum"],
+      "properties": {
+        "filename": {
+          "type": "string",
+          "description": "Original filename"
+        },
+        "path": {
+          "type": "string",
+          "description": "Original absolute path"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "description": "File size in bytes",
+          "minimum": 0
+        },
+        "checksum": {
+          "type": "string",
+          "description": "SHA256 checksum for integrity verification",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "duration_seconds": {
+          "type": "number",
+          "description": "Video duration in seconds (if available)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Container format (mp4, mkv, etc.)"
+        }
+      }
+    },
+    "stages": {
+      "type": "object",
+      "description": "Pipeline stage tracking",
+      "required": ["ingest", "transcribe", "detect", "extract", "publish"],
+      "properties": {
+        "ingest": {
+          "$ref": "#/$defs/stage"
+        },
+        "transcribe": {
+          "$ref": "#/$defs/stage"
+        },
+        "detect": {
+          "$ref": "#/$defs/stage"
+        },
+        "extract": {
+          "$ref": "#/$defs/stage"
+        },
+        "publish": {
+          "$ref": "#/$defs/stage"
+        }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "description": "Job lifecycle timestamps (ISO 8601)",
+      "required": ["created"],
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Job creation timestamp"
+        },
+        "started": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Processing start timestamp"
+        },
+        "completed": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Job completion timestamp"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last manifest update"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "description": "Generated output files",
+      "properties": {
+        "transcript": {
+          "type": "object",
+          "properties": {
+            "json": { "type": "string" },
+            "srt": { "type": "string" },
+            "vtt": { "type": "string" },
+            "txt": { "type": "string" }
+          }
+        },
+        "clips": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "path": { "type": "string" },
+              "start_time": { "type": "number" },
+              "end_time": { "type": "number" },
+              "format": { "type": "string" },
+              "orientation": {
+                "type": "string",
+                "enum": ["landscape", "vertical"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional job metadata",
+      "properties": {
+        "hostname": {
+          "type": "string",
+          "description": "Processing host"
+        },
+        "pipeline_version": {
+          "type": "string",
+          "description": "Pipeline script version"
+        },
+        "resume_count": {
+          "type": "integer",
+          "description": "Number of resume attempts",
+          "default": 0
+        },
+        "error_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stage": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" },
+              "error": { "type": "string" },
+              "exit_code": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "description": "Individual stage tracking",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pending", "running", "completed", "failed", "skipped"],
+          "description": "Current stage status"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Stage start timestamp"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Stage completion timestamp"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "description": "Stage duration in milliseconds",
+          "minimum": 0
+        },
+        "exit_code": {
+          "type": "integer",
+          "description": "Process exit code"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if failed"
+        },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files generated by this stage"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Stage-specific metrics",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

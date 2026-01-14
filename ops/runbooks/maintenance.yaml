@@ -1,0 +1,116 @@
+# ROXY Maintenance Runbook
+# Project SKYBEAM — Operational Procedure
+
+name: System Maintenance
+version: "1.0.0"
+description: Regular maintenance procedures
+author: Project SKYBEAM
+updated: "2026-01-10"
+
+# Maintenance schedules
+schedules:
+  daily:
+    - name: Log rotation check
+    - name: Disk space check
+    - name: Service health check
+
+  weekly:
+    - name: Docker cleanup
+    - name: Database vacuum
+    - name: Backup verification
+
+  monthly:
+    - name: Security updates
+    - name: Dependency updates
+    - name: Full system audit
+
+# Daily maintenance
+daily:
+  - name: Health check
+    command: ~/.roxy/start-universe.sh status
+
+  - name: Check disk space
+    command: df -h / /home
+    alert_if: ">80%"
+
+  - name: Check logs for errors
+    command: |
+      journalctl --user --since "24 hours ago" --priority=err --no-pager | head -50
+
+# Weekly maintenance
+weekly:
+  - name: Docker cleanup
+    command: |
+      docker system prune -f
+      docker volume prune -f
+
+  - name: PostgreSQL vacuum
+    command: |
+      docker exec roxy-postgres psql -U roxy -c "VACUUM ANALYZE;"
+
+  - name: Clean old logs
+    command: |
+      find /home/mark/.roxy/logs -name "*.log" -mtime +14 -delete
+      find /home/mark/.roxy/evidence -type d -mtime +30 -exec rm -rf {} \; 2>/dev/null || true
+
+  - name: Update SKYBEAM index
+    command: |
+      python3 /home/mark/.roxy/services/ghost_publisher.py
+
+# Monthly maintenance
+monthly:
+  - name: System updates (manual review required)
+    command: |
+      sudo apt update
+      sudo apt list --upgradable
+    manual: true
+
+  - name: Docker image updates
+    command: |
+      docker compose -f /home/mark/.roxy/docker/docker-compose.yml pull
+    manual: true
+
+  - name: Ollama model updates
+    command: |
+      ollama pull qwen2.5:32b
+      ollama pull llama3:8b
+    manual: true
+
+  - name: Full infrastructure audit
+    command: |
+      python3 /home/mark/.roxy/services/ghost_publisher.py
+      echo "Review ~/.roxy/PROJECT_SKYBEAM.md"
+
+# Backup procedures
+backups:
+  - name: PostgreSQL backup
+    command: |
+      docker exec roxy-postgres pg_dump -U roxy roxy_db > \
+        /home/mark/.roxy/backups/postgres_$(date +%Y%m%d).sql
+    schedule: daily
+    retention: 7_days
+
+  - name: ChromaDB backup
+    command: |
+      tar -czf /home/mark/.roxy/backups/chromadb_$(date +%Y%m%d).tar.gz \
+        /home/mark/.roxy/chroma_db/
+    schedule: weekly
+    retention: 4_weeks
+
+  - name: Configuration backup
+    command: |
+      tar -czf /home/mark/.roxy/backups/config_$(date +%Y%m%d).tar.gz \
+        /home/mark/.roxy/config/ \
+        /home/mark/.roxy/docker/ \
+        /home/mark/.roxy/systemd/
+    schedule: weekly
+    retention: 4_weeks
+
+# Verification commands
+verify:
+  all_services: ~/.roxy/start-universe.sh status
+  docker: docker ps --format "table {{.Names}}\t{{.Status}}"
+  systemd: systemctl --user list-units --type=service | grep roxy
+  disk: df -h / /home
+  memory: free -h
+  gpu: rocm-smi

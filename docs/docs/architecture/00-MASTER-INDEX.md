@@ -59,6 +59,8 @@ MindSong JukeHub has evolved through **6 major architectural iterations** over m
 - [06-MIGRATION-HISTORY.md](./06-MIGRATION-HISTORY.md) - Evolution timeline with key decisions
 - [07-KNOWN-ISSUES.md](./07-KNOWN-ISSUES.md) - Technical debt, overlaps, redundancies
 - [08-CONSOLIDATION-ROADMAP.md](./08-CONSOLIDATION-ROADMAP.md) - Plan to reduce complexity
+- [ADR-004-roxy-root-layout.md](./ADR-004-roxy-root-layout.md) - Unified ROXY_ROOT layout (src/etc/var separation)
+- [ADR-ROXY-INDEX.md](./ADR-ROXY-INDEX.md) - ROXY ADR namespace index (prevents cross-repo collisions)
 
 ---
 
@@ -108,7 +110,7 @@ This documentation is **living** - it should be updated whenever:
 - External dependencies change
 
 **Update Process:**
-1. Edit relevant `.md` files in `docs/architecture/`
+1. Edit relevant `.md` files in `docs/docs/architecture/`
 2. Regenerate Mermaid diagrams if structure changed
 3. Update version number in this index
 4. Notify team in #engineering channel

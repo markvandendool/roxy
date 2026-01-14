@@ -1,0 +1,120 @@
+{
+  "brief_id": "BRIEF_20260114_140514_2338e865",
+  "timestamp": "2026-01-14T21:05:14.421275+00:00",
+  "status": "healthy",
+  "source_snapshot": "TREND_20260114_140009_0839584f",
+  "briefs": [
+    {
+      "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/14/robotic-software-maker-skild-ai-hits-14b-valuation/",
+      "summary": "Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion funding round led by SoftBank.",
+      "claims": [
+        "This trend focuses on: Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+        "Key insight: Skild AI, which is building general-purpose robotic software, just raised a $1",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "\u201cRobot, make me a chair\u201d",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "link": "https://news.mit.edu/2025/robot-makes-chair-1216",
+      "summary": "An AI-driven system lets users design and build simple, multicomponent objects by describing them with words.",
+      "claims": [
+        "This trend focuses on: \u201cRobot, make me a chair\u201d",
+        "Key insight: An AI-driven system lets users design and build simple, multicomponent objects by describing them with words",
+        "Source: MIT News AI (category: ai_research)",
+        "This relates to academic AI research and new discoveries",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/podcast/the-multi-billion-ai-security-problem-enterprises-cant-ignore/",
+      "summary": "AI agents are supposed to make work easier. But&#160;they&#8217;re&#160;also creating a whole new category of security nightmares.&#160; As companies deploy AI-powered chatbots, agents, and copilots a",
+      "claims": [
+        "This trend focuses on: The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
+        "Key insight: AI agents are supposed to make work easier",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "AI models are starting to crack high-level math problems",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/14/ai-models-are-starting-to-crack-high-level-math-problems/",
+      "summary": "Since the release of GPT 5.2, AI tools have become inescapable in high-level mathematics.",
+      "claims": [
+        "This trend focuses on: AI models are starting to crack high-level math problems",
+        "Key insight: Since the release of GPT 5",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "Gemini\u2019s new beta feature provides proactive responses based on your photos, emails, and more",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/14/geminis-new-beta-feature-provides-proactive-responses-based-on-your-photos-emails-and-more/",
+      "summary": "Personal Intelligence is off by default, as users have the option to choose if and when they want to connect their Google apps to Gemini.",
+      "claims": [
+        "This trend focuses on: Gemini\u2019s new beta feature provides proactive responses based on your photos, emails, and more",
+        "Key insight: Personal Intelligence is off by default, as users have the option to choose if and when they want to connect their Google apps to Gemini",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This appears to be a new announcement or product launch"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    }
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "service": "deep_research_agent",
+    "story_id": "SKYBEAM-STORY-007",
+    "brief_count": 5,
+    "degraded": false
+  }
+}

@@ -1,0 +1,243 @@
+# SKYBEAM iPhone Shortcuts Integration Guide
+# SKYBEAM-STORY-002: Configure iPhone Shortcuts Integration
+#
+# This document describes how to configure iOS Shortcuts to trigger
+# ROXY content creation via voice command.
+
+---
+name: "ROXY Video Request"
+version: "1.0.0"
+description: |
+  Voice-activated content creation trigger. Say "Hey Siri, ROXY video"
+  to start the content creation pipeline with a topic of your choice.
+
+# Prerequisites
+prerequisites:
+  - iPhone or iPad with Shortcuts app
+  - Network access to ROXY server (10.0.0.69 or via tailscale)
+  - ROXY Content Handler running on port 8780
+  - Token stored in ~/.roxy/secret.token
+
+# Shortcut Configuration
+shortcut:
+  name: "ROXY Video"
+  icon: "🎬"
+  color: "purple"
+
+  # Siri Trigger
+  siri_phrase: "ROXY video"
+
+  # Steps in order
+  actions:
+    - step: 1
+      action: "Dictate Text"
+      settings:
+        stop_listening: "after pause"
+        language: "English"
+      output_variable: "spokenTopic"
+      description: "Captures the video topic via voice"
+
+    - step: 2
+      action: "Text"
+      content: |
+        {
+          "topic": "{spokenTopic}",
+          "style": "educational",
+          "platforms": ["youtube", "tiktok"],
+          "priority": "normal"
+        }
+      output_variable: "requestBody"
+      description: "Build JSON request body"
+
+    - step: 3
+      action: "Get Contents of URL"
+      settings:
+        url: "http://10.0.0.69:8780/api/content/request"
+        method: "POST"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {token}"
+        body: "requestBody"
+      output_variable: "response"
+      description: "Send request to ROXY content handler"
+
+    - step: 4
+      action: "Get Dictionary Value"
+      settings:
+        key: "job_id"
+        dictionary: "response"
+      output_variable: "jobId"
+      description: "Extract job ID from response"
+
+    - step: 5
+      action: "Show Notification"
+      settings:
+        title: "ROXY Video Queued"
+        body: "Job {jobId} started for: {spokenTopic}"
+        sound: true
+      description: "Confirm job queued"
+
+    - step: 6
+      action: "Speak Text"
+      settings:
+        text: "Video queued. Job ID: {jobId}"
+        voice: "Samantha"
+      description: "Voice confirmation"
+
+# Alternative: Using Pushcut
+pushcut_integration:
+  description: |
+    Pushcut allows for more complex automations and webhook triggers.
+    Configure a Pushcut server action to call the ROXY endpoint.
+
+  steps:
+    - Create a new Action in Pushcut
+    - Set URL to http://10.0.0.69:8780/api/content/request
+    - Set Method to POST
+    - Add headers for Content-Type and Authorization
+    - Use Pushcut's input field for the topic
+    - Trigger via Pushcut widget or automation
+
+# Manual Setup Steps (for iPhone Shortcuts app)
+manual_setup:
+  step_1:
+    title: "Open Shortcuts App"
+    instruction: "Launch the Shortcuts app on your iPhone"
+
+  step_2:
+    title: "Create New Shortcut"
+    instruction: |
+      1. Tap the + button
+      2. Name it "ROXY Video"
+      3. Tap "Add Action"
+
+  step_3:
+    title: "Add Dictate Text Action"
+    instruction: |
+      1. Search for "Dictate Text"
+      2. Add it as the first action
+      3. Set "Stop Listening" to "After Pause"
+
+  step_4:
+    title: "Add Text Action for JSON"
+    instruction: |
+      1. Add "Text" action
+      2. Enter the JSON template:
+         {"topic": "[Dictated Text]", "style": "educational", "platforms": ["youtube"]}
+      3. Tap "Dictated Text" to insert the variable from step 1
+
+  step_5:
+    title: "Add Get Contents of URL"
+    instruction: |
+      1. Add "Get Contents of URL" action
+      2. URL: http://10.0.0.69:8780/api/content/request
+      3. Method: POST
+      4. Headers:
+         - Content-Type: application/json
+         - Authorization: Bearer YOUR_TOKEN_HERE
+      5. Request Body: Select the Text from step 2
+
+  step_6:
+    title: "Add Show Notification"
+    instruction: |
+      1. Add "Show Notification" action
+      2. Title: "ROXY Video Queued"
+      3. Body: Include the response job_id
+
+  step_7:
+    title: "Add Siri Phrase"
+    instruction: |
+      1. Tap the shortcut settings (...)
+      2. Select "Add to Siri"
+      3. Record phrase: "ROXY video"
+      4. Done!
+
+# Token Setup
+token_setup:
+  description: |
+    The authorization token must be stored securely in Shortcuts.
+    Options for token storage:
+
+  option_1_icloud:
+    name: "iCloud File"
+    steps:
+      - Create a text file with just the token
+      - Save to iCloud Drive
+      - In Shortcuts, use "Get File" to read it
+      - Store in a variable for the Authorization header
+
+  option_2_data_jar:
+    name: "Data Jar App"
+    steps:
+      - Install Data Jar from App Store
+      - Store token as a secure value
+      - Use Data Jar action in Shortcuts
+
+  option_3_hardcode:
+    name: "Hardcode (not recommended)"
+    steps:
+      - Directly paste token in header
+      - Note: Less secure if sharing shortcuts
+
+# Example curl equivalent
+curl_example: |
+  # This is what the Shortcut does programmatically:
+  curl -X POST http://10.0.0.69:8780/api/content/request \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -d '{
+      "topic": "How to build an AI music generator",
+      "style": "educational",
+      "platforms": ["youtube", "tiktok"],
+      "priority": "normal"
+    }'
+
+# Response format
+expected_response: |
+  {
+    "success": true,
+    "job_id": "JOB_20260110_231542_a39f2fcf",
+    "topic": "How to build an AI music generator",
+    "status": "queued",
+    "message": "Content request queued successfully",
+    "estimated_stages": ["research", "script", "assets", "production", "variants", "publish"],
+    "nats_topic": "ghost.content.request"
+  }
+
+# Troubleshooting
+troubleshooting:
+  connection_refused:
+    symptom: "Request failed - connection refused"
+    solutions:
+      - Verify ROXY content handler is running: systemctl status roxy-content-handler
+      - Check firewall allows port 8780
+      - Verify correct IP address (10.0.0.69 or tailscale IP)
+
+  unauthorized:
+    symptom: "401 Unauthorized"
+    solutions:
+      - Verify token matches ~/.roxy/secret.token
+      - Check Authorization header format: "Bearer TOKEN"
+      - Regenerate token if needed
+
+  timeout:
+    symptom: "Request timed out"
+    solutions:
+      - Check if phone is on same network as ROXY
+      - Try using Tailscale for remote access
+      - Increase timeout in Shortcuts settings
+
+# Network access options
+network_options:
+  local_network:
+    description: "When on home network"
+    url: "http://10.0.0.69:8780"
+
+  tailscale:
+    description: "Remote access via Tailscale VPN"
+    url: "http://roxy.tailnet-name.ts.net:8780"
+    setup:
+      - Install Tailscale on iPhone
+      - Install Tailscale on ROXY server
+      - Share the machine in Tailscale admin
+      - Use the Tailscale hostname in Shortcuts

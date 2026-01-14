@@ -3,6 +3,7 @@
 ROXY Repository Monitor Agent - Monitor repo 24/7
 """
 import logging
+import os
 import asyncio
 from typing import Dict
 from agents.framework.base_agent import BaseAgent
@@ -21,7 +22,8 @@ class MonitorAgent(BaseAgent):
     
     async def execute(self, task: Dict) -> Dict:
         """Monitor repository"""
-        repo_path = task.get('repo_path', '/opt/roxy')
+        _default_repo = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
+        repo_path = task.get('repo_path', _default_repo)
         check_interval = task.get('interval', 300)  # 5 minutes
         
         if not self.monitoring:
@@ -46,7 +48,6 @@ class MonitorAgent(BaseAgent):
             except Exception as e:
                 logger.error(f"Monitoring error: {e}")
                 await asyncio.sleep(interval)
-
 
 
 

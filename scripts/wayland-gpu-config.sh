@@ -19,4 +19,5 @@
 # WLR_DRM_DEVICES=/dev/dri/card2
 
 echo "Wayland GPU configuration guide created"
-echo "See /opt/roxy/scripts/wayland-gpu-config.sh for details"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
+echo "See ${ROXY_ROOT}/scripts/wayland-gpu-config.sh for details"

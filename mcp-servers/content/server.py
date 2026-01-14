@@ -10,7 +10,9 @@ import subprocess
 import logging
 from pathlib import Path
 
-sys.path.insert(0, '/opt/roxy/content-pipeline')
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+CONTENT_ROOT = ROXY_ROOT / 'content-pipeline'
+sys.path.insert(0, str(CONTENT_ROOT))
 
 from mcp.server.fastmcp import FastMCP
 
@@ -19,9 +21,9 @@ logger = logging.getLogger(__name__)
 
 mcp = FastMCP('roxy-content')
 
-INPUT_DIR = '/opt/roxy/content-pipeline/input'
-OUTPUT_DIR = '/opt/roxy/content-pipeline/output'
-WORK_DIR = '/opt/roxy/content-pipeline/work'
+INPUT_DIR = str(CONTENT_ROOT / 'input')
+OUTPUT_DIR = str(CONTENT_ROOT / 'output')
+WORK_DIR = str(CONTENT_ROOT / 'work')
 
 @mcp.tool()
 async def content_status() -> str:

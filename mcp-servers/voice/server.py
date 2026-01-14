@@ -8,8 +8,9 @@ import sys
 import os
 from pathlib import Path
 
-# Add voice directory to path
-sys.path.insert(0, '/opt/roxy')
+# Add ROXY_ROOT to path
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+sys.path.insert(0, str(ROXY_ROOT))
 
 # Import Edge TTS service
 from voice.tts.service_edge import RoxyTTS

@@ -11,6 +11,8 @@ Requirements:
 import asyncio
 import json
 import time
+import os
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional, List
 import threading
@@ -109,7 +111,8 @@ class RoxyHandTracker:
             self.hands = None
             print(f"[ROXY.VISION] Mediapipe version {MP_VERSION} detected (Tasks API)")
             print("[ROXY.VISION] Tasks API requires mediapipe>=0.10 and hand_landmarker.task; repo default pins mediapipe<0.10 for stability.")
-            print("[ROXY.VISION] To enable Tasks API: wget -O /opt/roxy/vision/hand_landmarker.task \\")
+            roxy_root = os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy"))
+            print(f"[ROXY.VISION] To enable Tasks API: wget -O {roxy_root}/vision/hand_landmarker.task \\")
             print("  https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task")
 
         # State

@@ -1,0 +1,84 @@
+{
+  "merged_id": "INGEST_20260111_145049_dd7eb1a8",
+  "timestamp": "2026-01-11T14:50:49.403127+00:00",
+  "seeds": [
+    {
+      "seed_id": "SEED_20260111_143907_41a4fa52",
+      "created": "2026-01-11T14:39:07.900334+00:00",
+      "type": "manual_inject",
+      "priority": "high",
+      "source": "cli_inject",
+      "url": "https://www.youtube.com/watch?v=DEMO_BATTERY_LIE_001",
+      "platform": "youtube",
+      "tags": [
+        "tech",
+        "explainer",
+        "viral",
+        "smartphone",
+        "myth"
+      ],
+      "request": {
+        "source_url": "https://www.youtube.com/watch?v=DEMO_BATTERY_LIE_001",
+        "inject_priority": "high",
+        "manual_injection": true
+      },
+      "meta": {
+        "version": "1.0.0",
+        "service": "skybeam_inject",
+        "story_id": "SKYBEAM-STORY-030",
+        "injected_at": "2026-01-11T14:39:07.900334+00:00"
+      },
+      "_ingested_at": "2026-01-11T14:39:17.520143+00:00"
+    },
+    {
+      "seed_id": "SEED_TEST_FULL_12345678",
+      "created": "2026-01-11T14:50:49.317632+00:00",
+      "type": "manual_inject",
+      "priority": "normal",
+      "source": "test",
+      "url": "https://youtube.com/watch?v=TEST123",
+      "platform": "youtube",
+      "tags": [
+        "test"
+      ],
+      "request": {
+        "manual_injection": true
+      },
+      "meta": {
+        "version": "1.0.0"
+      },
+      "_ingested_at": "2026-01-11T14:50:49.357950+00:00"
+    },
+    {
+      "seed_id": "SEED_TEST_IDEM_12345678",
+      "created": "2026-01-11T14:50:49.364900+00:00",
+      "type": "manual_inject",
+      "priority": "normal",
+      "source": "test",
+      "url": "https://youtube.com/watch?v=TEST123",
+      "platform": "youtube",
+      "tags": [
+        "test"
+      ],
+      "request": {
+        "manual_injection": true
+      },
+      "meta": {
+        "version": "1.0.0"
+      },
+      "_ingested_at": "2026-01-11T14:50:49.403028+00:00"
+    }
+  ],
+  "known_ids": [
+    "SEED_TEST_IDEM_12345678",
+    "SEED_20260111_143907_41a4fa52",
+    "SEED_TEST_FULL_12345678"
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "service": "manual_seed_ingestor",
+    "story_id": "SKYBEAM-STORY-031b",
+    "last_ingest": "2026-01-11T14:50:49.403132+00:00",
+    "seed_count": 3
+  }
+}

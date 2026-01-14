@@ -3,6 +3,7 @@
 ROXY CI/CD Agent - Run CI/CD tasks
 """
 import logging
+import os
 import subprocess
 from typing import Dict
 from agents.framework.base_agent import BaseAgent
@@ -20,7 +21,8 @@ class CIAgent(BaseAgent):
     async def execute(self, task: Dict) -> Dict:
         """Run CI/CD pipeline"""
         pipeline = task.get('pipeline', 'test')
-        repo_path = task.get('repo_path', '/opt/roxy')
+        _default_repo = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
+        repo_path = task.get('repo_path', _default_repo)
         
         try:
             if pipeline == 'test':
@@ -44,7 +46,6 @@ class CIAgent(BaseAgent):
             }
         except Exception as e:
             return {'error': str(e)}
-
 
 
 

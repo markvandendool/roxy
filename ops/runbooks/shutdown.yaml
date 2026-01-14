@@ -1,0 +1,64 @@
+# ROXY System Shutdown Runbook
+# Project SKYBEAM — Operational Procedure
+
+name: System Shutdown
+version: "1.0.0"
+description: Graceful ROXY system shutdown procedure
+author: Project SKYBEAM
+updated: "2026-01-10"
+
+# Shutdown sequence (reverse of startup)
+steps:
+  # Phase 1: Stop ROXY Services
+  - phase: 1
+    name: ROXY Core Services
+    parallel: true
+    tasks:
+      - name: Stop Ghost Publisher
+        command: systemctl --user stop ghost-publisher
+        timeout: 10
+
+      - name: Stop ROXY Proxy
+        command: systemctl --user stop roxy-proxy
+        timeout: 10
+
+  # Phase 2: Stop AI Services
+  - phase: 2
+    name: Ollama AI Services
+    parallel: true
+    tasks:
+      - name: Stop Ollama GPU 1
+        command: systemctl --user stop ollama-6900xt
+        timeout: 30
+
+      - name: Stop Ollama GPU 0
+        command: systemctl --user stop ollama-w5700x
+        timeout: 30
+
+  # Phase 3: Stop Docker Infrastructure
+  - phase: 3
+    name: Docker Infrastructure
+    parallel: false
+    tasks:
+      - name: Stop Docker containers
+        command: |
+          cd /home/mark/.roxy/docker && \
+          docker compose down
+        timeout: 120
+        verify:
+          command: docker ps --format '{{.Names}}' | grep -c roxy || echo 0
+          expected: 0
+
+# Post-shutdown verification
+post_shutdown:
+  - name: Verify all stopped
+    command: |
+      systemctl --user is-active roxy-proxy ghost-publisher ollama-6900xt ollama-w5700x 2>&1 | grep -c active || echo 0
+    expected: 0
+
+  - name: Log shutdown
+    command: |
+      echo "$(date -Iseconds) SHUTDOWN COMPLETE" >> /home/mark/.roxy/logs/shutdown.log
+
+# Quick command
+quick_command: ~/.roxy/start-universe.sh stop

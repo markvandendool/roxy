@@ -5,13 +5,14 @@ Base Tool Adapter - Wraps existing tools for LLM function calling
 import json
 import logging
 import subprocess
+import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Callable
 from abc import ABC, abstractmethod
 
 logger = logging.getLogger("roxy.tools.adapter")
 
-ROXY_DIR = Path.home() / ".roxy"
+ROXY_DIR = Path(os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy")))
 
 
 class BaseTool(ABC):
@@ -206,7 +207,7 @@ class CommandsToolAdapter(BaseTool):
 
 
 class OptRoxyMCPToolAdapter(BaseTool):
-    """Adapter for /opt/roxy/mcp-servers/* tools via mcp_registry"""
+    """Adapter for ROXY_ROOT/mcp-servers/* tools via mcp_registry"""
     
     def __init__(self, tool_name: str, server_name: str):
         self.tool_name = tool_name
@@ -218,12 +219,12 @@ class OptRoxyMCPToolAdapter(BaseTool):
         super().__init__(tool_name, description)
     
     def _load_from_registry(self):
-        """Load tool info from /opt/roxy/services/mcp_registry.py"""
+        """Load tool info from ROXY_ROOT/services/mcp_registry.py"""
         try:
             import sys
-            opt_services = Path("/opt/roxy/services")
-            if opt_services.exists():
-                sys.path.insert(0, str(opt_services))
+            services_dir = Path(os.environ.get("ROXY_SERVICES_DIR", str(ROXY_DIR / "services")))
+            if services_dir.exists():
+                sys.path.insert(0, str(services_dir))
                 from mcp_registry import MCPRegistry
                 registry = MCPRegistry()
                 tool_info = registry.find_tool(self.tool_name)
@@ -248,7 +249,6 @@ class OptRoxyMCPToolAdapter(BaseTool):
             "properties": {},
             "required": []
         }
-
 
 
 

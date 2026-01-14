@@ -176,7 +176,8 @@ async def take_screenshot(filename: str = None, region: str = None) -> str:
     if filename is None:
         filename = f'screenshot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.png'
     
-    output_path = f'/opt/roxy/data/{filename}'
+    roxy_root = os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy'))
+    output_path = f'{roxy_root}/data/{filename}'
     
     try:
         args = ['gnome-screenshot', '-f', output_path]

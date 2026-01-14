@@ -1,0 +1,747 @@
+# ROXY Voice Intent Configuration
+# Project SKYBEAM — Voice Command Mapping
+# Maps natural language to MCP tools
+
+name: Voice Intent Registry
+version: "1.0.0"
+description: Comprehensive voice intents for all 10 MCP servers (61+ tools)
+author: Project SKYBEAM
+updated: "2026-01-10"
+
+# Wake word configuration
+wake:
+  primary: "hey roxy"
+  aliases:
+    - "roxy"
+    - "okay roxy"
+    - "computer"
+
+# Intent categories with natural language patterns
+# Pattern syntax: {variable} = extracted slot
+
+intents:
+
+  # ============================================================================
+  # OBS STUDIO CONTROL (roxy-obs) - 10 tools
+  # ============================================================================
+  obs:
+    # Recording controls
+    - intent: obs.start_recording
+      tool: roxy-obs.obs_start_recording
+      patterns:
+        - "start recording"
+        - "begin recording"
+        - "record"
+        - "start capture"
+        - "start the recording"
+      response: "Recording started"
+
+    - intent: obs.stop_recording
+      tool: roxy-obs.obs_stop_recording
+      patterns:
+        - "stop recording"
+        - "end recording"
+        - "stop capture"
+        - "stop the recording"
+        - "finish recording"
+      response: "Recording stopped"
+
+    - intent: obs.pause_recording
+      tool: roxy-obs.obs_pause_recording
+      patterns:
+        - "pause recording"
+        - "pause capture"
+        - "pause the recording"
+      response: "Recording paused"
+
+    - intent: obs.resume_recording
+      tool: roxy-obs.obs_resume_recording
+      patterns:
+        - "resume recording"
+        - "unpause recording"
+        - "continue recording"
+      response: "Recording resumed"
+
+    # Scene controls
+    - intent: obs.switch_scene
+      tool: roxy-obs.obs_switch_scene
+      patterns:
+        - "switch to {scene_name}"
+        - "go to scene {scene_name}"
+        - "change scene to {scene_name}"
+        - "scene {scene_name}"
+        - "show {scene_name}"
+      slots:
+        scene_name: string
+      response: "Switching to {scene_name}"
+
+    - intent: obs.get_scenes
+      tool: roxy-obs.obs_get_scenes
+      patterns:
+        - "list scenes"
+        - "what scenes are available"
+        - "show me the scenes"
+        - "get scenes"
+      response: "Here are your scenes"
+
+    - intent: obs.get_status
+      tool: roxy-obs.obs_get_status
+      patterns:
+        - "obs status"
+        - "recording status"
+        - "am I recording"
+        - "is obs recording"
+        - "streaming status"
+      response: "Checking OBS status"
+
+    - intent: obs.take_screenshot
+      tool: roxy-obs.obs_take_screenshot
+      patterns:
+        - "obs screenshot"
+        - "capture obs"
+        - "screenshot the stream"
+        - "take obs screenshot"
+      response: "Screenshot captured"
+
+  # ============================================================================
+  # VOICE/TTS (roxy-voice) - 4 tools
+  # ============================================================================
+  voice:
+    - intent: voice.speak
+      tool: roxy-voice.speak
+      patterns:
+        - "say {text}"
+        - "speak {text}"
+        - "announce {text}"
+        - "tell me {text}"
+      slots:
+        text: string
+      response: null  # TTS will speak the response
+
+    - intent: voice.change_voice
+      tool: roxy-voice.test_voice
+      patterns:
+        - "use voice {voice}"
+        - "change voice to {voice}"
+        - "switch to {voice} voice"
+        - "speak as {voice}"
+      slots:
+        voice:
+          type: enum
+          values: [aria, jenny, guy, jane]
+      response: "Voice changed to {voice}"
+
+    - intent: voice.list_voices
+      tool: roxy-voice.list_voices
+      patterns:
+        - "list voices"
+        - "what voices are available"
+        - "show voices"
+      response: "Available voices are aria, jenny, guy, and jane"
+
+    - intent: voice.synthesize
+      tool: roxy-voice.synthesize_audio
+      patterns:
+        - "synthesize audio {text}"
+        - "create audio file for {text}"
+        - "save speech {text}"
+      slots:
+        text: string
+      response: "Audio synthesized"
+
+  # ============================================================================
+  # DESKTOP CONTROL (roxy-desktop) - 9 tools
+  # ============================================================================
+  desktop:
+    - intent: desktop.type
+      tool: roxy-desktop.type_text
+      patterns:
+        - "type {text}"
+        - "write {text}"
+        - "enter text {text}"
+      slots:
+        text: string
+      response: "Typed"
+
+    - intent: desktop.press_key
+      tool: roxy-desktop.press_key
+      patterns:
+        - "press {key}"
+        - "hit {key}"
+        - "key {key}"
+      slots:
+        key: string
+      response: "Key pressed"
+
+    - intent: desktop.hotkey
+      tool: roxy-desktop.hotkey
+      patterns:
+        - "hotkey {keys}"
+        - "press control {key}"
+        - "press alt {key}"
+        - "press command {key}"
+      slots:
+        keys: list
+        key: string
+      response: "Hotkey executed"
+
+    - intent: desktop.copy
+      tool: roxy-desktop.hotkey
+      params:
+        keys: ["ctrl", "c"]
+      patterns:
+        - "copy"
+        - "copy that"
+        - "copy selection"
+      response: "Copied"
+
+    - intent: desktop.paste
+      tool: roxy-desktop.hotkey
+      params:
+        keys: ["ctrl", "v"]
+      patterns:
+        - "paste"
+        - "paste that"
+        - "paste clipboard"
+      response: "Pasted"
+
+    - intent: desktop.undo
+      tool: roxy-desktop.hotkey
+      params:
+        keys: ["ctrl", "z"]
+      patterns:
+        - "undo"
+        - "undo that"
+        - "go back"
+      response: "Undone"
+
+    - intent: desktop.save
+      tool: roxy-desktop.hotkey
+      params:
+        keys: ["ctrl", "s"]
+      patterns:
+        - "save"
+        - "save file"
+        - "save that"
+      response: "Saved"
+
+    - intent: desktop.screenshot
+      tool: roxy-desktop.take_screenshot
+      patterns:
+        - "screenshot"
+        - "take screenshot"
+        - "capture screen"
+        - "screen grab"
+      response: "Screenshot taken"
+
+    - intent: desktop.clipboard_get
+      tool: roxy-desktop.get_clipboard
+      patterns:
+        - "what's in clipboard"
+        - "show clipboard"
+        - "read clipboard"
+      response: "Clipboard contents"
+
+    - intent: desktop.clipboard_set
+      tool: roxy-desktop.set_clipboard
+      patterns:
+        - "copy to clipboard {text}"
+        - "set clipboard to {text}"
+        - "clipboard {text}"
+      slots:
+        text: string
+      response: "Copied to clipboard"
+
+    - intent: desktop.mouse_click
+      tool: roxy-desktop.mouse_click
+      patterns:
+        - "click"
+        - "left click"
+        - "right click"
+        - "double click"
+      slots:
+        button:
+          type: enum
+          values: [left, right, middle]
+          default: left
+        count:
+          type: int
+          default: 1
+      response: "Clicked"
+
+  # ============================================================================
+  # BROWSER AUTOMATION (roxy-browser) - 4 tools
+  # ============================================================================
+  browser:
+    - intent: browser.open
+      tool: roxy-browser.browse_and_extract
+      patterns:
+        - "open {url}"
+        - "go to {url}"
+        - "browse to {url}"
+        - "navigate to {url}"
+      slots:
+        url: string
+      response: "Opening {url}"
+
+    - intent: browser.search
+      tool: roxy-browser.search_web
+      patterns:
+        - "search for {query}"
+        - "google {query}"
+        - "look up {query}"
+        - "find {query}"
+        - "search {query}"
+      slots:
+        query: string
+      response: "Searching for {query}"
+
+    - intent: browser.fill_form
+      tool: roxy-browser.fill_form
+      patterns:
+        - "fill form on {url}"
+        - "complete form at {url}"
+      slots:
+        url: string
+        form_data: object
+      response: "Filling form"
+
+    - intent: browser.screenshot
+      tool: roxy-browser.screenshot_page
+      patterns:
+        - "screenshot webpage {url}"
+        - "capture page {url}"
+        - "screenshot {url}"
+      slots:
+        url: string
+      response: "Webpage screenshot captured"
+
+  # ============================================================================
+  # CONTENT PIPELINE (roxy-content) - 6 tools
+  # ============================================================================
+  content:
+    - intent: content.status
+      tool: roxy-content.content_status
+      patterns:
+        - "content status"
+        - "pipeline status"
+        - "what's in the pipeline"
+        - "check content queue"
+      response: "Checking content pipeline"
+
+    - intent: content.transcribe
+      tool: roxy-content.transcribe_video
+      patterns:
+        - "transcribe video {video_path}"
+        - "transcribe {video_path}"
+        - "get transcript of {video_path}"
+      slots:
+        video_path: string
+      response: "Transcribing video"
+
+    - intent: content.detect_viral
+      tool: roxy-content.detect_viral_moments
+      patterns:
+        - "find viral moments in {transcript}"
+        - "detect clips in {transcript}"
+        - "find highlights in {transcript}"
+      slots:
+        transcript: string
+      response: "Detecting viral moments"
+
+    - intent: content.extract_clips
+      tool: roxy-content.extract_clips
+      patterns:
+        - "extract clips from {video}"
+        - "cut clips from {video}"
+        - "create clips from {video}"
+      slots:
+        video: string
+      response: "Extracting clips"
+
+    - intent: content.queue
+      tool: roxy-content.queue_video
+      patterns:
+        - "queue video {video_path}"
+        - "add video {video_path}"
+        - "process video {video_path}"
+      slots:
+        video_path: string
+      response: "Video queued"
+
+    - intent: content.full_pipeline
+      tool: roxy-content.run_full_pipeline
+      patterns:
+        - "run full pipeline on {video}"
+        - "process {video} completely"
+        - "full content process {video}"
+      slots:
+        video: string
+      response: "Running full pipeline"
+
+  # ============================================================================
+  # EMAIL (roxy-email) - 3 tools
+  # ============================================================================
+  email:
+    - intent: email.read
+      tool: roxy-email.read_emails
+      patterns:
+        - "read my email"
+        - "check email"
+        - "read emails"
+        - "show my emails"
+        - "what emails do I have"
+      response: "Reading your emails"
+
+    - intent: email.read_unread
+      tool: roxy-email.read_emails
+      params:
+        unread_only: true
+      patterns:
+        - "read unread emails"
+        - "show new emails"
+        - "any new emails"
+        - "unread messages"
+      response: "Reading unread emails"
+
+    - intent: email.send
+      tool: roxy-email.send_email
+      patterns:
+        - "send email to {to}"
+        - "email {to}"
+        - "compose email to {to}"
+      slots:
+        to: string
+        subject: string
+        body: string
+      response: "Sending email"
+
+    - intent: email.search
+      tool: roxy-email.search_emails
+      patterns:
+        - "search emails for {query}"
+        - "find emails about {query}"
+        - "look for email {query}"
+      slots:
+        query: string
+      response: "Searching emails"
+
+  # ============================================================================
+  # CRM/BUSINESS (roxy-business) - 10 tools
+  # ============================================================================
+  business:
+    # Contacts
+    - intent: crm.create_contact
+      tool: roxy-business.crm_create_contact
+      patterns:
+        - "add contact {first_name} {last_name}"
+        - "create contact {first_name} {last_name}"
+        - "new contact {first_name} {last_name}"
+      slots:
+        first_name: string
+        last_name: string
+        email: string
+        company: string
+      response: "Contact created"
+
+    - intent: crm.get_contacts
+      tool: roxy-business.business_get_contacts
+      patterns:
+        - "show contacts"
+        - "list contacts"
+        - "get contacts"
+        - "who are my contacts"
+      response: "Here are your contacts"
+
+    - intent: crm.get_leads
+      tool: roxy-business.business_get_contacts
+      params:
+        stage: "lead"
+      patterns:
+        - "show leads"
+        - "list leads"
+        - "get leads"
+        - "who are my leads"
+      response: "Here are your leads"
+
+    - intent: crm.get_customers
+      tool: roxy-business.business_get_contacts
+      params:
+        stage: "customer"
+      patterns:
+        - "show customers"
+        - "list customers"
+        - "who are my customers"
+      response: "Here are your customers"
+
+    # Deals
+    - intent: crm.create_deal
+      tool: roxy-business.crm_create_deal
+      patterns:
+        - "create deal {name}"
+        - "new deal {name}"
+        - "add deal {name} worth {value}"
+      slots:
+        name: string
+        value: number
+      response: "Deal created"
+
+    - intent: crm.get_deals
+      tool: roxy-business.crm_get_deals
+      patterns:
+        - "show deals"
+        - "list deals"
+        - "get deals"
+        - "what deals do we have"
+        - "pipeline status"
+      response: "Here are your deals"
+
+    - intent: crm.get_analytics
+      tool: roxy-business.crm_get_analytics
+      patterns:
+        - "crm analytics"
+        - "business analytics"
+        - "show crm stats"
+        - "sales stats"
+      response: "Here are your CRM analytics"
+
+    - intent: crm.get_workflows
+      tool: roxy-business.crm_get_workflows
+      patterns:
+        - "show workflows"
+        - "list automation workflows"
+        - "get crm workflows"
+      response: "Here are your workflows"
+
+    # Project Management
+    - intent: plane.create_issue
+      tool: roxy-business.plane_create_issue
+      patterns:
+        - "create issue {name}"
+        - "new task {name}"
+        - "add issue {name}"
+        - "create ticket {name}"
+      slots:
+        name: string
+        project_id: string
+      response: "Issue created"
+
+    - intent: plane.get_issues
+      tool: roxy-business.business_get_issues
+      patterns:
+        - "show issues"
+        - "list tasks"
+        - "get project issues"
+        - "what issues do we have"
+      response: "Here are your issues"
+
+  # ============================================================================
+  # SOCIAL MEDIA (roxy-social) - 8 tools
+  # ============================================================================
+  social:
+    - intent: social.schedule_post
+      tool: roxy-social.social_schedule_post
+      patterns:
+        - "schedule post on {platform}"
+        - "post to {platform}"
+        - "schedule {platform} post"
+      slots:
+        platform:
+          type: enum
+          values: [youtube, discord, telegram, postiz]
+        content: string
+        scheduled_at: datetime
+      response: "Post scheduled"
+
+    - intent: social.youtube_upload
+      tool: roxy-social.youtube_upload_video
+      patterns:
+        - "upload to youtube {video_path}"
+        - "publish video {video_path}"
+        - "youtube upload {video_path}"
+      slots:
+        video_path: string
+        title: string
+        description: string
+      response: "Uploading to YouTube"
+
+    - intent: social.discord_message
+      tool: roxy-social.discord_send_message
+      patterns:
+        - "send discord message {message}"
+        - "message discord {message}"
+        - "post to discord {message}"
+      slots:
+        message: string
+        channel_id: string
+      response: "Discord message sent"
+
+    - intent: social.telegram_message
+      tool: roxy-social.telegram_send_message
+      patterns:
+        - "send telegram message {message}"
+        - "message telegram {message}"
+        - "telegram {message}"
+      slots:
+        message: string
+        chat_id: string
+      response: "Telegram message sent"
+
+    - intent: social.get_analytics
+      tool: roxy-social.social_get_analytics
+      patterns:
+        - "social analytics"
+        - "social stats"
+        - "{platform} analytics"
+        - "how are my posts doing"
+      slots:
+        platform: string
+      response: "Here are your social analytics"
+
+    - intent: social.youtube_info
+      tool: roxy-social.youtube_get_video_info
+      patterns:
+        - "get youtube video info {video_id}"
+        - "youtube video stats {video_id}"
+        - "check video {video_id}"
+      slots:
+        video_id: string
+      response: "Here's the video info"
+
+  # ============================================================================
+  # AI ORCHESTRATOR (roxy-ai-orchestrator) - 7 tools
+  # ============================================================================
+  ai:
+    - intent: ai.remember
+      tool: roxy-ai-orchestrator.ai_create_memory
+      patterns:
+        - "remember that {memory_text}"
+        - "save memory {memory_text}"
+        - "note that {memory_text}"
+        - "remember {memory_text}"
+      slots:
+        memory_text: string
+      response: "I'll remember that"
+
+    - intent: ai.recall
+      tool: roxy-ai-orchestrator.ai_get_memories
+      patterns:
+        - "what do you remember"
+        - "show memories"
+        - "recall memories"
+        - "what have I told you"
+      response: "Here's what I remember"
+
+    - intent: ai.run_workflow
+      tool: roxy-ai-orchestrator.ai_run_workflow
+      patterns:
+        - "run workflow {workflow_name}"
+        - "execute workflow {workflow_name}"
+        - "start workflow {workflow_name}"
+      slots:
+        workflow_name: string
+      response: "Running workflow"
+
+    - intent: ai.request_approval
+      tool: roxy-ai-orchestrator.ai_request_approval
+      patterns:
+        - "request approval for {action}"
+        - "ask for approval {action}"
+        - "needs approval {action}"
+      slots:
+        action: string
+        description: string
+      response: "Approval requested"
+
+    - intent: ai.check_approval
+      tool: roxy-ai-orchestrator.ai_get_approval_status
+      patterns:
+        - "check approval status"
+        - "approval status"
+        - "is it approved"
+      slots:
+        approval_id: string
+      response: "Checking approval status"
+
+  # ============================================================================
+  # SYSTEM COMMANDS - Meta/utility commands
+  # ============================================================================
+  system:
+    - intent: system.status
+      patterns:
+        - "system status"
+        - "how are you"
+        - "status check"
+        - "health check"
+      action: run_script
+      script: ~/.roxy/start-universe.sh status
+      response: "All systems operational"
+
+    - intent: system.start
+      patterns:
+        - "start everything"
+        - "boot up"
+        - "start the system"
+        - "full startup"
+      action: run_script
+      script: ~/.roxy/start-universe.sh full
+      response: "Starting all systems"
+
+    - intent: system.stop
+      patterns:
+        - "stop everything"
+        - "shut down"
+        - "stop the system"
+        - "shutdown"
+      action: run_script
+      script: ~/.roxy/start-universe.sh stop
+      response: "Shutting down"
+
+    - intent: system.help
+      patterns:
+        - "help"
+        - "what can you do"
+        - "list commands"
+        - "show commands"
+      response: "I can control OBS, browse the web, manage emails, handle CRM, post to social media, and much more. Try 'start recording', 'read my emails', or 'show contacts'."
+
+    - intent: system.cancel
+      patterns:
+        - "cancel"
+        - "stop"
+        - "nevermind"
+        - "abort"
+      response: "Cancelled"
+
+# Intent priority (higher = processed first)
+priority:
+  - system.cancel
+  - system.help
+  - obs.start_recording
+  - obs.stop_recording
+  - voice.speak
+
+# Confidence thresholds
+thresholds:
+  minimum: 0.6
+  high_confidence: 0.85
+
+# Fallback behavior
+fallback:
+  intent: ai.query
+  message: "I'm not sure what you mean. Would you like me to search for an answer?"
+
+# Statistics
+stats:
+  total_intents: 65
+  servers:
+    roxy-obs: 8
+    roxy-voice: 4
+    roxy-desktop: 11
+    roxy-browser: 4
+    roxy-content: 6
+    roxy-email: 4
+    roxy-business: 10
+    roxy-social: 6
+    roxy-ai-orchestrator: 5
+    system: 7

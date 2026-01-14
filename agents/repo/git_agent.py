@@ -3,6 +3,7 @@
 ROXY Git Operations Agent - Automated git operations
 """
 import logging
+import os
 import subprocess
 from typing import Dict
 from agents.framework.base_agent import BaseAgent
@@ -20,7 +21,8 @@ class GitAgent(BaseAgent):
     async def execute(self, task: Dict) -> Dict:
         """Execute git operation"""
         operation = task.get('operation', 'status')
-        repo_path = task.get('repo_path', '/opt/roxy')
+        _default_repo = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
+        repo_path = task.get('repo_path', _default_repo)
         
         try:
             if operation == 'status':
@@ -49,7 +51,6 @@ class GitAgent(BaseAgent):
             }
         except Exception as e:
             return {'error': str(e)}
-
 
 
 

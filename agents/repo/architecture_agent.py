@@ -18,7 +18,8 @@ class ArchitectureAgent(BaseAgent):
     
     async def execute(self, task: Dict) -> Dict:
         """Analyze architecture"""
-        repo_path = task.get('repo_path', '/opt/roxy')
+        _default_repo = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
+        repo_path = task.get('repo_path', _default_repo)
         
         try:
             import os

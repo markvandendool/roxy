@@ -38,7 +38,8 @@ if '/services/' in str(_this_file) or _this_file.name != 'roxy_core.py':
     print(f"FATAL: Refusing to run stub copy. Detected={_this_file} | Required={_canonical_core}", file=sys.stderr)
     sys.exit(99)
 
-if str(_this_cwd) == '/opt/roxy':
+_legacy_root = os.environ.get('ROXY_LEGACY_ROOT', '/opt/roxy')
+if str(_this_cwd) == _legacy_root:
     print(f"FATAL: CWD is frozen archive /opt/roxy. Required ExecStart={_canonical_exec}", file=sys.stderr)
     sys.exit(99)
 # =============================================================================
@@ -57,6 +58,19 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("roxy-core")
+
+# -----------------------------------------------------------------------------
+# JSON sanitation helpers
+# -----------------------------------------------------------------------------
+def _json_sanitize(obj):
+    """Recursively convert non-JSON-serializable values (e.g., datetime)."""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, dict):
+        return {k: _json_sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_sanitize(v) for v in obj]
+    return obj
 
 # Configuration - single source of truth
 ROXY_DIR = Path.home() / ".roxy"
@@ -1993,11 +2007,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 memories = recall_conversations(query, k)
             else:
                 memories = []
-            
+
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({"memories": memories, "count": len(memories)}).encode())
+            sanitized = _json_sanitize(memories)
+            self.wfile.write(json.dumps({"memories": sanitized, "count": len(sanitized)}).encode())
             
         except Exception as e:
             logger.error(f"Memory recall failed: {e}")

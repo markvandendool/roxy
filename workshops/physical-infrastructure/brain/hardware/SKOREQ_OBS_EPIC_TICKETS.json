@@ -1,0 +1,313 @@
+{
+  "epic": {
+    "id": "SKOREQ-OBS-EPIC-001",
+    "title": "SKOREQ OBS Dream Collection",
+    "description": "Industry-shattering OBS scene collection integrating 8K Theater, AI plugins, NDI widgets, and NovaXe pedagogical system",
+    "createdAt": "2026-01-09T00:00:00Z"
+  },
+  "stories": [
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-001",
+      "title": "NDI Widget Bridge Infrastructure",
+      "description": "Create NDI output wrapper for 8K Theater widgets (Piano, Fretboard, Braid, COF, HarmonicProfile, ScoreTab, Metronome, TempoGeometry). Configure DistroAV/NDI Tools for Linux, establish naming convention, test latency with KRONOS sync.",
+      "storyPoints": 5,
+      "priority": "critical",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.roxy/obs-portable/config/ndi-widget-bridge.json",
+        "/home/mark/.roxy/mcp-servers/obs/ndi_bridge.py",
+        "/home/mark/.roxy/docs/docs/obs/NDI_WIDGET_ARCHITECTURE.md"
+      ],
+      "acceptanceCriteria": [
+        "Each 8K Theater widget visible as independent NDI source in OBS source list",
+        "Alpha channel preserved for transparency compositing",
+        "Measured latency < 50ms from MIDI input to visual update in NDI stream",
+        "NDI sources auto-discoverable via DistroAV NDI scanner on 192.168.x.x subnet",
+        "NDI_WIDGET_ARCHITECTURE.md document exists with configuration instructions"
+      ],
+      "dependencies": [],
+      "status": "in_progress",
+      "progress": {
+        "bridgeSkeleton": "DONE - ndi_bridge.py (270 LOC, 8 widgets)",
+        "configFile": "DONE - ndi-widget-bridge.json with KRONOS sync",
+        "ndiLibrary": "TODO - libndi.so.5 installation",
+        "latencyTesting": "TODO - requires live widgets",
+        "documentation": "TODO - NDI_WIDGET_ARCHITECTURE.md",
+        "lastUpdated": "2026-01-10T14:30:00Z"
+      }
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-002",
+      "title": "AI Plugin Configuration",
+      "description": "Configure LocalVocal with music-optimized Whisper model (medium.en), set up Background Removal with studio lighting profile, create Advanced Scene Switcher macros, configure CleanStream for verbal tic removal.",
+      "storyPoints": 3,
+      "priority": "high",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.config/obs-studio/basic/profiles/SKOREQ/basic.ini",
+        "/home/mark/.config/obs-studio/plugin_config/obs-localvocal/config.json",
+        "/home/mark/.config/obs-studio/plugin_config/obs-backgroundremoval/config.json",
+        "/home/mark/.roxy/obs-portable/macros/advanced-scene-switcher.json",
+        "/home/mark/.roxy/docs/docs/obs/AI_PLUGIN_CONFIGURATION.md"
+      ],
+      "acceptanceCriteria": [
+        "LocalVocal producing captions with measured latency < 2000ms",
+        "Background removal functional without physical green screen in standard office lighting",
+        "At least 10 Advanced Scene Switcher macros created for common lesson transitions",
+        "CleanStream configured for 'um/uh/like' removal at default sensitivity",
+        "AI_PLUGIN_CONFIGURATION.md exists with troubleshooting section"
+      ],
+      "dependencies": [],
+      "status": "in_progress",
+      "progress": {
+        "localVocal": "TODO - requires manual OBS config",
+        "backgroundRemoval": "TODO - requires manual OBS config",
+        "advancedSceneSwitcher": "DONE - 10 macros in advanced-scene-switcher.json",
+        "cleanStream": "TODO - requires manual OBS config",
+        "documentation": "TODO - AI_PLUGIN_CONFIGURATION.md",
+        "lastUpdated": "2026-01-10T14:30:00Z"
+      }
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-003",
+      "title": "obs-mcp ROXY Integration",
+      "description": "Upgrade ROXY MCP server with full OBS WebSocket 5.x API coverage. Add voice command intents for scene switching, source visibility toggles, filter triggers, and hotword detection for hands-free control.",
+      "storyPoints": 5,
+      "priority": "critical",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.roxy/mcp/mcp_obs.py",
+        "/home/mark/.roxy/mcp-servers/obs/server.py",
+        "/home/mark/.roxy/obs_skill.py",
+        "/home/mark/.roxy/voice_intents/obs_commands.yaml",
+        "/home/mark/.roxy/docs/docs/obs/ROXY_OBS_VOICE_CONTROL.md"
+      ],
+      "acceptanceCriteria": [
+        "Voice command 'Hey ROXY, switch to scale scene' triggers SetCurrentProgramScene",
+        "Voice commands 'Show the braid' / 'Hide the braid' toggle source visibility",
+        "Voice commands 'Start recording' / 'Stop streaming' functional via WebSocket",
+        "Filter trigger commands working ('Animate key shift up')",
+        "ROXY_OBS_VOICE_CONTROL.md documents all 20+ voice commands"
+      ],
+      "dependencies": [],
+      "status": "in_progress",
+      "progress": {
+        "mcpServer": "DONE - mcp-servers/obs/server.py (259 LOC, 9 tools)",
+        "obsSkill": "DONE - obs_skill.py (697 LOC, 20+ commands)",
+        "voiceIntents": "DONE - voice_intents/obs_commands.yaml (25+ intents)",
+        "filterTriggers": "TODO",
+        "documentation": "PARTIAL - docs exist but need update",
+        "lastUpdated": "2026-01-10T14:30:00Z"
+      }
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-004",
+      "title": "Scene Collection Architecture",
+      "description": "Create scene hierarchy reducing Harry_Elgato 238 scenes to ~80 modular scenes. Implement emoji naming convention, build nested scenes for reusability, create groups for toggle states, migrate move_source_filters.",
+      "storyPoints": 8,
+      "priority": "critical",
+      "queue": "paid-tier",
+      "filesInScope": [
+        "/home/mark/.config/obs-studio/basic/scenes/SKOREQ_Dream.json",
+        "/home/mark/.roxy/obs-portable/config/scene-manifest.json",
+        "/home/mark/.roxy/obs-portable/filters/key-transposition.json",
+        "/home/mark/.roxy/obs-portable/filters/animation-presets.json",
+        "/home/mark/.roxy/docs/docs/obs/SCENE_ARCHITECTURE_GUIDE.md"
+      ],
+      "acceptanceCriteria": [
+        "Total scene count in SKOREQ_Dream.json <= 85",
+        "All 12 pedagogical features from Harry_Elgato preserved (key shift, scale overlay, COF, braid, etc.)",
+        "Emoji naming convention applied to 100% of scenes",
+        "At least 3 nested scenes created (fretboard, braid, COF)",
+        "102 move_source_filters migrated and functional",
+        "Source count reduction >= 60% compared to Harry_Elgato"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-001",
+        "SKOREQ-OBS-EPIC-001-STORY-003"
+      ],
+      "status": "in_progress",
+      "progress": {
+        "sceneReduction": "DONE - 238 to 73 scenes (69% reduction)",
+        "emojiNaming": "DONE - All 73 scenes with category prefixes",
+        "nestedScenes": "TODO",
+        "filterMigration": "DONE - 1813 move filters extracted to reference file",
+        "completedAt": null,
+        "lastUpdated": "2026-01-10T14:30:00Z"
+      }
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-005",
+      "title": "Horizontal Canvas Master Scenes",
+      "description": "Create 8 master scenes optimized for horizontal streaming (YouTube/Twitch) at 2560x1440. Configure source arrangements, transition animations, hotkey map F1-F8.",
+      "storyPoints": 5,
+      "priority": "high",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.config/obs-studio/basic/scenes/SKOREQ_Dream.json",
+        "/home/mark/.roxy/obs-portable/layouts/horizontal-masters.json",
+        "/home/mark/.roxy/obs-portable/hotkeys/master-scene-hotkeys.json",
+        "/home/mark/.roxy/docs/docs/obs/HORIZONTAL_LAYOUT_GUIDE.md"
+      ],
+      "acceptanceCriteria": [
+        "8 master scenes exist: Full Theory, Scale Lesson, Chord Study, Circle Study, Performance, Song Analysis, Countdown, Calibration",
+        "Hotkeys F1-F8 functional for scene switching",
+        "Transition duration <= 1300ms with smooth animation",
+        "No orphan sources in any master scene",
+        "CPU usage < 30% at 1440p60 encoding with x264 medium preset"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-004"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-006",
+      "title": "Vertical Canvas Scenes",
+      "description": "Create 5 vertical variants of master scenes for TikTok/Shorts/Reels at 1080x1920. Configure Vertical Canvas plugin for dual-canvas output.",
+      "storyPoints": 3,
+      "priority": "medium",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.config/obs-studio/basic/scenes/SKOREQ_Dream.json",
+        "/home/mark/.roxy/obs-portable/layouts/vertical-masters.json",
+        "/home/mark/.config/obs-studio/plugin_config/vertical-canvas/config.json",
+        "/home/mark/.roxy/docs/docs/obs/VERTICAL_STREAMING_GUIDE.md"
+      ],
+      "acceptanceCriteria": [
+        "5 vertical scenes exist: Camera Only, Camera+Fret, Camera+Braid, Braid Only, Full Lesson",
+        "Vertical Canvas plugin configured at 1080x1920",
+        "Dual output functional (horizontal + vertical simultaneous)",
+        "Aspect ratio 9:16 verified for all vertical scenes"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-004"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-007",
+      "title": "Pedagogical Overlay System",
+      "description": "Migrate 220 image assets from Harry_Elgato with corrected Linux paths. Organize into toggleable groups, create interval overlay scene, create text prompt overlay scene.",
+      "storyPoints": 5,
+      "priority": "high",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.roxy/obs-portable/assets/intervals/interval-manifest.json",
+        "/home/mark/.roxy/obs-portable/assets/cof/cof-manifest.json",
+        "/home/mark/.roxy/obs-portable/assets/overlays/overlay-manifest.json",
+        "/home/mark/.roxy/obs-portable/groups/theory-overlays.json",
+        "/home/mark/.roxy/docs/docs/obs/OVERLAY_ASSET_MANIFEST.md"
+      ],
+      "acceptanceCriteria": [
+        "All 220 image assets migrated to ~/.roxy/obs-portable/assets/",
+        "Path references updated from C:\\Users\\... to Linux paths",
+        "Interval group toggleable via Ctrl+I hotkey",
+        "COF overlays toggleable via Ctrl+O hotkey",
+        "OVERLAY_ASSET_MANIFEST.md lists all assets with categories"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-004"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-008",
+      "title": "Move Transition Animation System",
+      "description": "Port 102 move_source_filters for key transposition, create reusable animation presets, optimize simultaneous_move chains, add new animation types (zoom, fade, rotate).",
+      "storyPoints": 5,
+      "priority": "high",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.roxy/obs-portable/filters/key-transposition.json",
+        "/home/mark/.roxy/obs-portable/filters/animation-library.json",
+        "/home/mark/.roxy/obs-portable/filters/simultaneous-move-chains.json",
+        "/home/mark/.roxy/docs/docs/obs/ANIMATION_SYSTEM_GUIDE.md"
+      ],
+      "acceptanceCriteria": [
+        "Key shift animations functional for all 12 keys",
+        "Scale degree shift animations functional for 7 degrees",
+        "Default duration configurable (1300ms default)",
+        "All simultaneous_move chains from Harry_Elgato preserved",
+        "At least 3 new animation presets documented (zoom, fade, rotate)"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-007"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-009",
+      "title": "MIDI Integration Testing",
+      "description": "Test MIDI routing from guitar to NovaXe/8K Theater, verify KRONOS sync, test NDI widget latency, document MIDI setup with troubleshooting guide.",
+      "storyPoints": 3,
+      "priority": "medium",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.roxy/obs-portable/config/midi-routing.json",
+        "/home/mark/.roxy/docs/docs/obs/MIDI_INTEGRATION_GUIDE.md",
+        "/home/mark/.roxy/tests/obs/midi-latency-test.sh"
+      ],
+      "acceptanceCriteria": [
+        "MIDI input from guitar detected in NovaXe FretboardWidget",
+        "Fretboard note highlighting latency < 50ms (measured)",
+        "Braid updates on chord detection within 100ms",
+        "KRONOS beat sync verified with metronome test",
+        "MIDI_INTEGRATION_GUIDE.md includes troubleshooting section"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-001"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "SKOREQ-OBS-EPIC-001-STORY-010",
+      "title": "Documentation & Onboarding",
+      "description": "Create quick start guide, document all hotkeys, create troubleshooting guide, update existing docs. Target < 5 minute read for quick start.",
+      "storyPoints": 2,
+      "priority": "low",
+      "queue": "free-tier",
+      "filesInScope": [
+        "/home/mark/.roxy/docs/docs/obs/SKOREQ_DREAM_QUICKSTART.md",
+        "/home/mark/.roxy/docs/docs/obs/HOTKEY_REFERENCE.md",
+        "/home/mark/.roxy/docs/docs/obs/TROUBLESHOOTING.md",
+        "/home/mark/.roxy/docs/docs/obs/README.md"
+      ],
+      "acceptanceCriteria": [
+        "SKOREQ_DREAM_QUICKSTART.md word count < 1000 words",
+        "HOTKEY_REFERENCE.md lists all 30+ hotkeys with descriptions",
+        "TROUBLESHOOTING.md covers at least 10 common issues",
+        "At least 5 screenshots included in documentation"
+      ],
+      "dependencies": [
+        "SKOREQ-OBS-EPIC-001-STORY-005",
+        "SKOREQ-OBS-EPIC-001-STORY-006",
+        "SKOREQ-OBS-EPIC-001-STORY-008"
+      ],
+      "status": "todo"
+    }
+  ],
+  "metadata": {
+    "totalStoryPoints": 44,
+    "freeQueuePoints": 36,
+    "paidQueuePoints": 8,
+    "criticalStories": 3,
+    "highPriorityStories": 4,
+    "mediumPriorityStories": 2,
+    "lowPriorityStories": 1,
+    "estimatedCompletion": "2026-01-20",
+    "planDocumentPath": "/home/mark/.roxy/workshops/physical-infrastructure/brain/hardware/SKOREQ_OBS_DREAM_COLLECTION_PLAN.md"
+  },
+  "enqueueCommands": [
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-001 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-002 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-003 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-004 --queue=paid-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-005 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-006 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-007 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-008 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-009 --queue=free-tier",
+    "bun run src/cli/luno.ts enqueue --story=SKOREQ-OBS-EPIC-001-STORY-010 --queue=free-tier"
+  ]
+}

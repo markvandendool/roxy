@@ -3,6 +3,7 @@
 ROXY Testing Agent - Generate and run tests
 """
 import logging
+import os
 import subprocess
 from typing import Dict
 from agents.framework.base_agent import BaseAgent
@@ -19,7 +20,8 @@ class TestingAgent(BaseAgent):
     
     async def execute(self, task: Dict) -> Dict:
         """Run tests"""
-        test_path = task.get('test_path', '/opt/roxy')
+        default_repo = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
+        test_path = task.get('test_path', default_repo)
         test_type = task.get('test_type', 'all')
         
         try:
@@ -41,8 +43,6 @@ class TestingAgent(BaseAgent):
             }
         except Exception as e:
             return {'error': str(e)}
-
-
 
 
 

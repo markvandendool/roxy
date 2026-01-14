@@ -48,7 +48,8 @@ fi
 # 4. Test content pipeline scripts
 echo ""
 echo "[4/6] Testing content pipeline scripts..."
-cd /opt/roxy
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
+cd "$ROXY_ROOT"
 source venv/bin/activate
 
 SCRIPTS=(
@@ -91,4 +92,3 @@ echo "2. Configure OBS scenes"
 echo "3. Test recording: python scripts/obs_automation.py start"
 echo "4. Import n8n workflows"
 echo "5. Test content pipeline with sample video"
-

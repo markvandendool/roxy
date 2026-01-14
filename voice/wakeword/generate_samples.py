@@ -6,10 +6,12 @@ import json
 import wave
 import struct
 from pathlib import Path
+import os
 
 PIPER_HOST = 'localhost'
 PIPER_PORT = 10200
-OUTPUT_DIR = Path('/opt/roxy/voice/wakeword/samples')
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+OUTPUT_DIR = ROXY_ROOT / 'voice' / 'wakeword' / 'samples'
 
 # Wake word variations
 POSITIVE_PHRASES = [

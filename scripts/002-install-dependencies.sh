@@ -182,7 +182,7 @@ echo ""
 echo "[8/10] Installing Python packages..."
 #===============================================================================
 # Create Roxy virtual environment
-VENV_PATH="/opt/roxy/venv"
+VENV_PATH="${ROXY_ROOT:-$HOME/.roxy}/venv"
 if [ ! -d "$VENV_PATH" ]; then
     python3 -m venv "$VENV_PATH"
     chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$VENV_PATH"
@@ -258,7 +258,7 @@ echo "║  • gVisor (runsc) sandbox runtime                                   
 echo "║  • ROCm 6.0 for AMD GPU                                                   ║"
 echo "║  • Ollama with llama3:8b                                                  ║"
 echo "║  • dotool for Wayland automation                                          ║"
-echo "║  • Python venv at /opt/roxy/venv                                          ║"
+echo "║  • Python venv at ${ROXY_ROOT:-$HOME/.roxy}/venv                                          ║"
 echo "║  • Infisical CLI                                                          ║"
 echo "║  • SOPS + Age encryption                                                  ║"
 echo "║                                                                           ║"

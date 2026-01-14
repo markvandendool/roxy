@@ -38,10 +38,12 @@ echo ""
 # ─────────────────────────────────────────────────────────────────────────────
 # CANONICAL DEFINITIONS
 # ─────────────────────────────────────────────────────────────────────────────
-CANONICAL_CODE_ROOT="$HOME/.roxy"
-CANONICAL_DATA_ROOT="/opt/roxy/data"
-CANONICAL_VENV="$HOME/.roxy/venv"
-CANONICAL_ENTRY="$HOME/.roxy/roxy_core.py"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
+LEGACY_ROOT="${ROXY_LEGACY_ROOT:-/opt/roxy}"
+CANONICAL_CODE_ROOT="$ROXY_ROOT"
+CANONICAL_DATA_ROOT="$ROXY_ROOT/data"
+CANONICAL_VENV="$ROXY_ROOT/venv"
+CANONICAL_ENTRY="$ROXY_ROOT/roxy_core.py"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CHECK 1: Wrapper Script
@@ -51,8 +53,8 @@ echo -e "${BLUE}[CHECK 1]${NC} Wrapper Script (/usr/local/bin/roxy)"
 if [[ -f /usr/local/bin/roxy ]]; then
     WRAPPER_TARGET=$(grep -oP '(?<=ROXY_HOME="|ROXY_INTERFACE=")[^"]+' /usr/local/bin/roxy 2>/dev/null | head -1 || echo "UNKNOWN")
 
-    if [[ "$WRAPPER_TARGET" == *"/opt/roxy"* ]]; then
-        echo -e "  ${RED}FAIL${NC} Wrapper points to /opt/roxy (should be ~/.roxy)"
+    if [[ "$WRAPPER_TARGET" == *"$LEGACY_ROOT"* ]]; then
+        echo -e "  ${RED}FAIL${NC} Wrapper points to legacy root (should be $ROXY_ROOT)"
         echo -e "       Target: $WRAPPER_TARGET"
         ((ERRORS++))
     elif [[ "$WRAPPER_TARGET" == *".roxy"* ]] || [[ "$WRAPPER_TARGET" == "UNKNOWN" ]]; then
@@ -76,11 +78,11 @@ for unit in roxy-core.service mcp-server.service; do
         WORK_DIR=$(systemctl cat "$unit" | grep -oP '(?<=WorkingDirectory=)[^\s]+' || echo "NOT SET")
         EXEC_START=$(systemctl cat "$unit" | grep -oP '(?<=ExecStart=)[^\s]+' | head -1 || echo "NOT SET")
 
-        if [[ "$WORK_DIR" == *"/opt/roxy/services"* ]] || [[ "$EXEC_START" == *"/opt/roxy/services"* ]]; then
-            echo -e "  ${RED}FAIL${NC} $unit uses orphan path /opt/roxy/services"
+        if [[ "$WORK_DIR" == *"$LEGACY_ROOT/services"* ]] || [[ "$EXEC_START" == *"$LEGACY_ROOT/services"* ]]; then
+            echo -e "  ${RED}FAIL${NC} $unit uses legacy services path ($LEGACY_ROOT/services)"
             ((ERRORS++))
-        elif [[ "$WORK_DIR" == *".roxy"* ]] || [[ "$EXEC_START" == *".roxy"* ]]; then
-            echo -e "  ${GREEN}PASS${NC} $unit uses canonical path (~/.roxy)"
+        elif [[ "$WORK_DIR" == *"$ROXY_ROOT"* ]] || [[ "$EXEC_START" == *"$ROXY_ROOT"* ]]; then
+            echo -e "  ${GREEN}PASS${NC} $unit uses canonical path ($ROXY_ROOT)"
         else
             echo -e "  ${YELLOW}INFO${NC} $unit: WorkDir=$WORK_DIR"
         fi
@@ -108,10 +110,10 @@ elif [[ "$PID_COUNT" -gt 1 ]]; then
 else
     PID=$ROXY_PIDS
     CMD=$(ps -p "$PID" -o args= 2>/dev/null || echo "unknown")
-    if [[ "$CMD" == *".roxy/roxy_core.py"* ]]; then
+    if [[ "$CMD" == *"$ROXY_ROOT/roxy_core.py"* ]]; then
         echo -e "  ${GREEN}PASS${NC} Single process from canonical path"
         echo -e "       PID $PID: $CMD"
-    elif [[ "$CMD" == *"/opt/roxy"* ]]; then
+    elif [[ "$CMD" == *"$LEGACY_ROOT"* ]]; then
         echo -e "  ${RED}FAIL${NC} Process running from orphan path"
         echo -e "       PID $PID: $CMD"
         ((ERRORS++))
@@ -154,7 +156,7 @@ else
 fi
 
 # Check for orphan venvs
-for orphan in /opt/roxy/venv /opt/roxy/.venv; do
+for orphan in "$LEGACY_ROOT/venv" "$LEGACY_ROOT/.venv"; do
     if [[ -d "$orphan" ]]; then
         echo -e "  ${YELLOW}WARN${NC} Orphan venv exists: $orphan"
         ((WARNINGS++))
@@ -184,9 +186,9 @@ if [[ -f "$CANONICAL_ENTRY" ]]; then
     echo -e "  ${GREEN}INFO${NC} ~/.roxy/roxy_core.py: $CANONICAL_SIZE bytes"
 fi
 
-if [[ -f "/opt/roxy/services/roxy_core.py" ]]; then
-    ORPHAN_SIZE=$(stat --printf="%s" "/opt/roxy/services/roxy_core.py")
-    echo -e "  ${YELLOW}WARN${NC} /opt/roxy/services/roxy_core.py exists: $ORPHAN_SIZE bytes (ORPHAN)"
+if [[ -f "$LEGACY_ROOT/services/roxy_core.py" ]]; then
+    ORPHAN_SIZE=$(stat --printf="%s" "$LEGACY_ROOT/services/roxy_core.py")
+    echo -e "  ${YELLOW}WARN${NC} $LEGACY_ROOT/services/roxy_core.py exists: $ORPHAN_SIZE bytes (ORPHAN)"
     ((WARNINGS++))
 fi
 

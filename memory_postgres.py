@@ -16,12 +16,14 @@ from urllib.parse import urlparse
 
 logger = logging.getLogger("roxy.memory_postgres")
 
-ROXY_DIR = Path.home() / ".roxy"
-DEFAULT_SQLITE_PATH = ROXY_DIR / "data" / "roxy_memory.db"
-OPT_SQLITE_PATH = Path("/opt/roxy/data/roxy_memory.db")
+ROXY_ROOT = Path(os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy")))
+DEFAULT_SQLITE_PATH = ROXY_ROOT / "data" / "roxy_memory.db"
+LEGACY_ROOT = Path(os.environ.get("ROXY_LEGACY_ROOT", "/opt/roxy"))
+OPT_SQLITE_PATH = LEGACY_ROOT / "data" / "roxy_memory.db"
 ENV_FILES = [
-    ROXY_DIR / ".env",
-    Path("/opt/roxy/.env")
+    ROXY_ROOT / ".env",
+    ROXY_ROOT / "etc" / "roxy.env",
+    LEGACY_ROOT / ".env",
 ]
 
 

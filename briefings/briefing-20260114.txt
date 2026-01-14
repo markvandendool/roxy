@@ -1,0 +1,15 @@
+Generated: 2026-01-14T07:00:10.832190
+
+Hey Mark! Good morning! I've got your morning briefing ready.
+
+First off, let me highlight that we're seeing a fantastic 8.5% growth in our monthly recurring revenue, which now stands at $12,500. That's some amazing momentum!
+
+On the student front, we've got a total of 156 active learners, with 8 currently considered at-risk. We'll need to keep an eye on those and make sure they're getting the support they need.
+
+In terms of content, we've got 14 clips ready to go, and another 21 scheduled for release in the coming days. That's a lot of fresh material to engage our students!
+
+On the product side, we've got three open PRs, with our next major release, v0.4.0, on the horizon.
+
+Finally, let me remind you that you've got two meetings today, starting with our team sync at 10:00 AM.
+
+So, what would you like to focus on first?

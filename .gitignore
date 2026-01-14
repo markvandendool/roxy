@@ -24,6 +24,7 @@ whisper_models/
 
 # Environment
 .env
+.env.*
 .env.bak*
 secret.token
 
@@ -33,6 +34,11 @@ evidence/
 benchmarks/
 pids/
 run/
+
+# ROXY_ROOT non-code zones (ADR-004)
+/etc/
+/var/
+/log/
 
 # Backups and generated clutter
 *.bak

@@ -3,13 +3,18 @@
 # Usage: mcp-server-wrapper.sh <server-name>
 
 SERVER_NAME="$1"
-ROXY_ROOT="/opt/roxy"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 SERVER_SCRIPT="$ROXY_ROOT/mcp-servers/$SERVER_NAME/server.py"
 
-# Load centralized .env file
+# Load centralized env files
 if [ -f "$ROXY_ROOT/.env" ]; then
     set -a
     source "$ROXY_ROOT/.env"
+    set +a
+fi
+if [ -f "$ROXY_ROOT/etc/roxy.env" ]; then
+    set -a
+    source "$ROXY_ROOT/etc/roxy.env"
     set +a
 fi
 
@@ -23,4 +28,3 @@ fi
 
 # Run the MCP server
 exec python3 "$SERVER_SCRIPT"
-

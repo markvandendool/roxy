@@ -1,0 +1,92 @@
+{
+  "repo_path": "/home/mark/.roxy",
+  "collection": null,
+  "generated_at": "2026-01-14T16:14:57.563177+00:00",
+  "tool": {
+    "name": "rag_manifest.py",
+    "version": "1.0.0"
+  },
+  "repo": {
+    "commit": "dde949f51bdae74f8f5301c396666c36a22de856",
+    "branch": "main",
+    "dirty": true,
+    "remote": "https://github.com/markvandendool/roxy.git"
+  },
+  "index": {
+    "stats": {
+      "total_chunks": 0,
+      "unique_files": 0,
+      "collection_name": "repo_.roxy",
+      "repo_path": "/home/mark/.roxy"
+    },
+    "skip_dirs": [
+      "archive",
+      ".next",
+      ".vscode",
+      "build",
+      ".pytest_cache",
+      ".ruff_cache",
+      "content-pipeline/scripts",
+      "backups",
+      "obj",
+      ".vs",
+      ".chromadb",
+      "content-pipeline/seeds",
+      "content-pipeline/bundles",
+      "target",
+      "coverage",
+      "obs-portable",
+      "chroma_db",
+      ".idea",
+      "content-pipeline/research",
+      "venv",
+      "__pycache__",
+      "bin",
+      ".cache",
+      ".mypy_cache",
+      ".git",
+      "node_modules",
+      "content-pipeline/competitors",
+      "content-pipeline/assets",
+      "dist",
+      "obs-scripts",
+      "content-pipeline/trends",
+      ".nyc_output"
+    ],
+    "skip_exts": [],
+    "max_file_size": 10485760
+  },
+  "filesystem": {
+    "total_files": 48290,
+    "total_bytes": 482882178,
+    "ext_counts": {
+      ".py": 22270,
+      ".yaml": 12512,
+      ".h": 9835,
+      ".md": 817,
+      ".txt": 749,
+      ".json": 659,
+      ".js": 442,
+      ".svelte": 329,
+      ".sh": 194,
+      ".ts": 148,
+      ".css": 97,
+      ".c": 83,
+      ".cpp": 63,
+      ".svg": 24,
+      ".html": 19,
+      ".yml": 13,
+      ".ini": 9,
+      ".toml": 8,
+      ".cfg": 7,
+      ".bat": 4,
+      ".sql": 2,
+      ".xml": 2,
+      ".go": 1,
+      ".rs": 1,
+      ".fish": 1,
+      ".ps1": 1
+    }
+  },
+  "manifest_sha256": "9219bd5b0b29ad08d70133907ca5b35520c8ace19c240abce6e51578414cae1e"
+}

@@ -20,7 +20,8 @@ except ImportError as e:
 # Configuration
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11435')
 MODEL_NAME = os.getenv('OLLAMA_MODEL', 'llama3:8b')
-SESSIONS_DIR = Path('/opt/roxy/secrets/browser-sessions')
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+SESSIONS_DIR = ROXY_ROOT / 'etc' / 'browser-sessions'
 
 async def run_browser_task(task: str, headless: bool = True):
     """Execute a browser automation task using AI"""

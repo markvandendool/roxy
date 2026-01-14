@@ -1,0 +1,317 @@
+{
+  "brief_id": "BRIEF_20260114_132008_13b4d035",
+  "timestamp": "2026-01-14T20:20:08.513160+00:00",
+  "status": "healthy",
+  "source_review": "REVIEW_20260114_131806_b6ca554f",
+  "briefs": [
+    {
+      "script_id": "SCR_037d7ad1cb5e",
+      "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "format": "standard",
+      "duration_target": 150,
+      "visual_style": {
+        "primary_color": "#6366F1",
+        "secondary_color": "#0F0F23",
+        "font_family": "Inter Medium",
+        "mood": "professional",
+        "lighting": "balanced"
+      },
+      "required_assets": [
+        {
+          "asset_type": "thumbnail",
+          "purpose": "Video thumbnail for platforms",
+          "count": 1
+        },
+        {
+          "asset_type": "intro_card",
+          "purpose": "Opening title card",
+          "count": 1
+        },
+        {
+          "asset_type": "lower_third",
+          "purpose": "Name/topic lower thirds",
+          "count": 3
+        },
+        {
+          "asset_type": "broll",
+          "purpose": "B-roll footage pack",
+          "count": 5
+        },
+        {
+          "asset_type": "title_card",
+          "purpose": "Section title cards",
+          "count": 3
+        },
+        {
+          "asset_type": "end_card",
+          "purpose": "Subscribe CTA end card",
+          "count": 1
+        }
+      ],
+      "scene_map": [
+        {
+          "scene_id": "SCENE_01",
+          "t_start": 0.0,
+          "t_end": 15.0,
+          "section": "hook",
+          "on_screen_text": "HOOK: Hook",
+          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
+          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
+        },
+        {
+          "scene_id": "SCENE_02",
+          "t_start": 15.0,
+          "t_end": 37.0,
+          "section": "context",
+          "on_screen_text": "CONTEXT: Context",
+          "broll_intent": "Historical footage, timeline graphics",
+          "vo_summary": "[CONTEXT] Background on this development..."
+        },
+        {
+          "scene_id": "SCENE_03",
+          "t_start": 37.0,
+          "t_end": 89.0,
+          "section": "details",
+          "on_screen_text": "DETAILS: Details",
+          "broll_intent": "Product shots, UI demos, data visualizations",
+          "vo_summary": "[DETAILS] Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion f"
+        },
+        {
+          "scene_id": "SCENE_04",
+          "t_start": 89.0,
+          "t_end": 126.0,
+          "section": "analysis",
+          "on_screen_text": "ANALYSIS: Analysis",
+          "broll_intent": "Charts, graphs, expert-style talking head frame",
+          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
+        },
+        {
+          "scene_id": "SCENE_05",
+          "t_start": 126.0,
+          "t_end": 141.0,
+          "section": "takeaway",
+          "on_screen_text": "TAKEAWAY: Takeaway",
+          "broll_intent": "Key point graphics, summary card",
+          "vo_summary": "[TAKEAWAY] The key point to remember..."
+        },
+        {
+          "scene_id": "SCENE_06",
+          "t_start": 141.0,
+          "t_end": 148.0,
+          "section": "cta",
+          "on_screen_text": "CTA: Cta",
+          "broll_intent": "Subscribe button animation, social handles",
+          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
+        }
+      ],
+      "compliance": {
+        "disallowed_words": [
+          "guaranteed",
+          "100%",
+          "proven"
+        ],
+        "music_policy": "royalty_free_only",
+        "trademark_risks": []
+      }
+    },
+    {
+      "script_id": "SCR_fc7c7428ee39",
+      "title": "\u201cRobot, make me a chair\u201d",
+      "format": "short",
+      "duration_target": 67,
+      "visual_style": {
+        "primary_color": "#00D4FF",
+        "secondary_color": "#1A1A2E",
+        "font_family": "Inter Bold",
+        "mood": "energetic",
+        "lighting": "high-contrast"
+      },
+      "required_assets": [
+        {
+          "asset_type": "thumbnail",
+          "purpose": "Video thumbnail for platforms",
+          "count": 1
+        },
+        {
+          "asset_type": "intro_card",
+          "purpose": "Opening title card",
+          "count": 1
+        },
+        {
+          "asset_type": "lower_third",
+          "purpose": "Name/topic lower third",
+          "count": 1
+        },
+        {
+          "asset_type": "end_card",
+          "purpose": "Subscribe CTA end card",
+          "count": 1
+        }
+      ],
+      "scene_map": [
+        {
+          "scene_id": "SCENE_01",
+          "t_start": 0.0,
+          "t_end": 10.0,
+          "section": "hook",
+          "on_screen_text": "HOOK: Hook",
+          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
+          "vo_summary": "[HOOK] \u201cRobot, make me a chair\u201d explained simply"
+        },
+        {
+          "scene_id": "SCENE_02",
+          "t_start": 10.0,
+          "t_end": 40.0,
+          "section": "simple_answer",
+          "on_screen_text": "SIMPLE_ANSWER: Simple Answer",
+          "broll_intent": "General tech visuals, abstract backgrounds",
+          "vo_summary": "[SIMPLE_ANSWER] Simple explanation"
+        },
+        {
+          "scene_id": "SCENE_03",
+          "t_start": 40.0,
+          "t_end": 60.0,
+          "section": "example",
+          "on_screen_text": "DEMO: Example",
+          "broll_intent": "General tech visuals, abstract backgrounds",
+          "vo_summary": "[DEMO] Let me show you how this works..."
+        },
+        {
+          "scene_id": "SCENE_04",
+          "t_start": 60.0,
+          "t_end": 66.0,
+          "section": "cta",
+          "on_screen_text": "CTA: Cta",
+          "broll_intent": "Subscribe button animation, social handles",
+          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
+        }
+      ],
+      "compliance": {
+        "disallowed_words": [
+          "guaranteed",
+          "100%",
+          "proven"
+        ],
+        "music_policy": "royalty_free_only",
+        "trademark_risks": []
+      }
+    },
+    {
+      "script_id": "SCR_d5a7a218afbf",
+      "title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
+      "format": "standard",
+      "duration_target": 150,
+      "visual_style": {
+        "primary_color": "#6366F1",
+        "secondary_color": "#0F0F23",
+        "font_family": "Inter Medium",
+        "mood": "professional",
+        "lighting": "balanced"
+      },
+      "required_assets": [
+        {
+          "asset_type": "thumbnail",
+          "purpose": "Video thumbnail for platforms",
+          "count": 1
+        },
+        {
+          "asset_type": "intro_card",
+          "purpose": "Opening title card",
+          "count": 1
+        },
+        {
+          "asset_type": "lower_third",
+          "purpose": "Name/topic lower thirds",
+          "count": 3
+        },
+        {
+          "asset_type": "broll",
+          "purpose": "B-roll footage pack",
+          "count": 5
+        },
+        {
+          "asset_type": "title_card",
+          "purpose": "Section title cards",
+          "count": 3
+        },
+        {
+          "asset_type": "end_card",
+          "purpose": "Subscribe CTA end card",
+          "count": 1
+        }
+      ],
+      "scene_map": [
+        {
+          "scene_id": "SCENE_01",
+          "t_start": 0.0,
+          "t_end": 15.0,
+          "section": "hook",
+          "on_screen_text": "HOOK: Hook",
+          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
+          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
+        },
+        {
+          "scene_id": "SCENE_02",
+          "t_start": 15.0,
+          "t_end": 37.0,
+          "section": "context",
+          "on_screen_text": "CONTEXT: Context",
+          "broll_intent": "Historical footage, timeline graphics",
+          "vo_summary": "[CONTEXT] Background on this development..."
+        },
+        {
+          "scene_id": "SCENE_03",
+          "t_start": 37.0,
+          "t_end": 89.0,
+          "section": "details",
+          "on_screen_text": "DETAILS: Details",
+          "broll_intent": "Product shots, UI demos, data visualizations",
+          "vo_summary": "[DETAILS] AI agents are supposed to make work easier. But&#160;they&#8217;re&#160;also creating a wh"
+        },
+        {
+          "scene_id": "SCENE_04",
+          "t_start": 89.0,
+          "t_end": 126.0,
+          "section": "analysis",
+          "on_screen_text": "ANALYSIS: Analysis",
+          "broll_intent": "Charts, graphs, expert-style talking head frame",
+          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
+        },
+        {
+          "scene_id": "SCENE_05",
+          "t_start": 126.0,
+          "t_end": 141.0,
+          "section": "takeaway",
+          "on_screen_text": "TAKEAWAY: Takeaway",
+          "broll_intent": "Key point graphics, summary card",
+          "vo_summary": "[TAKEAWAY] The key point to remember..."
+        },
+        {
+          "scene_id": "SCENE_06",
+          "t_start": 141.0,
+          "t_end": 148.0,
+          "section": "cta",
+          "on_screen_text": "CTA: Cta",
+          "broll_intent": "Subscribe button animation, social handles",
+          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
+        }
+      ],
+      "compliance": {
+        "disallowed_words": [
+          "guaranteed",
+          "100%",
+          "proven"
+        ],
+        "music_policy": "royalty_free_only",
+        "trademark_risks": []
+      }
+    }
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "service": "asset_brief_builder",
+    "story_id": "SKYBEAM-STORY-013",
+    "brief_count": 3,
+    "degraded": false
+  }
+}

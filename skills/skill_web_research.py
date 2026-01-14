@@ -69,6 +69,13 @@ except ImportError:
     BROWSER_AVAILABLE = False
 
 
+async def _call_browser(func, *args, **kwargs):
+    """Call browser tool functions whether they are sync or async."""
+    if asyncio.iscoroutinefunction(func):
+        return await func(*args, **kwargs)
+    return await asyncio.to_thread(func, *args, **kwargs)
+
+
 @dataclass
 class SearchResult:
     """Search result from web"""
@@ -108,58 +115,71 @@ async def search_web(query: str, num_results: int = 5) -> Dict:
         return {"success": False, "error": "Browser MCP not available"}
     
     try:
-        # Use DuckDuckGo HTML (simpler to parse)
-        search_url = f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}"
-        
-        nav_result = await browser_goto(search_url, timeout=15000)
-        if not nav_result.get("success"):
-            return {"success": False, "error": f"Navigation failed: {nav_result.get('error')}"}
-        
-        # Extract search results
-        extract_result = await browser_extract(
-            selector=".result",
-            include_links=True,
-            max_items=num_results * 2  # Get extras, filter later
-        )
-        
-        if not extract_result.get("success"):
-            return {"success": False, "error": "Extraction failed"}
-        
-        results = []
-        items = extract_result.get("items", [])
-        
-        for item in items[:num_results]:
-            # Parse result structure
-            text = item.get("text", "")
-            links = item.get("links", [])
-            
-            if links:
-                url = links[0].get("href", "")
-                title = links[0].get("text", "")
-            else:
-                url = ""
-                title = text[:100]
-            
-            # Skip DuckDuckGo internal links
-            if "duckduckgo.com" in url:
+        engines = [
+            {
+                "name": "duckduckgo",
+                "url": f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}",
+                "selector": ".result",
+            },
+            {
+                "name": "bing",
+                "url": f"https://www.bing.com/search?q={query.replace(' ', '+')}",
+                "selector": ".b_algo",
+            },
+        ]
+
+        for engine in engines:
+            nav_result = await _call_browser(browser_goto, engine["url"], timeout=15000)
+            if not nav_result.get("success"):
                 continue
-            
-            results.append(SearchResult(
-                title=title[:200],
-                url=url,
-                snippet=text[:500],
-                source="duckduckgo"
-            ))
-        
-        return {
-            "success": True,
-            "query": query,
-            "results": [
-                {"title": r.title, "url": r.url, "snippet": r.snippet}
-                for r in results
-            ],
-            "count": len(results)
-        }
+            status = nav_result.get("status")
+            if status and status >= 400:
+                continue
+
+            extract_result = await _call_browser(
+                browser_extract,
+                selector=engine["selector"],
+                include_links=True,
+                max_items=num_results * 2  # Get extras, filter later
+            )
+            if not extract_result.get("success"):
+                continue
+
+            results = []
+            items = extract_result.get("items", [])
+            for item in items[:num_results]:
+                text = item.get("text", "")
+                links = item.get("links", [])
+
+                if links:
+                    url = links[0].get("href", "")
+                    title = links[0].get("text", "")
+                else:
+                    url = ""
+                    title = text[:100]
+
+                if engine["name"] == "duckduckgo" and "duckduckgo.com" in url:
+                    continue
+
+                results.append(SearchResult(
+                    title=title[:200],
+                    url=url,
+                    snippet=text[:500],
+                    source=engine["name"]
+                ))
+
+            if results:
+                return {
+                    "success": True,
+                    "query": query,
+                    "results": [
+                        {"title": r.title, "url": r.url, "snippet": r.snippet}
+                        for r in results
+                    ],
+                    "count": len(results)
+                }
+
+        return {"success": False, "error": "Extraction failed"}
     
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -182,7 +202,7 @@ async def extract_page_content(url: str, selectors: List[str] = None) -> Dict:
     selectors = selectors or ["article", "main", "[role='main']", ".content", "body"]
     
     try:
-        nav_result = await browser_goto(url, timeout=20000)
+        nav_result = await _call_browser(browser_goto, url, timeout=20000)
         if not nav_result.get("success"):
             return {"success": False, "error": f"Navigation failed: {nav_result.get('error')}"}
         
@@ -190,7 +210,8 @@ async def extract_page_content(url: str, selectors: List[str] = None) -> Dict:
         content = ""
         for selector in selectors:
             try:
-                extract_result = await browser_extract(
+                extract_result = await _call_browser(
+                    browser_extract,
                     selector=selector,
                     include_links=True,
                     max_items=1

@@ -1,0 +1,110 @@
+# ROXY System Startup Runbook
+# Project SKYBEAM — Operational Procedure
+
+name: System Startup
+version: "1.0.0"
+description: Complete ROXY system startup procedure
+author: Project SKYBEAM
+updated: "2026-01-10"
+
+# Pre-flight checks
+preflight:
+  - name: Check disk space
+    command: df -h / | awk 'NR==2 {print $5}' | tr -d '%'
+    threshold: 90
+    fail_message: "Disk usage above 90%"
+
+  - name: Check memory
+    command: free -m | awk 'NR==2 {printf "%.0f", $3/$2*100}'
+    threshold: 95
+    fail_message: "Memory usage above 95%"
+
+# Startup sequence
+steps:
+  # Phase 1: Core Infrastructure
+  - phase: 1
+    name: Docker Infrastructure
+    parallel: false
+    tasks:
+      - name: Start Docker containers
+        command: |
+          cd /home/mark/.roxy/docker && \
+          docker compose up -d
+        timeout: 180
+        verify:
+          command: docker ps --format '{{.Names}}' | grep -c roxy
+          expected: 11
+        on_failure: abort
+
+      - name: Wait for PostgreSQL
+        command: |
+          timeout 60 bash -c 'until docker exec roxy-postgres pg_isready; do sleep 2; done'
+        timeout: 65
+
+      - name: Wait for NATS
+        command: |
+          timeout 30 bash -c 'until curl -s http://localhost:8222/varz > /dev/null; do sleep 2; done'
+        timeout: 35
+
+  # Phase 2: AI Services
+  - phase: 2
+    name: Ollama AI Services
+    parallel: true
+    tasks:
+      - name: Start Ollama GPU 1 (Primary)
+        command: systemctl --user start ollama-6900xt
+        verify:
+          command: curl -s http://localhost:11434/api/tags | jq -r '.models | length'
+          expected_min: 1
+
+      - name: Start Ollama GPU 0 (Background)
+        command: systemctl --user start ollama-w5700x
+        verify:
+          command: curl -s http://localhost:11435/api/tags | jq -r '.models | length'
+          expected_min: 1
+
+  # Phase 3: ROXY Services
+  - phase: 3
+    name: ROXY Core Services
+    parallel: false
+    tasks:
+      - name: Start ROXY Proxy
+        command: systemctl --user start roxy-proxy
+        verify:
+          command: systemctl --user is-active roxy-proxy
+          expected: active
+
+      - name: Start Ghost Publisher
+        command: systemctl --user start ghost-publisher
+        verify:
+          command: systemctl --user is-active ghost-publisher
+          expected: active
+
+  # Phase 4: Verification
+  - phase: 4
+    name: System Verification
+    parallel: true
+    tasks:
+      - name: Verify Grafana
+        command: curl -s -o /dev/null -w "%{http_code}" http://localhost:3030
+        expected: "200"
+
+      - name: Verify n8n
+        command: curl -s -o /dev/null -w "%{http_code}" http://localhost:5678
+        expected: "200"
+
+      - name: Verify ChromaDB
+        command: curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/v1/heartbeat
+        expected: "200"
+
+      - name: Publish initial state
+        command: python3 /home/mark/.roxy/services/ghost_publisher.py
+
+# Post-startup
+post_startup:
+  - name: Log startup
+    command: |
+      echo "$(date -Iseconds) STARTUP COMPLETE" >> /home/mark/.roxy/logs/startup.log
+
+# Quick command
+quick_command: ~/.roxy/start-universe.sh full

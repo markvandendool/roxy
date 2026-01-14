@@ -13,8 +13,9 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-SAMPLES_DIR = "/opt/roxy/voice/wakeword/samples"
-OUTPUT_DIR = "/opt/roxy/voice/wakeword/models"
+ROXY_ROOT = os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy"))
+SAMPLES_DIR = f"{ROXY_ROOT}/voice/wakeword/samples"
+OUTPUT_DIR = f"{ROXY_ROOT}/voice/wakeword/models"
 MODEL_NAME = "hey_roxy"
 
 def prepare_training_data():
@@ -105,14 +106,14 @@ To train the custom 'Hey Roxy' wake word model:
    from openwakeword.train import train_model
    train_model(
        'hey_roxy',
-       '/opt/roxy/voice/wakeword/samples/positive',
-       '/opt/roxy/voice/wakeword/samples/negative',
-       '/opt/roxy/voice/wakeword/models'
+       f'{ROXY_ROOT}/voice/wakeword/samples/positive',
+       f'{ROXY_ROOT}/voice/wakeword/samples/negative',
+       f'{ROXY_ROOT}/voice/wakeword/models'
    )
    "
 
 3. After training, update detector to use custom model:
-   MODEL_DIR = '/opt/roxy/voice/wakeword/models'
+   MODEL_DIR = f'{ROXY_ROOT}/voice/wakeword/models'
    MODELS = [f'{MODEL_DIR}/hey_roxy.onnx']
 
 Alternative: Use existing 'hey_roxy' as interim until GPU training available.

@@ -3,6 +3,7 @@
 ROXY Agent State Manager - Persistent agent state
 """
 import logging
+import os
 from typing import Dict, Any, Optional
 from pathlib import Path
 import json
@@ -13,7 +14,10 @@ logger = logging.getLogger('roxy.agents.state')
 class AgentStateManager:
     """Manage persistent agent state"""
     
-    def __init__(self, state_dir: str = '/opt/roxy/data/agent-states'):
+    def __init__(self, state_dir: str = None):
+        if state_dir is None:
+            roxy_root = Path(os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy")))
+            state_dir = str(roxy_root / "data" / "agent-states")
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
     
@@ -44,7 +48,6 @@ class AgentStateManager:
         if state_file.exists():
             state_file.unlink()
             logger.info(f"Deleted state for agent {agent_id}")
-
 
 
 

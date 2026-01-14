@@ -22,9 +22,12 @@ NC='\033[0m' # No Color
 BOLD='\033[1m'
 
 # Paths
-ROXY_HOME="$HOME/.roxy"
-# NOTE: Mindsong dev is on Mac Studio, not Citadel. Compose files copied to /opt/roxy.
-COMPOSE_DIR="/opt/roxy/compose/citadel"
+ROXY_HOME="${ROXY_ROOT:-$HOME/.roxy}"
+# NOTE: Mindsong dev is on Mac Studio, not Citadel. Compose files may live under ROXY_ROOT.
+COMPOSE_DIR="${ROXY_HOME}/compose/citadel"
+if [ ! -d "$COMPOSE_DIR" ] && [ -d "/opt/roxy/compose/citadel" ]; then
+  COMPOSE_DIR="/opt/roxy/compose/citadel"
+fi
 VENV="$ROXY_HOME/venv/bin/python"
 LOG_DIR="/tmp/roxy-logs"
 

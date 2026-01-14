@@ -1,0 +1,52 @@
+{
+  "bundle_id": "BUNDLE_20260114_141217_e3f2e856",
+  "timestamp": "2026-01-14T21:12:17.350321+00:00",
+  "status": "healthy",
+  "components": {
+    "trends": {
+      "snapshot_id": "TREND_20260114_140009_0839584f",
+      "status": "healthy",
+      "count": 20
+    },
+    "research": {
+      "brief_id": "BRIEF_20260114_140514_2338e865",
+      "status": "healthy",
+      "count": 5
+    },
+    "competitors": {
+      "analysis_id": "COMP_20260114_141029_0a3aac94",
+      "status": "healthy",
+      "count": 5
+    }
+  },
+  "summary": {
+    "trend_count": 20,
+    "brief_count": 5,
+    "analysis_count": 5,
+    "top_trend": {
+      "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "source": "TechCrunch AI",
+      "score": 95
+    },
+    "top_competitors": [
+      {
+        "name": "AI Explained",
+        "likelihood": "high"
+      },
+      {
+        "name": "Matt Wolfe",
+        "likelihood": "high"
+      },
+      {
+        "name": "Two Minute Papers",
+        "likelihood": "high"
+      }
+    ]
+  },
+  "meta": {
+    "version": "1.0.0",
+    "service": "bundle_writer",
+    "story_id": "SKYBEAM-STORY-009",
+    "degraded": false
+  }
+}

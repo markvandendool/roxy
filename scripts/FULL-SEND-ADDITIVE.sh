@@ -19,7 +19,7 @@
 #  This version RESPECTS existing ROXY-1 infrastructure:
 #  - Skips already-installed services (ROCm, Ollama, ChromaDB, etc.)
 #  - Preserves existing data volumes
-#  - Migrates ~/.roxy/ to /opt/roxy/ (additive, not destructive)
+#  - Migrates ROXY_ROOT (default ~/.roxy) to the canonical root (additive, not destructive)
 #  - Adds NEW services alongside existing ones
 #
 #  Run: sudo ./FULL-SEND-ADDITIVE.sh
@@ -108,10 +108,10 @@ echo
 header "PHASE 1: DIRECTORY STRUCTURE"
 #===============================================================================
 
-log "Creating /opt/roxy/ structure (preserving existing)..."
+log "Creating ROXY_ROOT structure (preserving existing)..."
 
 # Source directory setup but don't overwrite
-ROXY_ROOT="/opt/roxy"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 ROXY_USER="${SUDO_USER:-$USER}"
 
 # Create directories only if they don't exist
@@ -171,10 +171,10 @@ header "PHASE 2: MIGRATE ~/.roxy/ (if exists)"
 #===============================================================================
 
 if [ "$MIGRATE_ROXY" = "true" ] && [ -d "$HOME/.roxy" ]; then
-    log "Migrating ~/.roxy/ to /opt/roxy/..."
+    log "Migrating ROXY_ROOT to canonical root..."
 
     # Create backup
-    BACKUP_DIR="/opt/roxy-backup-$(date +%Y%m%d-%H%M%S)"
+    BACKUP_DIR="${ROXY_ROOT}-backup-$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$BACKUP_DIR"
     cp -a "$HOME/.roxy/"* "$BACKUP_DIR/" 2>/dev/null || true
     log "Backup created: $BACKUP_DIR"
@@ -380,7 +380,7 @@ if [ ! -f "$ROXY_ROOT/.env" ]; then
 # ROXY CITADEL - Generated $(date)
 #===============================================================================
 
-ROXY_ROOT=/opt/roxy
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 ROXY_DOMAIN=roxy.local
 ROXY_ENV=production
 
@@ -538,7 +538,7 @@ cat << 'EOF'
 ║  ├─ Existing Ollama + models                                                  ║
 ║  ├─ Existing ChromaDB data                                                    ║
 ║  ├─ Home Assistant, Grafana, Prometheus                                       ║
-║  └─ All ~/.roxy/ content (migrated to /opt/roxy/)                             ║
+║  └─ All ROXY_ROOT content (migrated to canonical root)                        ║
 ║                                                                               ║
 ║  ADDED:                                                                       ║
 ║  ├─ PostgreSQL, Redis, NATS (event bus)                                       ║
@@ -548,7 +548,7 @@ cat << 'EOF'
 ║  ├─ Caddy (reverse proxy)                                                     ║
 ║  └─ gVisor (browser sandbox)                                                  ║
 ║                                                                               ║
-║  CANONICAL LOCATION: /opt/roxy/                                               ║
+║  CANONICAL LOCATION: $ROXY_ROOT                                               ║
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 EOF

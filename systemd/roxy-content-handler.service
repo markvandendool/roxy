@@ -1,0 +1,21 @@
+[Unit]
+Description=SKYBEAM Content Request Handler
+Documentation=https://github.com/mindsong-juke-hub
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/mark/.roxy/services
+Environment="NATS_URL=nats://127.0.0.1:4222"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/home/mark/.roxy/venv/bin/python -m uvicorn content_request_handler:app --host 0.0.0.0 --port 8780
+Restart=always
+RestartSec=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roxy-content-handler
+
+[Install]
+WantedBy=default.target

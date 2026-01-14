@@ -1,0 +1,97 @@
+{
+  "review_id": "REVIEW_20260114_131806_b6ca554f",
+  "timestamp": "2026-01-14T20:18:06.002317+00:00",
+  "status": "healthy",
+  "source_scripts": "SCRIPT_20260114_131613_ed4c2686",
+  "reviewed_scripts": [
+    {
+      "script_id": "SCR_037d7ad1cb5e",
+      "trend_title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 5,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
+      },
+      "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_fc7c7428ee39",
+      "trend_title": "\u201cRobot, make me a chair\u201d",
+      "template_id": "explainer-short",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 9,
+        "content_depth": 7,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
+      },
+      "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "example",
+        "cta"
+      ],
+      "revision_needed": [
+        {
+          "section": "simple_answer",
+          "issue": "Content is placeholder-only",
+          "suggestion": "Expand with specific details from the trend data"
+        }
+      ],
+      "production_ready": false
+    },
+    {
+      "script_id": "SCR_d5a7a218afbf",
+      "trend_title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 7,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 9
+      },
+      "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    }
+  ],
+  "summary": {
+    "total_reviewed": 3,
+    "approved": 3,
+    "needs_revision": 0,
+    "rejected": 0,
+    "average_score": 8.3
+  },
+  "meta": {
+    "version": "1.0.0",
+    "service": "script_reviewer",
+    "story_id": "SKYBEAM-STORY-012",
+    "review_count": 3,
+    "degraded": false
+  }
+}

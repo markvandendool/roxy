@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # Basic auth for initial protection; set N8N_BASIC_AUTH_PASSWORD via env or .env file
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      # Using built-in SQLite for now to avoid provisioning Postgres as per orders
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+    volumes:
+      - ~/.n8n:/home/node/.n8n
+
+# Optional Postgres configuration (commented out to respect STANDING ORDER)
+# Uncomment only when you are ready to deploy a full db-backed n8n instance.
+#
+#  postgres:
+#    image: postgres:15
+#    environment:
+#      - POSTGRES_USER=n8n
+#      - POSTGRES_PASSWORD=n8n
+#      - POSTGRES_DB=n8n
+#    volumes:
+#      - n8n-db:/var/lib/postgresql/data
+#
+#volumes:
+#  n8n-db:
+
+# Notes:
+# - This compose uses SQLite to keep deployment simple and avoid provisioning Postgres (per Master Chief).
+# - To deploy: `docker compose -f docker-compose.n8n.yml up -d`
+# - After deploying, secure N8N_BASIC_AUTH_PASSWORD and change default credentials.

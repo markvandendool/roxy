@@ -22,6 +22,28 @@ from datetime import datetime
 
 import requests
 
+def _mount_type_for(path: Path) -> str:
+    """Return filesystem type for a path using /proc/mounts (Linux)."""
+    try:
+        resolved = path.resolve()
+        best_mount = ""
+        best_type = ""
+        with open("/proc/mounts", "r") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 3:
+                    continue
+                mount_point = parts[1]
+                fstype = parts[2]
+                if str(resolved) == mount_point or str(resolved).startswith(mount_point.rstrip("/") + "/"):
+                    if len(mount_point) > len(best_mount):
+                        best_mount = mount_point
+                        best_type = fstype
+        return best_type
+    except Exception:
+        return ""
+
+
 def _pick_repo_path() -> Path:
     # Prefer explicit override, then local fast clones, then SSHFS mount as last resort.
     override = os.getenv("ROXY_GIT_REPO")
@@ -34,6 +56,9 @@ def _pick_repo_path() -> Path:
     ]
     for c in candidates:
         if (c / ".git").exists():
+            fstype = _mount_type_for(c)
+            if fstype in ("fuse.sshfs", "sshfs"):
+                continue
             return c
     return Path.home() / "mindsong-juke-hub"
 

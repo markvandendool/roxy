@@ -1,0 +1,669 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#                    PROJECT SKYBEAM — MASTER KNOWLEDGE INDEX
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# PURPOSE: Single source of truth for any agent to instantly understand ROXY
+# USAGE: Parse this file FIRST before any exploration
+# UPDATE: Run `python3 ~/.roxy/services/skybeam_refresh.py` to regenerate
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "1.0.0"
+project: SKYBEAM
+codename: "Project SKYBEAM"
+updated: "2026-01-10T21:30:00Z"
+status: production
+classification: AAA_ENTERPRISE
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                              AGENT QUICKSTART
+# ═══════════════════════════════════════════════════════════════════════════════
+
+quickstart:
+  # READ THESE FIRST (in order)
+  entry_points:
+    - path: ~/.roxy/PROJECT_SKYBEAM.md
+      description: "Full infrastructure map - READ FIRST"
+    - path: ~/.roxy/SKYBEAM_CONSOLIDATION_PROPOSAL.md
+      description: "Architecture proposal and gaps"
+    - path: ~/.roxy/docs/docs/START_HERE_AGENTS.md
+      description: "Agent onboarding rules"
+    - path: ~/.roxy/docs/docs/AGENT_RULES.md
+      description: "Operational constraints"
+
+  # Common tasks
+  how_to:
+    start_system: "~/.roxy/start-universe.sh full"
+    stop_system: "~/.roxy/start-universe.sh stop"
+    check_status: "~/.roxy/start-universe.sh status"
+    view_logs: "journalctl --user -u 'roxy-*' -f"
+    publish_state: "python3 ~/.roxy/services/ghost_publisher.py"
+
+  # Credentials
+  secrets:
+    location: ~/.roxy/vault/
+    encryption: age
+    master_key: ~/.roxy/vault/.age-key
+    warning: "NEVER echo, cat, or commit secrets"
+    token: ~/.roxy/secret.token
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                           INFRASTRUCTURE SUMMARY
+# ═══════════════════════════════════════════════════════════════════════════════
+
+infrastructure:
+  hostname: citadel
+  ip: 10.0.0.69
+  ssh_alias: citadel
+
+  hardware:
+    cpu: "Intel Xeon W-3275 (28 cores / 56 threads)"
+    ram: "160 GB DDR4 ECC"
+    os: "Ubuntu 24.04.1 LTS"
+    kernel: "6.18.2-1-t2-noble"
+    gpus:
+      - id: 0
+        name: "AMD Radeon Pro W5700X"
+        device: renderD128
+        ollama_port: 11435
+        purpose: background
+      - id: 1
+        name: "AMD Radeon RX 6900 XT"
+        device: renderD129
+        ollama_port: 11434
+        purpose: primary
+
+  docker:
+    containers: 11
+    compose_file: ~/.roxy/docker/docker-compose.yml
+    list:
+      - name: roxy-n8n
+        port: 5678
+        purpose: workflow_automation
+      - name: roxy-postgres
+        port: 5432
+        purpose: relational_db
+      - name: roxy-redis
+        port: 6379
+        purpose: cache
+      - name: roxy-nats
+        ports: [4222, 8222]
+        purpose: message_bus
+      - name: roxy-chromadb
+        port: 8000
+        purpose: vector_db
+      - name: roxy-minio
+        ports: [9000, 9001]
+        purpose: object_storage
+      - name: roxy-neo4j
+        ports: [7474, 7687]
+        purpose: graph_db
+      - name: roxy-prometheus
+        port: 9099
+        purpose: metrics
+      - name: roxy-grafana
+        port: 3030
+        purpose: dashboards
+      - name: roxy-alertmanager
+        port: 9093
+        purpose: alerts
+      - name: roxy-cadvisor
+        port: 8088
+        purpose: container_metrics
+
+  systemd:
+    user_services:
+      - roxy-proxy.service
+      - roxy-panel-daemon.service
+      - ghost-publisher.service
+      - ollama-6900xt
+      - ollama-w5700x
+
+  ollama:
+    primary_port: 11434
+    background_port: 11435
+    model_count: 18
+    key_models:
+      - qwen2.5:32b
+      - qwen2.5-coder:14b
+      - llama3.2-vision:11b
+      - llava:7b
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                              DOMAIN MAP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+domains:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # MCP SERVERS — AI Tool Ecosystem
+  # ─────────────────────────────────────────────────────────────────────────────
+  mcp:
+    path: ~/.roxy/mcp-servers/
+    readme: ~/.roxy/mcp-servers/README.md
+    server_count: 10
+    total_tools: 39
+    servers:
+      ai-orchestrator:
+        tools: 4
+        purpose: "AI routing and model selection"
+      browser:
+        tools: 4
+        purpose: "Web automation (navigate, click, screenshot)"
+      business:
+        tools: 5
+        purpose: "Business operations"
+      content:
+        tools: 6
+        purpose: "Video pipeline (transcribe, clip, publish)"
+      desktop:
+        tools: 9
+        purpose: "Desktop control (apps, windows, type)"
+      email:
+        tools: 3
+        purpose: "Email automation"
+      obs:
+        tools: 9
+        purpose: "OBS WebSocket control"
+      social:
+        tools: 4
+        purpose: "Social media posting"
+      voice:
+        tools: 4
+        purpose: "Voice commands (speak, listen)"
+      ndi-bridge:
+        tools: 3
+        purpose: "NDI widget streaming"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SERVICES — Core Python Backend
+  # ─────────────────────────────────────────────────────────────────────────────
+  services:
+    path: ~/.roxy/services/
+    key_files:
+      - ghost_publisher.py   # NATS state publisher
+      - roxy_core.py         # Main orchestrator
+    supporting:
+      - skybeam_schema.json  # NATS topic schemas
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # VOICE — Speech Pipeline
+  # ─────────────────────────────────────────────────────────────────────────────
+  voice:
+    path: ~/.roxy/voice/
+    components:
+      wakeword:
+        path: ~/.roxy/wake/
+        trigger: "Hey Roxy"
+      stt:
+        port: 10300
+        engine: whisper
+      tts:
+        primary:
+          name: chatterbox
+          port: 8004
+        fallback:
+          name: piper
+          port: 10200
+    intents:
+      path: ~/.roxy/ops/
+      files:
+        - voice_intents.yaml  # 65 intents for all MCP tools
+      total_intents: 65
+      servers_covered: 10
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # CONTENT PIPELINE — Video Processing
+  # ─────────────────────────────────────────────────────────────────────────────
+  content_pipeline:
+    path: ~/.roxy/content-pipeline/
+    workflow:
+      input: ~/.roxy/content-pipeline/input/
+      work: ~/.roxy/content-pipeline/work/
+      output: ~/.roxy/content-pipeline/output/
+    scripts:
+      - transcriber.py      # Whisper transcription
+      - viral_detector.py   # LLM viral moment detection
+      - clip_extractor.py   # FFmpeg clip extraction
+      - pipeline.sh         # Orchestrator
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # WORKSHOPS — Active Projects
+  # ─────────────────────────────────────────────────────────────────────────────
+  workshops:
+    path: ~/.roxy/workshops/
+    projects:
+      monetization:
+        path: ~/.roxy/workshops/monetization/
+        readme: ~/.roxy/workshops/monetization/README.md
+        key_docs:
+          - automation/ENTERPRISE_ARCHITECTURE.md
+          - automation/PLATFORM_STRATEGY.md
+          - automation/ACCOUNT_CREATION_CHECKLIST.md
+        products:
+          - automation/releases/roxy-obs-scripts-v1.0.0.zip
+        credentials:
+          - .credentials.json  # WARNING: Move to vault
+          - automation/.credentials.json  # WARNING: Move to vault
+
+      physical_infrastructure:
+        path: ~/.roxy/workshops/physical-infrastructure/
+        key_docs:
+          - brain/hardware/SKOREQ_OBS_DREAM_COLLECTION_PLAN.md
+          - brain/hardware/OBS_ULTIMATE_SCENE_CREATION_BIBLE.md
+          - brain/hardware/DREAM_SCENE_COLLECTION_RECOMMENDATION.md
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # OBS — Streaming Studio
+  # ─────────────────────────────────────────────────────────────────────────────
+  obs:
+    websocket_port: 4455
+    portable_config: ~/.roxy/obs-portable/
+    scripts: ~/.roxy/obs-scripts/
+    mcp_server: ~/.roxy/mcp-servers/obs/
+    key_files:
+      - config/scene-manifest.json
+      - macros/advanced-scene-switcher.json
+      - filters/key-transposition.json
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # APPS — User Interfaces
+  # ─────────────────────────────────────────────────────────────────────────────
+  apps:
+    command_center:
+      path: ~/.roxy/apps/roxy-command-center/
+      launch: ~/.roxy/apps/roxy-command-center/launch_cc.sh
+      tech: GTK4
+      status: functional
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # HOME AUTOMATION
+  # ─────────────────────────────────────────────────────────────────────────────
+  home_automation:
+    path: ~/.roxy/ha-integration/
+    tuya_api_port: 5050
+    key_files:
+      - tuya-api.py
+      - ha-control.py
+      - tuya-control.py
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # OPERATIONS — Runbooks & Procedures
+  # ─────────────────────────────────────────────────────────────────────────────
+  operations:
+    path: ~/.roxy/ops/
+    runbooks:
+      path: ~/.roxy/ops/runbooks/
+      files:
+        - startup.yaml      # 4-phase system startup
+        - shutdown.yaml     # Graceful shutdown procedure
+        - incident.yaml     # 5 incident response procedures
+        - maintenance.yaml  # Daily/weekly/monthly maintenance
+    voice:
+      path: ~/.roxy/ops/voice_intents.yaml
+      intents: 65
+    plans:
+      path: ~/.roxy/brain/plans/
+      files:
+        - CRM_INTEGRATION_PLAN.md
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # DOCUMENTATION
+  # ─────────────────────────────────────────────────────────────────────────────
+  documentation:
+    primary_brain: ~/.roxy/docs/docs/
+    sections:
+      architecture: ~/.roxy/docs/docs/architecture/
+      testing: ~/.roxy/docs/docs/testing/
+      onboarding: ~/.roxy/docs/docs/onboarding/
+      skills: ~/.roxy/docs/docs/brain/85-ai-skills/
+    scattered_docs: # NEEDS CONSOLIDATION
+      root_level: 30+
+      evidence: ~/.roxy/evidence/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                              NATS TOPICS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+nats:
+  url: nats://127.0.0.1:4222
+  monitoring: http://127.0.0.1:8222
+
+  topics:
+    skybeam:
+      - ghost.skybeam.machines    # Docker + systemd status
+      - ghost.skybeam.agents      # Ollama models + GPUs
+      - ghost.skybeam.links       # Port health checks
+      - ghost.skybeam.full        # Complete snapshot
+
+    # Content Pipeline Topics (SKYBEAM-STORY-005)
+    content:
+      - ghost.content.request     # New content request received
+      - ghost.content.research    # Research stage updates
+      - ghost.content.script      # Script generation updates
+      - ghost.content.assets      # Asset generation updates
+      - ghost.content.production  # Video production updates
+      - ghost.content.publish     # Publishing updates
+      - ghost.content.status      # Content pipeline status snapshot
+
+    # OBS Topics (from obs_client.py)
+    obs:
+      - ghost.obs.status          # Full OBS status
+      - ghost.obs.recording.start # Recording started
+      - ghost.obs.recording.stop  # Recording stopped
+      - ghost.obs.scene.changed   # Scene switch events
+      - ghost.obs.error           # Error events
+
+    # Legacy/Planned
+    planned:
+      - content.analytics.*       # Engagement metrics
+
+  schema: ~/.roxy/services/skybeam_schema.json
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                           CRITICAL GAPS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+gaps:
+  critical:
+    - id: GAP-001
+      area: CRM
+      description: "CRM integration plan created"
+      impact: "MindSong CRM + Supabase ready to use"
+      status: RESOLVED
+      solution: "~/.roxy/brain/plans/CRM_INTEGRATION_PLAN.md"
+
+    - id: GAP-002
+      area: Runbooks
+      description: "4 runbooks now exist"
+      impact: "Full operational procedures documented"
+      status: RESOLVED
+      solution: "~/.roxy/ops/runbooks/{startup,shutdown,incident,maintenance}.yaml"
+
+    - id: GAP-003
+      area: Credentials
+      description: "Exposed .credentials.json files"
+      impact: "Security risk"
+      status: MITIGATED
+      recommendation: "Encrypt and move to vault (copied, not moved for testing)"
+
+  high:
+    - id: GAP-004
+      area: Documentation
+      description: "962 MD files scattered, no index"
+      impact: "Agents cannot navigate"
+      status: IN_PROGRESS
+      recommendation: "Consolidate into brain/ structure"
+
+    - id: GAP-005
+      area: Voice Intents
+      description: "65 intents now defined for all MCP tools"
+      impact: "Full voice control enabled"
+      status: RESOLVED
+      solution: "~/.roxy/ops/voice_intents.yaml"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                           RAG METADATA
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                    MINDSONG JUKE HUB RESOURCES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+mindsong:
+  path: /home/mark/mindsong-juke-hub/
+  description: "Music education platform with reusable enterprise components"
+
+  # CRM SYSTEM (77 components!)
+  crm:
+    path: src/components/crm/
+    components: 77
+    key_features:
+      - ContactsManager.tsx
+      - DealsManager.tsx
+      - WorkflowBuilder.tsx
+      - CRMAnalytics.tsx
+      - QuickStartGuide.tsx
+    subdirectories:
+      - activities
+      - ai
+      - analytics
+      - bulk
+      - campaigns
+      - collaboration
+      - email
+      - email-builder
+      - form-builder
+      - forms
+      - import
+      - inbox
+      - integrations
+      - landing-page-builder
+      - pipeline
+      - quotes
+      - reports
+      - scoring
+      - segments
+      - sms
+      - social
+      - tasks
+      - webhooks
+      - workflow-builder
+    pages:
+      - src/pages/CRMDashboard.tsx
+      - src/pages/CRMCrawlerPage.tsx
+    types:
+      - src/types/crm/campaigns.ts
+      - src/types/crm/workflows.ts
+    validations:
+      - src/lib/validations/crm.ts
+
+  # GHOST PROTOCOL
+  ghost_protocol:
+    page: src/pages/GhostProtocol.tsx
+    widget: src/components/theater8k/widgets/ghost-protocol/
+    files:
+      - GhostProtocolWidget.tsx
+      - GhostProtocolBridge.ts
+      - useGhostProtocolKhronos.ts
+      - nats/GhostProtocolSchema.ts
+      - nats/GhostProtocolNatsClient.ts
+    store: src/store/ghostProtocol.ts
+    architecture_map: src/components/ArchitectureMap/
+    webgpu_shaders:
+      - src/quantum-rails/webgpu/shaders/ghost-node.wgsl
+      - src/quantum-rails/webgpu/shaders/ghost-connection.wgsl
+
+  # ROXY INTEGRATION
+  roxy_integration:
+    page: src/pages/RoxyPage.tsx
+    panel: src/components/command-center/RoxyExecutionPanel.tsx
+
+  # OBS/NDI SERVICES
+  streaming:
+    obs:
+      path: src/services/obs/
+      files:
+        - OBSWebSocketClient.ts
+        - OBSSceneParser.ts
+        - SceneAwareStreamingService.ts
+        - WidgetLifecycleManager.ts
+        - WidgetNDIStreamManager.ts
+    ndi:
+      path: src/services/ndi/
+      files:
+        - NDISenderService.ts
+
+  # ROCKY AI SERVICES
+  rocky:
+    path: src/services/rocky/
+    files:
+      - LLMRouter.ts
+      - GovernanceDashboardService.ts
+      - RockyKnowledgeGraphService.ts
+      - DiagnosticGovernanceBridge.ts
+      - RuntimeEnforcementService.ts
+      - CognitiveContractReporter.ts
+      - ProviderHeatmapService.ts
+      - WebGPUComputeEngine.ts
+    providers:
+      - providers/
+
+  # CLAUDE SKILLS SYSTEM
+  claude_skills:
+    path: .claude/skills/
+    index: .claude/skills/INDEX.md
+    key_skills:
+      - agent-breakroom/
+      - apollo-audio/
+      - braid-visualization/
+      - ghost-protocol/
+      - 8k-theater/
+    embeddings: .claude/skills/.embeddings-v2.json
+    skill_graph: .claude/skills/.skill-graph.json
+
+  # KEY PAGES (Reusable)
+  pages:
+    business:
+      - Sales.tsx
+      - Pricing.tsx
+      - Dashboard.tsx
+      - Calendar.tsx
+    streaming:
+      - Theater8K.tsx
+      - CommandCenter.tsx
+      - GhostProtocol.tsx
+    education:
+      - LessonPlayer.tsx
+      - TeacherHub.tsx
+      - PracticeStudio.tsx
+      - EarTraining.tsx
+      - Curriculum.tsx
+    widgets:
+      - ChordCubes.tsx
+      - Braid.tsx
+      - Fretboard.tsx
+    dev:
+      - ApolloTest.tsx
+      - VCO.tsx
+      - RockyTestGym.tsx
+
+  # KEY SERVICES
+  services:
+    audio:
+      - ApolloMetronomeService.ts
+      - AudioLayerService.ts
+      - ChordAudioService.ts
+    ai:
+      - BrainService.ts
+      - rockyService.ts
+      - DocumentationBrain.ts
+    education:
+      - AdaptiveLearningService.ts
+      - EducationalStrategyEngine.ts
+    social:
+      - ContentSalesService.ts
+      - social/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                              RAG METADATA
+# ═══════════════════════════════════════════════════════════════════════════════
+
+rag:
+  tags:
+    - infrastructure
+    - broadcasting
+    - obs-streaming
+    - monetization
+    - voice-control
+    - content-pipeline
+    - dual-gpu
+    - mcp-tools
+    - ollama
+    - nats
+    - postgresql
+    - redis
+    - chromadb
+    - neo4j
+    - minio
+    - n8n
+    - grafana
+    - prometheus
+    - crm
+    - ghost-protocol
+    - mindsong
+    - rocky-ai
+    - claude-skills
+
+  embeddings:
+    collection: skybeam_docs
+    model: nomic-embed-text
+    db: roxy-chromadb:8000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                        20-METRIC SCORECARD
+# ═══════════════════════════════════════════════════════════════════════════════
+
+metrics:
+  current_score: 65
+  target_score: 90
+
+  items:
+    - name: documentation_coverage
+      current: 50
+      target: 90
+      unit: percent
+    - name: test_coverage
+      current: 10
+      target: 80
+      unit: percent
+    - name: runbook_coverage
+      current: 100
+      target: 100
+      unit: percent
+      note: "4 runbooks: startup, shutdown, incident, maintenance"
+    - name: secret_security
+      current: 70
+      target: 100
+      unit: percent
+      note: "Vault created, credentials copied (not rotated for testing)"
+    - name: config_centralization
+      current: 40
+      target: 100
+      unit: percent
+    - name: agent_onboarding_time
+      current: 10
+      target: 5
+      unit: minutes
+      note: "SKYBEAM_INDEX.yaml + brain/ structure"
+    - name: voice_intent_coverage
+      current: 100
+      target: 80
+      unit: percent
+      note: "65 intents for 61+ MCP tools"
+    - name: monitoring_coverage
+      current: 70
+      target: 100
+      unit: percent
+    - name: backup_coverage
+      current: 50
+      target: 100
+      unit: percent
+      note: "Backup procedures defined in maintenance.yaml"
+    - name: revenue_per_month
+      current: 0
+      target: 1000
+      unit: usd
+    - name: crm_integration
+      current: 90
+      target: 100
+      unit: percent
+      note: "CRM plan created, MindSong + Supabase ready"
+    - name: ghost_protocol
+      current: 100
+      target: 100
+      unit: percent
+      note: "NATS connection verified, publisher working"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                              END OF INDEX
+# ═══════════════════════════════════════════════════════════════════════════════
