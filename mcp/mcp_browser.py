@@ -44,8 +44,12 @@ from threading import Lock
 try:
     from playwright.sync_api import sync_playwright, Browser, Page, BrowserContext
     PLAYWRIGHT_AVAILABLE = True
-except ImportError:
+    _PLAYWRIGHT_IMPORT_ERROR = None
+except Exception as e:
     PLAYWRIGHT_AVAILABLE = False
+    _PLAYWRIGHT_IMPORT_ERROR = str(e)
+    sync_playwright = None  # type: ignore[assignment]
+    Browser = Page = BrowserContext = object  # type: ignore[misc,assignment]
 
 # Paths
 ROXY_DIR = Path.home() / ".roxy"
@@ -104,7 +108,8 @@ def _ensure_browser():
     global _browser, _context, _page, _playwright
     
     if not PLAYWRIGHT_AVAILABLE:
-        raise RuntimeError("Playwright not installed. Run: pip install playwright && playwright install chromium")
+        detail = f" Import error: {_PLAYWRIGHT_IMPORT_ERROR}" if _PLAYWRIGHT_IMPORT_ERROR else ""
+        raise RuntimeError(f"Playwright not available. Run: pip install playwright && playwright install chromium.{detail}")
     
     if _browser is None:
         _playwright = sync_playwright().start()

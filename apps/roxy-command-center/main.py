@@ -32,6 +32,7 @@ from widgets.ollama_panel import OllamaPanel
 from widgets.alert_panel import AlertPanel
 from widgets.terminal_pane import TerminalPage
 from services.alert_manager import get_alert_manager
+from services.ollama_control import get_ollama_control, OllamaAction, ActionResult
 
 APP_ID = "org.roxy.CommandCenter"
 CSS_PATH = Path(__file__).parent / "styles" / "custom.css"
@@ -253,9 +254,13 @@ class MainWindow(Adw.ApplicationWindow):
     
     def _build_ui(self):
         """Build the main UI."""
+        # Toast overlay (for notifications)
+        self._toast_overlay = Adw.ToastOverlay()
+        self.set_content(self._toast_overlay)
+
         # Main vertical box
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        self.set_content(main_box)
+        self._toast_overlay.set_child(main_box)
         
         # Header bar
         self.header = HeaderBar(
@@ -297,7 +302,10 @@ class MainWindow(Adw.ApplicationWindow):
         self.navigation.add_page("gpus", "GPUs", self.gpus_page, "video-display-symbolic")
         
         # Ollama page
-        self.ollama_page = OllamaPanel()
+        self.ollama_page = OllamaPanel(
+            on_model_unload=self._on_ollama_unload,
+            on_refresh=self._fetch_data
+        )
         self.navigation.add_page("ollama", "Ollama", self.ollama_page, "face-smile-big-symbolic")
         
         # Alerts page
@@ -325,11 +333,39 @@ class MainWindow(Adw.ApplicationWindow):
     def _on_setting_changed(self, key: str, value):
         """Handle setting change."""
         print(f"[MainWindow] Setting changed: {key} = {value}")
-        
+
         if key == "poll_interval_ms":
             self._restart_polling(int(value))
         elif key == "_reset":
             self._restart_polling()
+
+    def _on_ollama_unload(self, pool: str, model: str):
+        """Handle Ollama model unload request."""
+        print(f"[MainWindow] Unloading model {model} from {pool}")
+
+        def on_result(result: OllamaAction):
+            # Show toast notification
+            if result.result == ActionResult.SUCCESS:
+                self._show_toast(f"Unloaded {model} from {pool}", timeout=3)
+                # Refresh data to update UI
+                self._fetch_data()
+            else:
+                self._show_toast(f"Failed to unload {model}: {result.message}", timeout=5)
+
+        ollama = get_ollama_control()
+        ollama.unload_model(pool, model, on_result)
+
+    def _show_toast(self, message: str, timeout: int = 3):
+        """Show a toast notification."""
+        toast = Adw.Toast(title=message)
+        toast.set_timeout(timeout)
+        # Find toast overlay in the window
+        # The MainWindow uses AdwApplicationWindow which has a built-in toast overlay
+        # We need to add one if not present
+        if hasattr(self, '_toast_overlay'):
+            self._toast_overlay.add_toast(toast)
+        else:
+            print(f"[MainWindow] Toast: {message}")
     
     def _start_polling(self, interval_ms: int = 5000):
         """Start daemon polling."""

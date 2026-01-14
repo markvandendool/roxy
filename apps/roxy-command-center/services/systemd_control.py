@@ -47,13 +47,20 @@ class SystemdControl:
     """
     
     # Known Roxy services
+    # Maps display names to actual systemd unit names
     KNOWN_SERVICES = {
+        # ROXY Core (user service)
         "roxy-core": "roxy-core.service",
         "roxy_core": "roxy-core.service",
-        "ollama-big": "ollama-big.service",
-        "ollama_big": "ollama-big.service",
-        "ollama-fast": "ollama-fast.service",
-        "ollama_fast": "ollama-fast.service",
+        # Ollama services (system services)
+        # W5700X pool (port 11434) - currently disabled
+        "ollama-big": "ollama.service",
+        "ollama_big": "ollama.service",
+        "ollama": "ollama.service",
+        # 6900XT pool (port 11435) - primary
+        "ollama-fast": "ollama-6900xt.service",
+        "ollama_fast": "ollama-6900xt.service",
+        "ollama-6900xt": "ollama-6900xt.service",
     }
     
     def __init__(self):

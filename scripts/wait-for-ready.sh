@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# wait-for-ready.sh - Wait for roxy-core /ready endpoint to return 200
+# wait-for-ready.sh - Wait for a ROXY liveness endpoint to return 200
 # Usage: ./wait-for-ready.sh [timeout_seconds] [url]
 # Exit 0 on success, 1 on timeout/failure
 
 set -euo pipefail
 
 TIMEOUT="${1:-30}"
-URL="${2:-http://127.0.0.1:8766/ready}"
+URL="${2:-http://127.0.0.1:8766/health}"
 
 echo "Waiting for $URL to become ready (timeout: ${TIMEOUT}s)..."
 
@@ -16,7 +16,7 @@ while true; do
     ELAPSED=$((NOW - START))
 
     if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
-        echo "TIMEOUT: /ready did not return 200 within ${TIMEOUT}s"
+        echo "TIMEOUT: ${URL} did not return 200 within ${TIMEOUT}s"
         # Show last response for debugging
         curl -sS "$URL" 2>&1 || true
         exit 1

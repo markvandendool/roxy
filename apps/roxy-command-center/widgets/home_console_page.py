@@ -526,6 +526,7 @@ class ChatMessage_Widget(Gtk.Box):
             label.add_css_class("caption")
             label.set_wrap(True)
             label.set_xalign(0.5)
+            label.set_selectable(True)  # Enable text selection
             self.append(label)
         else:
             is_user = message.role == "user"
@@ -545,11 +546,12 @@ class ChatMessage_Widget(Gtk.Box):
             role_label.set_xalign(0)
             bubble.append(role_label)
             
-            # Content
+            # Content - SELECTABLE for copy/paste
             content_label = Gtk.Label(label=message.content)
             content_label.set_wrap(True)
             content_label.set_xalign(0)
             content_label.set_max_width_chars(60)
+            content_label.set_selectable(True)  # Enable text selection
             bubble.append(content_label)
 
 

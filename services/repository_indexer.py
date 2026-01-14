@@ -9,7 +9,11 @@ import hashlib
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import chromadb
+from chromadb.config import Settings
 from datetime import datetime
+
+ROXY_DIR = Path.home() / ".roxy"
+DEFAULT_CHROMA_PATH = ROXY_DIR / "chroma_db"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('roxy.repo_indexer')
@@ -22,8 +26,7 @@ class RepositoryIndexer:
         self.collection_name = collection_name or f"repo_{self.repo_path.name}"
         self.client = None
         self.collection = None
-        self._init_chromadb()
-        
+
         # File extensions to index
         self.code_extensions = {
             '.py', '.js', '.ts', '.tsx', '.jsx', '.java', '.cpp', '.c', '.h',
@@ -38,8 +41,49 @@ class RepositoryIndexer:
         self.skip_dirs = {
             '.git', 'node_modules', 'venv', '__pycache__', '.next', 'dist',
             'build', '.cache', 'coverage', '.nyc_output', 'target',
-            '.idea', '.vscode', '.vs', 'bin', 'obj', '.pytest_cache'
+            '.idea', '.vscode', '.vs', 'bin', 'obj', '.pytest_cache',
+            'chroma_db', '.chromadb', '.mypy_cache', '.ruff_cache',
+            'obs-portable', 'obs-scripts', 'content-pipeline/assets',
+            'content-pipeline/bundles', 'content-pipeline/trends',
+            'content-pipeline/competitors', 'content-pipeline/research',
+            'content-pipeline/seeds', 'content-pipeline/scripts',
+            'archive', 'backups'
         }
+
+        # File name patterns to skip (secrets/binaries)
+        self.skip_file_markers = {
+            '.env', 'secret', 'token', '.pem', '.key', '.p12', '.pfx',
+            'credentials', 'vault', '.db', '.sqlite', '.sqlite3'
+        }
+
+        self.max_file_size = int(os.getenv("ROXY_RAG_MAX_FILE_SIZE", str(10 * 1024 * 1024)))
+        self.include_secrets = os.getenv("ROXY_RAG_INCLUDE_SECRETS", "0").lower() in ("1", "true", "yes")
+        self._apply_env_overrides()
+        self._init_chromadb()
+
+    def _apply_env_overrides(self):
+        """Apply environment overrides for extensions/skip rules."""
+        ext_env = os.getenv("ROXY_RAG_EXTENSIONS")
+        if ext_env:
+            exts = {e.strip().lower() for e in ext_env.replace(";", ",").split(",") if e.strip()}
+            normalized = {e if e.startswith(".") else f".{e}" for e in exts}
+            if normalized:
+                self.code_extensions = normalized
+
+        skip_env = os.getenv("ROXY_RAG_SKIP_DIRS")
+        if skip_env:
+            extra = {d.strip() for d in skip_env.replace(";", ",").split(",") if d.strip()}
+            self.skip_dirs.update(extra)
+
+        include_env = os.getenv("ROXY_RAG_INCLUDE_DIRS")
+        if include_env:
+            include = {d.strip() for d in include_env.replace(";", ",").split(",") if d.strip()}
+            self.skip_dirs.difference_update(include)
+
+        skip_files_env = os.getenv("ROXY_RAG_SKIP_FILES")
+        if skip_files_env:
+            extra = {s.strip() for s in skip_files_env.replace(";", ",").split(",") if s.strip()}
+            self.skip_file_markers.update(extra)
     
     def _init_chromadb(self):
         """Initialize ChromaDB connection"""
@@ -49,8 +93,15 @@ class RepositoryIndexer:
             # Use consistent embedding function (384 dimensions)
             # This matches the default ChromaDB embedding function
             embedding_function = embedding_functions.DefaultEmbeddingFunction()
-            
-            self.client = chromadb.HttpClient(host='localhost', port=8000)
+            mode = os.getenv("ROXY_CHROMA_MODE", "persistent").strip().lower()
+            if mode == "http":
+                host = os.getenv("ROXY_CHROMA_HOST", "localhost")
+                port = int(os.getenv("ROXY_CHROMA_PORT", "8000"))
+                self.client = chromadb.HttpClient(host=host, port=port)
+            else:
+                chroma_path = Path(os.getenv("ROXY_CHROMA_PATH", str(DEFAULT_CHROMA_PATH))).expanduser()
+                chroma_path.mkdir(parents=True, exist_ok=True)
+                self.client = chromadb.PersistentClient(path=str(chroma_path), settings=Settings(anonymized_telemetry=False))
             
             # Try to get existing collection first
             try:
@@ -100,12 +151,30 @@ class RepositoryIndexer:
         for part in file_path.parts:
             if part in self.skip_dirs:
                 return False
+            if not self.include_secrets:
+                part_lower = part.lower()
+                if any(marker in part_lower for marker in self.skip_file_markers):
+                    return False
+
+        if not self.include_secrets:
+            name_lower = file_path.name.lower()
+            if any(marker in name_lower for marker in self.skip_file_markers):
+                return False
         
         # Check file size (skip very large files)
         try:
-            if file_path.stat().st_size > 10 * 1024 * 1024:  # 10MB
+            if file_path.stat().st_size > self.max_file_size:
                 return False
         except:
+            return False
+
+        # Skip binary files by scanning first chunk
+        try:
+            with open(file_path, "rb") as f:
+                chunk = f.read(1024)
+                if b"\x00" in chunk:
+                    return False
+        except Exception:
             return False
         
         return True
@@ -343,9 +412,4 @@ def get_repo_indexer(repo_path: str, collection_name: str = None) -> RepositoryI
         _repo_indexers[key] = RepositoryIndexer(repo_path, collection_name)
     
     return _repo_indexers[key]
-
-
-
-
-
 

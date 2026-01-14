@@ -25,6 +25,24 @@ from threading import Thread
 from typing import Optional, Tuple
 from collections import defaultdict, deque
 
+# =============================================================================
+# ZOMBIE RESURRECTION GUARDRAIL - Added 2026-01-05
+# Prevents the lobotomized stub version from ever running
+# =============================================================================
+_this_file = Path(__file__).resolve()
+_this_cwd = Path.cwd().resolve()
+_canonical_core = Path.home() / ".roxy" / "roxy_core.py"
+_canonical_exec = f"{Path.home()}/.roxy/venv/bin/python {_canonical_core}"
+
+if '/services/' in str(_this_file) or _this_file.name != 'roxy_core.py':
+    print(f"FATAL: Refusing to run stub copy. Detected={_this_file} | Required={_canonical_core}", file=sys.stderr)
+    sys.exit(99)
+
+if str(_this_cwd) == '/opt/roxy':
+    print(f"FATAL: CWD is frozen archive /opt/roxy. Required ExecStart={_canonical_exec}", file=sys.stderr)
+    sys.exit(99)
+# =============================================================================
+
 # Logging setup
 LOG_DIR = Path.home() / ".roxy" / "logs"
 LOG_DIR.mkdir(exist_ok=True)
@@ -45,6 +63,38 @@ ROXY_DIR = Path.home() / ".roxy"
 CONFIG_FILE = ROXY_DIR / "config.json"
 TOKEN_FILE = ROXY_DIR / "secret.token"
 
+
+def _normalize_base_url(url: str | None) -> str | None:
+    """Normalize localhost variants and strip trailing slash."""
+    if not url:
+        return url
+    normalized = url.replace("localhost", "127.0.0.1").replace("[::1]", "127.0.0.1")
+    return normalized.rstrip('/')
+
+
+# Pool identity helpers (normalize pool aliases, read env overrides)
+try:
+    sys.path.insert(0, str(ROXY_DIR))
+    from pool_identity import normalize_pool_key, get_pool_url  # type: ignore
+    POOL_IDENTITY_AVAILABLE = True
+except ImportError:
+    POOL_IDENTITY_AVAILABLE = False
+
+    def normalize_pool_key(pool_requested: str) -> tuple[str, str]:
+        key = (pool_requested or "auto").lower()
+        return pool_requested, key
+
+    def get_pool_url(pool_key: str) -> tuple[str, bool]:
+        canonical = (pool_key or "w5700x").lower()
+        env_var = f"ROXY_OLLAMA_{canonical.upper()}_URL"
+        env_value = os.getenv(env_var) or ""
+        if env_value:
+            return (_normalize_base_url(env_value) or env_value, True)
+        port_defaults = {"w5700x": 11434, "6900xt": 11435}
+        port = port_defaults.get(canonical, 11435)
+        return (f"http://127.0.0.1:{port}", False)
+
+
 # Service bridge for advanced services (optional)
 try:
     sys.path.insert(0, str(ROXY_DIR))
@@ -58,29 +108,13 @@ except ImportError:
     SERVICE_BRIDGE_AVAILABLE = False
     logger.debug("Service bridge not available, using basic mode")
 
-# Pool identity - single source of truth for pool configuration
-try:
-    from pool_identity import normalize_pool_key, POOL_ALIASES as POOL_IDENTITY_ALIASES
-    POOL_IDENTITY_AVAILABLE = True
-except ImportError:
-    POOL_IDENTITY_AVAILABLE = False
-    logger.debug("Pool identity module not available, using local aliases")
-    # Fallback to local aliases if module not found (should not happen)
-    def normalize_pool_key(pool_requested):
-        """Fallback normalize function."""
-        raw = pool_requested
-        key = pool_requested.lower()
-        local_aliases = {"big": "w5700x", "fast": "6900xt"}
-        return (raw, local_aliases.get(key, key))
-    POOL_IDENTITY_ALIASES = {"big": "w5700x", "fast": "6900xt"}
-
 # Import Prometheus metrics (graceful fallback)
 try:
     from prometheus_metrics import (
         init_prometheus, MetricsMiddleware,
         record_rag_query, record_cache_hit, record_cache_miss,
         record_ollama_call, record_blocked_command, record_rate_limit,
-        record_pool_status, record_bench_dry_run, record_ready_check,
+        record_pool_status, record_ready_check,
         is_available as prometheus_available,
         export_metrics,
     )
@@ -89,29 +123,6 @@ except ImportError:
     METRICS_AVAILABLE = False
     logger.debug("Prometheus metrics not available")
 METRICS_BOOT_WARNING_EMITTED = False
-
-# ============================================================================
-# W5700X POOL DISABLE SWITCH (2026-01-11)
-# ============================================================================
-# REASON: W5700X (GPU0) service disabled due to HSA_OVERRIDE crash fix (2026-01-09)
-#         The override.conf removed HSA_OVERRIDE_GFX_VERSION=10.3.0 which caused
-#         GPU instruction mismatch and system crashes. Service remains disabled
-#         until hardware/driver issue is resolved.
-#
-# EFFECT: When W5700X_DISABLED=1:
-#   - /ready endpoint passes with just 6900XT pool available
-#   - CHAT mode routes to 6900XT instead of requiring W5700X
-#   - All W5700X wiring remains intact for future re-enablement
-#
-# TO RE-ENABLE:
-#   1. Remove ROXY_W5700X_DISABLED env var (or set to 0)
-#   2. sudo systemctl enable --now ollama-w5700x.service
-#   3. systemctl --user restart roxy-core.service
-# ============================================================================
-W5700X_DISABLED = os.getenv("ROXY_W5700X_DISABLED", "0").lower() in ("1", "true", "yes")
-if W5700X_DISABLED:
-    logger.warning("⚠️  W5700X POOL DISABLED - Running in single-GPU mode (6900XT only)")
-    logger.warning("    To re-enable: unset ROXY_W5700X_DISABLED, start ollama-w5700x.service")
 
 # Truth Gate for response validation (prevent hallucinations)
 try:
@@ -140,36 +151,55 @@ try:
     # Initialize all infrastructure on import
     _infra_status = initialize_infrastructure()
     logger.info(f"✅ Infrastructure initialized: {sum(_infra_status.values())}/{len(_infra_status)} components")
+    require_postgres = os.getenv("ROXY_MEMORY_REQUIRE_POSTGRES", "0").lower() in ("1", "true", "yes")
+    if require_postgres and not _infra_status.get("postgres_memory", False):
+        raise RuntimeError("ROXY_MEMORY_REQUIRE_POSTGRES=1 but postgres_memory is unavailable")
 except ImportError as e:
     INFRASTRUCTURE_AVAILABLE = False
     logger.warning(f"⚠️ Infrastructure not available: {e}")
-    # Provide fallback stubs
+
     def initialize_infrastructure(): return {}
+
     def get_infrastructure_status(): return {'initialized': False}
+
     def get_cache(): return None
+
     def get_memory(): return None
+
     def get_router(): return None
+
     def get_event_stream(): return None
+
     def get_feedback(): return None
+
     def cache_query(*args, **kwargs): pass
+
     def get_cached_response(*args, **kwargs): return None
+
     def remember_conversation(*args, **kwargs): pass
+
     def recall_conversations(*args, **kwargs): return []
+
     def route_query(*args, **kwargs): return ""
+
     def classify_query(*args, **kwargs): return ('general', 0.5)
+
     def publish_event(*args, **kwargs): pass
+
     def publish_query_event(*args, **kwargs): pass
+
     def publish_response_event(*args, **kwargs): pass
+
     def record_feedback(*args, **kwargs): pass
+
     def get_feedback_stats(): return {}
+
     def get_all_stats(): return {}
 
 # Load config
-config = {}  # Default empty config
 if CONFIG_FILE.exists():
     with open(CONFIG_FILE) as f:
         config = json.load(f)
-        logger.info(f"Loaded config from {CONFIG_FILE}: {list(config.keys())}")
         IPC_HOST = config.get("host", "127.0.0.1")
         IPC_PORT = int(os.getenv("ROXY_PORT", config.get("port", 8766)))
 else:
@@ -207,91 +237,56 @@ import urllib.error
 MAX_CONCURRENT_SUBPROCESSES = 3  # Allow max 3 simultaneous roxy_commands.py processes
 subprocess_semaphore = threading.Semaphore(MAX_CONCURRENT_SUBPROCESSES)
 
-# ========== MULTI-MODE SYSTEM ==========
-# ROXY can operate in multiple modes:
-#   - broadcast: Full personality, conversational (default)
-#   - technical: Minimal wrapper, precise responses  
-#   - benchmark: Raw model access, no personality (for testing)
-#   - creative: Higher temperature, more creative
-
-ROXY_MODES = {
-    'broadcast': {
-        'description': 'Full personality, conversational',
-        'system_prompt': True,
-        'temperature': 0.7,
-    },
-    'technical': {
-        'description': 'Minimal wrapper, precise responses',
-        'system_prompt': False,
-        'temperature': 0.1,
-    },
-    'benchmark': {
-        'description': 'Raw model, no personality (for testing)',
-        'system_prompt': False,
-        'temperature': 0.0,
-    },
-    'creative': {
-        'description': 'Higher temperature, more creative',
-        'system_prompt': True,
-        'temperature': 0.9,
-    },
+# Track pool logging state (prevent log spam)
+_POOL_LOG_STATE = {
+    "single_pool": False,
+    "misconfigured": False,
 }
 
-def _normalize_url(url: Optional[str]) -> Optional[str]:
-    """Normalize URL: localhost -> 127.0.0.1, strip trailing slash."""
-    if not url:
-        return None
-    url = url.strip().rstrip("/")
-    # Normalize localhost variants to 127.0.0.1
-    url = url.replace("localhost", "127.0.0.1")
-    url = url.replace("[::1]", "127.0.0.1")
-    return url
 
 def _resolve_ollama_pools() -> dict:
-    """
-    Resolve W5700X and 6900XT pools authoritatively from config/env.
-    CHIEF DIRECTIVE: Pool names match hardware, not semantic roles.
+    """Resolve configured Ollama pool endpoints with safety checks."""
+    single_pool_mode = os.getenv("ROXY_SINGLE_POOL", "").lower() in ("1", "true", "yes")
+    forced_unified = _normalize_base_url(os.getenv("ROXY_SINGLE_POOL_URL") or None)
+    default_override = _normalize_base_url(os.getenv("ROXY_OLLAMA_DEFAULT_URL") or None)
 
-    Returns:
-        {
-            "w5700x": {"url": str|None, "configured": bool},
-            "6900xt": {"url": str|None, "configured": bool},
-            "default": str (primary URL),
-            "misconfigured": bool  # True if pools point to same endpoint
-        }
+    default_url = default_override or _normalize_base_url(os.getenv("OLLAMA_HOST") or None) or "http://127.0.0.1:11435"
 
-    Policy:
-    - Normalizes localhost -> 127.0.0.1 consistently
-    - W5700X comes from ROXY_OLLAMA_W5700X_URL (or legacy OLLAMA_BIG_URL)
-    - 6900XT comes from ROXY_OLLAMA_6900XT_URL (or legacy OLLAMA_FAST_URL)
-    - OLLAMA_HOST/OLLAMA_BASE_URL maps to default fallback
-    - NO PORT GUESSING
-    - HARD INVARIANT: If normalize(W5700X) == normalize(6900XT), pools are MISCONFIGURED
-    """
-    # 1. Read explicit pools first (canonical names, then legacy aliases)
-    w5700x_in = os.getenv("ROXY_OLLAMA_W5700X_URL") or os.getenv("OLLAMA_BIG_URL") or os.getenv("ROXY_OLLAMA_BIG_URL")
-    xt6900_in = os.getenv("ROXY_OLLAMA_6900XT_URL") or os.getenv("OLLAMA_FAST_URL") or os.getenv("ROXY_OLLAMA_FAST_URL")
+    w5700x_url, w5700x_configured = get_pool_url("w5700x")
+    xt6900_url, xt6900_configured = get_pool_url("6900xt")
 
-    # OLLAMA_HOST is just the default/fallback if no specific pool is chosen
-    default_in = os.getenv("OLLAMA_HOST") or os.getenv("OLLAMA_BASE_URL")
+    w5700x_url = _normalize_base_url(w5700x_url) or f"http://127.0.0.1:11434"
+    xt6900_url = _normalize_base_url(xt6900_url) or f"http://127.0.0.1:11435"
 
-    w5700x_url = _normalize_url(w5700x_in)
-    xt6900_url = _normalize_url(xt6900_in)
+    if single_pool_mode:
+        unified_url = forced_unified or default_override
+        if not unified_url:
+            unified_url = w5700x_url if w5700x_configured else None
+        if not unified_url:
+            unified_url = xt6900_url if xt6900_configured else None
+        unified_url = _normalize_base_url(unified_url) or default_url
 
-    # default fallback if nothing set
-    default_url = _normalize_url(default_in) or w5700x_url or xt6900_url or "http://127.0.0.1:11434"
+        w5700x_url = xt6900_url = unified_url
+        default_url = unified_url
+        w5700x_configured = xt6900_configured = True
 
-    # HARD INVARIANT: Check if pools are distinct
+        if not _POOL_LOG_STATE["single_pool"]:
+            logger.info(f"SINGLE-POOL MODE: Both pools unified to {unified_url} (intentional)")
+            _POOL_LOG_STATE["single_pool"] = True
+
     misconfigured = False
-    if w5700x_url and xt6900_url and w5700x_url == xt6900_url:
+    if w5700x_url and xt6900_url and w5700x_url == xt6900_url and not single_pool_mode:
         misconfigured = True
-        logger.error(f"POOL MISCONFIGURATION: W5700X and 6900XT point to same endpoint: {w5700x_url}")
+        if not _POOL_LOG_STATE["misconfigured"]:
+            logger.error(f"POOL MISCONFIGURATION: W5700X and 6900XT point to same endpoint: {w5700x_url}")
+            _POOL_LOG_STATE["misconfigured"] = True
 
     return {
-        "w5700x": {"url": w5700x_url, "configured": bool(w5700x_url)},
-        "6900xt": {"url": xt6900_url, "configured": bool(xt6900_url)},
+        "w5700x": {"url": w5700x_url, "configured": bool(w5700x_configured)},
+        "6900xt": {"url": xt6900_url, "configured": bool(xt6900_configured)},
         "default": default_url,
-        "misconfigured": misconfigured
+        "misconfigured": misconfigured,
+        "single_pool": single_pool_mode,
     }
 
 def _check_ollama_reachability(url: str, timeout: float = 1.0) -> dict:
@@ -349,8 +344,11 @@ def validate_startup_config() -> dict:
 
     # 2. Pool configuration
     pools = _resolve_ollama_pools()
+    single_pool_mode = os.getenv("ROXY_SINGLE_POOL", "").lower() in ("1", "true", "yes")
     if pools["misconfigured"]:
         errors.append(f"Pool misconfiguration: W5700X and 6900XT point to same endpoint")
+    if single_pool_mode:
+        warnings.append("SINGLE-POOL MODE active: all requests route to unified endpoint")
     if not pools["w5700x"]["configured"]:
         warnings.append("W5700X pool not explicitly configured (using default)")
     if not pools["6900xt"]["configured"]:
@@ -869,6 +867,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "checks": {}
         }
         all_healthy = True
+        degraded_components = []
         
         # Check auth token
         if AUTH_TOKEN:
@@ -876,6 +875,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         else:
             health_status["checks"]["auth_token"] = "missing"
             all_healthy = False
+            degraded_components.append("auth_token")
         
         # Check rate limiter
         try:
@@ -886,6 +886,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         except Exception as e:
             health_status["checks"]["rate_limiter"] = f"error: {str(e)[:50]}"
             all_healthy = False
+            degraded_components.append("rate_limiter")
         
         # Check ChromaDB
         try:
@@ -897,6 +898,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         except Exception as e:
             health_status["checks"]["chromadb"] = f"error: {str(e)[:50]}"
             all_healthy = False
+            degraded_components.append("chromadb")
         
         # Check Ollama
         base_url = _get_ollama_base_url()
@@ -936,6 +938,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "last_error": snapshot.get("last_error"),
             })
             all_healthy = False
+            degraded_components.append("ollama")
 
         health_status["checks"]["ollama"] = ollama_check
         
@@ -948,31 +951,138 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             for name, component in infra_status.get('components', {}).items():
                 if isinstance(component, dict):
                     is_healthy = component.get('healthy', False)
-                    health_status["checks"][f"infra_{name}"] = "ok" if is_healthy else "degraded"
+                    if is_healthy:
+                        health_status["checks"][f"infra_{name}"] = "ok"
+                    else:
+                        health_status["checks"][f"infra_{name}"] = "degraded"
+                        all_healthy = False
+                        degraded_components.append(f"infra_{name}")
                 else:
                     health_status["checks"][f"infra_{name}"] = "unknown"
         else:
             health_status["checks"]["infrastructure"] = "not_available"
         
-        # Return appropriate status code
-        if all_healthy:
-            self.send_response(200)
-        else:
-            self.send_response(503)  # Service Unavailable
+        if not all_healthy:
+            health_status["status"] = "degraded"
+            if degraded_components:
+                health_status["degraded_components"] = degraded_components
+
+        # /health reports process liveness; always return HTTP 200
+        self.send_response(200)
         
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(health_status).encode())
 
+    def _evaluate_core_readiness(self) -> tuple[bool, dict, list[str]]:
+        """Verify core ROXY capabilities independent of Ollama availability."""
+        core_ok = True
+        checks: Dict[str, Dict[str, Any]] = {}
+        degraded: list[str] = []
+
+        # HTTP server reached this handler → liveness is confirmed
+        checks["http_server"] = {"ok": True}
+
+        # Authentication token must exist for requests to be served
+        if AUTH_TOKEN:
+            checks["auth_token"] = {"ok": True}
+        else:
+            checks["auth_token"] = {"ok": False, "error": "missing"}
+            degraded.append("auth_token")
+            core_ok = False
+
+        roxy_path = str(ROXY_DIR)
+        added_path = False
+        roxy_exec_command = None
+        roxy_time_query = None
+        try:
+            if not sys.path or sys.path[0] != roxy_path:
+                sys.path.insert(0, roxy_path)
+                added_path = True
+            from roxy_commands import execute_command as _execute_command, answer_time_query as _answer_time_query
+            roxy_exec_command = _execute_command
+            roxy_time_query = _answer_time_query
+            checks["roxy_commands_import"] = {"ok": True}
+        except Exception as exc:
+            checks["roxy_commands_import"] = {"ok": False, "error": str(exc)}
+            degraded.append("roxy_commands_import")
+            return False, checks, degraded
+        finally:
+            if added_path and sys.path and sys.path[0] == roxy_path:
+                sys.path.pop(0)
+
+        # Verify ping fast-path executes without LLM
+        try:
+            ping_result = roxy_exec_command("ping_direct", [])
+            if isinstance(ping_result, tuple):
+                ping_output = ping_result[0]
+            else:
+                ping_output = ping_result
+            if isinstance(ping_output, str) and ping_output.strip().upper() == "PONG":
+                checks["ping_direct"] = {"ok": True}
+            else:
+                checks["ping_direct"] = {"ok": False, "error": f"unexpected:{str(ping_output)[:80]}"}
+                degraded.append("ping_direct")
+                core_ok = False
+        except Exception as exc:
+            checks["ping_direct"] = {"ok": False, "error": str(exc)}
+            degraded.append("ping_direct")
+            core_ok = False
+
+        # Verify deterministic time fast-path
+        try:
+            time_output = roxy_time_query("what time is it?")
+            if isinstance(time_output, str) and time_output.strip():
+                checks["time_direct"] = {"ok": True}
+            else:
+                checks["time_direct"] = {"ok": False, "error": "empty_response"}
+                degraded.append("time_direct")
+                core_ok = False
+        except Exception as exc:
+            checks["time_direct"] = {"ok": False, "error": str(exc)}
+            degraded.append("time_direct")
+            core_ok = False
+
+        # Verify Postgres memory backend when required
+        require_postgres = os.getenv("ROXY_MEMORY_REQUIRE_POSTGRES", "0").lower() in ("1", "true", "yes")
+        if require_postgres:
+            mem_check: Dict[str, Any] = {"ok": False}
+            try:
+                backend = None
+                details = None
+                if INFRASTRUCTURE_AVAILABLE:
+                    infra = get_infrastructure_status()
+                    details = infra.get("components", {}).get("postgres_memory")
+                    if isinstance(details, dict):
+                        backend = details.get("backend")
+                        mem_check["details"] = details
+                if backend is None:
+                    # Fallback: direct health check
+                    sys.path.insert(0, str(ROXY_DIR))
+                    from memory_postgres import PostgresMemory
+                    details = PostgresMemory().health_check()
+                    backend = details.get("backend")
+                    mem_check["details"] = details
+
+                mem_check["backend"] = backend
+                mem_check["ok"] = backend == "postgres"
+            except Exception as exc:
+                mem_check["error"] = str(exc)
+                mem_check["ok"] = False
+
+            checks["memory_postgres"] = mem_check
+            if not mem_check.get("ok"):
+                degraded.append("memory_postgres")
+                core_ok = False
+
+        return core_ok, checks, degraded
+
     def _handle_ready_check(self):
         """
         Production readiness check - stricter than /health.
 
-        Returns 200 only if:
-        - Pool invariants OK (both pools configured correctly)
-        - Both W5700X and 6900XT pools reachable
-
-        Returns 503 with actionable error details if not ready.
+        Always returns HTTP 200 with detailed status. `ready` reflects
+        whether ROXY core commands are available, independent of Ollama.
         """
         from benchmark_service import check_pool_invariants
 
@@ -981,75 +1091,77 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "timestamp": datetime.now().isoformat(),
             "checks": {},
         }
-
         try:
-            invariants = check_pool_invariants()
-            ready_status["checks"]["pool_invariants"] = invariants
+            core_ok, core_checks, degraded_components = self._evaluate_core_readiness()
+            ready_status["checks"].update(core_checks)
 
-            # Record pool metrics
-            if METRICS_AVAILABLE:
+            ollama_ok = False
+            pools = {}
+            invariants = {}
+
+            try:
+                invariants = check_pool_invariants()
+                ready_status["checks"]["pool_invariants"] = invariants
+
                 pools = invariants.get("pools", {})
-                for pool_name, pool_info in pools.items():
-                    record_pool_status(
-                        pool=pool_name,
-                        reachable=pool_info.get("reachable", False),
-                        latency_ms=pool_info.get("latency_ms")
+                ollama_ok = invariants.get("ok", False)
+
+                if METRICS_AVAILABLE:
+                    for pool_name, pool_info in pools.items():
+                        record_pool_status(
+                            pool=pool_name,
+                            reachable=pool_info.get("reachable", False),
+                            latency_ms=pool_info.get("latency_ms")
+                        )
+
+                unreachable = [p for p, info in pools.items() if not info.get("reachable", False)]
+                if unreachable:
+                    ollama_ok = False
+                    port_hints = {"w5700x": "11434", "6900xt": "11435"}
+                    ready_status.setdefault("warnings", []).append(
+                        f"Pools not reachable: {', '.join(unreachable)}"
                     )
+                    ready_status["remediation_hint"] = (
+                        "Verify Ollama responding: " + ", ".join(
+                            f"{pool} (port {port_hints.get(pool, '?')})" for pool in unreachable
+                        )
+                    )
+                    degraded_components.extend(f"pool_{pool}" for pool in unreachable)
+            except Exception as exc:
+                ready_status["checks"]["pool_invariants_error"] = str(exc)
+                degraded_components.append("pool_invariants")
 
-            # Check if invariants passed
-            if not invariants.get("ok", False):
-                ready_status["error_code"] = "POOL_INVARIANT_FAILURE"
-                ready_status["message"] = invariants.get("warning") or "Pool invariants check failed"
-                ready_status["remediation_hint"] = "Verify ollama responding on ports 11434 (w5700x) and 11435 (6900xt). See RUNBOOK.md section 3."
-                if METRICS_AVAILABLE:
-                    record_ready_check(ready=False)
-                self.send_response(503)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps(ready_status, indent=2).encode())
-                return
+            ready_status["ready"] = core_ok
+            ready_status["status"] = "ready" if core_ok else "degraded"
+            ready_status["ollama_ok"] = bool(ollama_ok)
+            ready_status["message"] = "Core command fast-paths available" if core_ok else "Core command check failed"
 
-            # Check pools are reachable
-            # NOTE: If W5700X_DISABLED, skip W5700X check - single-GPU mode (2026-01-11)
-            pools = invariants.get("pools", {})
-            w5700x_ok = pools.get("w5700x", {}).get("reachable", False)
-            xt6900_ok = pools.get("6900xt", {}).get("reachable", False)
+            if invariants and not invariants.get("ok", True):
+                degraded_components.append("pool_invariants")
+                ready_status.setdefault("warnings", []).append(
+                    invariants.get("warning") or "Pool invariants check reported issues"
+                )
 
-            unreachable = []
-            # W5700X check skipped when disabled - wiring preserved for re-enablement
-            if not W5700X_DISABLED and not w5700x_ok:
-                unreachable.append("w5700x")
-            if not xt6900_ok:
-                unreachable.append("6900xt")
+            if degraded_components:
+                seen: set[str] = set()
+                ordered: list[str] = []
+                for item in degraded_components:
+                    if item not in seen:
+                        seen.add(item)
+                        ordered.append(item)
+                ready_status["degraded_components"] = ordered
 
-            if unreachable:
-                ready_status["error_code"] = "POOLS_UNREACHABLE"
-                ready_status["message"] = f"Pools not reachable: {unreachable}"
-                # Build port hints for unreachable pools
-                port_hints = {"w5700x": "11434", "6900xt": "11435"}
-                hints = [f"{p} (port {port_hints.get(p, '?')})" for p in unreachable]
-                ready_status["remediation_hint"] = f"Verify ollama responding: {', '.join(hints)}. See RUNBOOK.md section 3."
-                if METRICS_AVAILABLE:
-                    record_ready_check(ready=False)
-                self.send_response(503)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps(ready_status, indent=2).encode())
-                return
-
-            # All checks passed
-            ready_status["ready"] = True
-            ready_status["message"] = "All pools configured and reachable"
             if METRICS_AVAILABLE:
-                record_ready_check(ready=True)
+                record_ready_check(ready=core_ok)
+
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(ready_status, indent=2).encode())
 
-        except Exception as e:
+        except Exception as exc:
             ready_status["error_code"] = "INTERNAL_ERROR"
-            ready_status["message"] = str(e)
+            ready_status["message"] = str(exc)
             ready_status["remediation_hint"] = "Check roxy-core logs: journalctl --user -u roxy-core -f"
             if METRICS_AVAILABLE:
                 record_ready_check(ready=False)
@@ -1463,29 +1575,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return
             
             # Check if it's a RAG query (not a command)
-            # Exclude comparison/explanation queries (e.g., "health vs ready difference")
-            # Exclude repo/time queries that happen to contain command keywords
-            command_lower = command.lower()
-            comparison_markers = ["vs", "versus", "difference", "between", "compare", "explain"]
-            question_markers = ["what is", "what's", "show me", "would run", "how to", "how do"]
-            is_comparison = any(marker in command_lower for marker in comparison_markers)
-            is_question = any(marker in command_lower for marker in question_markers)
-            # Import query detection to exclude repo/time queries from is_command
-            try:
-                from query_detection import is_time_date_query, is_repo_query
-                is_time_repo = is_time_date_query(command) or is_repo_query(command)
-            except ImportError:
-                is_time_repo = False
-            # Check command keywords - but "restart" is different from "start"
-            # Exclude URL-like patterns (/health, /ready) from triggering command mode
-            import re
-            has_start = "start" in command_lower and "restart" not in command_lower
-            has_url_health = bool(re.search(r'/health', command_lower))  # /health endpoint reference
-            command_keywords = ["git", "obs", "open", "launch", "stop"]
-            has_health_cmd = "health" in command_lower and not has_url_health and "system health" not in command_lower
-            is_command = not is_comparison and not is_question and not is_time_repo and (
-                has_start or has_health_cmd or any(cmd in command_lower for cmd in command_keywords)
-            )
+            is_command = any(cmd in command.lower() for cmd in [
+                "git", "obs", "health", "open", "launch", "start", "stop"
+            ])
 
             # Import query classifiers (Directives #3, #5)
             skip_rag = False
@@ -1565,15 +1657,13 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "reason": reason,
                     "selected_pool": "fast",
                     "selected_endpoint": "http://127.0.0.1:11435",
-                    # DEFAULT MODEL: qwen2.5-coder:14b on 6900XT (2026-01-11)
-                    "selected_model": "qwen2.5-coder:14b",
+                    "selected_model": "llama3:8b",
                     "confidence": 0.0,
                     "skip_rag": skip_rag,
                     "skip_rag_reason": skip_rag_reason,
                     "request_id": request_id,
                 }
-                # DEFAULT MODEL: qwen2.5-coder:14b on 6900XT (2026-01-11)
-                selected_model = "qwen2.5-coder:14b"
+                selected_model = "llama3:8b"
                 selected_endpoint = "http://127.0.0.1:11435"
 
             if not is_command:
@@ -1692,8 +1782,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 else:
                     env.pop("ROXY_REQUEST_ID", None)
 
+                commands_python = ROXY_DIR / "venv" / "bin" / "python"
+                python_exec = str(commands_python) if commands_python.exists() else sys.executable
+                if os.getenv("ROXY_DEBUG_COMMANDS_PY", "").lower() in ("1", "true", "yes"):
+                    logger.info(f"roxy_commands python_exec={python_exec}")
                 result = subprocess.run(
-                    ["python3", str(commands_script), command],
+                    [python_exec, str(commands_script), command],
                     capture_output=True,
                     text=True,
                     timeout=30,
@@ -2997,6 +3091,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             exec_end = time.time()
             response_time = exec_end - start_time
             total_ms = round((exec_end - exec_start) * 1000, 1)
+
+            exec_meta_ref = getattr(self, '_last_execution_metadata', {})
+            if isinstance(exec_meta_ref, dict) and ("total_ms" not in exec_meta_ref or not exec_meta_ref.get("cache_hit")):
+                exec_meta_ref["total_ms"] = total_ms
             
             # CHIEF P0: Pool errors must be HTTP errors, not embedded strings
             if isinstance(result, str) and result.startswith("ERROR:"):
@@ -3083,16 +3181,32 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             # Infrastructure integration - Cache, Memory, Events (non-blocking)
             if INFRASTRUCTURE_AVAILABLE:
                 try:
-                    # Cache the response
-                    cache_query(command, result)
+                    # Cache the response with routing metadata preserved
+                    exec_meta = getattr(self, '_last_execution_metadata', {})
+                    cache_metadata = {
+                        "mode": exec_meta.get("mode", "auto"),
+                        "route": exec_meta.get("route", "unknown"),
+                        "model_used": exec_meta.get("model_used"),
+                        "pool": exec_meta.get("pool", "auto"),
+                        "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
+                        "tools_executed": exec_meta.get("tools_executed", []),
+                        "total_ms": exec_meta.get("total_ms") if isinstance(exec_meta, dict) else None,
+                    }
+                    cache_query(command, result, metadata=cache_metadata)
                     
-                    # Store in episodic memory
+                    # Store in episodic memory (skip if memory_store already wrote)
                     session_id = self.headers.get('X-ROXY-Session', request_id)
-                    remember_conversation(command, result, session_id, {
-                        'response_time': response_time,
-                        'client_ip': client_ip,
-                        'endpoint': '/run'
-                    })
+                    exec_meta = getattr(self, '_last_execution_metadata', {})
+                    flags = exec_meta.get("flags", {}) if isinstance(exec_meta, dict) else {}
+                    skip_memory = isinstance(exec_meta, dict) and (
+                        exec_meta.get("route") == "memory_store" or flags.get("memory_store") is True
+                    )
+                    if not skip_memory:
+                        remember_conversation(command, result, session_id, {
+                            'response_time': response_time,
+                            'client_ip': client_ip,
+                            'endpoint': '/run'
+                        })
                     
                     # Publish response event
                     publish_response_event(
@@ -3111,6 +3225,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             
             # Build response with execution metadata (Chief's Truth Panel)
             exec_meta = getattr(self, '_last_execution_metadata', {})
+            reported_total_ms = None
+            if isinstance(exec_meta, dict):
+                reported_total_ms = exec_meta.get("total_ms")
+            if reported_total_ms is None and 'total_ms' in locals():
+                reported_total_ms = total_ms
             response = {
                 "status": "success",
                 "command": command,
@@ -3122,7 +3241,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "route": exec_meta.get("route", "unknown"),
                     "pool": exec_meta.get("pool", "auto"),
                     "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
-                    "total_ms": total_ms if 'total_ms' in locals() else None,
+                    "total_ms": reported_total_ms,
+                    "cache_hit": exec_meta.get("cache_hit", False),
                     "tools_count": len(exec_meta.get("tools_executed", []))
                 }
             }
@@ -3398,18 +3518,28 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     # Record cache hit
                     if METRICS_AVAILABLE:
                         record_cache_hit()
-                    # Update metadata to indicate cached response
-                    self._last_execution_metadata["mode"] = "rag"
-                    self._last_execution_metadata["route"] = "rag"
-                    self._last_execution_metadata["cached"] = True
-                    if isinstance(cached, dict):
-                        response = cached.get("response", "")
-                        similarity = cached.get("similarity", 1.0)
-                        if similarity < 0.9:
-                            response += f"\n\n(Similar to: {cached.get('cached_query', '')[:50]}...)"
-                        return response
-                    else:
-                        return cached
+                    cached_payload = cached if isinstance(cached, dict) else {"response": cached, "metadata": {}}
+
+                    response_text = cached_payload.get("response", "")
+                    similarity = cached_payload.get("similarity")
+                    cached_query = cached_payload.get("cached_query", "")
+                    if similarity is not None and similarity < 0.9 and cached_query:
+                        response_text += f"\n\n(Similar to: {cached_query[:50]}...)"
+
+                    cached_metadata = cached_payload.get("metadata") or {}
+                    self._last_execution_metadata.update({
+                        "mode": cached_metadata.get("mode", self._last_execution_metadata.get("mode", "auto")),
+                        "route": cached_metadata.get("route", self._last_execution_metadata.get("route", "rag")),
+                        "model_used": cached_metadata.get("model_used", self._last_execution_metadata.get("model_used")),
+                        "pool": cached_metadata.get("pool", self._last_execution_metadata.get("pool", "auto")),
+                        "base_url_used": cached_metadata.get("base_url_used", self._last_execution_metadata.get("base_url_used", _get_ollama_base_url())),
+                        "tools_executed": cached_metadata.get("tools_executed", self._last_execution_metadata.get("tools_executed", [])),
+                    })
+                    if "total_ms" in cached_metadata:
+                        self._last_execution_metadata["total_ms"] = cached_metadata["total_ms"]
+                    self._last_execution_metadata["cache_hit"] = True
+
+                    return response_text
                 else:
                     # Record cache miss
                     if METRICS_AVAILABLE:
@@ -3451,21 +3581,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         return f"ERROR: Pool {pool_normalized} requested but pools are MISCONFIGURED (both point to same endpoint). Fix ROXY_OLLAMA_W5700X_URL and ROXY_OLLAMA_6900XT_URL."
 
                 # If CHAT mode and no explicit pool, we MUST use W5700X (if configured AND reachable).
-                # NOTE: If W5700X_DISABLED, route CHAT to 6900XT instead (2026-01-11)
                 if effective_mode == "CHAT" and pool_normalized == "AUTO":
-                    # W5700X disabled - use 6900XT for CHAT mode (wiring preserved for re-enablement)
-                    if W5700X_DISABLED:
-                        pool_normalized = "6900XT"
-                        logger.info(f"CHAT mode -> W5700X disabled, using 6900XT ({pool_config['6900xt']['url']})")
+                    w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
+                    if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
+                        pool_normalized = "W5700X"
+                        logger.info(f"CHAT mode -> enforcing W5700X pool ({pool_config['w5700x']['url']})")
                     else:
-                        w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
-                        if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
-                            pool_normalized = "W5700X"
-                            logger.info(f"CHAT mode -> enforcing W5700X pool ({pool_config['w5700x']['url']})")
-                        else:
-                            # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
-                            reason = "not configured" if not pool_config["w5700x"]["configured"] else "not reachable"
-                            return f"ERROR: CHAT mode requires a configured and reachable W5700X pool (ROXY_OLLAMA_W5700X_URL). {reason}. Explicitly set pool=6900XT if you want to use the faster GPU."
+                        # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
+                        reason = "not configured" if not pool_config["w5700x"]["configured"] else "not reachable"
+                        return f"ERROR: CHAT mode requires a configured and reachable W5700X pool (ROXY_OLLAMA_W5700X_URL). {reason}. Explicitly set pool=6900XT if you want to use the faster GPU."
 
                 # Validate explicit requests (also check reachability)
                 if pool_normalized == "W5700X":
@@ -3504,8 +3628,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 if model_override:
                     env["ROXY_MODEL"] = model_override
 
+                commands_python = ROXY_DIR / "venv" / "bin" / "python"
+                python_exec = str(commands_python) if commands_python.exists() else sys.executable
+                if os.getenv("ROXY_DEBUG_COMMANDS_PY", "").lower() in ("1", "true", "yes"):
+                    logger.info(f"roxy_commands python_exec={python_exec}")
                 result = subprocess.run(
-                    ["python3", str(commands_script), command],
+                    [python_exec, str(commands_script), command],
                     capture_output=True,
                     text=True,
                     timeout=30,
@@ -3535,12 +3663,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             
                             # Store metadata for caller (Chief's Truth Panel)
                             existing_meta = self._last_execution_metadata.copy()
+                            flags = metadata.get("flags") or {}
                             self._last_execution_metadata = {
                                 "mode": mode,
-                                "model_used": metadata.get("model", metadata.get("model_used")),
+                                "model_used": metadata.get("routing_meta", {}).get("model_used") or metadata.get("model", metadata.get("model_used")),
                                 "route": mode,  # rag, tool_direct, etc.
-                                "pool": metadata.get("pool", effective_pool.lower()),
-                                "tools_executed": tools_executed
+                                "pool": metadata.get("routing_meta", {}).get("selected_pool", effective_pool.lower()),
+                                "tools_executed": tools_executed,
+                                "flags": flags
                             }
                             # Preserve base_url_used from our earlier decision
                             self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
@@ -3580,15 +3710,30 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 # Cache response if it's a RAG query
                 if self._is_rag_query(command):
                     try:
+                        cache_exec_meta = getattr(self, '_last_execution_metadata', {})
+                        cache_metadata = {
+                            "mode": cache_exec_meta.get("mode", "auto"),
+                            "route": cache_exec_meta.get("route", "unknown"),
+                            "model_used": cache_exec_meta.get("model_used"),
+                            "pool": cache_exec_meta.get("pool", "auto"),
+                            "base_url_used": cache_exec_meta.get("base_url_used", _get_ollama_base_url()),
+                            "tools_executed": cache_exec_meta.get("tools_executed", []),
+                            "total_ms": cache_exec_meta.get("total_ms"),
+                        }
                         # Use infrastructure cache (Redis with fallback)
                         if INFRASTRUCTURE_AVAILABLE:
-                            cache_query(command, response_text)
+                            cache_query(command, response_text, metadata=cache_metadata)
                         else:
                             sys.path.insert(0, str(ROXY_DIR))
                             from cache import get_cache as get_legacy_cache
                             cache = get_legacy_cache()
                             if cache:
-                                cache.set(command, response_text)
+                                payload = {
+                                    "response": response_text,
+                                    "metadata": cache_metadata,
+                                    "cached_at": datetime.utcnow().isoformat()
+                                }
+                                cache.set(command, json.dumps(payload))
                     except Exception as e:
                         logger.debug(f"Cache storage failed: {e}")
                     
@@ -3612,15 +3757,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return f"ERROR: {str(e)}"
     
     def _is_rag_query(self, command: str) -> bool:
-        """Check if command is a RAG query (excludes time/repo queries that need special routing)"""
-        # First check if it's a time/repo query (must NOT be cached as RAG)
-        try:
-            from query_detection import is_time_date_query, is_repo_query
-            if is_time_date_query(command) or is_repo_query(command):
-                return False  # Not a RAG query - needs special routing
-        except ImportError:
-            pass
-
+        """Check if command is a RAG query"""
         rag_indicators = ["what", "how", "explain", "tell me", "describe", "?"]
         command_lower = command.lower()
         return any(indicator in command_lower for indicator in rag_indicators) or "?" in command

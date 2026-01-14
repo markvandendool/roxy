@@ -3,6 +3,7 @@
 ROXY Infrastructure Integration - Wires Redis, PostgreSQL, NATS, Expert Router
 Provides unified interface for all infrastructure services
 """
+import json
 import logging
 import sys
 from pathlib import Path
@@ -215,22 +216,62 @@ def get_feedback():
 
 # High-level convenience functions
 
-def cache_query(query: str, response: str, ttl: int = None):
-    """Cache a query-response pair."""
+def cache_query(query: str, response: str, metadata: Optional[Dict[str, Any]] = None, ttl: int = None):
+    """Cache a query-response pair with metadata preserved."""
     cache = get_cache()
     if cache:
         try:
-            cache.set(query, response, ttl)
+            payload = {
+                "response": response,
+                "metadata": metadata or {},
+                "cached_at": datetime.utcnow().isoformat()
+            }
+            cache.set(query, json.dumps(payload))
         except Exception as e:
             logger.debug(f"Cache set failed: {e}")
 
 
-def get_cached_response(query: str) -> Optional[str]:
+def _normalize_cached_payload(raw_value: Any) -> Optional[Dict[str, Any]]:
+    """Normalize cache backend return values into a structured payload."""
+    if raw_value is None:
+        return None
+
+    if isinstance(raw_value, dict):
+        payload = {
+            "response": raw_value.get("response", ""),
+            "metadata": raw_value.get("metadata", {}),
+            "similarity": raw_value.get("similarity"),
+            "cached_query": raw_value.get("cached_query"),
+        }
+        if "cached_at" in raw_value:
+            payload["cached_at"] = raw_value["cached_at"]
+        return payload
+
+    if isinstance(raw_value, str):
+        try:
+            decoded = json.loads(raw_value)
+            if isinstance(decoded, dict) and "response" in decoded:
+                return {
+                    "response": decoded.get("response", ""),
+                    "metadata": decoded.get("metadata", {}),
+                    "cached_at": decoded.get("cached_at"),
+                    "similarity": decoded.get("similarity"),
+                    "cached_query": decoded.get("cached_query"),
+                }
+        except json.JSONDecodeError:
+            pass
+        return {"response": raw_value, "metadata": {}}
+
+    return {"response": str(raw_value), "metadata": {}}
+
+
+def get_cached_response(query: str) -> Optional[Dict[str, Any]]:
     """Get cached response for query."""
     cache = get_cache()
     if cache:
         try:
-            return cache.get(query)
+            raw_value = cache.get(query)
+            return _normalize_cached_payload(raw_value)
         except Exception as e:
             logger.debug(f"Cache get failed: {e}")
     return None

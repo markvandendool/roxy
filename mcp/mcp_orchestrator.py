@@ -18,6 +18,7 @@ Exposes:
 
 import json
 import logging
+import os
 from typing import Dict, Any, Optional
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
@@ -26,8 +27,13 @@ from datetime import datetime
 logger = logging.getLogger("roxy.mcp.orchestrator")
 
 # Configuration
-LUNO_API_BASE = "http://localhost:3000"
-LUNO_PODIUM_WS = "ws://localhost:3847"
+LUNO_API_BASE = (
+    os.getenv("ROXY_ORCHESTRATOR_BASE")
+    or os.getenv("ROXY_PODIUM_BASE_URL")
+    or os.getenv("PODIUM_API_URL")
+    or "http://127.0.0.1:3847"
+)
+LUNO_PODIUM_WS = os.getenv("ROXY_PODIUM_WS") or "ws://127.0.0.1:3847"
 CITADEL_HOST = "10.0.0.65"
 CITADEL_HEALTH_PORT = 8765
 CITADEL_CONTROL_PORT = 8766
@@ -79,13 +85,31 @@ TOOLS = {
 }
 
 
+def _auth_headers() -> Dict[str, str]:
+    token = os.getenv("ROXY_PODIUM_TOKEN") or os.getenv("PODIUM_AUTH_TOKEN") or ""
+    headers = {"Accept": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
 def _http_get(url: str, timeout: int = TIMEOUT) -> Dict[str, Any]:
     """Make HTTP GET request with error handling"""
     try:
-        req = Request(url, headers={"Accept": "application/json"})
+        req = Request(url, headers=_auth_headers())
         with urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode())
     except HTTPError as e:
+        if e.code == 503:
+            # 503 with JSON body means reachable but degraded
+            try:
+                body = e.read().decode()
+                parsed = json.loads(body)
+                parsed["http_status"] = 503
+                parsed["reachable"] = True
+                return parsed
+            except Exception:
+                return {"error": f"HTTP 503: {e.reason}", "status": 503}
         return {"error": f"HTTP {e.code}: {e.reason}", "status": e.code}
     except URLError as e:
         return {"error": f"Connection failed: {e.reason}", "status": 0}
@@ -97,10 +121,9 @@ def _http_post(url: str, data: Dict, timeout: int = TIMEOUT) -> Dict[str, Any]:
     """Make HTTP POST request with error handling"""
     try:
         body = json.dumps(data).encode()
-        req = Request(url, data=body, headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        })
+        headers = _auth_headers()
+        headers["Content-Type"] = "application/json"
+        req = Request(url, data=body, headers=headers)
         with urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode())
     except HTTPError as e:
@@ -119,33 +142,39 @@ def handle_tool(name: str, params: Optional[Dict] = None) -> Dict[str, Any]:
     try:
         if name == "orchestrator_create_task":
             task_name = params.get("name")
-            task_type = params.get("type")
-            payload = params.get("payload", {})
-            priority = params.get("priority", 5)
-            
-            if not task_name or not task_type:
-                return {"error": "name and type are required"}
-            
-            task_data = {
-                "name": task_name,
-                "type": task_type,
-                "payload": payload,
-                "priority": priority,
-                "created_at": datetime.utcnow().isoformat(),
-                "status": "pending"
+            payload = params.get("payload", {}) or {}
+
+            if not task_name and not payload:
+                return {"error": "name or payload with storyId is required"}
+
+            story_id = (
+                payload.get("storyId")
+                or payload.get("story_id")
+                or payload.get("id")
+                or task_name
+            )
+            if not story_id:
+                return {"error": "Unable to determine storyId for enqueue"}
+
+            force = bool(payload.get("force") or payload.get("bypassDependencies") or payload.get("bypass_dependencies"))
+            command = {
+                "type": "FORCE_ENQUEUE_STORY" if force else "ENQUEUE_STORY",
+                "storyId": story_id,
             }
-            
-            result = _http_post(f"{LUNO_API_BASE}/api/tasks", task_data)
+            if force:
+                command["bypassDependencies"] = True
+
+            result = _http_post(f"{LUNO_API_BASE}/api/command", command)
             if "error" not in result:
-                logger.info(f"Created task: {task_name} ({task_type})")
+                logger.info(f"Enqueued story: {story_id}")
             return result
         
         elif name == "orchestrator_get_status":
             task_id = params.get("task_id")
-            if not task_id:
-                return {"error": "task_id is required"}
-            
-            return _http_get(f"{LUNO_API_BASE}/api/tasks/{task_id}")
+            if task_id:
+                result = _http_get(f"{LUNO_API_BASE}/api/logs?limit=200")
+                return {"task_id": task_id, "logs": result}
+            return _http_get(f"{LUNO_API_BASE}/health/orchestrator")
         
         elif name == "orchestrator_dispatch_to_citadel":
             task_id = params.get("task_id")
@@ -171,23 +200,14 @@ def handle_tool(name: str, params: Optional[Dict] = None) -> Dict[str, Any]:
             task_id = params.get("task_id")
             if not task_id:
                 return {"error": "task_id is required"}
-            
-            cancel_data = {"status": "cancelled", "cancelled_at": datetime.utcnow().isoformat()}
-            return _http_post(f"{LUNO_API_BASE}/api/tasks/{task_id}/cancel", cancel_data)
+            command = {"type": "CANCEL_STORY", "storyId": task_id}
+            return _http_post(f"{LUNO_API_BASE}/api/command", command)
         
         elif name == "orchestrator_list_tasks":
-            status = params.get("status")
-            task_type = params.get("type")
-            limit = params.get("limit", 20)
-            
-            query_parts = [f"limit={limit}"]
-            if status:
-                query_parts.append(f"status={status}")
-            if task_type:
-                query_parts.append(f"type={task_type}")
-            
-            query = "&".join(query_parts)
-            return _http_get(f"{LUNO_API_BASE}/api/tasks?{query}")
+            limit = params.get("limit", 50)
+            metrics = _http_get(f"{LUNO_API_BASE}/api/metrics")
+            logs = _http_get(f"{LUNO_API_BASE}/api/logs?limit={limit}")
+            return {"metrics": metrics, "logs": logs}
         
         elif name == "citadel_health_check":
             worker = params.get("worker", "friday")
@@ -225,16 +245,34 @@ def handle_tool(name: str, params: Optional[Dict] = None) -> Dict[str, Any]:
 
 def health_check() -> Dict[str, Any]:
     """Bridge health check for infrastructure monitoring"""
-    luno_status = _http_get(f"{LUNO_API_BASE}/api/health")
+    luno_status = _http_get(f"{LUNO_API_BASE}/health/orchestrator")
     citadel_status = _http_get(f"http://{CITADEL_HOST}:{CITADEL_HEALTH_PORT}/health")
-    
+
+    luno_error = isinstance(luno_status, dict) and "error" in luno_status
+    luno_reachable = bool(luno_status.get("reachable")) if isinstance(luno_status, dict) else False
+    if not luno_error:
+        luno_reachable = True
+    http_status = luno_status.get("http_status") if isinstance(luno_status, dict) else None
+
+    luno_ready = True
+    luno_state = "ok"
+    if luno_error or not luno_reachable:
+        luno_ready = False
+        luno_state = "down"
+    elif http_status == 503 or (isinstance(luno_status, dict) and luno_status.get("status") == "degraded"):
+        luno_ready = False
+        luno_state = "degraded"
+
     return {
         "bridge": "mcp_orchestrator",
-        "status": "healthy" if "error" not in luno_status else "degraded",
+        "status": "healthy" if (luno_reachable and luno_ready) else "degraded",
         "endpoints": {
             "luno_api": {
                 "url": LUNO_API_BASE,
-                "status": "up" if "error" not in luno_status else "down"
+                "up": bool(luno_reachable and not luno_error),
+                "ready": bool(luno_ready),
+                "state": luno_state,
+                "http_status": http_status
             },
             "citadel": {
                 "url": f"http://{CITADEL_HOST}:{CITADEL_HEALTH_PORT}",

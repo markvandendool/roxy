@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 """
-Index mindsong-juke-hub repository for ROXY - RESUME CAPABLE
-This script can safely resume after interruption (power outage, etc.)
-ChromaDB upsert ensures no duplicates and handles updates automatically.
+Index a repository for ROXY - RESUME CAPABLE.
+Default: ~/mindsong-juke-hub
 """
 import sys
 import asyncio
 import os
+import argparse
 from pathlib import Path
-sys.path.insert(0, '/opt/roxy/services.LEGACY.20260101_200448')
+sys.path.insert(0, str(Path.home() / ".roxy" / "services"))
 
 from repository_indexer import get_repo_indexer
 
 async def main(auto_confirm=False):
-    repo_path = "/opt/roxy/mindsong-juke-hub"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", default=os.getenv("ROXY_RAG_REPO", str(Path.home() / "mindsong-juke-hub")))
+    parser.add_argument("--collection", default=None)
+    args, _ = parser.parse_known_args()
+    repo_path = args.repo
     
     print("=" * 70)
     print("🔍 ROXY Repository Indexer - RESUME CAPABLE")
@@ -26,7 +30,7 @@ async def main(auto_confirm=False):
         print(f"❌ Repository not found at {repo_path}")
         return
     
-    indexer = get_repo_indexer(repo_path)
+    indexer = get_repo_indexer(repo_path, args.collection)
     
     # Check current status
     print("📊 Checking current index status...")
@@ -129,4 +133,3 @@ if __name__ == "__main__":
     # Check for --yes or -y flag for non-interactive mode
     auto_confirm = '--yes' in sys.argv or '-y' in sys.argv
     asyncio.run(main(auto_confirm=auto_confirm))
-

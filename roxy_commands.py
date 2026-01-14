@@ -16,35 +16,23 @@ Part of LUNA-000 CITADEL - Unified Mind
 import os
 import sys
 import subprocess
+import sqlite3
 from pathlib import Path
 import asyncio
 import concurrent.futures
 import json
 import logging
+import re
+from urllib.parse import quote_plus, urlparse, parse_qs, unquote
+from datetime import datetime
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
-import pytz  # For timezone handling
 
 ROXY_DIR = Path.home() / ".roxy"
 logger = logging.getLogger("roxy.commands")
 
-# Import query detection (safe, no circular imports)
-try:
-    from query_detection import is_time_date_query, is_repo_query
-    QUERY_DETECTION_AVAILABLE = True
-    import sys; print(f"[DEBUG] Query detection loaded: is_time_date_query={is_time_date_query('what time is it')}", file=sys.stderr)
-except ImportError as e:
-    QUERY_DETECTION_AVAILABLE = False
-    logger.warning(f"Query detection module not available: {e}")
-
-# Import TruthPacket for reality grounding
-try:
-    from truth_packet import generate_truth_packet
-    TRUTH_PACKET_AVAILABLE = True
-except ImportError:
-    TRUTH_PACKET_AVAILABLE = False
-    logger.warning("TruthPacket module not available - time grounding disabled")
+# Global variable to track last model used
+LAST_MODEL_USED = None
 
 
 def _get_ollama_base_url() -> str:
@@ -56,6 +44,8 @@ def _get_ollama_base_url() -> str:
 
 # Global tracking for Truth Gate evidence
 TOOLS_EXECUTED = []
+# MCP module cache (avoid reloading between tool calls in same process)
+_MCP_MODULE_CACHE = {}
 
 @dataclass
 class CommandResponse:
@@ -125,24 +115,40 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
     """Parse natural language command"""
     text_lower = text.lower().strip()
     words = text_lower.split()
-
+    
     if not words:
         return ("rag", [text])
 
-    # === TIME/DATE QUERIES - HIGHEST PRIORITY (Directive #3) ===
-    # Time queries MUST be answered DETERMINISTICALLY without LLM
-    # Check FIRST before any other routing (moved from bottom of function)
-    if QUERY_DETECTION_AVAILABLE and is_time_date_query(text):
+    allow_mcp = os.getenv("ROXY_ENABLE_MCP_TOOLS", "0").lower() in ("1", "true", "yes")
+
+    def _extract_url(s: str) -> Optional[str]:
+        match = re.search(r'(https?://[^\s]+)', s)
+        if not match:
+            return None
+        return match.group(1).rstrip('.,)')
+
+    # === TIME/DATE QUERIES ===
+    time_phrases = [
+        "what time is it",
+        "current time",
+        "time right now",
+        "tell me the time",
+        "what's the time",
+        "what is the time",
+        "what day is it",
+        "current date",
+        "today's date",
+        "what is today's date",
+    ]
+    if any(phrase in text_lower for phrase in time_phrases):
         return ("time_direct", [text])
 
-    # === REPO/GIT STATE QUERIES (Directive #5) ===
-    # Repository state queries should use TruthPacket
-    if QUERY_DETECTION_AVAILABLE and is_repo_query(text):
-        return ("repo_direct", [text])
-
     # === GIT COMMANDS ===
-    git_keywords = ["git", "commit", "push", "pull", "diff", "checkout", "branch", "merge"]
+    git_keywords = ["git", "github", "gh", "commit", "push", "pull", "diff", "checkout", "branch", "merge"]
     if any(w in words for w in git_keywords):
+        # If user asks about "last/most recent push", interpret as log (info) not action.
+        if any(phrase in text_lower for phrase in ["last push", "recent push", "most recent push", "latest push"]):
+            return ("git", ["log"])
         if "status" in text_lower:
             return ("git", ["status"])
         if "commit" in text_lower:
@@ -151,9 +157,9 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
                 msg = " ".join(words[idx+1:]) if idx + 1 < len(words) else ""
                 return ("git", ["commit", msg] if msg else ["commit"])
             return ("git", ["commit"])
-        if "push" in text_lower:
+        if re.search(r"\bpush(ing)?\b", text_lower):
             return ("git", ["push"])
-        if "pull" in text_lower:
+        if re.search(r"\bpull(ing)?\b", text_lower):
             return ("git", ["pull"])
         if "diff" in text_lower:
             return ("git", ["diff"])
@@ -180,15 +186,12 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
         return ("obs", [text])
 
     # === SYSTEM HEALTH ===
-    # Only explicit health/monitoring requests (not comparison questions)
+    # Only explicit health/monitoring requests
     health_keywords = ["health", "temps", "temperature", "docker", "containers"]
-    comparison_markers = ["vs", "versus", "difference", "between", "compare", "explain"]
-    is_comparison = any(marker in text_lower for marker in comparison_markers)
-    if not is_comparison:
-        if words and words[0] in health_keywords:
-            return ("health", [])
-        if "system health" in text_lower or "check health" in text_lower:
-            return ("health", [])
+    if words and words[0] in health_keywords:
+        return ("health", [])
+    if "system health" in text_lower or "check health" in text_lower:
+        return ("health", [])
     if text_lower.startswith("how is") and any(w in text_lower for w in ["system", "server", "jarvis"]):
         return ("health", [])
 
@@ -205,11 +208,29 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
     if "what model" in text_lower or "which model" in text_lower or "your model" in text_lower:
         return ("model_info", [])
 
-    # === UNAVAILABLE CAPABILITIES - EXPLICIT REJECTION ===
-    # Browser control (Chief's TEST 3)
-    browser_keywords = ["open firefox", "open chrome", "open browser", "launch firefox", 
-                       "start firefox", "browse to", "navigate to"]
-    if any(kw in text_lower for kw in browser_keywords):
+    # === DEBUG INFO (dev-only) ===
+    if text_lower in ("debug python", "debug exec", "debug sys"):
+        return ("debug_info", [])
+
+    # === MEMORY FAST-PATH (no LLM, no tools) ===
+    if re.match(r"^remember(\b|:)", text_lower):
+        if ":" in text:
+            payload = text.split(":", 1)[1].strip()
+        else:
+            payload = text[len("remember"):].strip()
+        if not payload:
+            payload = text.strip()
+        return ("memory_store", [payload, text])
+
+    # === BROWSER/WEB RESEARCH (MCP-gated) ===
+    browser_keywords = ["open firefox", "open chrome", "open browser", "launch firefox",
+                       "start firefox", "browse to", "navigate to", "open url", "go to"]
+    research_keywords = ["search web", "web search", "look up", "research", "find on the web", "google", "duckduckgo"]
+    if any(kw in text_lower for kw in browser_keywords + research_keywords):
+        if allow_mcp:
+            url = _extract_url(text)
+            payload = {"url": url} if url else {"query": text}
+            return ("tool_direct", ["web_research", payload])
         return ("unavailable", ["browser_control"])
     
     # Shell execution (Chief's TEST 1)
@@ -222,6 +243,18 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
     cloud_keywords = ["aws ", "azure ", "gcp ", "cloud integration", "cloud access"]
     if any(kw in text_lower for kw in cloud_keywords):
         return ("unavailable", ["cloud_integration"])
+
+    # === ORCHESTRATOR QUICK OPS (MCP-gated) ===
+    if text_lower.startswith("orchestrator ") or text_lower.startswith("luno "):
+        if not allow_mcp:
+            return ("unavailable", ["cloud_integration"])
+        if "list" in words:
+            return ("tool_direct", ["mcp", {"module": "orchestrator", "tool": "orchestrator_list_tasks", "params": {}}])
+        if "health" in words:
+            return ("tool_direct", ["mcp", {"module": "orchestrator", "tool": "citadel_health_check", "params": {"worker": "all"}}])
+        if "status" in words and len(words) > 2:
+            task_id = words[-1]
+            return ("tool_direct", ["mcp", {"module": "orchestrator", "tool": "orchestrator_get_status", "params": {"task_id": task_id}}])
 
     # === CLIP EXTRACTION (video processing) ===
     if "extract" in text_lower and ("clip" in text_lower or "video" in text_lower):
@@ -266,7 +299,6 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
     ]
     
     # Check for file extensions in query (e.g., "tell me about roxy_assistant.py")
-    import re
     has_file_extension = re.search(r'\b\w+\.(py|md|js|ts|json|yaml|yml|txt|sh|rs)\b', text_lower)
     
     if any(trigger in text_lower for trigger in file_claim_triggers) or has_file_extension:
@@ -282,8 +314,12 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
             # Generic file list query
             return ("tool_preflight", ["list_files", {"path": "/home/mark/mindsong-juke-hub"}, text])
 
+    # === PING FAST-PATH (CHIEF'S REQUIREMENT) ===
+    # Deterministic, no LLM, no RAG, <100ms target
+    if text_lower == "ping":
+        return ("ping_direct", [])
+
     # === DEFAULT: RAG QUERY ===
-    # (Note: Time/date and repo queries are handled at the TOP of this function)
     # Everything else goes to RAG for knowledge retrieval
     return ("rag", [text])
 
@@ -295,6 +331,22 @@ def execute_tool_direct(tool_name, tool_args):
         special = handle_special_tool(tool_name, tool_args)
         if special is not None:
             return special
+
+        def _execute_mcp(module_name, tool, params):
+            mcp_dir = ROXY_DIR / "mcp"
+            module_path = mcp_dir / f"mcp_{module_name}.py"
+            if not module_path.exists():
+                return f"ERROR: MCP module not found: {module_name}"
+            module = _MCP_MODULE_CACHE.get(module_name)
+            if module is None:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location(f"mcp_{module_name}", module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                _MCP_MODULE_CACHE[module_name] = module
+            if not hasattr(module, "handle_tool"):
+                return f"ERROR: MCP module {module_name} missing handle_tool"
+            return module.handle_tool(tool, params)
         
         if tool_name == "execute_command":
             # Shell execution (if enabled)
@@ -302,7 +354,11 @@ def execute_tool_direct(tool_name, tool_args):
             if config_path.exists():
                 with open(config_path) as f:
                     config = json.load(f)
-                if not config.get("execute_command", {}).get("enabled", False):
+                allow_exec = config.get("execute_command", {}).get("enabled", False)
+                # Unsafe override for full control (explicit)
+                if os.getenv("ROXY_ALLOW_EXECUTE_COMMAND", "0").lower() in ("1", "true", "yes"):
+                    allow_exec = True
+                if not allow_exec:
                     track_tool_execution(tool_name, tool_args, "DISABLED", ok=False, error="Security policy")
                     return "❌ execute_command is DISABLED in config.json for security"
             
@@ -314,6 +370,212 @@ def execute_tool_direct(tool_name, tool_args):
             output = f"STDOUT:\n{result.stdout}\n\nSTDERR:\n{result.stderr}\n\nEXIT CODE: {result.returncode}"
             track_tool_execution(tool_name, tool_args, result.stdout, ok=(result.returncode == 0))
             return output
+
+        elif tool_name == "mcp" or tool_name.startswith("mcp:"):
+            # MCP tool execution (explicit, gated)
+            allow_mcp = os.getenv("ROXY_ENABLE_MCP_TOOLS", "0").lower() in ("1", "true", "yes")
+            if not allow_mcp:
+                track_tool_execution(tool_name, tool_args, "MCP_DISABLED", ok=False, error="Security policy")
+                return "❌ MCP tools disabled. Set ROXY_ENABLE_MCP_TOOLS=1 to enable."
+
+            if tool_name.startswith("mcp:"):
+                parts = tool_name.split(":", 2)
+                if len(parts) < 3:
+                    return "ERROR: mcp tool syntax must be mcp:<module>:<tool>"
+                module_name, tool = parts[1], parts[2]
+                params = tool_args or {}
+            else:
+                module_name = tool_args.get("module")
+                tool = tool_args.get("tool")
+                params = tool_args.get("params") or tool_args.get("args") or {}
+            if not module_name or not tool:
+                return "ERROR: mcp tool requires module and tool"
+            result = _execute_mcp(module_name, tool, params)
+            track_tool_execution(tool_name, tool_args, str(result)[:500], ok=True)
+            return result
+
+        elif tool_name == "web_research":
+            allow_mcp = os.getenv("ROXY_ENABLE_MCP_TOOLS", "0").lower() in ("1", "true", "yes")
+            if not allow_mcp:
+                track_tool_execution(tool_name, tool_args, "MCP_DISABLED", ok=False, error="Security policy")
+                return "❌ Web research disabled. Set ROXY_ENABLE_MCP_TOOLS=1 to enable."
+
+            url = tool_args.get("url")
+            query = tool_args.get("query")
+            search_mode = False
+            if not url:
+                if not query:
+                    return "ERROR: web_research requires url or query"
+                # Use lite endpoint to avoid heavy dynamic pages
+                url = f"https://lite.duckduckgo.com/lite/?q={quote_plus(query)}"
+                search_mode = True
+
+            goto = _execute_mcp("browser", "goto", {"url": url})
+            if isinstance(goto, dict) and not goto.get("success", True):
+                return goto
+            
+            # Best-effort wait + extract
+            _execute_mcp("browser", "wait", {"selector": "body", "timeout": 10000})
+            sources = []
+            page_title = goto.get("title") if isinstance(goto, dict) else None
+
+            # If search mode, attempt to extract top results with JS
+            def _collect_sources():
+                out = []
+                eval_result = _execute_mcp("browser", "evaluate", {
+                    "script": """(() => {
+                        const primary = Array.from(document.querySelectorAll('a.result__a'));
+                        const links = (primary.length ? primary : Array.from(document.querySelectorAll('a')))
+                          .map(a => ({href: a.href || '', text: (a.innerText || '').trim()}))
+                          .filter(x => x.href && x.text && x.text.length > 2);
+                        return links.slice(0, 40);
+                    })()"""
+                })
+
+                if isinstance(eval_result, dict) and eval_result.get("success") and eval_result.get("result"):
+                    raw_links = eval_result.get("result", [])
+                    seen = set()
+                    for item in raw_links:
+                        href = (item or {}).get("href", "")
+                        text = (item or {}).get("text", "")
+                        if not href or not text:
+                            continue
+                        # Decode duckduckgo redirect links
+                        try:
+                            parsed = urlparse(href)
+                            qs = parse_qs(parsed.query or "")
+                            if "uddg" in qs:
+                                href = unquote(qs["uddg"][0])
+                        except Exception:
+                            pass
+                        # Skip DDG internal links
+                        if "duckduckgo.com" in href or href.startswith("javascript:"):
+                            continue
+                        if href in seen:
+                            continue
+                        seen.add(href)
+                        out.append({"title": text, "url": href})
+                        if len(out) >= 5:
+                            break
+                return out
+
+            def _get_page_title(existing):
+                if existing:
+                    return existing
+                eval_title = _execute_mcp("browser", "evaluate", {"script": "document.title"})
+                if isinstance(eval_title, dict) and eval_title.get("success"):
+                    return eval_title.get("result")
+                return existing
+
+            if search_mode:
+                sources = _collect_sources()
+                page_title = _get_page_title(page_title)
+
+            # Content extraction (OPEN mode only)
+            content = ""
+            if not search_mode:
+                extract = None
+                selectors = ["article", "main", "[role='main']", ".content", ".post", ".article", "body"]
+                for sel in selectors:
+                    extract = _execute_mcp("browser", "extract", {"selector": sel})
+                    content_candidate = ""
+                    if isinstance(extract, dict):
+                        content_candidate = extract.get("content", "") or ""
+                    else:
+                        content_candidate = str(extract)
+                    if isinstance(content_candidate, list):
+                        content_candidate = "\n".join(str(x) for x in content_candidate)
+                    if content_candidate and len(content_candidate.strip()) > 200:
+                        break
+                if extract is None:
+                    extract = _execute_mcp("browser", "extract", {"selector": "body"})
+
+                if isinstance(extract, dict):
+                    content = extract.get("content", "")
+                else:
+                    content = str(extract)
+
+                if isinstance(content, list):
+                    content = "\n".join(str(x) for x in content)
+                content = content.strip()
+                if not content:
+                    html = _execute_mcp("browser", "html", {})
+                    if isinstance(html, dict):
+                        html_content = html.get("html") or html.get("content") or ""
+                    else:
+                        html_content = str(html)
+                    html_content = html_content.strip()
+                    if html_content:
+                        content = html_content
+            # If search mode yields no sources, try a fallback endpoint
+            if search_mode and not sources:
+                alt_url = f"https://duckduckgo.com/html/?q={quote_plus(query)}"
+                goto2 = _execute_mcp("browser", "goto", {"url": alt_url})
+                if isinstance(goto2, dict) and goto2.get("success"):
+                    _execute_mcp("browser", "wait", {"selector": "body", "timeout": 10000})
+                    sources = _collect_sources()
+                    page_title = _get_page_title(goto2.get("title"))
+                    # If we got sources, avoid returning the raw error text
+                    if sources:
+                        url = alt_url
+                        content = ""
+
+            # Last-resort HTTP fallback for search (no browser rendering)
+            if search_mode and not sources:
+                try:
+                    import requests
+                    import html as _html
+                    alt_url = f"https://duckduckgo.com/html/?q={quote_plus(query)}"
+                    resp = requests.get(
+                        alt_url,
+                        headers={"User-Agent": "roxy-web-research/1.0"},
+                        timeout=8
+                    )
+                    if resp.status_code == 200:
+                        body = resp.text or ""
+                        if "result__a" not in body:
+                            body = ""
+                        if len(body) > 500000:
+                            body = body[:500000]
+                        # Extract result links from HTML
+                        matches = re.findall(r'<a[^>]+class=\"result__a\"[^>]+href=\"([^\"]+)\"[^>]*>(.*?)</a>', body, re.IGNORECASE)
+                        for href, title in matches[:5]:
+                            href = _html.unescape(href)
+                            if href.startswith("//"):
+                                href = "https:" + href
+                            # Decode duckduckgo redirect links
+                            try:
+                                parsed = urlparse(href)
+                                qs = parse_qs(parsed.query or "")
+                                if "uddg" in qs:
+                                    href = unquote(qs["uddg"][0])
+                            except Exception:
+                                pass
+                            title_text = _html.unescape(re.sub(r'<[^>]+>', '', title)).strip()
+                            if len(title_text) > 200:
+                                title_text = title_text[:200]
+                            if href and title_text:
+                                sources.append({"title": title_text, "url": href})
+                        if sources:
+                            url = alt_url
+                            page_title = page_title or "DuckDuckGo HTML Results"
+                            content = ""
+                except Exception:
+                    pass
+
+            if len(content) > 8000:
+                content = content[:8000] + "\n...[truncated]"
+
+            result = {
+                "mode": "search" if search_mode else "open",
+                "engine": "duckduckgo" if search_mode else None,
+                "url": url,
+                "title": page_title,
+                "content": "" if search_mode else content,
+                "sources": sources if sources else None
+            }
+            track_tool_execution(tool_name, tool_args, f"Fetched {url}", ok=True)
+            return result
         
         elif tool_name == "read_file":
             file_path = tool_args.get("file_path") or tool_args.get("path")
@@ -382,23 +644,23 @@ def execute_command(cmd_type, args):
     """Execute parsed command"""
 
     if cmd_type == "git":
-        return run_script("git_voice_ops.py", args)
+        return run_script("git_voice_ops.py", args), None
 
     elif cmd_type == "obs":
-        return run_script("obs_skill.py", args)
+        return run_script("obs_skill.py", args), None
 
     elif cmd_type == "health":
-        return run_script("system_health.py", [])
+        return run_script("system_health.py", []), None
 
     elif cmd_type == "briefing":
-        return run_script("daily_briefing.py", [])
+        return run_script("daily_briefing.py", []), None
     
     elif cmd_type == "capabilities":
         # Return EVIDENCE-BASED capabilities (no LLM guessing)
         sys.path.insert(0, str(ROXY_DIR))
         from capabilities import get_capabilities
         caps = get_capabilities()
-        return caps.get_truth_statement()
+        return caps.get_truth_statement(), None
     
     elif cmd_type == "model_info":
         # Return ACTUAL model info (no hallucination)
@@ -406,7 +668,99 @@ def execute_command(cmd_type, args):
         from capabilities import get_capabilities
         caps = get_capabilities()
         model_info = caps.get_model_info()
-        return f"Model: {model_info.get('current_model', 'UNKNOWN')}\nType: {model_info.get('type', 'UNKNOWN')}\nEvidence: {model_info.get('evidence', 'none')}"
+        return f"Model: {model_info.get('current_model', 'UNKNOWN')}\nType: {model_info.get('type', 'UNKNOWN')}\nEvidence: {model_info.get('evidence', 'none')}", None
+
+    elif cmd_type == "debug_info":
+        info = {
+            "sys_executable": sys.executable,
+            "sys_path_head": sys.path[:5],
+            "venv": os.getenv("VIRTUAL_ENV"),
+            "python_version": sys.version.split()[0]
+        }
+        return json.dumps(info, indent=2), None
+
+    elif cmd_type == "ping_direct":
+        # CHIEF'S P0: Deterministic ping response - NO LLM, NO RAG
+        # Contract: <100ms, model_used=null, response="PONG"
+        return "PONG", None
+
+    elif cmd_type == "time_direct":
+        # Deterministic time/date response sourced from TruthPacket
+        query = args[0] if args else ""
+        return answer_time_query(query), None
+
+    elif cmd_type == "memory_store":
+        payload = args[0] if args else ""
+        original = args[1] if len(args) > 1 else payload
+        if not payload:
+            return "ERROR: nothing to remember", None
+        try:
+            db_path = ROXY_DIR / "data" / "roxy_memory.db"
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+            allow_create = os.getenv("ROXY_MEMORY_ALLOW_SCHEMA_CREATE", "0").lower() in ("1", "true", "yes")
+            dedup_seconds_raw = os.getenv("ROXY_MEMORY_DEDUP_SECONDS", "0").strip()
+            dedup_seconds = int(dedup_seconds_raw or "0")
+
+            def _ensure_schema(conn):
+                row = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='conversations'"
+                ).fetchone()
+                if not row:
+                    if not allow_create:
+                        raise RuntimeError("conversations table missing (set ROXY_MEMORY_ALLOW_SCHEMA_CREATE=1 to create)")
+                    conn.execute(
+                        """CREATE TABLE IF NOT EXISTS conversations (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            timestamp TEXT NOT NULL,
+                            user_input TEXT NOT NULL,
+                            jarvis_response TEXT NOT NULL,
+                            context TEXT,
+                            learned_facts TEXT,
+                            embedding_id TEXT
+                        )"""
+                    )
+                cols = [c[1] for c in conn.execute("PRAGMA table_info(conversations)").fetchall()]
+                required = {"id", "timestamp", "user_input", "jarvis_response"}
+                missing = required - set(cols)
+                if missing:
+                    raise RuntimeError(f"conversations schema missing columns: {sorted(missing)}")
+
+            def _parse_ts(raw_ts: str):
+                if not raw_ts:
+                    return None
+                ts = raw_ts.strip()
+                if ts.endswith("Z"):
+                    ts = ts[:-1]
+                try:
+                    return datetime.fromisoformat(ts)
+                except Exception:
+                    return None
+
+            with sqlite3.connect(str(db_path), timeout=2) as conn:
+                _ensure_schema(conn)
+
+                if dedup_seconds > 0:
+                    row = conn.execute(
+                        "SELECT timestamp FROM conversations WHERE user_input=? ORDER BY id DESC LIMIT 1",
+                        (original,)
+                    ).fetchone()
+                    if row:
+                        last_ts = _parse_ts(row[0])
+                        if last_ts:
+                            age = (datetime.utcnow() - last_ts).total_seconds()
+                            if age >= 0 and age <= dedup_seconds:
+                                return "OK: already remembered recently", None
+
+                ts = datetime.utcnow().isoformat() + "Z"
+                context = json.dumps({"manual_remember": True, "source": "roxy_commands"})
+                conn.execute(
+                    "INSERT INTO conversations (timestamp, user_input, jarvis_response, context) VALUES (?, ?, ?, ?)",
+                    (ts, original, f"REMEMBERED: {payload}", context)
+                )
+                conn.commit()
+            return f"OK: remembered ({len(payload)} chars)", None
+        except Exception as e:
+            return f"ERROR: remember failed: {e}", None
 
     elif cmd_type == "unavailable":
         # Explicit rejection for capabilities that don't exist
@@ -459,31 +813,31 @@ def execute_command(cmd_type, args):
         
         return response
 
-    elif cmd_type == "time_direct":
-        # DETERMINISTIC time/date response (NO LLM)
-        query = " ".join(args)
-        return answer_time_query(query)
-
-    elif cmd_type == "repo_direct":
-        # DETERMINISTIC repo state response (NO LLM)
-        query = " ".join(args)
-        return answer_repo_query(query)
-
     elif cmd_type == "rag":
         # Query ChromaDB
         query = " ".join(args)
-        return query_rag(query)
+        rag_result = query_rag(query)
+        
+        # Handle new return format from query_rag
+        if isinstance(rag_result, dict):
+            model_used = rag_result.get("model_used")
+            return rag_result["response"], model_used
+        else:
+            # Legacy string return
+            return rag_result, None
 
     elif cmd_type == "chat":
         # Direct LLM chat (bypass RAG)
         query = " ".join(args)
-        return chat_direct(query)  
+        return chat_direct(query), LAST_MODEL_USED  
 
-    return f"Unknown command type: {cmd_type}"
+    return f"Unknown command type: {cmd_type}", None
 
 def chat_direct(query):
     """Direct LLM chat without RAG"""
     import requests
+    
+    global LAST_MODEL_USED  # Declare global at function start
     
     # Check for explicit pool/model from env (passed from roxy_core)
     model_override = os.environ.get("ROXY_MODEL", "")
@@ -514,13 +868,16 @@ Assistant:"""
             sys.path.insert(0, str(ROXY_DIR))
             from llm_router import get_llm_router
             router = get_llm_router()
-            return router.route_and_generate(
+            response, model_used = router.route_and_generate(
                 prompt=prompt,
                 query=query,
                 context="",
                 task_type="chat", 
                 stream=False
             )
+            # Store model_used globally for metadata
+            LAST_MODEL_USED = model_used
+            return response
         except Exception:
             # Fallback to direct call
             base_url = _get_ollama_base_url()
@@ -535,6 +892,8 @@ Assistant:"""
                 timeout=60
             )
             if resp.status_code == 200:
+                # Store model_used globally for metadata
+                LAST_MODEL_USED = model
                 return resp.json().get("response", "").strip()
             return f"Error: {resp.status_code} {resp.text}"
             
@@ -543,75 +902,46 @@ Assistant:"""
 
 
 def answer_time_query(query: str) -> str:
-    """
-    DETERMINISTIC time/date response - NO LLM CALL.
-
-    Uses TruthPacket if available, otherwise system datetime.
-    This function NEVER calls Ollama - responses are assembled from data only.
-    """
+    """Answer time/date queries deterministically using TruthPacket data when available."""
+    roxy_path = str(ROXY_DIR)
+    added_path = False
+    packet = {}
     try:
-        if TRUTH_PACKET_AVAILABLE:
-            # Get authoritative time from TruthPacket
-            packet = generate_truth_packet(include_pools=False, include_git=False)
+        if not sys.path or sys.path[0] != roxy_path:
+            sys.path.insert(0, roxy_path)
+            added_path = True
+        from truth_packet import generate_truth_packet
+        packet = generate_truth_packet(include_pools=False, include_git=False) or {}
+    except Exception as exc:
+        logger.debug(f"TruthPacket time query fallback: {exc}")
+    finally:
+        if added_path and sys.path and sys.path[0] == roxy_path:
+            sys.path.pop(0)
 
-            # Extract time fields
-            now_human = packet.get("now_human", "")
-            now_iso = packet.get("now_iso", "")
-            now_year = packet.get("now_year", 2026)
-            now_month = packet.get("now_month", "January")
-            now_day = packet.get("now_day", 11)
-            now_weekday = packet.get("now_weekday", "")
-            timezone = packet.get("timezone", "MST")
+    now_human = packet.get("now_human")
+    timezone = packet.get("timezone")
+    now_iso = packet.get("now_iso")
+    weekday = packet.get("now_weekday")
+    month = packet.get("now_month")
+    day = packet.get("now_day")
+    year = packet.get("now_year")
 
-            # Build deterministic response
-            return f"The current date and time is {now_weekday}, {now_month} {now_day}, {now_year}. Time: {now_human} ({timezone}). ISO: {now_iso}"
+    lines = []
+    if now_human:
+        if timezone:
+            lines.append(f"The current time is {now_human} ({timezone}).")
         else:
-            # Fallback to system datetime (no TruthPacket)
-            try:
-                tz = pytz.timezone("America/Edmonton")
-                now = datetime.now(tz)
-            except Exception:
-                now = datetime.now()
+            lines.append(f"The current time is {now_human}.")
+    if weekday and month and day and year:
+        lines.append(f"Date: {weekday}, {month} {day}, {year}")
+    if now_iso:
+        lines.append(f"ISO: {now_iso}")
 
-            return f"The current date and time is {now.strftime('%A, %B %d, %Y at %H:%M:%S %Z')}"
-    except Exception as e:
-        # Ultimate fallback
-        now = datetime.now()
-        return f"The current date and time is {now.strftime('%A, %B %d, %Y at %H:%M:%S')} (fallback: {e})"
+    if lines:
+        return "\n".join(lines)
 
-
-def answer_repo_query(query: str) -> str:
-    """
-    DETERMINISTIC repo state response - NO LLM CALL.
-
-    Uses TruthPacket.git if available, otherwise direct git commands.
-    """
-    try:
-        if TRUTH_PACKET_AVAILABLE:
-            packet = generate_truth_packet(include_pools=False, include_git=True)
-            git_info = packet.get("git", {})
-
-            if git_info:
-                branch = git_info.get("branch", "unknown")
-                commit = git_info.get("commit", "unknown")[:8] if git_info.get("commit") else "unknown"
-                dirty = git_info.get("dirty", False)
-                repo_path = git_info.get("repo_path", "unknown")
-
-                status = "dirty (uncommitted changes)" if dirty else "clean"
-                return f"Repository: {repo_path}\nBranch: {branch}\nCommit: {commit}\nStatus: {status}"
-
-        # Fallback to direct git command
-        import subprocess
-        result = subprocess.run(
-            ["git", "status", "--porcelain", "--branch"],
-            capture_output=True, text=True, timeout=10,
-            cwd=str(ROXY_DIR)
-        )
-        if result.returncode == 0:
-            return f"Git status:\n{result.stdout.strip()}"
-        return f"Git status unavailable: {result.stderr.strip()}"
-    except Exception as e:
-        return f"Repository state unavailable: {e}"
+    current = datetime.now().astimezone()
+    return current.strftime("The current time is %A, %B %d, %Y at %H:%M:%S %Z (ISO: %Y-%m-%dT%H:%M:%S%z)")
 
 
 def query_rag(query, n_results=5, use_advanced_rag=False):
@@ -783,7 +1113,7 @@ Answer:"""
             from llm_router import get_llm_router
             
             router = get_llm_router()
-            response = router.route_and_generate(
+            response, model_used = router.route_and_generate(
                 prompt=prompt,
                 query=query,
                 context=context,
@@ -796,8 +1126,13 @@ Answer:"""
             
             # Add source attribution
             if context:
-                return f"{response}\n\n📌 Source: RAG (Retrieval Augmented Generation) - {n_results} context chunks"
-            return response
+                final_response = f"{response}\n\n📌 Source: RAG (Retrieval Augmented Generation) - {n_results} context chunks"
+            else:
+                final_response = response
+            
+            # Return both response and model used
+            return {"response": final_response, "model_used": model_used}
+            
         except Exception as e:
             logger.debug(f"LLM router failed: {e}, using direct API call")
             # Fallback to direct API call
@@ -812,13 +1147,16 @@ Answer:"""
                 },
                 timeout=60
             )
-
             if llm_resp.status_code == 200:
                 response = llm_resp.json().get("response", "").strip()
                 # Add source attribution
                 if context:
-                    return f"{response}\n\n📌 Source: RAG (Retrieval Augmented Generation) - {n_results} context chunks"
-                return response
+                    final_response = f"{response}\n\n📌 Source: RAG (Retrieval Augmented Generation) - {n_results} context chunks"
+                else:
+                    final_response = response
+                
+                # Return both response and model used (fallback model)
+                return {"response": final_response, "model_used": "qwen2.5-coder:14b"}
 
     except Exception as e:
         return f"RAG query failed: {e}"
@@ -882,35 +1220,45 @@ def main():
         # Force deterministic mode - strict formatting
         pass  # Keep routing, but EXEC mode affects system prompt
     elif explicit_mode == "RAG":
-        # Force RAG mode (but NEVER override time/repo queries - DETERMINISTIC)
-        if cmd_type not in ["git", "obs", "system", "time_direct", "repo_direct"]:
+        # Force RAG mode
+        if cmd_type not in ["git", "obs", "system"]:  # Don't override tool commands
             cmd_type = "rag"
             args = [command]
     
     print(f"[ROXY] Routing to: {cmd_type} {args} (mode={explicit_mode or 'auto'}, pool={explicit_pool or 'auto'})")
 
     result = execute_command(cmd_type, args)
-
+    
+    # Handle tuple return (result, model_used)
+    if isinstance(result, tuple):
+        result_text, model_used = result
+    else:
+        # Legacy single return
+        result_text, model_used = result, None
+    
     # Build routing_meta for structured response (required for tests)
     routing_meta = {
-        "query_type": "time_date" if cmd_type == "time_direct" else ("repo" if cmd_type == "repo_direct" else cmd_type),
-        "routed_mode": "truth_only" if cmd_type in ("time_direct", "repo_direct") else cmd_type,
-        "reason": f"skip_rag:{cmd_type}" if cmd_type in ("time_direct", "repo_direct") else f"default:{cmd_type}",
+        "query_type": cmd_type,
+        "routed_mode": cmd_type,
+        "reason": f"default:{cmd_type}",
         "selected_pool": "fast",
-        "skip_rag": cmd_type in ("time_direct", "repo_direct"),
+        "model_used": model_used,
     }
-
+    flags = {}
+    if cmd_type == "memory_store":
+        flags["memory_store"] = True
+    
     # Build structured response (Chief's Phase 2)
     response = CommandResponse(
-        text=result,
+        text=result_text,
         tools_executed=TOOLS_EXECUTED.copy(),
         mode=cmd_type,
         errors=[],
-        metadata={"command": command, "routing_meta": routing_meta}
+        metadata={"command": command, "routing_meta": routing_meta, "flags": flags}
     )
     
     # Print text for backward compatibility
-    print(f"\n{result}")
+    print(f"\n{result_text}")
     
     # Output structured response as JSON (replaces footer)
     print("\n__STRUCTURED_RESPONSE__")

@@ -166,11 +166,13 @@ class OllamaPanel(Gtk.Box):
     - Model list per pool
     - Unload actions
     """
-    
-    def __init__(self, on_model_unload: Optional[Callable[[str, str], None]] = None):
+
+    def __init__(self, on_model_unload: Optional[Callable[[str, str], None]] = None,
+                 on_refresh: Optional[Callable[[], None]] = None):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        
+
         self.on_model_unload = on_model_unload
+        self.on_refresh = on_refresh
         
         # Card styling
         self.add_css_class("card")
@@ -220,8 +222,11 @@ class OllamaPanel(Gtk.Box):
     
     def _on_refresh_clicked(self, button):
         """Handle refresh button click."""
-        # Will be called by parent's update cycle
-        pass
+        if self.on_refresh:
+            self.on_refresh()
+        # Also visually indicate refresh is happening
+        button.set_sensitive(False)
+        GLib.timeout_add(500, lambda: button.set_sensitive(True) or False)
     
     def _on_model_unload_request(self, pool: str, model: str):
         """Handle model unload request with confirmation."""

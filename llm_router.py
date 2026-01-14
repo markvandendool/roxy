@@ -5,6 +5,7 @@ Code tasks → code-specialized models
 General tasks → general models
 """
 import logging
+import os
 import requests
 from typing import Dict, Any, Optional
 
@@ -20,7 +21,12 @@ class LLMRouter:
     """Routes LLM requests to appropriate models"""
     
     def __init__(self):
+        self.single_model = os.getenv("ROXY_SINGLE_MODEL", "").strip()
         self.available_models = self._discover_models()
+        if self.single_model:
+            logger.info(f"ROXY_SINGLE_MODEL enforced: {self.single_model}")
+            if self.single_model not in self.available_models:
+                logger.warning(f"Enforced model '{self.single_model}' not discovered - falling back to configured name anyway")
         self.code_model = self._select_model(CODE_MODELS)
         self.general_model = self._select_model(GENERAL_MODELS)
         logger.info(f"LLM Router initialized - Code: {self.code_model}, General: {self.general_model}")
@@ -40,6 +46,9 @@ class LLMRouter:
     
     def _select_model(self, preferred_models: list) -> str:
         """Select first available model from preferred list"""
+        if self.single_model:
+            return self.single_model
+
         for model in preferred_models:
             if model in self.available_models:
                 return model
@@ -79,14 +88,21 @@ class LLMRouter:
                           query: str = None,
                           context: str = None,
                           task_type: str = None,
-                          **kwargs) -> str:
-        """Route to appropriate model and generate response"""
+                          **kwargs) -> tuple[str, str]:
+        """Route to appropriate model and generate response
+        
+        Returns:
+            tuple: (response_text, model_used)
+        """
         # Determine task type
         if not task_type:
             task_type = self._classify_task(query or prompt, context)
         
         # Select model
-        if task_type == "code":
+        if self.single_model:
+            model = self.single_model
+            logger.debug(f"Single-model mode active, routing all tasks to: {model}")
+        elif task_type == "code":
             model = self.code_model
             logger.debug(f"Routing to code model: {model}")
         else:
@@ -95,11 +111,13 @@ class LLMRouter:
         
         # Generate with selected model
         try:
-            return self._generate_with_model(model, prompt, **kwargs)
+            response = self._generate_with_model(model, prompt, **kwargs)
+            return response, model
         except Exception as e:
             logger.warning(f"Model {model} failed: {e}, trying fallback")
             # Fallback to default model
-            return self._generate_with_model(FALLBACK_MODEL, prompt, **kwargs)
+            response = self._generate_with_model(FALLBACK_MODEL, prompt, **kwargs)
+            return response, FALLBACK_MODEL
     
     def _generate_with_model(self, model: str, prompt: str, **kwargs) -> str:
         """Generate response with specific model"""

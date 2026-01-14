@@ -22,19 +22,41 @@ from datetime import datetime
 
 import requests
 
-REPO_PATH = Path.home() / "mindsong-juke-hub"
+def _pick_repo_path() -> Path:
+    # Prefer explicit override, then local fast clones, then SSHFS mount as last resort.
+    override = os.getenv("ROXY_GIT_REPO")
+    if override:
+        return Path(override).expanduser()
+    candidates = [
+        Path.home() / "mindsong-juke-hub-sandbox",
+        Path.home() / "mindsong-mirror",
+        Path.home() / "mindsong-juke-hub",
+    ]
+    for c in candidates:
+        if (c / ".git").exists():
+            return c
+    return Path.home() / "mindsong-juke-hub"
+
+REPO_PATH = _pick_repo_path()
 OLLAMA_URL = "http://127.0.0.1:11435/api/generate"
 OLLAMA_MODEL = "llama3:8b"
 
 def run_git(args, cwd=None):
     """Run a git command and return output"""
     try:
+        env = os.environ.copy()
+        # Never block on credential prompts in non-interactive mode
+        env.setdefault("GIT_TERMINAL_PROMPT", "0")
+        env.setdefault("GIT_ASKPASS", "/bin/true")
+        env.setdefault("SSH_ASKPASS", "/bin/true")
+        timeout = int(env.get("ROXY_GIT_TIMEOUT", "20"))
         result = subprocess.run(
             ["git"] + args,
             cwd=cwd or REPO_PATH,
             capture_output=True,
             text=True,
-            timeout=60
+            timeout=timeout,
+            env=env
         )
         return result.stdout.strip(), result.stderr.strip(), result.returncode
     except Exception as e:

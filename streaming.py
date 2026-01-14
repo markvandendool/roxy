@@ -35,6 +35,15 @@ except ImportError:
     TRUTH_PACKET_AVAILABLE = False
     logger.warning("TruthPacket module not available - time grounding disabled")
 
+# Import episodic memory for conversation recall
+try:
+    from infrastructure import recall_conversations
+    MEMORY_AVAILABLE = True
+except ImportError:
+    MEMORY_AVAILABLE = False
+    def recall_conversations(*args, **kwargs): return []
+    logger.warning("Memory module not available - episodic memory disabled")
+
 
 # Query detection functions - imported from shared module (avoids circular imports)
 from query_detection import is_time_date_query, is_repo_query
@@ -320,16 +329,40 @@ Use for background information only. The TRUTH PACKET above is authoritative.
         else:
             rag_section = ""
 
+        # === PART E: EPISODIC MEMORY (relevant past conversations) ===
+        memory_section = ""
+        if MEMORY_AVAILABLE:
+            try:
+                memories = recall_conversations(query, k=3)
+                if memories:
+                    memory_items = []
+                    for mem in memories:
+                        mem_query = mem.get('query', '')[:100]
+                        mem_response = mem.get('response', '')[:200]
+                        mem_time = mem.get('created_at', 'unknown')
+                        memory_items.append(f"Q: {mem_query}\nA: {mem_response}\n(from: {mem_time})")
+                    memory_section = f"""
+=== EPISODIC MEMORY (RELEVANT PAST CONVERSATIONS) ===
+You have discussed similar topics before with the user. Here are relevant memories:
+
+{'---'.join(memory_items)}
+=== END EPISODIC MEMORY ==="""
+                    logger.debug(f"[RAG] Injected {len(memories)} memories for query: {query[:50]}")
+            except Exception as e:
+                logger.debug(f"[RAG] Memory recall failed (non-critical): {e}")
+
         # === BUILD FINAL PROMPT ===
-        # Order: System → Truth → Query → RAG (if any)
+        # Order: System → Truth → Memory → Query → RAG (if any)
         prompt = f"""{system_prompt}
 
 {truth_section}
+{memory_section}
 {query_section}
 {rag_section}
 
 Respond to the user's query. If using reference material, synthesize it but remember:
-the TRUTH PACKET is AUTHORITATIVE for current date/time and system state."""
+the TRUTH PACKET is AUTHORITATIVE for current date/time and system state.
+If episodic memory is provided, use it to maintain continuity with past conversations."""
 
         logger.debug(f"[RAG] Built prompt for requestId={request_tag}, context_len={len(context) if context else 0}")
 

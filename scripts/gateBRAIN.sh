@@ -205,6 +205,85 @@ test_core_health() {
     return 0
 }
 
+# CHIEF'S P0: Ping fast-path test
+# Contract: ping MUST be deterministic, <250ms, no LLM, no RAG, model_used=null
+test_ping_fastpath() {
+    log_test "Ping fast-path (CHIEF'S P0 REQUIREMENT)..."
+
+    # Check if core is up first
+    if ! curl -sf "$ROXY_CORE_URL/health" > /dev/null 2>&1; then
+        log_test "(skipped - roxy-core not running)"
+        return 0
+    fi
+
+    # Get auth token
+    local auth_token=""
+    if [[ -f "$ROXY_DIR/secret.token" ]]; then
+        auth_token=$(cat "$ROXY_DIR/secret.token" 2>/dev/null || true)
+    fi
+
+    if [[ -z "$auth_token" ]]; then
+        log_test "(skipped - no auth token)"
+        return 0
+    fi
+
+    # Measure latency
+    local start_ms=$(date +%s%3N)
+    response=$(timeout 5 curl -sf -X POST "$ROXY_CORE_URL/run" \
+        -H "Content-Type: application/json" \
+        -H "X-ROXY-Token: $auth_token" \
+        -d '{"command": "ping"}' 2>/dev/null || echo '{"error":"timeout"}')
+    local end_ms=$(date +%s%3N)
+    local duration=$((end_ms - start_ms))
+
+    if [[ "$response" == '{"error":"timeout"}' ]]; then
+        log_fail "Ping request timed out"
+        return 1
+    fi
+
+    # Extract fields
+    local text=$(echo "$response" | jq -r '.result // .text // "MISSING"')
+    local mode=$(echo "$response" | jq -r '.mode // .metadata.routing_meta.routed_mode // "MISSING"')
+    local model_used=$(echo "$response" | jq -r '.model_used // .metadata.routing_meta.model_used // "MISSING"')
+
+    [[ -n "$VERBOSE" ]] && echo "Response: $response"
+    [[ -n "$VERBOSE" ]] && echo "Duration: ${duration}ms, Text: $text, Mode: $mode, Model: $model_used"
+
+    # HARD ASSERTIONS
+    # 1. Response must be "PONG"
+    if [[ "$text" != "PONG" ]]; then
+        log_fail "Ping response must be 'PONG', got '$text'"
+        return 1
+    fi
+
+    # 2. model_used must be null (no LLM invoked)
+    if [[ "$model_used" != "null" && "$model_used" != "MISSING" && -n "$model_used" ]]; then
+        log_fail "Ping model_used must be null, got '$model_used'"
+        return 1
+    fi
+
+    # 3. mode must indicate fast-path (truth_only or ping_direct)
+    if [[ "$mode" != "truth_only" && "$mode" != "ping_direct" ]]; then
+        log_fail "Ping mode must be 'truth_only' or 'ping_direct', got '$mode'"
+        return 1
+    fi
+
+    # 4. Latency must be <250ms (hard fail)
+    if [[ $duration -gt 250 ]]; then
+        log_fail "Ping latency ${duration}ms exceeds 250ms hard limit"
+        return 1
+    fi
+
+    # 5. Response must NOT contain RAG citations
+    if echo "$text" | grep -qiE "context|source:|citation|📌|chunks"; then
+        log_fail "Ping response contains RAG citations (routing leak)"
+        return 1
+    fi
+
+    log_pass "Ping fast-path OK (${duration}ms, mode=$mode, model_used=null)"
+    return 0
+}
+
 # Test time query via /run (if core is up and auth is configured)
 test_time_via_run() {
     log_test "Time query via /run endpoint..."
@@ -475,6 +554,7 @@ main() {
     test_repo_classifier || true
     test_repo_truth || true
     test_core_health || true
+    test_ping_fastpath || true
     test_time_via_run || true
     test_time_via_run_deterministic || true
     test_sse_routing_meta || true

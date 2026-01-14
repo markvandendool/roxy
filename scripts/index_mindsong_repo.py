@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
 """
-Index mindsong-juke-hub repository for ROXY
-Run this to build full semantic index
+Index a repository for ROXY (full semantic index).
+Default: ~/mindsong-juke-hub
 """
 import sys
 import asyncio
-sys.path.insert(0, '/opt/roxy/services')
+import argparse
+import os
+from pathlib import Path
+
+sys.path.insert(0, str(Path.home() / ".roxy" / "services"))
 
 from repository_indexer import get_repo_indexer
 
 async def main():
-    repo_path = "/opt/roxy/mindsong-juke-hub"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", default=os.getenv("ROXY_RAG_REPO", str(Path.home() / "mindsong-juke-hub")))
+    parser.add_argument("--collection", default=None)
+    args = parser.parse_args()
+
+    repo_path = args.repo
     
     print(f"🔍 Indexing {repo_path} repository...")
     print("This will create a full semantic index for instant retrieval.")
     print("")
     
-    indexer = get_repo_indexer(repo_path)
+    indexer = get_repo_indexer(repo_path, args.collection)
     
     # Check if already indexed
     stats = indexer.get_stats()
@@ -41,7 +50,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
 
 
