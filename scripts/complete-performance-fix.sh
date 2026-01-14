@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # COMPLETE PERFORMANCE FIX - Everything Fixed
 
 echo "╔════════════════════════════════════════════════════════════╗"

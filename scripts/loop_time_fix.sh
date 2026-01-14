@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # loop_time_fix.sh - ROXY Time Fix Iteration Loop
 #

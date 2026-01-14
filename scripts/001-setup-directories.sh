@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-ROXY_ROOT="/opt/roxy"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 ROXY_USER="${SUDO_USER:-$USER}"
 
 echo "╔═══════════════════════════════════════════════════════════════════════════╗"
@@ -116,7 +116,7 @@ cat > "$ROXY_ROOT/.env.template" << 'EOF'
 #===============================================================================
 
 # Core
-ROXY_ROOT=/opt/roxy
+ROXY_ROOT=${ROXY_ROOT:-$HOME/.roxy}
 ROXY_DOMAIN=roxy.local
 ROXY_ENV=production
 
@@ -169,13 +169,13 @@ OBS_WEBSOCKET_PORT=4455
 WAKEWORD_MODEL=hey_roxy
 WAKEWORD_THRESHOLD=0.5
 TTS_MODEL=xtts_v2
-TTS_VOICE_REF=/opt/roxy/voice/reference/roxy_voice.wav
+TTS_VOICE_REF=${ROXY_ROOT:-$HOME/.roxy}/voice/reference/roxy_voice.wav
 
 # Content Pipeline
-RECORDINGS_DIR=/opt/roxy/data/recordings
-CLIPS_DIR=/opt/roxy/data/clips
-THUMBNAILS_DIR=/opt/roxy/data/thumbnails
-EXPORTS_DIR=/opt/roxy/data/exports
+RECORDINGS_DIR=${ROXY_ROOT:-$HOME/.roxy}/data/recordings
+CLIPS_DIR=${ROXY_ROOT:-$HOME/.roxy}/data/clips
+THUMBNAILS_DIR=${ROXY_ROOT:-$HOME/.roxy}/data/thumbnails
+EXPORTS_DIR=${ROXY_ROOT:-$HOME/.roxy}/data/exports
 
 # GPU (AMD)
 GPU_DEVICE=/dev/dri/renderD128
@@ -185,12 +185,12 @@ EOF
 # Create README
 echo "[5/6] Creating README..."
 cat > "$ROXY_ROOT/README.md" << 'EOF'
-# ROXY CITADEL - /opt/roxy
+# ROXY CITADEL - ${ROXY_ROOT:-$HOME/.roxy}
 
 ## Directory Structure
 
 ```
-/opt/roxy/
+${ROXY_ROOT:-$HOME/.roxy}/
 ├── agents/          # AI agent code
 │   ├── browser-agent/
 │   ├── desktop-agent/

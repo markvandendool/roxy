@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Verify GPU Optimization - Check that Whisper uses CPU
 #
@@ -10,14 +11,14 @@ echo ""
 
 # Check .env configuration
 echo "📋 Configuration Check:"
-if [ -f "/opt/roxy/.env" ]; then
-    if grep -q "ROXY_WHISPER_DEVICE=cpu" /opt/roxy/.env; then
+if [ -f "${ROXY_ROOT:-$HOME/.roxy}/.env" ]; then
+    if grep -q "ROXY_WHISPER_DEVICE=cpu" ${ROXY_ROOT:-$HOME/.roxy}/.env; then
         echo "   ✅ ROXY_WHISPER_DEVICE=cpu (Whisper will use CPU)"
     else
         echo "   ⚠️  ROXY_WHISPER_DEVICE not set to cpu"
     fi
     
-    if grep -q "ROXY_GPU_ENABLED=true" /opt/roxy/.env; then
+    if grep -q "ROXY_GPU_ENABLED=true" ${ROXY_ROOT:-$HOME/.roxy}/.env; then
         echo "   ✅ ROXY_GPU_ENABLED=true (LLM/TTS will use GPU)"
     else
         echo "   ⚠️  ROXY_GPU_ENABLED not set"
@@ -55,7 +56,6 @@ echo "   2. Monitor GPU: watch -n 1 rocm-smi"
 echo "   3. Test voice command and watch GPU usage"
 echo "   4. GPU should stay under 80% during transcription"
 echo ""
-
 
 
 

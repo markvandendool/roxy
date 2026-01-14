@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 set -euo pipefail
 
 TS=$(date -u +%Y%m%dT%H%M%SZ)

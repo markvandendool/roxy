@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Setup FFmpeg with AMD AMF Support
 # Note: May require building FFmpeg from source with AMF support
@@ -42,7 +43,6 @@ echo ""
 
 echo "📝 Note: GPU encoding presets are configured in encoding_presets.py"
 echo "   They will use AMF when available, fallback to software encoding"
-
 
 
 

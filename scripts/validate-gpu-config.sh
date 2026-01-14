@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Validate GPU Configuration
 # Checks that all GPU settings are properly configured
@@ -13,8 +14,8 @@ ERRORS=0
 WARNINGS=0
 
 # Check .env file exists
-if [ ! -f /opt/roxy/.env ]; then
-    echo "❌ /opt/roxy/.env not found"
+if [ ! -f ${ROXY_ROOT:-$HOME/.roxy}/.env ]; then
+    echo "❌ ${ROXY_ROOT:-$HOME/.roxy}/.env not found"
     ERRORS=$((ERRORS + 1))
 else
     echo "✅ .env file exists"
@@ -23,21 +24,21 @@ echo ""
 
 # Check GPU environment variables
 echo "1. Checking GPU environment variables..."
-if grep -q "ROXY_GPU_ENABLED=true" /opt/roxy/.env 2>/dev/null; then
+if grep -q "ROXY_GPU_ENABLED=true" ${ROXY_ROOT:-$HOME/.roxy}/.env 2>/dev/null; then
     echo "   ✅ ROXY_GPU_ENABLED=true"
 else
     echo "   ⚠️  ROXY_GPU_ENABLED not set or not true"
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if grep -q "ROXY_GPU_DEVICE=cuda" /opt/roxy/.env 2>/dev/null; then
+if grep -q "ROXY_GPU_DEVICE=cuda" ${ROXY_ROOT:-$HOME/.roxy}/.env 2>/dev/null; then
     echo "   ✅ ROXY_GPU_DEVICE=cuda"
 else
     echo "   ⚠️  ROXY_GPU_DEVICE not set to cuda"
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if grep -q "ROXY_GPU_COMPUTE_TYPE=float16" /opt/roxy/.env 2>/dev/null; then
+if grep -q "ROXY_GPU_COMPUTE_TYPE=float16" ${ROXY_ROOT:-$HOME/.roxy}/.env 2>/dev/null; then
     echo "   ✅ ROXY_GPU_COMPUTE_TYPE=float16"
 else
     echo "   ⚠️  ROXY_GPU_COMPUTE_TYPE not set to float16"
@@ -47,16 +48,16 @@ echo ""
 
 # Check Ollama configuration
 echo "2. Checking Ollama configuration..."
-if grep -q "OLLAMA_HOST=" /opt/roxy/.env 2>/dev/null; then
-    OLLAMA_HOST=$(grep "OLLAMA_HOST=" /opt/roxy/.env | cut -d= -f2)
+if grep -q "OLLAMA_HOST=" ${ROXY_ROOT:-$HOME/.roxy}/.env 2>/dev/null; then
+    OLLAMA_HOST=$(grep "OLLAMA_HOST=" ${ROXY_ROOT:-$HOME/.roxy}/.env | cut -d= -f2)
     echo "   ✅ OLLAMA_HOST=$OLLAMA_HOST"
 else
     echo "   ⚠️  OLLAMA_HOST not set"
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if grep -q "OLLAMA_MODEL=" /opt/roxy/.env 2>/dev/null; then
-    OLLAMA_MODEL=$(grep "OLLAMA_MODEL=" /opt/roxy/.env | cut -d= -f2)
+if grep -q "OLLAMA_MODEL=" ${ROXY_ROOT:-$HOME/.roxy}/.env 2>/dev/null; then
+    OLLAMA_MODEL=$(grep "OLLAMA_MODEL=" ${ROXY_ROOT:-$HOME/.roxy}/.env | cut -d= -f2)
     echo "   ✅ OLLAMA_MODEL=$OLLAMA_MODEL"
 else
     echo "   ⚠️  OLLAMA_MODEL not set"
@@ -66,8 +67,8 @@ echo ""
 
 # Check CUDA device
 echo "3. Checking CUDA device configuration..."
-if grep -q "CUDA_VISIBLE_DEVICES=" /opt/roxy/.env 2>/dev/null; then
-    CUDA_DEVICE=$(grep "CUDA_VISIBLE_DEVICES=" /opt/roxy/.env | cut -d= -f2)
+if grep -q "CUDA_VISIBLE_DEVICES=" ${ROXY_ROOT:-$HOME/.roxy}/.env 2>/dev/null; then
+    CUDA_DEVICE=$(grep "CUDA_VISIBLE_DEVICES=" ${ROXY_ROOT:-$HOME/.roxy}/.env | cut -d= -f2)
     echo "   ✅ CUDA_VISIBLE_DEVICES=$CUDA_DEVICE"
 else
     echo "   ⚠️  CUDA_VISIBLE_DEVICES not set (will use default)"
@@ -114,7 +115,6 @@ else
     echo "❌ Configuration has $ERRORS error(s) and $WARNINGS warning(s)"
     exit 1
 fi
-
 
 
 

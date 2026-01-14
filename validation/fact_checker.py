@@ -5,6 +5,7 @@ Fact Checker - Validates responses against filesystem and knowledge base
 import logging
 import re
 from pathlib import Path
+import os
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger("roxy.validation.fact_checker")
@@ -35,7 +36,8 @@ class FactChecker:
         """
         if not repo_path:
             # Default to mindsong repo
-            repo_path = Path("/opt/roxy/mindsong-juke-hub")
+            roxy_root = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+            repo_path = Path(os.environ.get('ROXY_MINDSONG_PATH', str(roxy_root / 'mindsong-juke-hub')))
         
         if not repo_path.exists():
             return {"valid": True, "reason": "Repo path not available for checking"}
@@ -112,7 +114,8 @@ class FactChecker:
     def check_code_claims(self, response: str, repo_path: Path = None) -> Dict[str, Any]:
         """Check if response mentions code patterns that exist"""
         if not repo_path:
-            repo_path = Path("/opt/roxy/mindsong-juke-hub")
+            roxy_root = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+            repo_path = Path(os.environ.get('ROXY_MINDSONG_PATH', str(roxy_root / 'mindsong-juke-hub')))
         
         if not repo_path.exists():
             return {"valid": True, "reason": "Repo path not available for checking"}

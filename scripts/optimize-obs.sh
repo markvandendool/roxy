@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # OBS Studio Optimization for Mac Pro 2019
 # Dual GPU Setup - W5700X + RX 6900 XT
 
@@ -34,7 +35,7 @@ echo "  • Use RX 6900 XT for encoding (more powerful)"
 echo "  • Use W5700X for display if needed"
 echo ""
 echo "Creating OBS test script..."
-cat > /opt/roxy/scripts/obs-test-recording.sh << 'EOFTEST'
+cat > ${ROXY_ROOT:-$HOME/.roxy}/scripts/obs-test-recording.sh << 'EOFTEST'
 #!/bin/bash
 # OBS Recording Test Script
 
@@ -61,5 +62,5 @@ echo "  • CPU usage: htop"
 echo "  • GPU usage: radeontop"
 echo "  • FPS: OBS Stats window"
 EOFTEST
-chmod +x /opt/roxy/scripts/obs-test-recording.sh
+chmod +x ${ROXY_ROOT:-$HOME/.roxy}/scripts/obs-test-recording.sh
 echo "✅ OBS test script created"

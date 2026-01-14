@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # parity_test.sh - ROXY /run vs /stream Parity Test
 # Compares truth query answers between endpoints

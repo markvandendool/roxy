@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Test broadcasting pipeline end-to-end
 
 set -e
@@ -8,7 +9,7 @@ echo ""
 
 # 1. Test OBS connection
 echo "[1/4] Testing OBS WebSocket..."
-cd /opt/roxy && source venv/bin/activate
+cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate
 python scripts/obs_automation.py status && echo "✅ OBS connected" || echo "❌ OBS not connected"
 
 # 2. Test content pipeline scripts

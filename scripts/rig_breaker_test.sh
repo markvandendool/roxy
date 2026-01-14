@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # rig_breaker_test.sh - ROXY Rig-Breaker Test Suite
 # 20 questions designed to expose routing lies, cache drift, and shortcuts

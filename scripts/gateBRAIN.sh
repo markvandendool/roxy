@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # gateBRAIN.sh - ROXY Brain Verification Script
 #

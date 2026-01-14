@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-ROXY_ROOT="/opt/roxy"
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 COMPOSE_DIR="$ROXY_ROOT/compose"
 
 echo "╔═══════════════════════════════════════════════════════════════════════════╗"

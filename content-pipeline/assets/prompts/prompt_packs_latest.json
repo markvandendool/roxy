@@ -1,14 +1,14 @@
 {
-  "pack_id": "PACK_20260114_132216_92401095",
-  "timestamp": "2026-01-14T20:22:16.260921+00:00",
+  "pack_id": "PACK_20260114_142207_d4c49888",
+  "timestamp": "2026-01-14T21:22:07.504276+00:00",
   "status": "healthy",
-  "source_briefs": "BRIEF_20260114_132008_13b4d035",
+  "source_briefs": "BRIEF_20260114_142001_b6371404",
   "packs": [
     {
-      "script_id": "SCR_037d7ad1cb5e",
+      "script_id": "SCR_eccbe1d9e43f",
       "prompts": [
         {
-          "asset_id": "ASSET_037d7ad1_thumbnail_00_9a9b50b6",
+          "asset_id": "ASSET_eccbe1d9_thumbnail_00_f3782b15",
           "asset_type": "thumbnail",
           "prompt": "YouTube video thumbnail, Robotics software maker\u00a0Skild\u00a0AI hits $14B valuati, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -29,7 +29,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_intro_card_00_76cf5e8b",
+          "asset_id": "ASSET_eccbe1d9_intro_card_00_f03f827c",
           "asset_type": "intro_card",
           "prompt": "Video intro title card, Robotics software maker\u00a0Skild\u00a0AI hits $14B valuati, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -50,7 +50,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_lower_third_00_bae0844a",
+          "asset_id": "ASSET_eccbe1d9_lower_third_00_9bb75d85",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -72,7 +72,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_lower_third_01_82a4e021",
+          "asset_id": "ASSET_eccbe1d9_lower_third_01_3376063f",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -94,7 +94,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_lower_third_02_a9fa0323",
+          "asset_id": "ASSET_eccbe1d9_lower_third_02_ccc576e1",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -116,7 +116,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_broll_00_7b6e34d5",
+          "asset_id": "ASSET_eccbe1d9_broll_00_a0654492",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -140,7 +140,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_broll_01_8d2c1b7b",
+          "asset_id": "ASSET_eccbe1d9_broll_01_2b010a8b",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -164,7 +164,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_broll_02_51f9e146",
+          "asset_id": "ASSET_eccbe1d9_broll_02_a5270465",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -188,7 +188,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_broll_03_cc050279",
+          "asset_id": "ASSET_eccbe1d9_broll_03_5eae58e5",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -212,7 +212,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_broll_04_1059a16b",
+          "asset_id": "ASSET_eccbe1d9_broll_04_aa0bbc54",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -236,7 +236,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_title_card_00_f66611f7",
+          "asset_id": "ASSET_eccbe1d9_title_card_00_9045c80a",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -258,7 +258,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_title_card_01_e8efbe82",
+          "asset_id": "ASSET_eccbe1d9_title_card_01_052dd749",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -280,7 +280,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_title_card_02_2344b6e5",
+          "asset_id": "ASSET_eccbe1d9_title_card_02_f614a18e",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -302,7 +302,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_037d7ad1_end_card_00_00dc104f",
+          "asset_id": "ASSET_eccbe1d9_end_card_00_0e9cfd0b",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -325,10 +325,10 @@
       ]
     },
     {
-      "script_id": "SCR_fc7c7428ee39",
+      "script_id": "SCR_3eeda055e965",
       "prompts": [
         {
-          "asset_id": "ASSET_fc7c7428_thumbnail_00_05c976e0",
+          "asset_id": "ASSET_3eeda055_thumbnail_00_309760c4",
           "asset_type": "thumbnail",
           "prompt": "YouTube video thumbnail, \u201cRobot, make me a chair\u201d, energetic style, professional quality, eye-catching, high contrast text area, vibrant colors, dynamic lighting, motion blur",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -349,7 +349,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_fc7c7428_intro_card_00_2a57c1a0",
+          "asset_id": "ASSET_3eeda055_intro_card_00_00c927a7",
           "asset_type": "intro_card",
           "prompt": "Video intro title card, \u201cRobot, make me a chair\u201d, energetic motion graphics style, sleek animation ready, vibrant colors, dynamic lighting, motion blur",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -370,7 +370,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_fc7c7428_lower_third_00_5eee5048",
+          "asset_id": "ASSET_3eeda055_lower_third_00_7e5b8ed0",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, energetic style, semi-transparent background, modern typography, vibrant colors, dynamic lighting, motion blur",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -392,7 +392,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_fc7c7428_end_card_00_316a3207",
+          "asset_id": "ASSET_3eeda055_end_card_00_93673406",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, energetic style, engaging call to action, vibrant colors, dynamic lighting, motion blur",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -415,10 +415,10 @@
       ]
     },
     {
-      "script_id": "SCR_d5a7a218afbf",
+      "script_id": "SCR_39843b50df28",
       "prompts": [
         {
-          "asset_id": "ASSET_d5a7a218_thumbnail_00_76cef3ec",
+          "asset_id": "ASSET_39843b50_thumbnail_00_7d61de54",
           "asset_type": "thumbnail",
           "prompt": "YouTube video thumbnail, The multibillion-dollar AI security problem enterp, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -439,7 +439,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_intro_card_00_2ad7aadc",
+          "asset_id": "ASSET_39843b50_intro_card_00_9499a730",
           "asset_type": "intro_card",
           "prompt": "Video intro title card, The multibillion-dollar AI security problem enterp, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -460,7 +460,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_lower_third_00_f0b03c7f",
+          "asset_id": "ASSET_39843b50_lower_third_00_a70e1b8c",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -482,7 +482,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_lower_third_01_0410b55b",
+          "asset_id": "ASSET_39843b50_lower_third_01_905e2a4d",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -504,7 +504,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_lower_third_02_909a817f",
+          "asset_id": "ASSET_39843b50_lower_third_02_13072f11",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -526,7 +526,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_broll_00_4ee9f354",
+          "asset_id": "ASSET_39843b50_broll_00_10ee3cfb",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -550,7 +550,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_broll_01_1d75687d",
+          "asset_id": "ASSET_39843b50_broll_01_15fcd89d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -574,7 +574,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_broll_02_4557fc6d",
+          "asset_id": "ASSET_39843b50_broll_02_609cd4d2",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -598,7 +598,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_broll_03_fe4b797d",
+          "asset_id": "ASSET_39843b50_broll_03_57a33548",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -622,7 +622,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_broll_04_a91e4e1f",
+          "asset_id": "ASSET_39843b50_broll_04_62c628b7",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -646,7 +646,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_title_card_00_969ec9b7",
+          "asset_id": "ASSET_39843b50_title_card_00_58995995",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -668,7 +668,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_title_card_01_d4b66e77",
+          "asset_id": "ASSET_39843b50_title_card_01_6d195590",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -690,7 +690,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_title_card_02_9f172cd2",
+          "asset_id": "ASSET_39843b50_title_card_02_22b45544",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -712,7 +712,7 @@
           ]
         },
         {
-          "asset_id": "ASSET_d5a7a218_end_card_00_1549c027",
+          "asset_id": "ASSET_39843b50_end_card_00_d35a49f8",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",

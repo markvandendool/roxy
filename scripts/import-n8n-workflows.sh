@@ -1,10 +1,11 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Import n8n workflows for broadcasting automation
 
 set -e
 
 N8N_URL="http://localhost:5678"
-WORKFLOWS_DIR="/opt/roxy/n8n-workflows"
+WORKFLOWS_DIR="${ROXY_ROOT:-$HOME/.roxy}/n8n-workflows"
 
 echo "=== Importing n8n Workflows ==="
 echo ""
@@ -12,7 +13,7 @@ echo ""
 # Check if n8n is running
 if ! curl -s "${N8N_URL}/healthz" > /dev/null 2>&1; then
     echo "⚠️  n8n not accessible at ${N8N_URL}"
-    echo "   Start it: docker compose -f /opt/roxy/compose/docker-compose.foundation.yml up -d roxy-n8n"
+    echo "   Start it: docker compose -f ${ROXY_ROOT:-$HOME/.roxy}/compose/docker-compose.foundation.yml up -d roxy-n8n"
     exit 1
 fi
 
@@ -22,7 +23,7 @@ echo ""
 # Check if workflows exist
 if [ ! -d "$WORKFLOWS_DIR" ]; then
     echo "⚠️  Workflows directory not found: $WORKFLOWS_DIR"
-    echo "   Run: bash /opt/roxy/scripts/create-n8n-broadcast-workflows.sh"
+    echo "   Run: bash ${ROXY_ROOT:-$HOME/.roxy}/scripts/create-n8n-broadcast-workflows.sh"
     exit 1
 fi
 
@@ -48,4 +49,3 @@ echo "1. Configure API keys (YouTube, Discord, Telegram)"
 echo "2. Update file paths if needed"
 echo "3. Activate workflows"
 echo "4. Test with sample files"
-

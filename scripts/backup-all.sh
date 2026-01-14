@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Backup all critical Roxy data to MinIO
 
 BACKUP_DATE=$(date +%Y%m%d-%H%M%S)
@@ -10,17 +11,17 @@ mkdir -p "$BACKUP_DIR"
 
 # Backup configurations
 echo '[1/4] Backing up configurations...'
-cp -r /opt/roxy/integrations/config "$BACKUP_DIR/" 2>/dev/null && echo '    ✅ Integration configs'
-cp /opt/roxy/.env "$BACKUP_DIR/" 2>/dev/null && echo '    ✅ Environment file'
+cp -r ${ROXY_ROOT:-$HOME/.roxy}/integrations/config "$BACKUP_DIR/" 2>/dev/null && echo '    ✅ Integration configs'
+cp ${ROXY_ROOT:-$HOME/.roxy}/.env "$BACKUP_DIR/" 2>/dev/null && echo '    ✅ Environment file'
 
 # Backup voice data
 echo '[2/4] Backing up voice data...'
-cp -r /opt/roxy/voice/wakeword/samples "$BACKUP_DIR/wakeword-samples" 2>/dev/null && echo '    ✅ Wake word samples'
-cp -r /opt/roxy/voice/wakeword/models "$BACKUP_DIR/wakeword-models" 2>/dev/null && echo '    ✅ Wake word models'
+cp -r ${ROXY_ROOT:-$HOME/.roxy}/voice/wakeword/samples "$BACKUP_DIR/wakeword-samples" 2>/dev/null && echo '    ✅ Wake word samples'
+cp -r ${ROXY_ROOT:-$HOME/.roxy}/voice/wakeword/models "$BACKUP_DIR/wakeword-models" 2>/dev/null && echo '    ✅ Wake word models'
 
 # Backup scripts
 echo '[3/4] Backing up scripts...'
-cp -r /opt/roxy/scripts "$BACKUP_DIR/scripts" 2>/dev/null && echo '    ✅ Automation scripts'
+cp -r ${ROXY_ROOT:-$HOME/.roxy}/scripts "$BACKUP_DIR/scripts" 2>/dev/null && echo '    ✅ Automation scripts'
 
 # Create tarball
 echo '[4/4] Creating archive...'

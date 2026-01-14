@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # cc_doctor.sh - Command Center prerequisites check
 # Verifies all dependencies before launch to prevent silent failures
 set -euo pipefail

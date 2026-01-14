@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Wayland GPU Configuration
 # Forces RX 6900 XT (card2) as primary GPU for Wayland

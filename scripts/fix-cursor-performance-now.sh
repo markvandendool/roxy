@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Comprehensive Cursor Performance Fix
 # Kills runaway processes, optimizes settings, and ensures smooth operation
 
@@ -74,8 +75,8 @@ echo ""
 
 # 5. Verify .cursorignore
 echo "5️⃣  Verifying .cursorignore..."
-if [ -f "/opt/roxy/.cursorignore" ]; then
-    IGNORE_COUNT=$(wc -l < /opt/roxy/.cursorignore)
+if [ -f "${ROXY_ROOT:-$HOME/.roxy}/.cursorignore" ]; then
+    IGNORE_COUNT=$(wc -l < ${ROXY_ROOT:-$HOME/.roxy}/.cursorignore)
     echo "   ✅ .cursorignore exists with $IGNORE_COUNT exclusions"
 else
     echo "   ⚠️  .cursorignore not found"
@@ -101,7 +102,6 @@ echo "   - File watcher limit: $(cat /proc/sys/fs/inotify/max_user_watches 2>/de
 echo ""
 echo "💡 If issues persist, restart Cursor completely."
 echo ""
-
 
 
 

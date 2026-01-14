@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Start a complete broadcasting session
 
 set -e
@@ -18,7 +19,7 @@ fi
 # 2. Verify OBS connection
 echo ""
 echo "[2/4] Verifying OBS WebSocket..."
-cd /opt/roxy && source venv/bin/activate
+cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate
 if python scripts/obs_automation.py status > /dev/null 2>&1; then
     echo "✅ OBS WebSocket connected"
 else
@@ -34,15 +35,15 @@ if curl -s http://localhost:5678/healthz > /dev/null 2>&1; then
     echo "✅ n8n running"
 else
     echo "⚠️  n8n not running"
-    echo "   Start: docker compose -f /opt/roxy/compose/docker-compose.foundation.yml up -d roxy-n8n"
+    echo "   Start: docker compose -f ${ROXY_ROOT:-$HOME/.roxy}/compose/docker-compose.foundation.yml up -d roxy-n8n"
 fi
 
 # 4. Check content pipeline
 echo ""
 echo "[4/4] Checking content pipeline..."
-if [ -d /opt/roxy/content-pipeline ]; then
+if [ -d ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline ]; then
     echo "✅ Content pipeline ready"
-    echo "   Scripts: $(ls -1 /opt/roxy/content-pipeline/*.py 2>/dev/null | wc -l) found"
+    echo "   Scripts: $(ls -1 ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/*.py 2>/dev/null | wc -l) found"
 else
     echo "❌ Content pipeline not found"
 fi
@@ -56,4 +57,3 @@ echo "  Stop recording:  python scripts/obs_automation.py stop"
 echo "  View monitor:    btop"
 echo "  n8n:             http://localhost:5678"
 echo ""
-

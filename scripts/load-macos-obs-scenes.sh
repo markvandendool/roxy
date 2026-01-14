@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Load macOS OBS scene collection from Time Machine backup
 
 set -e
@@ -101,4 +102,3 @@ echo "To use:"
 echo "1. Start OBS: obs"
 echo "2. Scene collection should load automatically"
 echo "3. Or: File → Scene Collection → $COLLECTION_NAME"
-

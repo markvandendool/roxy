@@ -1,10 +1,11 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Security scanning script for ROXY
 # Scans dependencies and containers for vulnerabilities
 
 set -e
 
-ROXY_DIR="/opt/roxy"
+ROXY_DIR="${ROXY_ROOT:-$HOME/.roxy}"
 LOG_FILE="$ROXY_DIR/logs/security_scan.log"
 SCAN_DATE=$(date +%Y%m%d_%H%M%S)
 
@@ -70,7 +71,6 @@ find "$ROXY_DIR" -name "*.token" -o -name "*.key" -o -name "*.pem" | while read 
 done
 
 log "Security scan complete. Results logged to: $LOG_FILE"
-
 
 
 

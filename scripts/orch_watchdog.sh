@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 set -euo pipefail
 
 resp=$(curl -sS --max-time 2 http://127.0.0.1:3847/api/metrics || true)

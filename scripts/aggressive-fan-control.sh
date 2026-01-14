@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Aggressive Fan Control - Racing Curve for Maximum Cooling
 
 echo "=== ACTIVATING AGGRESSIVE FAN CONTROL ==="

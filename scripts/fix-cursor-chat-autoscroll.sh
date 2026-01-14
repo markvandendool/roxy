@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Fix Cursor Chat Auto-Scroll Issue
 # Adds all possible settings to enable auto-scroll in chat windows
 
@@ -88,7 +89,6 @@ else
     echo "❌ Could not access settings file"
     exit 1
 fi
-
 
 
 

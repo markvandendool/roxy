@@ -1,11 +1,12 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Quick Start Script - Roxy Workspace
 
 echo "🚀 Roxy Workspace Quick Start"
 echo "=============================="
 echo ""
 echo "1. Starting Mindsong Juke Hub..."
-cd /opt/roxy/mindsong-juke-hub
+cd ${ROXY_ROOT:-$HOME/.roxy}/mindsong-juke-hub
 pnpm dev > /tmp/mindsong-dev.log 2>&1 &
 echo "   → Dev server starting on http://127.0.0.1:9135"
 echo ""

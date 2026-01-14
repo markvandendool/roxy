@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # 🚀 APPLY ALL SAFE PERFORMANCE IMPROVEMENTS
 # Mac Pro 2019 - Safe optimizations only (no catastrophic risks)
@@ -19,8 +20,8 @@ fi
 
 # Backup existing configs
 echo "📦 Creating backups..."
-mkdir -p /opt/roxy/backups/$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/opt/roxy/backups/$(date +%Y%m%d_%H%M%S)"
+mkdir -p ${ROXY_ROOT:-$HOME/.roxy}/backups/$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="${ROXY_ROOT:-$HOME/.roxy}/backups/$(date +%Y%m%d_%H%M%S)"
 cp /etc/sysctl.conf "$BACKUP_DIR/sysctl.conf.bak" 2>/dev/null || true
 cp /etc/default/grub "$BACKUP_DIR/grub.bak" 2>/dev/null || true
 cp /etc/fstab "$BACKUP_DIR/fstab.bak" 2>/dev/null || true
@@ -72,8 +73,8 @@ echo "🧠 DEEP RAM OPTIMIZATION - MAXIMIZING 160GB UTILITY"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Run the comprehensive RAM optimization script
-if [ -f /opt/roxy/scripts/maximize-ram-performance.sh ]; then
-    /opt/roxy/scripts/maximize-ram-performance.sh
+if [ -f ${ROXY_ROOT:-$HOME/.roxy}/scripts/maximize-ram-performance.sh ]; then
+    ${ROXY_ROOT:-$HOME/.roxy}/scripts/maximize-ram-performance.sh
 else
     echo "⚠️  RAM optimization script not found, applying inline..."
     # Inline RAM optimizations (simplified version)
@@ -260,9 +261,8 @@ echo "   - Zswap (if module needs loading)"
 echo "   - Huge Pages (persistent allocation)"
 echo "   - Max Open Files (logout/login)"
 echo ""
-echo "📖 Full guide: /opt/roxy/TOP_20_MAXIMUM_IMPACT_IMPROVEMENTS.md"
+echo "📖 Full guide: ${ROXY_ROOT:-$HOME/.roxy}/TOP_20_MAXIMUM_IMPACT_IMPROVEMENTS.md"
 echo ""
-
 
 
 

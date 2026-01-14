@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # git_auth_doctor.sh - Verify git auth is correctly configured
 # Enforces "any agent, any box, any repo" invariants
 set -euo pipefail

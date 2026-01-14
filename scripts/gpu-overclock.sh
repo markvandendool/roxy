@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # GPU Overclocking Script for AMD GPUs
 # W5700X and RX 6900 XT
 

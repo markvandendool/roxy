@@ -4,8 +4,8 @@ Enhanced ROXY Test Suite - Tests all new quality improvements
 """
 import sys
 import asyncio
-sys.path.insert(0, '/opt/roxy/services')
-sys.path.insert(0, '/opt/roxy/services.LEGACY.20260101_200448')
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+sys.path.insert(0, '${ROXY_LEGACY_ROOT:-${ROXY_ROOT:-$HOME/.roxy}}/services.LEGACY.20260101_200448')
 
 from roxy_interface_enhanced import get_enhanced_interface
 from roxy_core import RoxyMemory

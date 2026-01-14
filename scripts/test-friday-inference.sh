@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Test Friday distributed inference via NATS
 echo '=== Testing Friday Worker Inference ==='
 

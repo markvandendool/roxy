@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Comprehensive Cursor Save Permissions Fix
 # Fixes ALL permission issues preventing Cursor from saving files
 
@@ -77,12 +78,12 @@ echo ""
 
 # 7. Fix workspace permissions
 echo "7️⃣  Fixing workspace permissions..."
-if [ -d "/opt/roxy" ]; then
-    sudo chown -R mark:mark /opt/roxy 2>/dev/null || true
-    chmod -R u+w /opt/roxy 2>/dev/null || true
+if [ -d "${ROXY_ROOT:-$HOME/.roxy}" ]; then
+    sudo chown -R mark:mark ${ROXY_ROOT:-$HOME/.roxy} 2>/dev/null || true
+    chmod -R u+w ${ROXY_ROOT:-$HOME/.roxy} 2>/dev/null || true
     echo "   ✅ Workspace permissions fixed"
 else
-    echo "   ⚠️  Workspace not found at /opt/roxy"
+    echo "   ⚠️  Workspace not found at ${ROXY_ROOT:-$HOME/.roxy}"
 fi
 echo ""
 
@@ -101,7 +102,6 @@ echo "   1. Completely quit Cursor (not just close window)"
 echo "   2. Restart Cursor"
 echo "   3. Try saving again"
 echo ""
-
 
 
 

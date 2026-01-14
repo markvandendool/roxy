@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 set -euo pipefail
 RUNBOOK=~/.roxy/runbooks/warmup_studio.yaml
 EXEC=~/.roxy/tools/runbook_executor.py

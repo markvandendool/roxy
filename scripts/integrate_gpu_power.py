@@ -8,7 +8,7 @@ import re
 import subprocess
 from pathlib import Path
 
-ROXY_ROOT = Path('/opt/roxy')
+ROXY_ROOT = Path('${ROXY_ROOT:-$HOME/.roxy}')
 ENV_FILE = ROXY_ROOT / '.env'
 
 def update_systemd_services():

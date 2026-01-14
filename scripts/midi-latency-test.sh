@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # midi-latency-test.sh
 # SKOREQ OBS Dream Collection - MIDI Latency Testing
 # EPIC: SKOREQ-OBS-DREAM | STORY-009

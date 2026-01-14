@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Comprehensive Roxy System Health Check
 
 echo '╔══════════════════════════════════════════════════════════════╗'

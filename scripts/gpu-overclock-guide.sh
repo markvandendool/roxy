@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # GPU Overclocking Guide for AMD GPUs
 
 echo "╔════════════════════════════════════════════════════════════╗"

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # prod_deploy.sh - Gate0 one-command production deploy
 # Usage: ./prod_deploy.sh
 #

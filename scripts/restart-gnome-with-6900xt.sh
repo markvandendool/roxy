@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Restart GNOME to apply RX 6900 XT configuration
 
 echo "🔄 Restarting GNOME to apply GPU configuration..."

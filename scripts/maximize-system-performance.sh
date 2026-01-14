@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # MAXIMIZE SYSTEM PERFORMANCE - COMPREHENSIVE OPTIMIZATION
 # Applies all possible performance optimizations
 
@@ -90,7 +91,6 @@ echo "   - File watcher limit: 1,048,576"
 echo "   - CPU frequencies: LOCKED TO MAX"
 echo "   - TCP buffers: OPTIMIZED"
 echo ""
-
 
 
 

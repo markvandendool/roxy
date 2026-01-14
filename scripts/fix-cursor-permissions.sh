@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Fix Cursor AppImage permissions and save issues
 
 echo "Fixing Cursor permissions..."

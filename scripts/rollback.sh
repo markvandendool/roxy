@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Rocky System - Rollback Mechanism
 # Story: RAF-022
 # Target: Safe rollback to previous working state

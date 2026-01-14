@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Quick reference for mouse button programming commands
 
 cat << 'EOF'
@@ -28,7 +29,7 @@ systemctl --user restart ratbagd
 
 📖 DOCUMENTATION
 ────────────────
-cat /opt/roxy/LOGITECH_MOUSE_SETUP.md  # Full guide
+cat ${ROXY_ROOT:-$HOME/.roxy}/LOGITECH_MOUSE_SETUP.md  # Full guide
 
 🎯 COMMON BUTTON MAPPINGS
 ─────────────────────────
@@ -45,7 +46,6 @@ Button 7 → gnome-terminal (Open terminal)
 • Settings persist after reboot
 
 EOF
-
 
 
 

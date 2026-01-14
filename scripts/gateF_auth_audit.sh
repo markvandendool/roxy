@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # gateF_auth_audit.sh - Auth consistency verification
 # Verifies all mutating endpoints require auth and return proper status codes
 set -euo pipefail

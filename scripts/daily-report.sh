@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Daily Roxy Status Report - Run via cron
 
 LOG_DIR="${HOME}/.roxy/logs"

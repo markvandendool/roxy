@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Create OBS scenes for broadcasting
 
 set -e
@@ -140,4 +141,3 @@ echo "1. Start OBS: obs"
 echo "2. Scenes will be available in OBS"
 echo "3. Configure sources as needed"
 echo "4. Test recording"
-

@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #===============================================================================
 # iPhone VNC Setup - Remote Desktop Access from iPhone
 # Sets up wayvnc for Wayland remote desktop access
@@ -137,4 +138,3 @@ else
     echo "   Check logs: journalctl --user -u wayvnc -n 50"
     exit 1
 fi
-

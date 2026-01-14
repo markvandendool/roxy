@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Check Cursor version and available settings
 
 echo "🔍 CURSOR VERSION & SETTINGS CHECK"
@@ -50,7 +51,6 @@ fi
 echo ""
 
 echo "✅ Check complete!"
-
 
 
 

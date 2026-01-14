@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # ROOT CAUSE FIX: Cursor Save Issues
 # The problem: Cursor uses pkexec to save files, but AppImage mounts change paths
 # and Electron refuses to run as root. Solution: Make everything writable + disable pkexec
@@ -11,10 +12,10 @@ echo ""
 
 # 1. Make ENTIRE workspace writable (no sudo needed)
 echo "1️⃣  Making workspace fully writable..."
-sudo chown -R mark:mark /opt/roxy 2>/dev/null || true
-chmod -R u+w /opt/roxy 2>/dev/null || true
-find /opt/roxy -type f -exec chmod 664 {} \; 2>/dev/null || true
-find /opt/roxy -type d -exec chmod 775 {} \; 2>/dev/null || true
+sudo chown -R mark:mark ${ROXY_ROOT:-$HOME/.roxy} 2>/dev/null || true
+chmod -R u+w ${ROXY_ROOT:-$HOME/.roxy} 2>/dev/null || true
+find ${ROXY_ROOT:-$HOME/.roxy} -type f -exec chmod 664 {} \; 2>/dev/null || true
+find ${ROXY_ROOT:-$HOME/.roxy} -type d -exec chmod 775 {} \; 2>/dev/null || true
 echo "   ✅ Workspace permissions fixed"
 echo ""
 
@@ -112,7 +113,7 @@ echo ""
 
 # 8. Test write permissions
 echo "8️⃣  Testing write permissions..."
-TEST_FILE="/opt/roxy/.cursor-save-test-$(date +%s).txt"
+TEST_FILE="${ROXY_ROOT:-$HOME/.roxy}/.cursor-save-test-$(date +%s).txt"
 if echo "test content" > "$TEST_FILE" 2>/dev/null && rm -f "$TEST_FILE" 2>/dev/null; then
     echo "   ✅ Can write to workspace"
 else
@@ -165,7 +166,6 @@ echo "   - Check which specific file you're trying to save"
 echo "   - Try saving to ~/test.txt first"
 echo "   - Check Cursor's error message in Help > Toggle Developer Tools > Console"
 echo ""
-
 
 
 

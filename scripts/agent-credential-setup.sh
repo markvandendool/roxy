@@ -5,6 +5,7 @@
 
 set -e
 
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 ROXY_IP="10.0.0.69"
 INFISICAL_URL="http://${ROXY_IP}:8080"
 
@@ -15,7 +16,7 @@ echo ""
 # Check if Infisical is running
 if ! curl -s "${INFISICAL_URL}/api/v1/health" > /dev/null 2>&1; then
     echo "❌ Infisical not accessible at ${INFISICAL_URL}"
-    echo "   Start it first: ssh roxy-1 'cd ${ROXY_ROOT:-$HOME/.roxy} && docker compose -f compose/docker-compose.infisical.yml up -d'"
+    echo "   Start it first: ssh roxy-1 'cd ${ROXY_ROOT} && docker compose -f compose/docker-compose.infisical.yml up -d'"
     exit 1
 fi
 
@@ -40,4 +41,3 @@ echo ""
 echo "   Or via API:"
 echo "   curl -H 'Authorization: Bearer <token>' ${INFISICAL_URL}/api/v1/secrets/..."
 echo ""
-

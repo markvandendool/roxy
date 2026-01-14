@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Install Permanent Performance Optimizations
 # Ensures all optimizations persist across reboots
 
@@ -22,7 +23,7 @@ Conflicts=shutdown.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/opt/roxy/scripts/maximize-system-performance.sh
+ExecStart=${ROXY_ROOT:-$HOME/.roxy}/scripts/maximize-system-performance.sh
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=roxy-max-performance
@@ -206,7 +207,6 @@ echo "   - CPU governor: cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_govern
 echo "   - I/O scheduler: cat /sys/block/nvme*/queue/scheduler"
 echo "   - Services: systemctl status roxy-maximum-performance.service"
 echo ""
-
 
 
 

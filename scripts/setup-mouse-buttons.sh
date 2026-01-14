@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Setup script for Logitech mouse button programming
 # Supports Input Remapper and Piper/libratbag
 
@@ -148,7 +149,7 @@ echo "3. Identify your mouse buttons:"
 echo "   sudo evtest"
 echo ""
 echo "4. Read the full guide:"
-echo "   cat /opt/roxy/LOGITECH_MOUSE_SETUP.md"
+echo "   cat ${ROXY_ROOT:-$HOME/.roxy}/LOGITECH_MOUSE_SETUP.md"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
@@ -168,7 +169,6 @@ fi
 echo ""
 echo "🎉 Setup complete! You can now program your mouse buttons."
 echo ""
-
 
 
 

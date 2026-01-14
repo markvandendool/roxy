@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # ROXY/ROXY-1 ChromaDB Backup Script
 # Part of: ROXY-100-METRIC-INFRASTRUCTURE-V1
 # Purpose: Automated backup of ChromaDB vector database to MinIO S3

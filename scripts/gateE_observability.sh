@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # gateE_observability.sh - Observability verification test
 # Verifies all critical metrics are exported and stable
 set -euo pipefail

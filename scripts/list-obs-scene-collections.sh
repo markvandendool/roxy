@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # List all OBS scene collections from macOS backup and current Linux OBS
 
 set -e
@@ -76,4 +77,3 @@ echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║                    Search Complete                           ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
-

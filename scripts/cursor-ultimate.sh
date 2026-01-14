@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # ============================================================================
 # CURSOR ULTIMATE LAUNCHER v2.0 - MAXIMUM PERFORMANCE
 # ============================================================================
@@ -101,7 +102,6 @@ echo "⚡ Optimizations: GPU Accel | 56-Core | Zero-Copy | OOP"
 echo ""
 
 exec /opt/cursor.AppImage "${ALL_FLAGS[@]}" "$@" 2>&1
-
 
 
 

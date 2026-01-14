@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Balanced Performance Mode - Optimized but Sustainable
 
 echo "╔════════════════════════════════════════════════════════════╗"

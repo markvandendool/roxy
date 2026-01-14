@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Token rotation script for ROXY
 # Generates new secure token and restarts service
 
@@ -60,7 +61,6 @@ fi
 log "Token rotation complete"
 log "New token: $NEW_TOKEN"
 log "IMPORTANT: Update all clients with the new token!"
-
 
 
 

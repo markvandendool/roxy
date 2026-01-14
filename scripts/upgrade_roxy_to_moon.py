@@ -6,6 +6,7 @@ Upgrade ROXY to maximum capability with best models, fine-tuning, and optimizati
 import subprocess
 import sys
 import os
+from pathlib import Path
 import json
 
 def check_ollama_models():
@@ -99,7 +100,8 @@ def optimize_gpu():
         print(f"  {key}={value}")
     
     # Update .env
-    env_file = '/opt/roxy/.env'
+    roxy_root = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+    env_file = str(roxy_root / '.env')
     if os.path.exists(env_file):
         with open(env_file, 'a') as f:
             f.write("\n# GPU Optimization\n")
@@ -145,7 +147,8 @@ def upgrade_llm_config():
         'OLLAMA_NUM_CTX': '8192',  # Larger context window
     }
     
-    env_file = '/opt/roxy/.env'
+    roxy_root = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+    env_file = str(roxy_root / '.env')
     if os.path.exists(env_file):
         with open(env_file, 'a') as f:
             f.write("\n# LLM Configuration Upgrades\n")

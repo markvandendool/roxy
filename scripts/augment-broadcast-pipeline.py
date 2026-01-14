@@ -6,12 +6,14 @@ AI-powered features for content creation
 import os
 import json
 from pathlib import Path
+import os
 from typing import Dict, List, Optional
 import subprocess
 
 class BroadcastAugmentation:
     def __init__(self):
-        self.base_dir = Path("/opt/roxy/content-pipeline")
+        roxy_root = Path(os.environ.get("ROXY_ROOT", str(Path.home() / ".roxy")))
+        self.base_dir = roxy_root / "content-pipeline"
         self.recordings_dir = self.base_dir / "recordings"
         self.clips_dir = self.base_dir / "clips"
         self.transcripts_dir = self.base_dir / "transcripts"

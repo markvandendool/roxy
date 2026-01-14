@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # roxy_edge_test.sh - ROXY Edge-Finder Test Suite
 # Tests prompts via /run and /stream endpoints

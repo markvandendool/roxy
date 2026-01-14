@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # OBS Performance Test Suite
 # Tests GPU, CPU, canvas performance, encoding, etc.
 
@@ -81,4 +82,3 @@ echo "║                    Test Complete                             ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 echo "Next: Run OBS and test actual recording performance"
-

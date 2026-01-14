@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Monitor GPU Usage by ROXY Services
 # Shows which services are using GPU
@@ -69,7 +70,6 @@ fi
 echo ""
 
 echo "💡 To monitor continuously: watch -n 2 $0"
-
 
 
 

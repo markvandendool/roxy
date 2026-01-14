@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # time_test_matrix.sh - ROXY Time Query Test Matrix
 #

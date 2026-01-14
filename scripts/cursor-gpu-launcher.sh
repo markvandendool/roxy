@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Cursor GPU-Accelerated Launcher
 # Forces RX 6900 XT (card2) and enables all GPU acceleration features
 
@@ -45,4 +46,3 @@ ALL_FLAGS=("${GPU_FLAGS[@]}" "${CPU_FLAGS[@]}" "${PERF_FLAGS[@]}")
 
 # Launch Cursor with all optimizations
 exec /opt/cursor.AppImage "${ALL_FLAGS[@]}" "$@"
-

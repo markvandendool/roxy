@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Pin Cursor threads to specific CPU cores for optimal hyperthreading
 
 LOG_FILE="/var/log/cursor-cpu-pinning.log"

@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-ROXY_ROOT = Path('/opt/roxy')
+ROXY_ROOT = Path('${ROXY_ROOT:-$HOME/.roxy}')
 ENV_FILE = ROXY_ROOT / '.env'
 DATA_DIR = ROXY_ROOT / 'data'
 CONFIG_DIR = ROXY_ROOT / 'config'

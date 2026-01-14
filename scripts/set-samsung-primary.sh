@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Quick script to set Samsung (central) as primary
 # Usage: ./set-samsung-primary.sh OUTPUT_NAME
 # Example: ./set-samsung-primary.sh DP-8

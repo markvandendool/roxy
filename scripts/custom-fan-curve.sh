@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Custom Fan Curve - Aggressive but Reasonable
 # Mac Pro Cooling - Racing Curve
 

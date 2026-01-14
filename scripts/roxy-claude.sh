@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # ROXY Claude Code CLI launcher with MCP integration
 
 echo "🚀 Starting Claude Code CLI with ROXY MCP integration..."

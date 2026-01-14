@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # gateA_resilience.sh - Dependency failure resilience test
 # Verifies /ready response structure and metrics correctness
 set -euo pipefail

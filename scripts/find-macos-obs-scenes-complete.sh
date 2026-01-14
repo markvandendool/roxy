@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Complete search for macOS OBS scene collections in Time Machine backup
 
 BACKUP="/mnt/macos/root/2025-12-22-051539.interrupted"
@@ -40,4 +41,3 @@ find "$OBS_BASE/plugins" -type d -iname '*excel*' -o -iname '*collection*manager
 
 echo ""
 echo "=== Search Complete ==="
-

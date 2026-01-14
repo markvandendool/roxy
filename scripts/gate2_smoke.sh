@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Gate2 HTTP Smoke Test - Pool Normalization Contract
 # Always uses dry_run to avoid benchmark conflicts
 set -euo pipefail

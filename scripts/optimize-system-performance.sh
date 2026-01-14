@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Comprehensive System Performance Optimization Script
 # For Intel Xeon W-3275 with 56 cores and 160GB RAM
 
@@ -163,7 +164,6 @@ echo "  ✅ All settings persist across reboots"
 echo ""
 echo "REBOOT RECOMMENDED for all changes to take full effect!"
 echo ""
-
 
 
 

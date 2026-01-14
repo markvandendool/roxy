@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Setup PyTorch with ROCm Support
 # Verifies installation and tests GPU operations
@@ -60,7 +61,6 @@ PYTHON_SCRIPT
 
 echo ""
 echo "✅ PyTorch ROCm setup verification complete"
-
 
 
 

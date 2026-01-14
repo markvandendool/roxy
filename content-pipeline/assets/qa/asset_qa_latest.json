@@ -1,24 +1,24 @@
 {
-  "qa_id": "QA_20260114_132612_074ed16e",
-  "timestamp": "2026-01-14T20:26:12.501718+00:00",
+  "qa_id": "QA_20260114_142614_9445fa8a",
+  "timestamp": "2026-01-14T21:26:14.247396+00:00",
   "status": "healthy",
-  "source_storyboard": "STORYBOARD_20260114_132413_fb2d9899",
+  "source_storyboard": "STORYBOARD_20260114_142413_993e7348",
   "qa_reports": [
     {
-      "script_id": "SCR_037d7ad1cb5e",
+      "script_id": "SCR_eccbe1d9e43f",
       "checks": [
         {
-          "check_id": "CHK_037d7ad1_001",
+          "check_id": "CHK_eccbe1d9_001",
           "check_type": "asset_coverage",
-          "target": "SCR_037d7ad1cb5e",
+          "target": "SCR_eccbe1d9e43f",
           "result": "pass",
           "message": "All required asset types present",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_002",
+          "check_id": "CHK_eccbe1d9_002",
           "check_type": "scene_mapping",
-          "target": "SCR_037d7ad1cb5e",
+          "target": "SCR_eccbe1d9e43f",
           "result": "pass",
           "message": "All 14 frames have valid scene mappings",
           "details": {
@@ -26,9 +26,9 @@
           }
         },
         {
-          "check_id": "CHK_037d7ad1_003",
+          "check_id": "CHK_eccbe1d9_003",
           "check_type": "prompt_length",
-          "target": "ASSET_037d7ad1_thumbnail_00_9a9b50b6",
+          "target": "ASSET_eccbe1d9_thumbnail_00_f3782b15",
           "result": "pass",
           "message": "Prompt length OK (204 chars)",
           "details": {
@@ -36,17 +36,17 @@
           }
         },
         {
-          "check_id": "CHK_037d7ad1_004",
+          "check_id": "CHK_eccbe1d9_004",
           "check_type": "content_policy",
-          "target": "ASSET_037d7ad1_thumbnail_00_9a9b50b6",
+          "target": "ASSET_eccbe1d9_thumbnail_00_f3782b15",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_005",
+          "check_id": "CHK_eccbe1d9_005",
           "check_type": "prompt_length",
-          "target": "ASSET_037d7ad1_intro_card_00_76cf5e8b",
+          "target": "ASSET_eccbe1d9_intro_card_00_f03f827c",
           "result": "pass",
           "message": "Prompt length OK (181 chars)",
           "details": {
@@ -54,17 +54,17 @@
           }
         },
         {
-          "check_id": "CHK_037d7ad1_006",
+          "check_id": "CHK_eccbe1d9_006",
           "check_type": "content_policy",
-          "target": "ASSET_037d7ad1_intro_card_00_76cf5e8b",
+          "target": "ASSET_eccbe1d9_intro_card_00_f03f827c",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_007",
+          "check_id": "CHK_eccbe1d9_007",
           "check_type": "prompt_length",
-          "target": "ASSET_037d7ad1_lower_third_00_bae0844a",
+          "target": "ASSET_eccbe1d9_lower_third_00_9bb75d85",
           "result": "pass",
           "message": "Prompt length OK (147 chars)",
           "details": {
@@ -72,17 +72,17 @@
           }
         },
         {
-          "check_id": "CHK_037d7ad1_008",
+          "check_id": "CHK_eccbe1d9_008",
           "check_type": "content_policy",
-          "target": "ASSET_037d7ad1_lower_third_00_bae0844a",
+          "target": "ASSET_eccbe1d9_lower_third_00_9bb75d85",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_009",
+          "check_id": "CHK_eccbe1d9_009",
           "check_type": "prompt_length",
-          "target": "ASSET_037d7ad1_lower_third_01_82a4e021",
+          "target": "ASSET_eccbe1d9_lower_third_01_3376063f",
           "result": "pass",
           "message": "Prompt length OK (153 chars)",
           "details": {
@@ -90,17 +90,17 @@
           }
         },
         {
-          "check_id": "CHK_037d7ad1_010",
+          "check_id": "CHK_eccbe1d9_010",
           "check_type": "content_policy",
-          "target": "ASSET_037d7ad1_lower_third_01_82a4e021",
+          "target": "ASSET_eccbe1d9_lower_third_01_3376063f",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_011",
+          "check_id": "CHK_eccbe1d9_011",
           "check_type": "prompt_length",
-          "target": "ASSET_037d7ad1_lower_third_02_a9fa0323",
+          "target": "ASSET_eccbe1d9_lower_third_02_ccc576e1",
           "result": "pass",
           "message": "Prompt length OK (153 chars)",
           "details": {
@@ -108,33 +108,33 @@
           }
         },
         {
-          "check_id": "CHK_037d7ad1_012",
+          "check_id": "CHK_eccbe1d9_012",
           "check_type": "content_policy",
-          "target": "ASSET_037d7ad1_lower_third_02_a9fa0323",
+          "target": "ASSET_eccbe1d9_lower_third_02_ccc576e1",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_013",
+          "check_id": "CHK_eccbe1d9_013",
           "check_type": "timecode_format",
-          "target": "FRAME_037d7ad1_001",
+          "target": "FRAME_eccbe1d9_001",
           "result": "pass",
           "message": "Valid timecode format: 00:00:00:00",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_014",
+          "check_id": "CHK_eccbe1d9_014",
           "check_type": "timecode_format",
-          "target": "FRAME_037d7ad1_002",
+          "target": "FRAME_eccbe1d9_002",
           "result": "pass",
           "message": "Valid timecode format: 00:00:03:00",
           "details": {}
         },
         {
-          "check_id": "CHK_037d7ad1_015",
+          "check_id": "CHK_eccbe1d9_015",
           "check_type": "timecode_format",
-          "target": "FRAME_037d7ad1_003",
+          "target": "FRAME_eccbe1d9_003",
           "result": "pass",
           "message": "Valid timecode format: 00:00:06:00",
           "details": {}
@@ -146,20 +146,20 @@
       "gate_status": "approved"
     },
     {
-      "script_id": "SCR_fc7c7428ee39",
+      "script_id": "SCR_3eeda055e965",
       "checks": [
         {
-          "check_id": "CHK_fc7c7428_001",
+          "check_id": "CHK_3eeda055_001",
           "check_type": "asset_coverage",
-          "target": "SCR_fc7c7428ee39",
+          "target": "SCR_3eeda055e965",
           "result": "pass",
           "message": "All required asset types present",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_002",
+          "check_id": "CHK_3eeda055_002",
           "check_type": "scene_mapping",
-          "target": "SCR_fc7c7428ee39",
+          "target": "SCR_3eeda055e965",
           "result": "pass",
           "message": "All 4 frames have valid scene mappings",
           "details": {
@@ -167,9 +167,9 @@
           }
         },
         {
-          "check_id": "CHK_fc7c7428_003",
+          "check_id": "CHK_3eeda055_003",
           "check_type": "prompt_length",
-          "target": "ASSET_fc7c7428_thumbnail_00_05c976e0",
+          "target": "ASSET_3eeda055_thumbnail_00_309760c4",
           "result": "pass",
           "message": "Prompt length OK (174 chars)",
           "details": {
@@ -177,17 +177,17 @@
           }
         },
         {
-          "check_id": "CHK_fc7c7428_004",
+          "check_id": "CHK_3eeda055_004",
           "check_type": "content_policy",
-          "target": "ASSET_fc7c7428_thumbnail_00_05c976e0",
+          "target": "ASSET_3eeda055_thumbnail_00_309760c4",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_005",
+          "check_id": "CHK_3eeda055_005",
           "check_type": "prompt_length",
-          "target": "ASSET_fc7c7428_intro_card_00_2a57c1a0",
+          "target": "ASSET_3eeda055_intro_card_00_00c927a7",
           "result": "pass",
           "message": "Prompt length OK (151 chars)",
           "details": {
@@ -195,17 +195,17 @@
           }
         },
         {
-          "check_id": "CHK_fc7c7428_006",
+          "check_id": "CHK_3eeda055_006",
           "check_type": "content_policy",
-          "target": "ASSET_fc7c7428_intro_card_00_2a57c1a0",
+          "target": "ASSET_3eeda055_intro_card_00_00c927a7",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_007",
+          "check_id": "CHK_3eeda055_007",
           "check_type": "prompt_length",
-          "target": "ASSET_fc7c7428_lower_third_00_5eee5048",
+          "target": "ASSET_3eeda055_lower_third_00_7e5b8ed0",
           "result": "pass",
           "message": "Prompt length OK (143 chars)",
           "details": {
@@ -213,17 +213,17 @@
           }
         },
         {
-          "check_id": "CHK_fc7c7428_008",
+          "check_id": "CHK_3eeda055_008",
           "check_type": "content_policy",
-          "target": "ASSET_fc7c7428_lower_third_00_5eee5048",
+          "target": "ASSET_3eeda055_lower_third_00_7e5b8ed0",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_009",
+          "check_id": "CHK_3eeda055_009",
           "check_type": "prompt_length",
-          "target": "ASSET_fc7c7428_end_card_00_316a3207",
+          "target": "ASSET_3eeda055_end_card_00_93673406",
           "result": "pass",
           "message": "Prompt length OK (122 chars)",
           "details": {
@@ -231,33 +231,33 @@
           }
         },
         {
-          "check_id": "CHK_fc7c7428_010",
+          "check_id": "CHK_3eeda055_010",
           "check_type": "content_policy",
-          "target": "ASSET_fc7c7428_end_card_00_316a3207",
+          "target": "ASSET_3eeda055_end_card_00_93673406",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_011",
+          "check_id": "CHK_3eeda055_011",
           "check_type": "timecode_format",
-          "target": "FRAME_fc7c7428_001",
+          "target": "FRAME_3eeda055_001",
           "result": "pass",
           "message": "Valid timecode format: 00:00:00:00",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_012",
+          "check_id": "CHK_3eeda055_012",
           "check_type": "timecode_format",
-          "target": "FRAME_fc7c7428_002",
+          "target": "FRAME_3eeda055_002",
           "result": "pass",
           "message": "Valid timecode format: 00:00:03:00",
           "details": {}
         },
         {
-          "check_id": "CHK_fc7c7428_013",
+          "check_id": "CHK_3eeda055_013",
           "check_type": "timecode_format",
-          "target": "FRAME_fc7c7428_003",
+          "target": "FRAME_3eeda055_003",
           "result": "pass",
           "message": "Valid timecode format: 00:00:06:00",
           "details": {}
@@ -269,20 +269,20 @@
       "gate_status": "approved"
     },
     {
-      "script_id": "SCR_d5a7a218afbf",
+      "script_id": "SCR_39843b50df28",
       "checks": [
         {
-          "check_id": "CHK_d5a7a218_001",
+          "check_id": "CHK_39843b50_001",
           "check_type": "asset_coverage",
-          "target": "SCR_d5a7a218afbf",
+          "target": "SCR_39843b50df28",
           "result": "pass",
           "message": "All required asset types present",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_002",
+          "check_id": "CHK_39843b50_002",
           "check_type": "scene_mapping",
-          "target": "SCR_d5a7a218afbf",
+          "target": "SCR_39843b50df28",
           "result": "pass",
           "message": "All 14 frames have valid scene mappings",
           "details": {
@@ -290,9 +290,9 @@
           }
         },
         {
-          "check_id": "CHK_d5a7a218_003",
+          "check_id": "CHK_39843b50_003",
           "check_type": "prompt_length",
-          "target": "ASSET_d5a7a218_thumbnail_00_76cef3ec",
+          "target": "ASSET_39843b50_thumbnail_00_7d61de54",
           "result": "pass",
           "message": "Prompt length OK (204 chars)",
           "details": {
@@ -300,17 +300,17 @@
           }
         },
         {
-          "check_id": "CHK_d5a7a218_004",
+          "check_id": "CHK_39843b50_004",
           "check_type": "content_policy",
-          "target": "ASSET_d5a7a218_thumbnail_00_76cef3ec",
+          "target": "ASSET_39843b50_thumbnail_00_7d61de54",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_005",
+          "check_id": "CHK_39843b50_005",
           "check_type": "prompt_length",
-          "target": "ASSET_d5a7a218_intro_card_00_2ad7aadc",
+          "target": "ASSET_39843b50_intro_card_00_9499a730",
           "result": "pass",
           "message": "Prompt length OK (181 chars)",
           "details": {
@@ -318,17 +318,17 @@
           }
         },
         {
-          "check_id": "CHK_d5a7a218_006",
+          "check_id": "CHK_39843b50_006",
           "check_type": "content_policy",
-          "target": "ASSET_d5a7a218_intro_card_00_2ad7aadc",
+          "target": "ASSET_39843b50_intro_card_00_9499a730",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_007",
+          "check_id": "CHK_39843b50_007",
           "check_type": "prompt_length",
-          "target": "ASSET_d5a7a218_lower_third_00_f0b03c7f",
+          "target": "ASSET_39843b50_lower_third_00_a70e1b8c",
           "result": "pass",
           "message": "Prompt length OK (147 chars)",
           "details": {
@@ -336,17 +336,17 @@
           }
         },
         {
-          "check_id": "CHK_d5a7a218_008",
+          "check_id": "CHK_39843b50_008",
           "check_type": "content_policy",
-          "target": "ASSET_d5a7a218_lower_third_00_f0b03c7f",
+          "target": "ASSET_39843b50_lower_third_00_a70e1b8c",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_009",
+          "check_id": "CHK_39843b50_009",
           "check_type": "prompt_length",
-          "target": "ASSET_d5a7a218_lower_third_01_0410b55b",
+          "target": "ASSET_39843b50_lower_third_01_905e2a4d",
           "result": "pass",
           "message": "Prompt length OK (153 chars)",
           "details": {
@@ -354,17 +354,17 @@
           }
         },
         {
-          "check_id": "CHK_d5a7a218_010",
+          "check_id": "CHK_39843b50_010",
           "check_type": "content_policy",
-          "target": "ASSET_d5a7a218_lower_third_01_0410b55b",
+          "target": "ASSET_39843b50_lower_third_01_905e2a4d",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_011",
+          "check_id": "CHK_39843b50_011",
           "check_type": "prompt_length",
-          "target": "ASSET_d5a7a218_lower_third_02_909a817f",
+          "target": "ASSET_39843b50_lower_third_02_13072f11",
           "result": "pass",
           "message": "Prompt length OK (153 chars)",
           "details": {
@@ -372,33 +372,33 @@
           }
         },
         {
-          "check_id": "CHK_d5a7a218_012",
+          "check_id": "CHK_39843b50_012",
           "check_type": "content_policy",
-          "target": "ASSET_d5a7a218_lower_third_02_909a817f",
+          "target": "ASSET_39843b50_lower_third_02_13072f11",
           "result": "pass",
           "message": "No disallowed words found",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_013",
+          "check_id": "CHK_39843b50_013",
           "check_type": "timecode_format",
-          "target": "FRAME_d5a7a218_001",
+          "target": "FRAME_39843b50_001",
           "result": "pass",
           "message": "Valid timecode format: 00:00:00:00",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_014",
+          "check_id": "CHK_39843b50_014",
           "check_type": "timecode_format",
-          "target": "FRAME_d5a7a218_002",
+          "target": "FRAME_39843b50_002",
           "result": "pass",
           "message": "Valid timecode format: 00:00:03:00",
           "details": {}
         },
         {
-          "check_id": "CHK_d5a7a218_015",
+          "check_id": "CHK_39843b50_015",
           "check_type": "timecode_format",
-          "target": "FRAME_d5a7a218_003",
+          "target": "FRAME_39843b50_003",
           "result": "pass",
           "message": "Valid timecode format: 00:00:06:00",
           "details": {}

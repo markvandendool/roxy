@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # Force ALL Cursor processes to use ALL CPU cores with maximum priority
 

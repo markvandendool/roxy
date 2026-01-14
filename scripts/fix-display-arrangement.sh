@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Fix display arrangement - Set Samsung (central) as primary
 # Arrange: Left | Samsung (Primary/Center) | Right
@@ -70,7 +71,6 @@ echo "   xrandr --output LEFT_OUTPUT --left-of $SAMSUNG_OUTPUT"
 echo "   xrandr --output RIGHT_OUTPUT --right-of $SAMSUNG_OUTPUT"
 echo ""
 echo "   Or use GNOME Settings > Displays for GUI arrangement"
-
 
 
 

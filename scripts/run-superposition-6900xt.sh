@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # Run Superposition on RX 6900 XT (force GPU selection)
 

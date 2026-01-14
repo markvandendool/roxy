@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Load ALL macOS OBS settings into Linux OBS
 # Scene collections, hotkeys, profiles, plugins, everything
 

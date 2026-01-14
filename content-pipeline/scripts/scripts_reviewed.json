@@ -1,20 +1,20 @@
 {
-  "review_id": "REVIEW_20260114_131806_b6ca554f",
-  "timestamp": "2026-01-14T20:18:06.002317+00:00",
+  "review_id": "REVIEW_20260114_141813_e8f70700",
+  "timestamp": "2026-01-14T21:18:13.256307+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260114_131613_ed4c2686",
+  "source_scripts": "SCRIPT_20260114_141621_754feaa8",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_037d7ad1cb5e",
+      "script_id": "SCR_eccbe1d9e43f",
       "trend_title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 5,
+        "hook_strength": 8,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
-        "overall": 8
+        "overall": 9
       },
       "recommendations": [],
       "approved_sections": [
@@ -29,12 +29,12 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_fc7c7428ee39",
+      "script_id": "SCR_3eeda055e965",
       "trend_title": "\u201cRobot, make me a chair\u201d",
       "template_id": "explainer-short",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 9,
+        "hook_strength": 8,
         "content_depth": 7,
         "structure_flow": 10,
         "differentiation": 9,
@@ -56,12 +56,12 @@
       "production_ready": false
     },
     {
-      "script_id": "SCR_d5a7a218afbf",
+      "script_id": "SCR_39843b50df28",
       "trend_title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 7,
+        "hook_strength": 8,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
@@ -85,7 +85,7 @@
     "approved": 3,
     "needs_revision": 0,
     "rejected": 0,
-    "average_score": 8.3
+    "average_score": 8.7
   },
   "meta": {
     "version": "1.0.0",

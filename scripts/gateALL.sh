@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # gateALL.sh - Single-command full verification
 # Runs all gates and produces consolidated proof log
 set -euo pipefail

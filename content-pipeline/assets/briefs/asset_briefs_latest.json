@@ -1,11 +1,11 @@
 {
-  "brief_id": "BRIEF_20260114_132008_13b4d035",
-  "timestamp": "2026-01-14T20:20:08.513160+00:00",
+  "brief_id": "BRIEF_20260114_142001_b6371404",
+  "timestamp": "2026-01-14T21:20:01.492571+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260114_131806_b6ca554f",
+  "source_review": "REVIEW_20260114_141813_e8f70700",
   "briefs": [
     {
-      "script_id": "SCR_037d7ad1cb5e",
+      "script_id": "SCR_eccbe1d9e43f",
       "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
       "format": "standard",
       "duration_target": 150,
@@ -56,7 +56,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
+          "vo_summary": "[HOOK] The AI world is buzzing about Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation"
         },
         {
           "scene_id": "SCENE_02",
@@ -115,7 +115,7 @@
       }
     },
     {
-      "script_id": "SCR_fc7c7428ee39",
+      "script_id": "SCR_3eeda055e965",
       "title": "\u201cRobot, make me a chair\u201d",
       "format": "short",
       "duration_target": 67,
@@ -156,7 +156,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] \u201cRobot, make me a chair\u201d explained simply"
+          "vo_summary": "[HOOK] What is \u201cRobot, make me a chair\u201d? Let me explain in 60 seconds"
         },
         {
           "scene_id": "SCENE_02",
@@ -197,7 +197,7 @@
       }
     },
     {
-      "script_id": "SCR_d5a7a218afbf",
+      "script_id": "SCR_39843b50df28",
       "title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
       "format": "standard",
       "duration_target": 150,
@@ -248,7 +248,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
+          "vo_summary": "[HOOK] Here's why The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore changes every"
         },
         {
           "scene_id": "SCENE_02",

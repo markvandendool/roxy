@@ -221,14 +221,11 @@ class RoxyStressTester:
         print("=" * 80)
 
 async def main():
-    roxy_root = os.environ.get('ROXY_ROOT', os.path.expanduser('~/.roxy'))
-    legacy_root = os.environ.get('ROXY_LEGACY_ROOT', '/opt/roxy')
     tester = RoxyStressTester()
     await tester.run_stress_test()
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
 
 

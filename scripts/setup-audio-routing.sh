@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Configure audio routing for broadcasting
 
 set -e
@@ -49,4 +50,3 @@ echo "Test recording:"
 echo "  arecord -D hw:9,0 -f cd -t wav /tmp/test.wav"
 echo "  (speak, then Ctrl+C)"
 echo "  aplay /tmp/test.wav"
-

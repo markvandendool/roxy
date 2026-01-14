@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # 🚀 MAXIMIZE RAM PERFORMANCE - 160GB System Optimization
 # Deep research-based optimizations for high-RAM systems
@@ -284,7 +285,6 @@ echo "⚠️  Some changes require reboot to fully activate:"
 echo "   - Zswap (if module needs loading)"
 echo "   - Huge Pages (persistent allocation)"
 echo ""
-
 
 
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Quick test to verify Whisper uses CPU instead of GPU
 #
@@ -7,8 +8,8 @@ echo "🧪 Testing Whisper CPU Configuration..."
 echo ""
 
 # Check if Python environment is available
-if [ ! -f "/opt/roxy/venv/bin/python" ]; then
-    echo "❌ Python venv not found at /opt/roxy/venv"
+if [ ! -f "${ROXY_ROOT:-$HOME/.roxy}/venv/bin/python" ]; then
+    echo "❌ Python venv not found at ${ROXY_ROOT:-$HOME/.roxy}/venv"
     exit 1
 fi
 
@@ -17,7 +18,7 @@ TEST_SCRIPT=$(mktemp /tmp/test_whisper_XXXXXX.py)
 cat > "$TEST_SCRIPT" << 'EOF'
 import os
 import sys
-sys.path.insert(0, '/opt/roxy')
+sys.path.insert(0, '${ROXY_ROOT:-$HOME/.roxy}')
 
 # Set environment variable
 os.environ['ROXY_WHISPER_DEVICE'] = 'cpu'
@@ -42,7 +43,7 @@ else:
 EOF
 
 # Run the test
-/opt/roxy/venv/bin/python "$TEST_SCRIPT"
+${ROXY_ROOT:-$HOME/.roxy}/venv/bin/python "$TEST_SCRIPT"
 
 # Cleanup
 rm -f "$TEST_SCRIPT"
@@ -50,7 +51,6 @@ rm -f "$TEST_SCRIPT"
 echo ""
 echo "📝 Note: This test only verifies configuration."
 echo "   For full testing, start the voice service and monitor GPU usage."
-
 
 
 

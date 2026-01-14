@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Fix Cursor AppImage mount permissions permanently
 
 # Fix all existing mount points

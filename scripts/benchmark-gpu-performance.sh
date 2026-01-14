@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Benchmark GPU vs CPU Performance
 # Tests transcription, LLM inference, and TTS generation
@@ -9,7 +10,7 @@ echo "║     📊 GPU vs CPU Performance Benchmark                    ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
-cd /opt/roxy
+cd ${ROXY_ROOT:-$HOME/.roxy}
 source venv/bin/activate
 
 # Create test audio file if needed
@@ -79,7 +80,6 @@ echo "║     📊 Benchmark Complete                                  ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 echo "💡 For detailed benchmarks, run individual component tests"
-
 
 
 

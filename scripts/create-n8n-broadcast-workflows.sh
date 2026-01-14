@@ -3,11 +3,13 @@
 
 set -e
 
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
+
 echo "=== Creating n8n Broadcast Workflows ==="
 echo ""
 
 N8N_URL="http://localhost:5678"
-WORKFLOWS_DIR="/opt/roxy/n8n-workflows"
+WORKFLOWS_DIR="$ROXY_ROOT/n8n-workflows"
 
 mkdir -p "$WORKFLOWS_DIR"
 
@@ -18,7 +20,7 @@ cat > "$WORKFLOWS_DIR/auto-transcribe.json" << 'EOF'
   "nodes": [
     {
       "parameters": {
-        "path": "/opt/roxy/content-pipeline/recordings",
+        "path": "${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/recordings",
         "options": {
           "fileExtension": ".mp4,.mkv"
         }
@@ -29,7 +31,7 @@ cat > "$WORKFLOWS_DIR/auto-transcribe.json" << 'EOF'
     },
     {
       "parameters": {
-        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/whisperx_transcriber.py {{ $json.path }} /opt/roxy/content-pipeline/transcripts/",
+        "command": "cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate && python content-pipeline/whisperx_transcriber.py {{ $json.path }} ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/transcripts/",
         "options": {}
       },
       "name": "Run WhisperX",
@@ -70,7 +72,7 @@ cat > "$WORKFLOWS_DIR/auto-extract-clips.json" << 'EOF'
   "nodes": [
     {
       "parameters": {
-        "path": "/opt/roxy/content-pipeline/transcripts",
+        "path": "${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/transcripts",
         "options": {
           "fileExtension": ".json"
         }
@@ -81,7 +83,7 @@ cat > "$WORKFLOWS_DIR/auto-extract-clips.json" << 'EOF'
     },
     {
       "parameters": {
-        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/clip_extractor.py --input {{ $json.recording_path }} --transcript {{ $json.path }} --output /opt/roxy/content-pipeline/clips/ --platform all",
+        "command": "cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate && python content-pipeline/clip_extractor.py --input {{ $json.recording_path }} --transcript {{ $json.path }} --output ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/clips/ --platform all",
         "options": {}
       },
       "name": "Extract Clips",
@@ -90,7 +92,7 @@ cat > "$WORKFLOWS_DIR/auto-extract-clips.json" << 'EOF'
     },
     {
       "parameters": {
-        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/viral_detector.py --input /opt/roxy/content-pipeline/clips/ --transcript {{ $json.path }}",
+        "command": "cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate && python content-pipeline/viral_detector.py --input ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/clips/ --transcript {{ $json.path }}",
         "options": {}
       },
       "name": "Score Clips",
@@ -116,7 +118,7 @@ cat > "$WORKFLOWS_DIR/auto-encode.json" << 'EOF'
   "nodes": [
     {
       "parameters": {
-        "path": "/opt/roxy/content-pipeline/clips",
+        "path": "${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/clips",
         "options": {
           "fileExtension": ".mp4"
         }
@@ -127,7 +129,7 @@ cat > "$WORKFLOWS_DIR/auto-encode.json" << 'EOF'
     },
     {
       "parameters": {
-        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform tiktok --output /opt/roxy/content-pipeline/encoded/tiktok/",
+        "command": "cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform tiktok --output ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/encoded/tiktok/",
         "options": {}
       },
       "name": "Encode TikTok",
@@ -136,7 +138,7 @@ cat > "$WORKFLOWS_DIR/auto-encode.json" << 'EOF'
     },
     {
       "parameters": {
-        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform youtube-shorts --output /opt/roxy/content-pipeline/encoded/youtube-shorts/",
+        "command": "cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform youtube-shorts --output ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/encoded/youtube-shorts/",
         "options": {}
       },
       "name": "Encode YouTube Shorts",
@@ -145,7 +147,7 @@ cat > "$WORKFLOWS_DIR/auto-encode.json" << 'EOF'
     },
     {
       "parameters": {
-        "command": "cd /opt/roxy && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform instagram-reels --output /opt/roxy/content-pipeline/encoded/instagram-reels/",
+        "command": "cd ${ROXY_ROOT:-$HOME/.roxy} && source venv/bin/activate && python content-pipeline/encoding_presets.py --input {{ $json.path }} --platform instagram-reels --output ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/encoded/instagram-reels/",
         "options": {}
       },
       "name": "Encode Instagram",
@@ -173,3 +175,8 @@ echo "2. Import workflow from: $WORKFLOWS_DIR"
 echo "3. Configure API keys and paths"
 echo "4. Activate workflows"
 
+
+# Replace legacy root paths in generated workflows
+if [ -d "$WORKFLOWS_DIR" ]; then
+  sed -i "s|${ROXY_ROOT:-$HOME/.roxy}|$ROXY_ROOT|g" "$WORKFLOWS_DIR"/*.json 2>/dev/null || true
+fi

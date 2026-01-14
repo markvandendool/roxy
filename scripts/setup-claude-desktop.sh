@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Setup Claude Desktop to use ROXY MCP servers
 
 echo "🔧 Setting up Claude Desktop integration for ROXY..."
@@ -11,7 +12,7 @@ CLAUDE_CONFIG_DIRS=(
     "$HOME/.config/Claude Desktop"
 )
 
-ROXY_CONFIG="/opt/roxy/config/claude-mcp.json"
+ROXY_CONFIG="${ROXY_ROOT:-$HOME/.roxy}/config/claude-mcp.json"
 CLAUDE_CONFIG_FILE=""
 
 # Find existing config or create new location
@@ -56,7 +57,6 @@ else
     echo "❌ Error: ROXY config not found at $ROXY_CONFIG"
     exit 1
 fi
-
 
 
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Complete Broadcasting Pipeline Setup
 # Runs all setup scripts in order
 
@@ -9,7 +10,7 @@ echo "║     Broadcasting Pipeline - Complete Setup                  ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 
-SCRIPTS_DIR="/opt/roxy/scripts"
+SCRIPTS_DIR="${ROXY_ROOT:-$HOME/.roxy}/scripts"
 
 # 1. Audio routing
 echo "[1/5] Audio Routing..."
@@ -26,7 +27,7 @@ echo "[3/5] OBS WebSocket..."
 if [ -f ~/.config/obs-studio/plugin_config/obs-websocket/config.json ]; then
     echo "✅ OBS WebSocket configured"
     PASSWORD=$(cat ~/.config/obs-studio/plugin_config/obs-websocket/config.json | grep -o '"password": "[^"]*' | cut -d'"' -f4)
-    echo "   Password saved to /opt/roxy/.env"
+    echo "   Password saved to ${ROXY_ROOT:-$HOME/.roxy}/.env"
 else
     echo "⚠️  OBS WebSocket plugin not installed"
     echo "   Run: cd /tmp/obs-websocket/build && sudo make install"
@@ -35,7 +36,7 @@ fi
 # 4. Content pipeline test
 echo ""
 echo "[4/5] Content Pipeline..."
-cd /opt/roxy
+cd ${ROXY_ROOT:-$HOME/.roxy}
 source venv/bin/activate
 python3 -c "
 import sys
@@ -59,9 +60,9 @@ sys.exit(0 if all_ok else 1)
 # 5. n8n workflows
 echo ""
 echo "[5/5] n8n Workflows..."
-if [ -d /opt/roxy/n8n-workflows ]; then
+if [ -d ${ROXY_ROOT:-$HOME/.roxy}/n8n-workflows ]; then
     echo "✅ Workflow templates created"
-    echo "   Import from: /opt/roxy/n8n-workflows"
+    echo "   Import from: ${ROXY_ROOT:-$HOME/.roxy}/n8n-workflows"
 else
     echo "⚠️  Workflow templates not found"
     echo "   Run: bash $SCRIPTS_DIR/create-n8n-broadcast-workflows.sh"
@@ -78,4 +79,3 @@ echo "  2. Test recording: python scripts/obs_automation.py start"
 echo "  3. Import n8n workflows: http://localhost:5678"
 echo "  4. Test content pipeline with sample video"
 echo ""
-

@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Force RX 6900 XT (card2) as primary GPU for ALL applications
 
 # Method 1: Set GBM backend (for GNOME/mutter)

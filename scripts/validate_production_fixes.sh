@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Production Fixes Validation Script
 # Validates all 4 Codex audit fixes
 
@@ -151,7 +152,6 @@ echo "2. Test health with dependencies down: stop Ollama/ChromaDB and check /hea
 echo "3. Monitor streaming heartbeats: curl -N '$ROXY_URL/stream?q=test' -H 'X-ROXY-Token:$TOKEN'"
 echo "4. Check logs: tail -f $LOG_DIR/requests_*.jsonl"
 echo ""
-
 
 
 

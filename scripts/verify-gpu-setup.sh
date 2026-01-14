@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Verify GPU Setup for ROXY
 # Checks ROCm, PyTorch, and GPU availability
@@ -90,7 +91,6 @@ echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
 echo "║     📊 Verification Complete                                ║"
 echo "╚════════════════════════════════════════════════════════════╝"
-
 
 
 

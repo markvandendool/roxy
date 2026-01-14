@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Maximum Performance Mode - Aggressive Tuning
 # For Intel Xeon W-3275 with 56 cores
 

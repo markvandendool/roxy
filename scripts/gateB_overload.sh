@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # gateB_overload.sh - Overload protection test
 # Verifies rate limiting and concurrent request handling
 set -euo pipefail

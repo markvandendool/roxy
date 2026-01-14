@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # 📊 PERFORMANCE MONITORING AFTER MITIGATION DISABLING
 # Monitor CPU, GPU, temps, and performance
@@ -126,7 +127,6 @@ while true; do
     echo "Press Ctrl+C to exit"
     sleep 2
 done
-
 
 
 

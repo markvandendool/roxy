@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Force GNOME/mutter to use RX 6900 XT
 
 # Method 1: Set environment before starting GNOME

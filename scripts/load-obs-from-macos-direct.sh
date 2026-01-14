@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Load OBS settings directly from macOS if accessible
 # Or provide instructions for manual export
 

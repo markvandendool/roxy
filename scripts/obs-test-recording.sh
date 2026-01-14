@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # OBS Recording Test Script
 
 echo "=== OBS RECORDING TEST ==="

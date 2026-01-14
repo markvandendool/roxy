@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Comprehensive fix for Cursor save issues
 
 echo "🔧 Fixing Cursor save permissions..."

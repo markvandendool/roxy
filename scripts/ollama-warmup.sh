@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Warm up Ollama models for faster first response
 
 echo '=== OLLAMA MODEL WARMUP ==='

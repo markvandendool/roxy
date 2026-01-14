@@ -6,7 +6,9 @@ This tests ROXY's ability to understand requirements and implement code
 import sys
 import asyncio
 import os
-sys.path.insert(0, '/opt/roxy/services')
+from pathlib import Path
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+sys.path.insert(0, str(ROXY_ROOT / 'services'))
 
 from roxy_interface import RoxyInterface
 
@@ -35,7 +37,7 @@ Requirements:
    - Memory statistics (conversations, facts)
    - Timestamp
 3. Use JSON format
-4. File should be at /opt/roxy/services/api/status_dashboard.py
+4. File should be at ${ROXY_ROOT:-$HOME/.roxy}/services/api/status_dashboard.py
 
 Please provide the complete implementation code."""
     
@@ -61,16 +63,16 @@ Please provide the complete implementation code."""
                 code = code[:code_end].strip()
                 
                 # Save the file
-                os.makedirs("/opt/roxy/services/api", exist_ok=True)
-                with open("/opt/roxy/services/api/status_dashboard.py", "w") as f:
+                os.makedirs("${ROXY_ROOT:-$HOME/.roxy}/services/api", exist_ok=True)
+                with open("${ROXY_ROOT:-$HOME/.roxy}/services/api/status_dashboard.py", "w") as f:
                     f.write(code)
                 
-                print(f"\n✅ Code saved to /opt/roxy/services/api/status_dashboard.py")
+                print(f"\n✅ Code saved to ${ROXY_ROOT:-$HOME/.roxy}/services/api/status_dashboard.py")
                 print(f"📝 Code length: {len(code)} characters")
                 
                 # Validate code
                 try:
-                    compile(code, "/opt/roxy/services/api/status_dashboard.py", "exec")
+                    compile(code, "${ROXY_ROOT:-$HOME/.roxy}/services/api/status_dashboard.py", "exec")
                     print("✅ Code syntax is valid!")
                 except SyntaxError as e:
                     print(f"⚠️ Syntax error: {e}")

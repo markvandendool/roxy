@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Agent Exec Helper - Execute command on ROXY-1 with error handling
 # Usage: ./agent-exec.sh "command"
 
@@ -16,4 +17,3 @@ ssh "$HOST" "$@" || {
     echo "❌ Command failed on ROXY-1"
     exit 1
 }
-

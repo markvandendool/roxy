@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #===============================================================================
 #  ███████╗██╗   ██╗██╗     ██╗         ███████╗███████╗███╗   ██╗██████╗
 #  ██╔════╝██║   ██║██║     ██║         ██╔════╝██╔════╝████╗  ██║██╔══██╗
@@ -110,9 +111,9 @@ chmod +x "$SCRIPT_DIR/002-install-dependencies.sh"
 #===============================================================================
 header "PHASE 3: ENVIRONMENT CONFIGURATION"
 
-if [ ! -f /opt/roxy/.env ]; then
+if [ ! -f ${ROXY_ROOT:-$HOME/.roxy}/.env ]; then
     log "Creating .env from template..."
-    cp /opt/roxy/.env.template /opt/roxy/.env
+    cp ${ROXY_ROOT:-$HOME/.roxy}/.env.template ${ROXY_ROOT:-$HOME/.roxy}/.env
 
     # Generate secure passwords
     POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
@@ -120,9 +121,9 @@ if [ ! -f /opt/roxy/.env ]; then
     MINIO_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
 
     # Update .env
-    sed -i "s/# POSTGRES_PASSWORD stored in Infisical/POSTGRES_PASSWORD=$POSTGRES_PASSWORD/" /opt/roxy/.env
-    sed -i "s/# MINIO_ROOT_USER stored in Infisical/MINIO_ROOT_USER=$MINIO_ROOT_USER/" /opt/roxy/.env
-    sed -i "s/# MINIO_ROOT_PASSWORD stored in Infisical/MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD/" /opt/roxy/.env
+    sed -i "s/# POSTGRES_PASSWORD stored in Infisical/POSTGRES_PASSWORD=$POSTGRES_PASSWORD/" ${ROXY_ROOT:-$HOME/.roxy}/.env
+    sed -i "s/# MINIO_ROOT_USER stored in Infisical/MINIO_ROOT_USER=$MINIO_ROOT_USER/" ${ROXY_ROOT:-$HOME/.roxy}/.env
+    sed -i "s/# MINIO_ROOT_PASSWORD stored in Infisical/MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD/" ${ROXY_ROOT:-$HOME/.roxy}/.env
 
     log "✅ Generated secure credentials"
     warn "SAVE THESE CREDENTIALS:"
@@ -139,7 +140,7 @@ fi
 header "PHASE 4: COMPOSE FILES"
 
 COMPOSE_SRC="$(dirname "$SCRIPT_DIR")/compose"
-COMPOSE_DST="/opt/roxy/compose"
+COMPOSE_DST="${ROXY_ROOT:-$HOME/.roxy}/compose"
 
 log "Copying compose files..."
 cp -r "$COMPOSE_SRC"/* "$COMPOSE_DST/"
@@ -173,7 +174,7 @@ log "Waiting 30 seconds for services to stabilize..."
 sleep 30
 
 log "Running health check..."
-/opt/roxy/scripts/health-check.sh 2>&1 | tee -a "$LOG_FILE"
+${ROXY_ROOT:-$HOME/.roxy}/scripts/health-check.sh 2>&1 | tee -a "$LOG_FILE"
 
 #===============================================================================
 # Summary

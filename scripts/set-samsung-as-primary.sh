@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Set Samsung (DP-9, center monitor) as primary display
 # Works on both X11 and Wayland
@@ -54,7 +55,6 @@ echo "   Center: DP-9 (Samsung) ← Should be primary/home"
 echo "   Right:  HDMI-1"
 echo ""
 echo "✅ Done! The 'home stuff' should now be on Samsung (center)"
-
 
 
 

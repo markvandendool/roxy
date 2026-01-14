@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Health check script for ROXY infrastructure
 # Checks all services and reports status
 
@@ -68,7 +69,6 @@ fi
 
 echo ""
 echo "Health check complete"
-
 
 
 

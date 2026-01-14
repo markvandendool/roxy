@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Final Performance Fix - Ensures all performance settings are correct
 # CRITICAL: Only touch RX 6900 XT (card2). NEVER touch W5700X (card1)!
 

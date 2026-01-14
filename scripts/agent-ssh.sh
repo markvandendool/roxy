@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Agent SSH Helper - Seamless ROXY-1 Access
 # Usage: ./agent-ssh.sh "command" or ./agent-ssh.sh (interactive)
 
@@ -14,4 +15,3 @@ else
     # Command mode
     ssh "$HOST" "$@"
 fi
-

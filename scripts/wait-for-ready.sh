@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # wait-for-ready.sh - Wait for a ROXY liveness endpoint to return 200
 # Usage: ./wait-for-ready.sh [timeout_seconds] [url]
 # Exit 0 on success, 1 on timeout/failure

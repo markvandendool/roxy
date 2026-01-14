@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # 🚀 SAFE MITIGATION DISABLING - MAXIMUM PERFORMANCE IMPACT
 # Mac Pro 2019 - Workstation Optimization
@@ -141,7 +142,6 @@ echo "📖 To revert:"
 echo "   Restore from backup: /etc/default/grub.backup.*"
 echo "   Or edit: /etc/default/grub"
 echo ""
-
 
 
 

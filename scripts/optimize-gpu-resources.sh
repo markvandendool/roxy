@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Optimize GPU Resources for ROXY
 # Configures Whisper to use CPU, keeping GPU free for LLM and TTS
@@ -6,7 +7,7 @@
 
 set -e
 
-ENV_FILE="/opt/roxy/.env"
+ENV_FILE="${ROXY_ROOT:-$HOME/.roxy}/.env"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROXY_DIR="$(dirname "$SCRIPT_DIR")"
 
@@ -80,7 +81,6 @@ echo "🔄 To apply changes, restart ROXY services:"
 echo "   sudo systemctl restart roxy-voice  # if running as service"
 echo "   # Or restart your ROXY processes manually"
 echo ""
-
 
 
 

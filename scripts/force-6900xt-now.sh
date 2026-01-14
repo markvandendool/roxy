@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Force RX 6900 XT (card2) as primary GPU RIGHT NOW
 # This applies to current session and forces all apps to use RX 6900 XT
@@ -35,7 +36,6 @@ echo "   (Should show RX 6900 XT)"
 echo ""
 echo "🔧 TO FORCE ALL NEW APPS:"
 echo "   Run this script, then start apps from this terminal"
-
 
 
 

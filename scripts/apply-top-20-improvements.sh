@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 
 # 🚀 TOP 20 MAXIMUM IMPACT IMPROVEMENTS - Implementation Script
 # Mac Pro 2019 - Linux Optimization
@@ -19,8 +20,8 @@ fi
 
 # Backup existing configs
 echo "📦 Creating backups..."
-mkdir -p /opt/roxy/backups/$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/opt/roxy/backups/$(date +%Y%m%d_%H%M%S)"
+mkdir -p ${ROXY_ROOT:-$HOME/.roxy}/backups/$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="${ROXY_ROOT:-$HOME/.roxy}/backups/$(date +%Y%m%d_%H%M%S)"
 cp /etc/sysctl.conf "$BACKUP_DIR/sysctl.conf.bak" 2>/dev/null || true
 cp /etc/default/grub "$BACKUP_DIR/grub.bak" 2>/dev/null || true
 cp /etc/fstab "$BACKUP_DIR/fstab.bak" 2>/dev/null || true
@@ -255,7 +256,7 @@ echo "   to your ext4 mount options"
 echo ""
 echo "2️⃣0️⃣  GPU COMPUTE ACCELERATION (ROCm):"
 echo "   Install ROCm if needed for compute workloads"
-echo "   See: /opt/roxy/scripts/gpu-overclock-guide.sh"
+echo "   See: ${ROXY_ROOT:-$HOME/.roxy}/scripts/gpu-overclock-guide.sh"
 echo ""
 
 # Apply sysctl changes
@@ -288,9 +289,8 @@ echo "   - CPU Mitigations (#1) - Edit grub and reboot"
 echo "   - File System Options (#19) - Edit fstab"
 echo "   - Write-Back Caching (#14) - Run hdparm commands"
 echo ""
-echo "📖 Full guide: /opt/roxy/TOP_20_MAXIMUM_IMPACT_IMPROVEMENTS.md"
+echo "📖 Full guide: ${ROXY_ROOT:-$HOME/.roxy}/TOP_20_MAXIMUM_IMPACT_IMPROVEMENTS.md"
 echo ""
-
 
 
 

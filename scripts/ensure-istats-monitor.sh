@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Ensure iStats-like monitor is running on top bar
 
 # Kill existing conky

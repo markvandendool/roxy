@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Broadcasting Pipeline Setup Script
 # Sets up OBS, audio routing, content pipeline, and automation
 
@@ -27,7 +28,7 @@ fi
 # 2. Install Python dependencies
 echo ""
 echo "[2/8] Installing Python dependencies..."
-cd /opt/roxy
+cd ${ROXY_ROOT:-$HOME/.roxy}
 if [ ! -d venv ]; then
     python3 -m venv venv
 fi
@@ -80,9 +81,9 @@ echo "✅ OBS configuration created"
 # 5. Set up content pipeline directories
 echo ""
 echo "[5/8] Setting up content pipeline directories..."
-mkdir -p /opt/roxy/content-pipeline/{recordings,clips,transcripts,thumbnails,encoded}
-mkdir -p /opt/roxy/content-pipeline/encoded/{tiktok,youtube-shorts,instagram-reels,youtube-full}
-chown -R mark:mark /opt/roxy/content-pipeline
+mkdir -p ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/{recordings,clips,transcripts,thumbnails,encoded}
+mkdir -p ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline/encoded/{tiktok,youtube-shorts,instagram-reels,youtube-full}
+chown -R mark:mark ${ROXY_ROOT:-$HOME/.roxy}/content-pipeline
 echo "✅ Content pipeline directories created"
 
 # 6. Create OBS WebSocket config
@@ -100,16 +101,16 @@ cat > ~/.config/obs-studio/plugin_config/obs-websocket/config.json << EOF
 EOF
 
 # Save password to Infisical or .env
-echo "OBS_WEBSOCKET_PASSWORD=${OBS_WS_PASSWORD}" >> /opt/roxy/.env
-echo "OBS_WEBSOCKET_PORT=4455" >> /opt/roxy/.env
-echo "✅ OBS WebSocket configured (password saved to /opt/roxy/.env)"
+echo "OBS_WEBSOCKET_PASSWORD=${OBS_WS_PASSWORD}" >> ${ROXY_ROOT:-$HOME/.roxy}/.env
+echo "OBS_WEBSOCKET_PORT=4455" >> ${ROXY_ROOT:-$HOME/.roxy}/.env
+echo "✅ OBS WebSocket configured (password saved to ${ROXY_ROOT:-$HOME/.roxy}/.env)"
 
 # 7. Create automation scripts
 echo ""
 echo "[7/8] Creating automation scripts..."
 
 # Start broadcast pipeline script
-cat > /opt/roxy/scripts/start-broadcast-pipeline.sh << 'SCRIPT_EOF'
+cat > ${ROXY_ROOT:-$HOME/.roxy}/scripts/start-broadcast-pipeline.sh << 'SCRIPT_EOF'
 #!/bin/bash
 # Start broadcasting pipeline
 
@@ -126,7 +127,7 @@ echo "OBS PID: $OBS_PID"
 SCRIPT_EOF
 
 # Stop broadcast pipeline script
-cat > /opt/roxy/scripts/stop-broadcast-pipeline.sh << 'SCRIPT_EOF'
+cat > ${ROXY_ROOT:-$HOME/.roxy}/scripts/stop-broadcast-pipeline.sh << 'SCRIPT_EOF'
 #!/bin/bash
 # Stop broadcasting pipeline
 
@@ -137,8 +138,8 @@ pkill -f clip_extractor || true
 echo "Broadcast pipeline stopped"
 SCRIPT_EOF
 
-chmod +x /opt/roxy/scripts/start-broadcast-pipeline.sh
-chmod +x /opt/roxy/scripts/stop-broadcast-pipeline.sh
+chmod +x ${ROXY_ROOT:-$HOME/.roxy}/scripts/start-broadcast-pipeline.sh
+chmod +x ${ROXY_ROOT:-$HOME/.roxy}/scripts/stop-broadcast-pipeline.sh
 echo "✅ Automation scripts created"
 
 # 8. Test OBS WebSocket connection
@@ -165,5 +166,4 @@ echo "2. Configure OBS WebSocket password in OBS settings"
 echo "3. Set up n8n workflows for automation"
 echo "4. Test audio routing: arecord -D hw:9,0 -f cd /tmp/test.wav"
 echo ""
-echo "OBS WebSocket password saved to: /opt/roxy/.env"
-
+echo "OBS WebSocket password saved to: ${ROXY_ROOT:-$HOME/.roxy}/.env"

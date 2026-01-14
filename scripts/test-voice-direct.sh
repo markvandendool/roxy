@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 #
 # Direct Voice Test - Test ROXY voice without wake word
 # This lets you test transcription and TTS directly
@@ -9,7 +10,7 @@ echo "║     🎤 ROXY Direct Voice Test                               ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
-cd /opt/roxy
+cd ${ROXY_ROOT:-$HOME/.roxy}
 source venv/bin/activate
 
 echo "📋 Options:"
@@ -109,7 +110,7 @@ PYEOF
 import os
 import sys
 os.environ['ROXY_WHISPER_DEVICE'] = 'cpu'
-sys.path.insert(0, '/opt/roxy')
+sys.path.insert(0, '${ROXY_ROOT:-$HOME/.roxy}')
 from voice.transcription.service import RoxyTranscription
 
 transcriber = RoxyTranscription(model_size='base', device='auto')
@@ -127,7 +128,7 @@ PYEOF
         read -p "Enter text to speak: " text
         python3 << PYEOF
 import sys
-sys.path.insert(0, '/opt/roxy')
+sys.path.insert(0, '${ROXY_ROOT:-$HOME/.roxy}')
 from voice.tts.service_edge import RoxyTTS
 
 tts = RoxyTTS()
@@ -172,7 +173,6 @@ esac
 
 echo ""
 echo "✅ Test complete!"
-
 
 
 

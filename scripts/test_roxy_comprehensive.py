@@ -4,8 +4,11 @@ Comprehensive ROXY Test Suite
 Tests knowledge, coding ability, and agent functionality
 """
 import sys
+import os
+from pathlib import Path
 import asyncio
-sys.path.insert(0, '/opt/roxy/services')
+ROXY_ROOT = Path(os.environ.get('ROXY_ROOT', str(Path.home() / '.roxy')))
+sys.path.insert(0, str(ROXY_ROOT / 'services'))
 
 from roxy_interface import RoxyInterface
 from roxy_core import RoxyMemory

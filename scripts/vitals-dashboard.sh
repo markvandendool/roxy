@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Best Vitals Dashboard for Linux
 # Real-time comprehensive monitoring
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+ROXY_ROOT="${ROXY_ROOT:-$HOME/.roxy}"
 # Remove ALL Power Limits - Maximum Performance
 
 echo "=== REMOVING ALL POWER LIMITS ==="
