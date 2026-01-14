@@ -1,8 +1,8 @@
 {
-  "analysis_id": "COMP_20260114_141029_0a3aac94",
-  "timestamp": "2026-01-14T21:10:29.256056+00:00",
+  "analysis_id": "COMP_20260114_151009_2e69d6ff",
+  "timestamp": "2026-01-14T22:10:09.249177+00:00",
   "status": "healthy",
-  "source_trends": "TREND_20260114_140009_0839584f",
+  "source_trends": "TREND_20260114_150021_c5ff9a00",
   "analyses": [
     {
       "trend_title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
@@ -41,47 +41,6 @@
       "coverage_angle": "Technical breakdown with practical applications and code examples",
       "differentiation": [
         "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "trend_title": "\u201cRobot, make me a chair\u201d",
-      "relevant_competitors": [
-        {
-          "name": "Fireship",
-          "category": "developer",
-          "likelihood": "high",
-          "angle": "Code tutorial and implementation walkthrough"
-        },
-        {
-          "name": "AI Explained",
-          "category": "ai_deep_dive",
-          "likelihood": "high",
-          "angle": "Technical deep dive into architecture and implications"
-        },
-        {
-          "name": "Two Minute Papers",
-          "category": "ai_research",
-          "likelihood": "high",
-          "angle": "Paper review and research context"
-        },
-        {
-          "name": "Yannic Kilcher",
-          "category": "ai_research",
-          "likelihood": "high",
-          "angle": "Paper review and research context"
-        },
-        {
-          "name": "sentdex",
-          "category": "developer",
-          "likelihood": "high",
-          "angle": "Code tutorial and implementation walkthrough"
-        }
-      ],
-      "coverage_angle": "Research paper analysis with visual explanations and implementation insights",
-      "differentiation": [
         "Multi-modal presentation combining code, visuals, and narration",
         "Unique perspective from AI-powered content pipeline",
         "Real-time data integration and live demonstrations"
@@ -173,6 +132,48 @@
     },
     {
       "trend_title": "Gemini\u2019s new beta feature provides proactive responses based on your photos, emails, and more",
+      "relevant_competitors": [
+        {
+          "name": "AI Explained",
+          "category": "ai_deep_dive",
+          "likelihood": "high",
+          "angle": "Technical deep dive into architecture and implications"
+        },
+        {
+          "name": "Matt Wolfe",
+          "category": "ai_tools",
+          "likelihood": "high",
+          "angle": "Practical how-to guide for using related tools"
+        },
+        {
+          "name": "Two Minute Papers",
+          "category": "ai_research",
+          "likelihood": "high",
+          "angle": "Paper review and research context"
+        },
+        {
+          "name": "The AI Advantage",
+          "category": "ai_tools",
+          "likelihood": "high",
+          "angle": "Practical how-to guide for using related tools"
+        },
+        {
+          "name": "Yannic Kilcher",
+          "category": "ai_research",
+          "likelihood": "high",
+          "angle": "Paper review and research context"
+        }
+      ],
+      "coverage_angle": "Technical breakdown with practical applications and code examples",
+      "differentiation": [
+        "Code-first implementation walkthrough",
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
+    {
+      "trend_title": "AI security firm, depthfirst, announces $40 million Series A",
       "relevant_competitors": [
         {
           "name": "AI Explained",

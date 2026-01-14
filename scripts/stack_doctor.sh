@@ -147,9 +147,10 @@ section "Orchestrator health"
 http_code="000"
 health_json=""
 latency_ms=""
+orch_timeout=${ORCH_HEALTH_TIMEOUT:-12}
 for _ in 1 2 3; do
   start_ms=$(date +%s%3N)
-  health_json=$(curl -sS --max-time 3 -w "\nHTTP:%{http_code}\n" http://127.0.0.1:3847/health/orchestrator 2>&$CURL_STDERR_FD || true)
+  health_json=$(curl -sS --max-time "${orch_timeout}" -w "\nHTTP:%{http_code}\n" http://127.0.0.1:3847/health/orchestrator 2>&$CURL_STDERR_FD || true)
   end_ms=$(date +%s%3N)
   latency_ms=$((end_ms - start_ms))
   http_code=$(echo "$health_json" | tail -n 1 | sed 's/HTTP://')

@@ -1,8 +1,8 @@
 {
-  "brief_id": "BRIEF_20260114_140514_2338e865",
-  "timestamp": "2026-01-14T21:05:14.421275+00:00",
+  "brief_id": "BRIEF_20260114_150515_3f93f396",
+  "timestamp": "2026-01-14T22:05:15.423972+00:00",
   "status": "healthy",
-  "source_snapshot": "TREND_20260114_140009_0839584f",
+  "source_snapshot": "TREND_20260114_150021_c5ff9a00",
   "briefs": [
     {
       "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
@@ -15,27 +15,6 @@
         "Key insight: Skild AI, which is building general-purpose robotic software, just raised a $1",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "\u201cRobot, make me a chair\u201d",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "link": "https://news.mit.edu/2025/robot-makes-chair-1216",
-      "summary": "An AI-driven system lets users design and build simple, multicomponent objects by describing them with words.",
-      "claims": [
-        "This trend focuses on: \u201cRobot, make me a chair\u201d",
-        "Key insight: An AI-driven system lets users design and build simple, multicomponent objects by describing them with words",
-        "Source: MIT News AI (category: ai_research)",
-        "This relates to academic AI research and new discoveries",
         "This is general technology news coverage"
       ],
       "followups": [
@@ -97,6 +76,27 @@
       "claims": [
         "This trend focuses on: Gemini\u2019s new beta feature provides proactive responses based on your photos, emails, and more",
         "Key insight: Personal Intelligence is off by default, as users have the option to choose if and when they want to connect their Google apps to Gemini",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This appears to be a new announcement or product launch"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "AI security firm, depthfirst, announces $40 million Series A",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/14/ai-security-firm-depthfirst-announces-40-million-series-a/",
+      "summary": "The company used an AI-native platform to help companies fight threats.",
+      "claims": [
+        "This trend focuses on: AI security firm, depthfirst, announces $40 million Series A",
+        "Key insight: The company used an AI-native platform to help companies fight threats",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This appears to be a new announcement or product launch"

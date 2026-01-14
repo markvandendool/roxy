@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260114_140009_0839584f",
-  "timestamp": "2026-01-14T21:00:09.953419+00:00",
+  "snapshot_id": "TREND_20260114_150021_c5ff9a00",
+  "timestamp": "2026-01-14T22:00:21.456500+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -33,14 +33,6 @@
       "category": "ai",
       "score": 95,
       "summary": "Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion funding round led by SoftBank."
-    },
-    {
-      "title": "\u201cRobot, make me a chair\u201d",
-      "link": "https://news.mit.edu/2025/robot-makes-chair-1216",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 85,
-      "summary": "An AI-driven system lets users design and build simple, multicomponent objects by describing them with words."
     },
     {
       "title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
@@ -91,6 +83,14 @@
       "summary": "AI is ushering in Ring\u2019s next chapter, as the Amazon-owned video doorbell maker shifts toward becoming an \u201cintelligent assistant.\u201d"
     },
     {
+      "title": "Generative AI tool helps 3D print personal items that sustain daily use",
+      "link": "https://news.mit.edu/2026/genai-tool-helps-3d-print-personal-items-sustain-daily-use-0114",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "score": 75,
+      "summary": "\u201cMechStyle\u201d allows users to personalize 3D models, while ensuring they\u2019re physically viable after fabrication, producing unique personal items and assistive technology."
+    },
+    {
       "title": "3 Questions: How AI could optimize the power grid",
       "link": "https://news.mit.edu/2026/3-questions-how-ai-could-optimize-power-grid-0109",
       "source": "MIT News AI",
@@ -139,6 +139,14 @@
       "summary": "The tech giant has pledged to be a \"good neighbor\" as it continues to invest in AI infrastructure throughout the country."
     },
     {
+      "title": "At MIT, a continued commitment to understanding intelligence",
+      "link": "https://news.mit.edu/2026/continued-commitment-to-understanding-intelligence-0114",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "score": 65,
+      "summary": "With support from the Siegel Family Endowment, the newly renamed MIT Siegel Family Quest for Intelligence investigates how brains produce intelligence and how it can be replicated to solve problems."
+    },
+    {
       "title": "Decoding the Arctic to predict winter weather",
       "link": "https://news.mit.edu/2026/decoding-arctic-to-predict-winter-weather-0108",
       "source": "MIT News AI",
@@ -177,14 +185,6 @@
       "category": "ai_research",
       "score": 65,
       "summary": "MIT-IBM Watson AI Lab researchers developed an expressive architecture that provides better state tracking and sequential reasoning in LLMs over long texts."
-    },
-    {
-      "title": "A \u201cscientific sandbox\u201d lets researchers explore the evolution of vision systems",
-      "link": "https://news.mit.edu/2025/scientific-sandbox-lets-researchers-explore-evolution-vision-systems-1217",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 65,
-      "summary": "The AI-powered tool could inform the design of better sensors and cameras for robots or autonomous vehicles."
     }
   ],
   "meta": {
