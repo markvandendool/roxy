@@ -1,12 +1,12 @@
 {
-  "brief_id": "BRIEF_20260114_152007_c890d46f",
-  "timestamp": "2026-01-14T22:20:07.506398+00:00",
+  "brief_id": "BRIEF_20260115_212012_b4180426",
+  "timestamp": "2026-01-16T04:20:12.139535+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260114_151820_1eb7a559",
+  "source_review": "REVIEW_20260115_211824_610128f5",
   "briefs": [
     {
-      "script_id": "SCR_dbcc6788e951",
-      "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "script_id": "SCR_f8eae17a8046",
+      "title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -74,7 +74,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion f"
+          "vo_summary": "[DETAILS] The startup claims its AI platform can help optimize editorial processes and research...."
         },
         {
           "scene_id": "SCENE_04",
@@ -115,8 +115,8 @@
       }
     },
     {
-      "script_id": "SCR_70515e100f58",
-      "title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
+      "script_id": "SCR_e59f28e10f8d",
+      "title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -166,7 +166,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore changes every"
+          "vo_summary": "[HOOK] Here's why AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation chang"
         },
         {
           "scene_id": "SCENE_02",
@@ -184,7 +184,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] AI agents are supposed to make work easier. But&#160;they&#8217;re&#160;also creating a wh"
+          "vo_summary": "[DETAILS] Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous "
         },
         {
           "scene_id": "SCENE_04",
@@ -225,8 +225,8 @@
       }
     },
     {
-      "script_id": "SCR_a1a4d47e6113",
-      "title": "AI models are starting to crack high-level math problems",
+      "script_id": "SCR_24f0e409902c",
+      "title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -276,7 +276,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why AI models are starting to crack high-level math problems changes everything"
+          "vo_summary": "[HOOK] The AI world is buzzing about OpenAI invests in Sam Altman\u2019s brain computer interface startup"
         },
         {
           "scene_id": "SCENE_02",
@@ -294,7 +294,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Since the release of GPT 5.2, AI tools have become inescapable in high-level mathematics.."
+          "vo_summary": "[DETAILS] Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligen"
         },
         {
           "scene_id": "SCENE_04",
@@ -331,7 +331,9 @@
           "proven"
         ],
         "music_policy": "royalty_free_only",
-        "trademark_risks": []
+        "trademark_risks": [
+          "Openai trademark"
+        ]
       }
     }
   ],

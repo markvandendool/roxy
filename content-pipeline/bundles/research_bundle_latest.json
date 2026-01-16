@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260114_151220_f60359fc",
-  "timestamp": "2026-01-14T22:12:20.500718+00:00",
+  "bundle_id": "BUNDLE_20260115_211224_56a2b842",
+  "timestamp": "2026-01-16T04:12:24.846450+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260114_150021_c5ff9a00",
+      "snapshot_id": "TREND_20260115_210013_fb6af4e2",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260114_150515_3f93f396",
+      "brief_id": "BRIEF_20260115_210516_8d866552",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260114_151009_2e69d6ff",
+      "analysis_id": "COMP_20260115_211006_6af3094e",
       "status": "healthy",
       "count": 5
     }
@@ -24,9 +24,9 @@
     "brief_count": 5,
     "analysis_count": 5,
     "top_trend": {
-      "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
       "source": "TechCrunch AI",
-      "score": 95
+      "score": 85
     },
     "top_competitors": [
       {

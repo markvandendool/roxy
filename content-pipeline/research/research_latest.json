@@ -1,81 +1,18 @@
 {
-  "brief_id": "BRIEF_20260114_150515_3f93f396",
-  "timestamp": "2026-01-14T22:05:15.423972+00:00",
+  "brief_id": "BRIEF_20260115_210516_8d866552",
+  "timestamp": "2026-01-16T04:05:16.945672+00:00",
   "status": "healthy",
-  "source_snapshot": "TREND_20260114_150021_c5ff9a00",
+  "source_snapshot": "TREND_20260115_210013_fb6af4e2",
   "briefs": [
     {
-      "title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/01/14/robotic-software-maker-skild-ai-hits-14b-valuation/",
-      "summary": "Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion funding round led by SoftBank.",
+      "link": "https://techcrunch.com/2026/01/15/ai-journalism-startup-symbolic-ai-signs-deal-with-rupert-murdochs-news-corp/",
+      "summary": "The startup claims its AI platform can help optimize editorial processes and research.",
       "claims": [
-        "This trend focuses on: Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
-        "Key insight: Skild AI, which is building general-purpose robotic software, just raised a $1",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/podcast/the-multi-billion-ai-security-problem-enterprises-cant-ignore/",
-      "summary": "AI agents are supposed to make work easier. But&#160;they&#8217;re&#160;also creating a whole new category of security nightmares.&#160; As companies deploy AI-powered chatbots, agents, and copilots a",
-      "claims": [
-        "This trend focuses on: The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
-        "Key insight: AI agents are supposed to make work easier",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "AI models are starting to crack high-level math problems",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/2026/01/14/ai-models-are-starting-to-crack-high-level-math-problems/",
-      "summary": "Since the release of GPT 5.2, AI tools have become inescapable in high-level mathematics.",
-      "claims": [
-        "This trend focuses on: AI models are starting to crack high-level math problems",
-        "Key insight: Since the release of GPT 5",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "Gemini\u2019s new beta feature provides proactive responses based on your photos, emails, and more",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/2026/01/14/geminis-new-beta-feature-provides-proactive-responses-based-on-your-photos-emails-and-more/",
-      "summary": "Personal Intelligence is off by default, as users have the option to choose if and when they want to connect their Google apps to Gemini.",
-      "claims": [
-        "This trend focuses on: Gemini\u2019s new beta feature provides proactive responses based on your photos, emails, and more",
-        "Key insight: Personal Intelligence is off by default, as users have the option to choose if and when they want to connect their Google apps to Gemini",
+        "This trend focuses on: AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
+        "Key insight: The startup claims its AI platform can help optimize editorial processes and research",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This appears to be a new announcement or product launch"
@@ -89,17 +26,80 @@
       ]
     },
     {
-      "title": "AI security firm, depthfirst, announces $40 million Series A",
+      "title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/01/14/ai-security-firm-depthfirst-announces-40-million-series-a/",
-      "summary": "The company used an AI-native platform to help companies fight threats.",
+      "link": "https://techcrunch.com/2026/01/15/ai-video-startup-higgsfield-founded-by-ex-snap-exec-lands-1-3b-valuation/",
+      "summary": "Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous Series A round back up and sold another $80 million in shares.",
       "claims": [
-        "This trend focuses on: AI security firm, depthfirst, announces $40 million Series A",
-        "Key insight: The company used an AI-native platform to help companies fight threats",
+        "This trend focuses on: AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
+        "Key insight: Higgsfield says it's on a $200 million annual revenue run rate",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
-        "This appears to be a new announcement or product launch"
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/15/openai-invests-in-sam-altmans-brain-computer-interface-startup-merge-labs/",
+      "summary": "Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability.\u201d OpenAI wrote the largest check in Merge Labs' $250 million seed round at an $85",
+      "claims": [
+        "This trend focuses on: OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
+        "Key insight: Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "The AI lab revolving door spins ever faster",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/15/the-ai-lab-revolving-door-spins-ever-faster/",
+      "summary": "AI labs just can't get their employees to stay put. Yesterday\u2019s big AI news was the abrupt and seemingly acrimonious departure of three top executives at Mira Murati\u2019s Thinking Machines lab.",
+      "claims": [
+        "This trend focuses on: The AI lab revolving door spins ever faster",
+        "Key insight: AI labs just can't get their employees to stay put",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "Taiwan to invest\u00a0$250B in US semiconductor manufacturing",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/15/taiwan-to-invest-250b-in-us-semiconductor-manufacturing/",
+      "summary": "The U.S. struck a trade deal with Taiwan as the country looks to help boost domestic semiconductor manufacturing.",
+      "claims": [
+        "This trend focuses on: Taiwan to invest\u00a0$250B in US semiconductor manufacturing",
+        "Key insight: The U",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
       ],
       "followups": [
         "What are the key players/companies mentioned?",

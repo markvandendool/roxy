@@ -1,12 +1,12 @@
 {
-  "review_id": "REVIEW_20260114_151820_1eb7a559",
-  "timestamp": "2026-01-14T22:18:20.997053+00:00",
+  "review_id": "REVIEW_20260115_211824_610128f5",
+  "timestamp": "2026-01-16T04:18:24.499924+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260114_151605_2bc9b972",
+  "source_scripts": "SCRIPT_20260115_211612_2b44a761",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_dbcc6788e951",
-      "trend_title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "script_id": "SCR_f8eae17a8046",
+      "trend_title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
@@ -29,12 +29,12 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_70515e100f58",
-      "trend_title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
+      "script_id": "SCR_e59f28e10f8d",
+      "trend_title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 7,
+        "hook_strength": 8,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
@@ -53,18 +53,20 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_a1a4d47e6113",
-      "trend_title": "AI models are starting to crack high-level math problems",
+      "script_id": "SCR_24f0e409902c",
+      "trend_title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 8,
+        "hook_strength": 6,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
-        "overall": 9
+        "overall": 8
       },
-      "recommendations": [],
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
       "approved_sections": [
         "hook",
         "context",
@@ -82,7 +84,7 @@
     "approved": 3,
     "needs_revision": 0,
     "rejected": 0,
-    "average_score": 9.0
+    "average_score": 8.7
   },
   "meta": {
     "version": "1.0.0",

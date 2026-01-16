@@ -1,16 +1,16 @@
 {
-  "pack_id": "PACK_20260114_152206_f152a7fc",
-  "timestamp": "2026-01-14T22:22:06.246036+00:00",
+  "pack_id": "PACK_20260115_212211_bf0406fe",
+  "timestamp": "2026-01-16T04:22:11.729735+00:00",
   "status": "healthy",
-  "source_briefs": "BRIEF_20260114_152007_c890d46f",
+  "source_briefs": "BRIEF_20260115_212012_b4180426",
   "packs": [
     {
-      "script_id": "SCR_dbcc6788e951",
+      "script_id": "SCR_f8eae17a8046",
       "prompts": [
         {
-          "asset_id": "ASSET_dbcc6788_thumbnail_00_ce814304",
+          "asset_id": "ASSET_f8eae17a_thumbnail_00_76930b33",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, Robotics software maker\u00a0Skild\u00a0AI hits $14B valuati, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, AI journalism startup Symbolic.ai signs deal with , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -25,13 +25,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0"
+            "AI journalism startup Symbolic"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_intro_card_00_960c12fd",
+          "asset_id": "ASSET_f8eae17a_intro_card_00_ba476fd0",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, Robotics software maker\u00a0Skild\u00a0AI hits $14B valuati, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, AI journalism startup Symbolic.ai signs deal with , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -46,11 +46,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0"
+            "AI journalism startup Symbolic"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_lower_third_00_1ac6dc41",
+          "asset_id": "ASSET_f8eae17a_lower_third_00_b75df990",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -67,12 +67,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_lower_third_01_56da1cfa",
+          "asset_id": "ASSET_f8eae17a_lower_third_01_c6addead",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -89,12 +89,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_lower_third_02_5fc27542",
+          "asset_id": "ASSET_f8eae17a_lower_third_02_79e4c252",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -111,12 +111,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_broll_00_1dafa530",
+          "asset_id": "ASSET_f8eae17a_broll_00_c104b42f",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -135,12 +135,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_broll_01_8e51045e",
+          "asset_id": "ASSET_f8eae17a_broll_01_92791caa",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -159,12 +159,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_broll_02_038407b2",
+          "asset_id": "ASSET_f8eae17a_broll_02_060465dc",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -183,12 +183,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_broll_03_3e29e922",
+          "asset_id": "ASSET_f8eae17a_broll_03_6f3e9e3a",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -207,12 +207,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_broll_04_beb73cb1",
+          "asset_id": "ASSET_f8eae17a_broll_04_60ce7080",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -231,12 +231,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_title_card_00_16036f6f",
+          "asset_id": "ASSET_f8eae17a_title_card_00_e106490b",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -253,12 +253,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_title_card_01_96b249b2",
+          "asset_id": "ASSET_f8eae17a_title_card_01_651061e0",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -275,12 +275,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_title_card_02_43bc02dd",
+          "asset_id": "ASSET_f8eae17a_title_card_02_29442d6d",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -297,12 +297,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0",
+            "AI journalism startup Symbolic",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_dbcc6788_end_card_00_f6583c57",
+          "asset_id": "ASSET_f8eae17a_end_card_00_0992139d",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -319,18 +319,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Robotics software maker\u00a0Skild\u00a0"
+            "AI journalism startup Symbolic"
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_70515e100f58",
+      "script_id": "SCR_e59f28e10f8d",
       "prompts": [
         {
-          "asset_id": "ASSET_70515e10_thumbnail_00_539f514e",
+          "asset_id": "ASSET_e59f28e1_thumbnail_00_afc278d9",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, The multibillion-dollar AI security problem enterp, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, AI video startup, Higgsfield, founded by ex-Snap e, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -345,13 +345,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec"
+            "AI video startup, Higgsfield, "
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_intro_card_00_cc95749f",
+          "asset_id": "ASSET_e59f28e1_intro_card_00_36ef81f2",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, The multibillion-dollar AI security problem enterp, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, AI video startup, Higgsfield, founded by ex-Snap e, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -366,11 +366,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec"
+            "AI video startup, Higgsfield, "
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_lower_third_00_73d6c355",
+          "asset_id": "ASSET_e59f28e1_lower_third_00_21a28ff8",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -387,12 +387,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_lower_third_01_77d9f078",
+          "asset_id": "ASSET_e59f28e1_lower_third_01_9dd601d7",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -409,12 +409,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_lower_third_02_fca78f13",
+          "asset_id": "ASSET_e59f28e1_lower_third_02_11cd654c",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -431,12 +431,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_broll_00_2d59f77a",
+          "asset_id": "ASSET_e59f28e1_broll_00_1bcbc697",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -455,12 +455,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_broll_01_3bac7536",
+          "asset_id": "ASSET_e59f28e1_broll_01_c60f0d7c",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -479,12 +479,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_broll_02_851645c1",
+          "asset_id": "ASSET_e59f28e1_broll_02_f207a645",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -503,12 +503,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_broll_03_cdb2f72f",
+          "asset_id": "ASSET_e59f28e1_broll_03_97242ccd",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -527,12 +527,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_broll_04_d9aeb99c",
+          "asset_id": "ASSET_e59f28e1_broll_04_97700340",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -551,12 +551,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_title_card_00_1a86310d",
+          "asset_id": "ASSET_e59f28e1_title_card_00_480d6f67",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -573,12 +573,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_title_card_01_750fbdfd",
+          "asset_id": "ASSET_e59f28e1_title_card_01_dd0c0d4e",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -595,12 +595,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_title_card_02_310f24a2",
+          "asset_id": "ASSET_e59f28e1_title_card_02_c73c6401",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -617,12 +617,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec",
+            "AI video startup, Higgsfield, ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_70515e10_end_card_00_66d994cd",
+          "asset_id": "ASSET_e59f28e1_end_card_00_922fb50e",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -639,18 +639,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The multibillion-dollar AI sec"
+            "AI video startup, Higgsfield, "
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_a1a4d47e6113",
+      "script_id": "SCR_24f0e409902c",
       "prompts": [
         {
-          "asset_id": "ASSET_a1a4d47e_thumbnail_00_f8ba53a7",
+          "asset_id": "ASSET_24f0e409_thumbnail_00_43f5b11c",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, AI models are starting to crack high-level math pr, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, OpenAI invests in Sam Altman\u2019s brain computer inte, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -665,13 +665,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac"
+            "OpenAI invests in Sam Altman\u2019s"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_intro_card_00_f31173a2",
+          "asset_id": "ASSET_24f0e409_intro_card_00_e775da27",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, AI models are starting to crack high-level math pr, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, OpenAI invests in Sam Altman\u2019s brain computer inte, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -686,11 +686,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac"
+            "OpenAI invests in Sam Altman\u2019s"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_lower_third_00_ba78df5a",
+          "asset_id": "ASSET_24f0e409_lower_third_00_d1359993",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -707,12 +707,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_lower_third_01_da1a5770",
+          "asset_id": "ASSET_24f0e409_lower_third_01_86d88497",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -729,12 +729,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_lower_third_02_23040e78",
+          "asset_id": "ASSET_24f0e409_lower_third_02_ef92812a",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -751,12 +751,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_broll_00_0dc0e852",
+          "asset_id": "ASSET_24f0e409_broll_00_877b5b49",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -775,12 +775,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_broll_01_0f3d6832",
+          "asset_id": "ASSET_24f0e409_broll_01_c025629c",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -799,12 +799,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_broll_02_8700b3ca",
+          "asset_id": "ASSET_24f0e409_broll_02_73033016",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -823,12 +823,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_broll_03_6aaa11ea",
+          "asset_id": "ASSET_24f0e409_broll_03_e37d35fe",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -847,12 +847,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_broll_04_a03b3088",
+          "asset_id": "ASSET_24f0e409_broll_04_762d29db",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -871,12 +871,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_title_card_00_62ffb74c",
+          "asset_id": "ASSET_24f0e409_title_card_00_f9772a21",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -893,12 +893,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_title_card_01_dceb98c5",
+          "asset_id": "ASSET_24f0e409_title_card_01_fcb5a17e",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -915,12 +915,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_title_card_02_4886710e",
+          "asset_id": "ASSET_24f0e409_title_card_02_7bbac737",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -937,12 +937,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac",
+            "OpenAI invests in Sam Altman\u2019s",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_a1a4d47e_end_card_00_e63b1939",
+          "asset_id": "ASSET_24f0e409_end_card_00_fc5077fc",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -959,7 +959,7 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "AI models are starting to crac"
+            "OpenAI invests in Sam Altman\u2019s"
           ]
         }
       ]

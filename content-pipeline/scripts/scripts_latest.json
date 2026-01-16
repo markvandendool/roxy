@@ -1,13 +1,13 @@
 {
-  "script_id": "SCRIPT_20260114_151605_2bc9b972",
-  "timestamp": "2026-01-14T22:16:05.995978+00:00",
+  "script_id": "SCRIPT_20260115_211612_2b44a761",
+  "timestamp": "2026-01-16T04:16:12.008102+00:00",
   "status": "healthy",
-  "source_bundle": "BUNDLE_20260114_151220_f60359fc",
-  "source_templates": "TMPL_20260114_151420_6bd24706",
+  "source_bundle": "BUNDLE_20260115_211224_56a2b842",
+  "source_templates": "TMPL_20260115_211417_eddeadac",
   "scripts": [
     {
-      "id": "SCR_dbcc6788e951",
-      "trend_title": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+      "id": "SCR_f8eae17a8046",
+      "trend_title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
@@ -28,7 +28,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion funding round led by SoftBank....",
+          "content": "[DETAILS] The startup claims its AI platform can help optimize editorial processes and research....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -52,9 +52,9 @@
         }
       ],
       "variables": {
-        "headline": "Robotics software maker\u00a0Skild\u00a0AI hits $14B valuation",
+        "headline": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
         "source": "TechCrunch AI",
-        "summary": "Skild AI, which is building general-purpose robotic software, just raised a $1.4 billion funding round led by SoftBank.",
+        "summary": "The startup claims its AI platform can help optimize editorial processes and research.",
         "category": "ai"
       },
       "differentiation": [
@@ -65,67 +65,8 @@
       ]
     },
     {
-      "id": "SCR_70515e100f58",
-      "trend_title": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
-      "template_id": "news-standard",
-      "template_name": "AI News Coverage",
-      "format": "standard",
-      "estimated_duration": 150,
-      "hook": "Here's why The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore changes everything",
-      "sections": [
-        {
-          "section": "hook",
-          "content": "[HOOK] Here's why The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore changes everything",
-          "duration_seconds": 15,
-          "notes": "Why you should care about this"
-        },
-        {
-          "section": "context",
-          "content": "[CONTEXT] Background on this development...",
-          "duration_seconds": 22,
-          "notes": "Background and context"
-        },
-        {
-          "section": "details",
-          "content": "[DETAILS] AI agents are supposed to make work easier. But&#160;they&#8217;re&#160;also creating a whole new category of security nightmares.&#160; As companies deploy AI-powered chatbots, agents, and copilots a...",
-          "duration_seconds": 52,
-          "notes": "Core story details"
-        },
-        {
-          "section": "analysis",
-          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
-          "duration_seconds": 37,
-          "notes": "What this means for the industry"
-        },
-        {
-          "section": "takeaway",
-          "content": "[TAKEAWAY] The key point to remember...",
-          "duration_seconds": 15,
-          "notes": "Key takeaway for viewers"
-        },
-        {
-          "section": "cta",
-          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
-          "duration_seconds": 7,
-          "notes": "Subscribe/follow prompt"
-        }
-      ],
-      "variables": {
-        "headline": "The multibillion-dollar AI security problem enterprises\u00a0can\u2019t\u00a0ignore",
-        "source": "TechCrunch AI",
-        "summary": "AI agents are supposed to make work easier. But&#160;they&#8217;re&#160;also creating a whole new category of security nightmares.&#160; As companies deploy AI-powered chatbots, agents, and copilots across their operations, they&#8217;re facing a new risk: How do you let employees and AI agents use powerful AI tools without accidentally leaking sensitive data, violating compliance rules, or opening [&#8230;]",
-        "category": "ai"
-      },
-      "differentiation": [
-        "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "id": "SCR_a1a4d47e6113",
-      "trend_title": "AI models are starting to crack high-level math problems",
+      "id": "SCR_e59f28e10f8d",
+      "trend_title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
@@ -134,7 +75,7 @@
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why AI models are starting to crack high-level math problems changes everything",
+          "content": "[HOOK] Here's why AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -146,7 +87,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] Since the release of GPT 5.2, AI tools have become inescapable in high-level mathematics....",
+          "content": "[DETAILS] Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous Series A round back up and sold another $80 million in shares....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -170,9 +111,68 @@
         }
       ],
       "variables": {
-        "headline": "AI models are starting to crack high-level math problems",
+        "headline": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
         "source": "TechCrunch AI",
-        "summary": "Since the release of GPT 5.2, AI tools have become inescapable in high-level mathematics.",
+        "summary": "Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous Series A round back up and sold another $80 million in shares.",
+        "category": "ai"
+      },
+      "differentiation": [
+        "Code-first implementation walkthrough",
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
+    {
+      "id": "SCR_24f0e409902c",
+      "trend_title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
+      "template_id": "news-standard",
+      "template_name": "AI News Coverage",
+      "format": "standard",
+      "estimated_duration": 150,
+      "hook": "Here's why OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs changes everything",
+      "sections": [
+        {
+          "section": "hook",
+          "content": "[HOOK] The AI world is buzzing about OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
+          "duration_seconds": 15,
+          "notes": "Why you should care about this"
+        },
+        {
+          "section": "context",
+          "content": "[CONTEXT] Background on this development...",
+          "duration_seconds": 22,
+          "notes": "Background and context"
+        },
+        {
+          "section": "details",
+          "content": "[DETAILS] Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability.\u201d OpenAI wrote the largest check in Merge Labs' $250 million seed round at an $85...",
+          "duration_seconds": 52,
+          "notes": "Core story details"
+        },
+        {
+          "section": "analysis",
+          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
+          "duration_seconds": 37,
+          "notes": "What this means for the industry"
+        },
+        {
+          "section": "takeaway",
+          "content": "[TAKEAWAY] The key point to remember...",
+          "duration_seconds": 15,
+          "notes": "Key takeaway for viewers"
+        },
+        {
+          "section": "cta",
+          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
+          "duration_seconds": 7,
+          "notes": "Subscribe/follow prompt"
+        }
+      ],
+      "variables": {
+        "headline": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
+        "source": "TechCrunch AI",
+        "summary": "Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability.\u201d OpenAI wrote the largest check in Merge Labs' $250 million seed round at an $850 million valuation.",
         "category": "ai"
       },
       "differentiation": [
