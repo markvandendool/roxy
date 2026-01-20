@@ -1,6 +1,15 @@
+---
+ai-doc-type: runbook
+ai-priority: critical
+ai-status: canonical
+ai-last-updated: 2026-01-20
+ai-owners: [SKYBEAM]
+ai-depends-on: [~/.roxy/PROJECT_SKYBEAM.md]
+---
+
 # SKYBEAM CURRENT STATE — Canonical Truth Document
 
-**Last Updated:** 2026-01-11T02:03:00Z
+**Last Updated:** 2026-01-20
 **Updated By:** Claude Opus 4.5 (Master Chief)
 **Authority:** This document is the SINGLE SOURCE OF TRUTH for SKYBEAM pipeline state.
 

@@ -1,7 +1,16 @@
+---
+ai-doc-type: specification
+ai-priority: critical
+ai-status: canonical
+ai-last-updated: 2026-01-20
+ai-owners: [SKYBEAM, ROXY]
+ai-depends-on: []
+---
+
 # PROJECT SKYBEAM — ROXY UNIFIED INFRASTRUCTURE MAP
 
 **Codename:** SKYBEAM
-**Date:** 2026-01-10
+**Date:** 2026-01-20
 **Auditors:** Master Chief + Claude Opus 4.5 + GitHub Copilot (Raptor mini)
 **Status:** CONSOLIDATED — ALL SYSTEMS MAPPED
 

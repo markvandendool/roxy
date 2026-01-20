@@ -58,16 +58,27 @@
 
 ---
 
-## HARDWARE LAYER — CITADEL (MAC PRO)
+## CITADEL CLUSTER — 4 MACHINES
+
+| Host | IP | User | OS | Role |
+|------|-----|------|-----|------|
+| `macstudio` | 10.0.0.92 | markvandendool | macOS | Canonical repo |
+| `roxy` | 10.0.0.99 | mark | Ubuntu 24.04 | AI/Docker hub |
+| `friday` | 10.0.0.65 | mark | Ubuntu 22.04 | Worker node |
+| `citadel-worker-2` | 10.0.0.19 | MarkMB | Debian 13 | Worker node |
+
+---
+
+## HARDWARE LAYER — ROXY (MAC PRO)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                              CITADEL — MAC PRO TOWER                                │
+│                              ROXY — MAC PRO TOWER                                   │
 ├─────────────────────────────────────────────────────────────────────────────────────┤
 │  CPU:  Intel Xeon W-3275 (28 cores / 56 threads @ 2.5GHz)                          │
 │  RAM:  160 GB DDR4 ECC                                                              │
 │  OS:   Ubuntu 24.04.1 LTS (Kernel 6.18.2-1-t2-noble)                               │
-│  IP:   10.0.0.69 (LAN) | SSH: citadel                                              │
+│  IP:   10.0.0.99 (LAN) | SSH: roxy                                                 │
 ├─────────────────────────────────────────────────────────────────────────────────────┤
 │  GPU 0: AMD Radeon Pro W5700X (renderD128)                                         │
 │         └─ Ollama Background (port 11435): tinyllama, qwen3:1.7b                   │

@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260115_211224_56a2b842",
-  "timestamp": "2026-01-16T04:12:24.846450+00:00",
+  "bundle_id": "BUNDLE_20260120_111215_4b431df5",
+  "timestamp": "2026-01-20T18:12:15.714977+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260115_210013_fb6af4e2",
+      "snapshot_id": "TREND_20260120_110006_65fd09fe",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260115_210516_8d866552",
+      "brief_id": "BRIEF_20260120_110520_3944abb8",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260115_211006_6af3094e",
+      "analysis_id": "COMP_20260120_111015_3b70195f",
       "status": "healthy",
       "count": 5
     }
@@ -24,7 +24,7 @@
     "brief_count": 5,
     "analysis_count": 5,
     "top_trend": {
-      "title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
+      "title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
       "source": "TechCrunch AI",
       "score": 85
     },

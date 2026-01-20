@@ -30,6 +30,18 @@ curl -s http://localhost:37777/health || echo "FIX: cd ~/.claude/plugins/marketp
 
 **Stereo Split Audio:** L→TCL, R→RCA (see `~/.roxy/docs/HARDWARE_NOTES.md`)
 
+**OBS WebSocket Control:** Port 4455, password `nikkisixx`
+```bash
+~/.roxy/obs-control.py status     # Check OBS state
+~/.roxy/obs-control.py scenes     # List scenes
+~/.roxy/obs-control.py record start/stop
+```
+**Full guide:** `~/.roxy/docs/OBS_CONTROL_GUIDE.md`
+
+**DeckLink Quad HDMI:** 4 inputs at `/dev/blackmagic/io0-3`
+- Scenes: HDMI-1 through HDMI-4, Quad-View (2x2 grid)
+- Recording: 4K60 VAAPI H.264 → `/home/mark/Videos/`
+
 ---
 
 # 🚀 THE UNIVERSE — READ THIS FIRST

@@ -1,12 +1,125 @@
 {
-  "brief_id": "BRIEF_20260115_212012_b4180426",
-  "timestamp": "2026-01-16T04:20:12.139535+00:00",
+  "brief_id": "BRIEF_20260120_112002_780d2bf4",
+  "timestamp": "2026-01-20T18:20:02.999320+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260115_211824_610128f5",
+  "source_review": "REVIEW_20260120_111815_36d3ba6d",
   "briefs": [
     {
-      "script_id": "SCR_f8eae17a8046",
-      "title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
+      "script_id": "SCR_99f6971cc0ae",
+      "title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "format": "standard",
+      "duration_target": 150,
+      "visual_style": {
+        "primary_color": "#6366F1",
+        "secondary_color": "#0F0F23",
+        "font_family": "Inter Medium",
+        "mood": "professional",
+        "lighting": "balanced"
+      },
+      "required_assets": [
+        {
+          "asset_type": "thumbnail",
+          "purpose": "Video thumbnail for platforms",
+          "count": 1
+        },
+        {
+          "asset_type": "intro_card",
+          "purpose": "Opening title card",
+          "count": 1
+        },
+        {
+          "asset_type": "lower_third",
+          "purpose": "Name/topic lower thirds",
+          "count": 3
+        },
+        {
+          "asset_type": "broll",
+          "purpose": "B-roll footage pack",
+          "count": 5
+        },
+        {
+          "asset_type": "title_card",
+          "purpose": "Section title cards",
+          "count": 3
+        },
+        {
+          "asset_type": "end_card",
+          "purpose": "Subscribe CTA end card",
+          "count": 1
+        }
+      ],
+      "scene_map": [
+        {
+          "scene_id": "SCENE_01",
+          "t_start": 0.0,
+          "t_end": 15.0,
+          "section": "hook",
+          "on_screen_text": "HOOK: Hook",
+          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
+          "vo_summary": "[HOOK] The AI world is buzzing about Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI"
+        },
+        {
+          "scene_id": "SCENE_02",
+          "t_start": 15.0,
+          "t_end": 37.0,
+          "section": "context",
+          "on_screen_text": "CONTEXT: Context",
+          "broll_intent": "Historical footage, timeline graphics",
+          "vo_summary": "[CONTEXT] Background on this development..."
+        },
+        {
+          "scene_id": "SCENE_03",
+          "t_start": 37.0,
+          "t_end": 89.0,
+          "section": "details",
+          "on_screen_text": "DETAILS: Details",
+          "broll_intent": "Product shots, UI demos, data visualizations",
+          "vo_summary": "[DETAILS] Humans&#038;, a startup that believes AI should empower people, not replace them, has repo"
+        },
+        {
+          "scene_id": "SCENE_04",
+          "t_start": 89.0,
+          "t_end": 126.0,
+          "section": "analysis",
+          "on_screen_text": "ANALYSIS: Analysis",
+          "broll_intent": "Charts, graphs, expert-style talking head frame",
+          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
+        },
+        {
+          "scene_id": "SCENE_05",
+          "t_start": 126.0,
+          "t_end": 141.0,
+          "section": "takeaway",
+          "on_screen_text": "TAKEAWAY: Takeaway",
+          "broll_intent": "Key point graphics, summary card",
+          "vo_summary": "[TAKEAWAY] The key point to remember..."
+        },
+        {
+          "scene_id": "SCENE_06",
+          "t_start": 141.0,
+          "t_end": 148.0,
+          "section": "cta",
+          "on_screen_text": "CTA: Cta",
+          "broll_intent": "Subscribe button animation, social handles",
+          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
+        }
+      ],
+      "compliance": {
+        "disallowed_words": [
+          "guaranteed",
+          "100%",
+          "proven"
+        ],
+        "music_policy": "royalty_free_only",
+        "trademark_risks": [
+          "Google trademark",
+          "Anthropic trademark"
+        ]
+      }
+    },
+    {
+      "script_id": "SCR_322e022e8d87",
+      "title": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -74,7 +187,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] The startup claims its AI platform can help optimize editorial processes and research...."
+          "vo_summary": "[DETAILS] The funding comes as the startup claims it has scaled ARR to $50 million, and is targeting"
         },
         {
           "scene_id": "SCENE_04",
@@ -115,8 +228,8 @@
       }
     },
     {
-      "script_id": "SCR_e59f28e10f8d",
-      "title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
+      "script_id": "SCR_74202f76774c",
+      "title": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -166,7 +279,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation chang"
+          "vo_summary": "[HOOK] Here's why Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025 changes everythin"
         },
         {
           "scene_id": "SCENE_02",
@@ -184,7 +297,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous "
+          "vo_summary": "[DETAILS] Last year was monumental for the AI industry in the U.S. and beyond. How will 2025 compare"
         },
         {
           "scene_id": "SCENE_04",
@@ -222,118 +335,6 @@
         ],
         "music_policy": "royalty_free_only",
         "trademark_risks": []
-      }
-    },
-    {
-      "script_id": "SCR_24f0e409902c",
-      "title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
-      "format": "standard",
-      "duration_target": 150,
-      "visual_style": {
-        "primary_color": "#6366F1",
-        "secondary_color": "#0F0F23",
-        "font_family": "Inter Medium",
-        "mood": "professional",
-        "lighting": "balanced"
-      },
-      "required_assets": [
-        {
-          "asset_type": "thumbnail",
-          "purpose": "Video thumbnail for platforms",
-          "count": 1
-        },
-        {
-          "asset_type": "intro_card",
-          "purpose": "Opening title card",
-          "count": 1
-        },
-        {
-          "asset_type": "lower_third",
-          "purpose": "Name/topic lower thirds",
-          "count": 3
-        },
-        {
-          "asset_type": "broll",
-          "purpose": "B-roll footage pack",
-          "count": 5
-        },
-        {
-          "asset_type": "title_card",
-          "purpose": "Section title cards",
-          "count": 3
-        },
-        {
-          "asset_type": "end_card",
-          "purpose": "Subscribe CTA end card",
-          "count": 1
-        }
-      ],
-      "scene_map": [
-        {
-          "scene_id": "SCENE_01",
-          "t_start": 0.0,
-          "t_end": 15.0,
-          "section": "hook",
-          "on_screen_text": "HOOK: Hook",
-          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] The AI world is buzzing about OpenAI invests in Sam Altman\u2019s brain computer interface startup"
-        },
-        {
-          "scene_id": "SCENE_02",
-          "t_start": 15.0,
-          "t_end": 37.0,
-          "section": "context",
-          "on_screen_text": "CONTEXT: Context",
-          "broll_intent": "Historical footage, timeline graphics",
-          "vo_summary": "[CONTEXT] Background on this development..."
-        },
-        {
-          "scene_id": "SCENE_03",
-          "t_start": 37.0,
-          "t_end": 89.0,
-          "section": "details",
-          "on_screen_text": "DETAILS: Details",
-          "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligen"
-        },
-        {
-          "scene_id": "SCENE_04",
-          "t_start": 89.0,
-          "t_end": 126.0,
-          "section": "analysis",
-          "on_screen_text": "ANALYSIS: Analysis",
-          "broll_intent": "Charts, graphs, expert-style talking head frame",
-          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
-        },
-        {
-          "scene_id": "SCENE_05",
-          "t_start": 126.0,
-          "t_end": 141.0,
-          "section": "takeaway",
-          "on_screen_text": "TAKEAWAY: Takeaway",
-          "broll_intent": "Key point graphics, summary card",
-          "vo_summary": "[TAKEAWAY] The key point to remember..."
-        },
-        {
-          "scene_id": "SCENE_06",
-          "t_start": 141.0,
-          "t_end": 148.0,
-          "section": "cta",
-          "on_screen_text": "CTA: Cta",
-          "broll_intent": "Subscribe button animation, social handles",
-          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
-        }
-      ],
-      "compliance": {
-        "disallowed_words": [
-          "guaranteed",
-          "100%",
-          "proven"
-        ],
-        "music_policy": "royalty_free_only",
-        "trademark_risks": [
-          "Openai trademark"
-        ]
       }
     }
   ],

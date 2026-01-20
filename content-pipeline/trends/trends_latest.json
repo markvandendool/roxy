@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260115_210013_fb6af4e2",
-  "timestamp": "2026-01-16T04:00:13.526799+00:00",
+  "snapshot_id": "TREND_20260120_110006_65fd09fe",
+  "timestamp": "2026-01-20T18:00:06.447104+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -27,68 +27,76 @@
   ],
   "trends": [
     {
-      "title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
-      "link": "https://techcrunch.com/2026/01/15/ai-journalism-startup-symbolic-ai-signs-deal-with-rupert-murdochs-news-corp/",
+      "title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "link": "https://techcrunch.com/2026/01/20/humans-a-human-centric-ai-startup-founded-by-anthropic-xai-google-alums-raised-480m-seed-round/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 85,
-      "summary": "The startup claims its AI platform can help optimize editorial processes and research."
+      "summary": "Humans&#038;, a startup that believes AI should empower people, not replace them, has reportedly raised a $480 million seed round at a $4.48 billion valuation."
     },
     {
-      "title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
-      "link": "https://techcrunch.com/2026/01/15/ai-video-startup-higgsfield-founded-by-ex-snap-exec-lands-1-3b-valuation/",
+      "title": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
+      "link": "https://techcrunch.com/2026/01/20/indian-vibe-coding-startup-emergent-raises-70m-at-300m-valuation-from-softbank-khosla-ventures/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 85,
-      "summary": "Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous Series A round back up and sold another $80 million in shares."
+      "summary": "The funding comes as the startup claims it has scaled ARR to $50 million, and is targeting $100 million by April 2026."
     },
     {
-      "title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
-      "link": "https://techcrunch.com/2026/01/15/openai-invests-in-sam-altmans-brain-computer-interface-startup-merge-labs/",
+      "title": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
+      "link": "https://techcrunch.com/2026/01/19/here-are-the-49-us-ai-startups-that-have-raised-100m-or-more-in-2025/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 85,
-      "summary": "Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability.\u201d OpenAI wrote the largest check in Merge Labs' $250 million seed round at an $850 million valuation."
+      "summary": "Last year was monumental for the AI industry in the U.S. and beyond. How will 2025 compare?"
     },
     {
-      "title": "The AI lab revolving door spins ever faster",
-      "link": "https://techcrunch.com/2026/01/15/the-ai-lab-revolving-door-spins-ever-faster/",
+      "title": "AI cloud startup Runpod hits $120M in ARR \u2014 and it started with a Reddit post",
+      "link": "https://techcrunch.com/2026/01/16/ai-cloud-startup-runpod-hits-120m-in-arr-and-it-started-with-a-reddit-post/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 85,
+      "summary": "Their startup\u00a0journey\u00a0is a wild example of how if you build it well and the timing is lucky, they will definitely come."
+    },
+    {
+      "title": "Rogue agents and shadow AI: Why VCs are betting big on AI security",
+      "link": "https://techcrunch.com/2026/01/19/rogue-agents-and-shadow-ai-why-vcs-are-betting-big-on-ai-security/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "AI labs just can't get their employees to stay put. Yesterday\u2019s big AI news was the abrupt and seemingly acrimonious departure of three top executives at Mira Murati\u2019s Thinking Machines lab."
+      "summary": "Misaligned agents are just one layer of the AI security challenge that startup Witness AI is trying to solve. It detects employee use of unapproved tools, blocking attacks, and ensuring compliance."
     },
     {
-      "title": "Taiwan to invest\u00a0$250B in US semiconductor manufacturing",
-      "link": "https://techcrunch.com/2026/01/15/taiwan-to-invest-250b-in-us-semiconductor-manufacturing/",
+      "title": "Moxie Marlinspike has a privacy-conscious alternative to ChatGPT",
+      "link": "https://techcrunch.com/2026/01/18/moxie-marlinspike-has-a-privacy-conscious-alternative-to-chatgpt/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The U.S. struck a trade deal with Taiwan as the country looks to help boost domestic semiconductor manufacturing."
+      "summary": "Confer is designed to look and feel like ChatGPT or Claude, but your conversations can't be used for training or advertising."
     },
     {
-      "title": "The US\u00a0imposes 25% tariff on Nvidia\u2019s H200 AI chips headed to China",
-      "link": "https://techcrunch.com/2026/01/15/the-us-imposes-25-tariff-on-nvidias-h200-ai-chips-headed-to-china/",
+      "title": "Musk wants up to $134B in OpenAI lawsuit, despite $700B fortune",
+      "link": "https://techcrunch.com/2026/01/17/musk-wants-up-to-134b-in-openai-lawsuit-despite-700b-fortune/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The Trump administration formalized its 25% cut of H200 chip sales in China with a tariff that applies to certain semiconductors."
+      "summary": "Musk's legal team argues he should be compensated as an early startup investor who sees returns \"many orders of magnitude greater\" than his initial investment."
     },
     {
-      "title": "Wikimedia Foundation announces new AI partnerships with Amazon, Meta, Microsoft, Perplexity, and others",
-      "link": "https://techcrunch.com/2026/01/15/wikimedia-foundation-announces-new-ai-partnerships-with-amazon-meta-microsoft-perplexity-and-others/",
+      "title": "California AG sends Musk\u2019s xAI a cease-and-desist order over sexual deepfakes",
+      "link": "https://techcrunch.com/2026/01/16/california-ag-sends-musks-xai-a-cease-and-desist-order-over-sexual-deepfakes/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The AI partnerships allow companies to access the org's content, like Wikipedia, at scale."
+      "summary": "The flood of AI-generated sexual imagery has spurred concern from state and congressional officials alike."
     },
     {
-      "title": "Parloa triples its valuation in 8 months to $3B with $350M raise",
-      "link": "https://techcrunch.com/2026/01/15/parloa-triples-its-valuation-in-8-months-to-3b-with-350m-raise/",
+      "title": "From OpenAI\u2019s offices to a deal with Eli Lilly \u2014 how Chai Discovery became one of the flashiest names in AI drug development",
+      "link": "https://techcrunch.com/2026/01/16/from-openais-offices-to-a-deal-with-eli-lilly-how-chai-discovery-became-one-of-the-flashiest-names-in-ai-drug-development/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The massive round was led by existing investor General Catalyst, with participation from other returning backers."
+      "summary": "The startup has partnered with Eli Lilly and enjoys the backing of some of Silicon Valley's most influential VCs."
     },
     {
       "title": "Generative AI tool helps 3D print personal items that sustain daily use",
@@ -123,20 +131,12 @@
       "summary": "CSAIL researchers find even \u201cuntrainable\u201d neural nets can learn effectively when guided by another network\u2019s built-in biases using their guidance method."
     },
     {
-      "title": "US senators demand answers from X, Meta, Alphabet, and others on sexualized deepfakes",
-      "link": "https://techcrunch.com/2026/01/15/us-senators-demand-answers-from-x-meta-alphabet-on-sexualized-deepfakes/",
+      "title": "Well, there goes the metaverse!",
+      "link": "https://techcrunch.com/2026/01/19/well-there-goes-the-metaverse/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 65,
-      "summary": "In a letter to the leaders of X, Meta, Alphabet, Snap, Reddit, and TikTok, several U.S. senators are demanding the companies provide proof that they have \"robust protections and policies\" in place, and how they plan to curb the rise of sexualized deepfakes on their platforms."
-    },
-    {
-      "title": "After Italy, WhatsApp excludes Brazil from rival chatbot ban",
-      "link": "https://techcrunch.com/2026/01/15/after-italy-whatsapp-excludes-brazil-from-rival-chatbot-ban/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "WhatsApp is allowing AI providers to continue offering their chatbots to users in Brazil, days after the country's competition agency ordered the company to suspend its new policy that bars third-party, general-purpose chatbots from the app."
+      "summary": "The metaverse is on its last legs as VR is eclipsed by AI. But that's not the only thing that went wrong for Meta's VR ambitions."
     },
     {
       "title": "At MIT, a continued commitment to understanding intelligence",

@@ -1,64 +1,16 @@
 {
-  "review_id": "REVIEW_20260115_211824_610128f5",
-  "timestamp": "2026-01-16T04:18:24.499924+00:00",
+  "review_id": "REVIEW_20260120_111815_36d3ba6d",
+  "timestamp": "2026-01-20T18:18:15.669338+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260115_211612_2b44a761",
+  "source_scripts": "SCRIPT_20260120_111610_d9c9e4bc",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_f8eae17a8046",
-      "trend_title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
+      "script_id": "SCR_99f6971cc0ae",
+      "trend_title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 8,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 9
-      },
-      "recommendations": [],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_e59f28e10f8d",
-      "trend_title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 8,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 9
-      },
-      "recommendations": [],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_24f0e409902c",
-      "trend_title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 6,
+        "hook_strength": 4,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
@@ -77,6 +29,54 @@
       ],
       "revision_needed": [],
       "production_ready": true
+    },
+    {
+      "script_id": "SCR_322e022e8d87",
+      "trend_title": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 8,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 9
+      },
+      "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_74202f76774c",
+      "trend_title": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 5,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
+      },
+      "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
     }
   ],
   "summary": {
@@ -84,7 +84,7 @@
     "approved": 3,
     "needs_revision": 0,
     "rejected": 0,
-    "average_score": 8.7
+    "average_score": 8.3
   },
   "meta": {
     "version": "1.0.0",

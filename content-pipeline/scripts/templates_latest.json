@@ -1,6 +1,6 @@
 {
-  "library_id": "TMPL_20260115_211417_eddeadac",
-  "timestamp": "2026-01-16T04:14:17.751666+00:00",
+  "library_id": "TMPL_20260120_111409_a3c2cc90",
+  "timestamp": "2026-01-20T18:14:09.245040+00:00",
   "status": "healthy",
   "templates": [
     {
@@ -610,17 +610,17 @@
     "template_count": 7,
     "categories": [
       "quick_hit",
-      "news",
       "comparison",
-      "tutorial",
-      "explainer",
+      "news",
+      "review",
       "deep_dive",
-      "review"
+      "explainer",
+      "tutorial"
     ],
     "formats": [
       "standard",
-      "long",
-      "short"
+      "short",
+      "long"
     ],
     "degraded": false
   }

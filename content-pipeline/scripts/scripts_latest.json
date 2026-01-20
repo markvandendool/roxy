@@ -1,13 +1,72 @@
 {
-  "script_id": "SCRIPT_20260115_211612_2b44a761",
-  "timestamp": "2026-01-16T04:16:12.008102+00:00",
+  "script_id": "SCRIPT_20260120_111610_d9c9e4bc",
+  "timestamp": "2026-01-20T18:16:10.420077+00:00",
   "status": "healthy",
-  "source_bundle": "BUNDLE_20260115_211224_56a2b842",
-  "source_templates": "TMPL_20260115_211417_eddeadac",
+  "source_bundle": "BUNDLE_20260120_111215_4b431df5",
+  "source_templates": "TMPL_20260120_111409_a3c2cc90",
   "scripts": [
     {
-      "id": "SCR_f8eae17a8046",
-      "trend_title": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
+      "id": "SCR_99f6971cc0ae",
+      "trend_title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "template_id": "news-standard",
+      "template_name": "AI News Coverage",
+      "format": "standard",
+      "estimated_duration": 150,
+      "hook": "The AI world is buzzing about Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "sections": [
+        {
+          "section": "hook",
+          "content": "[HOOK] The AI world is buzzing about Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+          "duration_seconds": 15,
+          "notes": "Why you should care about this"
+        },
+        {
+          "section": "context",
+          "content": "[CONTEXT] Background on this development...",
+          "duration_seconds": 22,
+          "notes": "Background and context"
+        },
+        {
+          "section": "details",
+          "content": "[DETAILS] Humans&#038;, a startup that believes AI should empower people, not replace them, has reportedly raised a $480 million seed round at a $4.48 billion valuation....",
+          "duration_seconds": 52,
+          "notes": "Core story details"
+        },
+        {
+          "section": "analysis",
+          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
+          "duration_seconds": 37,
+          "notes": "What this means for the industry"
+        },
+        {
+          "section": "takeaway",
+          "content": "[TAKEAWAY] The key point to remember...",
+          "duration_seconds": 15,
+          "notes": "Key takeaway for viewers"
+        },
+        {
+          "section": "cta",
+          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
+          "duration_seconds": 7,
+          "notes": "Subscribe/follow prompt"
+        }
+      ],
+      "variables": {
+        "headline": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+        "source": "TechCrunch AI",
+        "summary": "Humans&#038;, a startup that believes AI should empower people, not replace them, has reportedly raised a $480 million seed round at a $4.48 billion valuation.",
+        "category": "ai"
+      },
+      "differentiation": [
+        "Code-first implementation walkthrough",
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
+    {
+      "id": "SCR_322e022e8d87",
+      "trend_title": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
@@ -28,7 +87,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] The startup claims its AI platform can help optimize editorial processes and research....",
+          "content": "[DETAILS] The funding comes as the startup claims it has scaled ARR to $50 million, and is targeting $100 million by April 2026....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -52,9 +111,9 @@
         }
       ],
       "variables": {
-        "headline": "AI journalism startup Symbolic.ai signs deal with Rupert Murdoch\u2019s News Corp",
+        "headline": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
         "source": "TechCrunch AI",
-        "summary": "The startup claims its AI platform can help optimize editorial processes and research.",
+        "summary": "The funding comes as the startup claims it has scaled ARR to $50 million, and is targeting $100 million by April 2026.",
         "category": "ai"
       },
       "differentiation": [
@@ -65,17 +124,17 @@
       ]
     },
     {
-      "id": "SCR_e59f28e10f8d",
-      "trend_title": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
+      "id": "SCR_74202f76774c",
+      "trend_title": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "What TechCrunch AI's announcement really means",
+      "hook": "The AI world is buzzing about Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation changes everything",
+          "content": "[HOOK] Here's why Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025 changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -87,7 +146,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous Series A round back up and sold another $80 million in shares....",
+          "content": "[DETAILS] Last year was monumental for the AI industry in the U.S. and beyond. How will 2025 compare?...",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -111,68 +170,9 @@
         }
       ],
       "variables": {
-        "headline": "AI video startup, Higgsfield, founded by ex-Snap exec, lands $1.3B valuation",
+        "headline": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
         "source": "TechCrunch AI",
-        "summary": "Higgsfield says it's on a $200 million annual revenue run rate. So it opened its previous Series A round back up and sold another $80 million in shares.",
-        "category": "ai"
-      },
-      "differentiation": [
-        "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "id": "SCR_24f0e409902c",
-      "trend_title": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
-      "template_id": "news-standard",
-      "template_name": "AI News Coverage",
-      "format": "standard",
-      "estimated_duration": 150,
-      "hook": "Here's why OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs changes everything",
-      "sections": [
-        {
-          "section": "hook",
-          "content": "[HOOK] The AI world is buzzing about OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
-          "duration_seconds": 15,
-          "notes": "Why you should care about this"
-        },
-        {
-          "section": "context",
-          "content": "[CONTEXT] Background on this development...",
-          "duration_seconds": 22,
-          "notes": "Background and context"
-        },
-        {
-          "section": "details",
-          "content": "[DETAILS] Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability.\u201d OpenAI wrote the largest check in Merge Labs' $250 million seed round at an $85...",
-          "duration_seconds": 52,
-          "notes": "Core story details"
-        },
-        {
-          "section": "analysis",
-          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
-          "duration_seconds": 37,
-          "notes": "What this means for the industry"
-        },
-        {
-          "section": "takeaway",
-          "content": "[TAKEAWAY] The key point to remember...",
-          "duration_seconds": 15,
-          "notes": "Key takeaway for viewers"
-        },
-        {
-          "section": "cta",
-          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
-          "duration_seconds": 7,
-          "notes": "Subscribe/follow prompt"
-        }
-      ],
-      "variables": {
-        "headline": "OpenAI invests in Sam Altman\u2019s brain computer interface startup Merge Labs",
-        "source": "TechCrunch AI",
-        "summary": "Merge Labs is a \u201cresearch lab\u201d dedicated to \u201cbridging biological and artificial intelligence to maximize human ability.\u201d OpenAI wrote the largest check in Merge Labs' $250 million seed round at an $850 million valuation.",
+        "summary": "Last year was monumental for the AI industry in the U.S. and beyond. How will 2025 compare?",
         "category": "ai"
       },
       "differentiation": [
