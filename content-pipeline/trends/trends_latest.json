@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260121_110014_02bf1f23",
-  "timestamp": "2026-01-21T18:00:14.592189+00:00",
+  "snapshot_id": "TREND_20260121_120003_8d5db70e",
+  "timestamp": "2026-01-21T19:00:03.477230+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -56,7 +56,7 @@
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Language learning marketplace Preply is now valued at $1.2 billion after raising a $150 million that marks a new chapter for the 14-year-old company."
+      "summary": "Language learning marketplace Preply is now valued at $1.2 billion after raising a $150 million Series D round that marks a new chapter for the 14-year-old company."
     },
     {
       "title": "Consumers spent more on mobile apps than games in 2025, driven by AI app adoption",
