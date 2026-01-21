@@ -1,6 +1,6 @@
 {
-  "library_id": "TMPL_20260120_111409_a3c2cc90",
-  "timestamp": "2026-01-20T18:14:09.245040+00:00",
+  "library_id": "TMPL_20260121_111420_9e80f88d",
+  "timestamp": "2026-01-21T18:14:20.508416+00:00",
   "status": "healthy",
   "templates": [
     {
@@ -609,18 +609,18 @@
     "story_id": "SKYBEAM-STORY-011",
     "template_count": 7,
     "categories": [
-      "quick_hit",
-      "comparison",
-      "news",
+      "tutorial",
       "review",
+      "news",
       "deep_dive",
+      "comparison",
       "explainer",
-      "tutorial"
+      "quick_hit"
     ],
     "formats": [
-      "standard",
+      "long",
       "short",
-      "long"
+      "standard"
     ],
     "degraded": false
   }

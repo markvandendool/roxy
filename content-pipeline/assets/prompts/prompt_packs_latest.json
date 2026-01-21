@@ -1,16 +1,16 @@
 {
-  "pack_id": "PACK_20260120_112201_50609d17",
-  "timestamp": "2026-01-20T18:22:01.658625+00:00",
+  "pack_id": "PACK_20260121_112206_2d0d11ce",
+  "timestamp": "2026-01-21T18:22:06.502223+00:00",
   "status": "healthy",
-  "source_briefs": "BRIEF_20260120_112002_780d2bf4",
+  "source_briefs": "BRIEF_20260121_112010_27c4f815",
   "packs": [
     {
-      "script_id": "SCR_99f6971cc0ae",
+      "script_id": "SCR_6dfd618b24a5",
       "prompts": [
         {
-          "asset_id": "ASSET_99f6971c_thumbnail_00_8bb7ee15",
+          "asset_id": "ASSET_6dfd618b_thumbnail_00_21bf712b",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, Humans&, a \u2018human-centric\u2019 AI startup founded by A, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, YouTube will soon let creators make Shorts with th, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -25,13 +25,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI "
+            "YouTube will soon let creators"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_intro_card_00_7e418d1e",
+          "asset_id": "ASSET_6dfd618b_intro_card_00_706891b8",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, Humans&, a \u2018human-centric\u2019 AI startup founded by A, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, YouTube will soon let creators make Shorts with th, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -46,11 +46,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI "
+            "YouTube will soon let creators"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_lower_third_00_b873623a",
+          "asset_id": "ASSET_6dfd618b_lower_third_00_2810ce9f",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -67,12 +67,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_lower_third_01_bb928d19",
+          "asset_id": "ASSET_6dfd618b_lower_third_01_e2db8026",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -89,12 +89,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_lower_third_02_5ad287a7",
+          "asset_id": "ASSET_6dfd618b_lower_third_02_710c58d3",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -111,12 +111,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_broll_00_5107ca0f",
+          "asset_id": "ASSET_6dfd618b_broll_00_7dffdab7",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -135,12 +135,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_broll_01_8fa34a10",
+          "asset_id": "ASSET_6dfd618b_broll_01_5f44fae0",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -159,12 +159,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_broll_02_65107c58",
+          "asset_id": "ASSET_6dfd618b_broll_02_2528c601",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -183,12 +183,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_broll_03_72d8b16b",
+          "asset_id": "ASSET_6dfd618b_broll_03_b9d1c22d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -207,12 +207,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_broll_04_a16584da",
+          "asset_id": "ASSET_6dfd618b_broll_04_089efd38",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -231,12 +231,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_title_card_00_6b65dfc4",
+          "asset_id": "ASSET_6dfd618b_title_card_00_04bc0283",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -253,12 +253,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_title_card_01_95577574",
+          "asset_id": "ASSET_6dfd618b_title_card_01_7ea5cab7",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -275,12 +275,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_title_card_02_b845074a",
+          "asset_id": "ASSET_6dfd618b_title_card_02_40031411",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -297,12 +297,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI ",
+            "YouTube will soon let creators",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_99f6971c_end_card_00_921abd40",
+          "asset_id": "ASSET_6dfd618b_end_card_00_48226720",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -319,18 +319,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Humans&, a \u2018human-centric\u2019 AI "
+            "YouTube will soon let creators"
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_322e022e8d87",
+      "script_id": "SCR_32b9e3eb488e",
       "prompts": [
         {
-          "asset_id": "ASSET_322e022e_thumbnail_00_25de5a31",
+          "asset_id": "ASSET_32b9e3eb_thumbnail_00_a8968960",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, Indian vibe-coding startup Emergent triples valuat, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, OpenAI aims to ship its first device in 2026, and , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -345,13 +345,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme"
+            "OpenAI aims to ship its first "
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_intro_card_00_cb5e66a6",
+          "asset_id": "ASSET_32b9e3eb_intro_card_00_5be14bd6",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, Indian vibe-coding startup Emergent triples valuat, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, OpenAI aims to ship its first device in 2026, and , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -366,11 +366,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme"
+            "OpenAI aims to ship its first "
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_lower_third_00_7d3f11f3",
+          "asset_id": "ASSET_32b9e3eb_lower_third_00_fa48bcb1",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -387,12 +387,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_lower_third_01_3adb83e4",
+          "asset_id": "ASSET_32b9e3eb_lower_third_01_21f0c55a",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -409,12 +409,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_lower_third_02_35d53765",
+          "asset_id": "ASSET_32b9e3eb_lower_third_02_e2d3121a",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -431,12 +431,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_broll_00_b39d71fa",
+          "asset_id": "ASSET_32b9e3eb_broll_00_26d8cb7d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -455,12 +455,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_broll_01_2223fc60",
+          "asset_id": "ASSET_32b9e3eb_broll_01_0bef392a",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -479,12 +479,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_broll_02_a4b655a7",
+          "asset_id": "ASSET_32b9e3eb_broll_02_5c5718c3",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -503,12 +503,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_broll_03_8b79f214",
+          "asset_id": "ASSET_32b9e3eb_broll_03_346dae1b",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -527,12 +527,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_broll_04_be5b6e46",
+          "asset_id": "ASSET_32b9e3eb_broll_04_e8a52f7a",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -551,12 +551,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_title_card_00_6b59d6c9",
+          "asset_id": "ASSET_32b9e3eb_title_card_00_c9ff10b9",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -573,12 +573,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_title_card_01_808d4cde",
+          "asset_id": "ASSET_32b9e3eb_title_card_01_96fabcb3",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -595,12 +595,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_title_card_02_52d48270",
+          "asset_id": "ASSET_32b9e3eb_title_card_02_e582586f",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -617,12 +617,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme",
+            "OpenAI aims to ship its first ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_322e022e_end_card_00_12700d92",
+          "asset_id": "ASSET_32b9e3eb_end_card_00_3e03429a",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -639,18 +639,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Indian vibe-coding startup Eme"
+            "OpenAI aims to ship its first "
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_74202f76774c",
+      "script_id": "SCR_d12ae752d1d0",
       "prompts": [
         {
-          "asset_id": "ASSET_74202f76_thumbnail_00_efcee546",
+          "asset_id": "ASSET_d12ae752_thumbnail_00_06c2bc94",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, Here are the\u00a055\u00a0US AI startups that raised $100M o, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, TechCrunch Disrupt 2026 tickets now on sale: Lowes, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -665,13 +665,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups"
+            "TechCrunch Disrupt 2026 ticket"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_intro_card_00_837b535c",
+          "asset_id": "ASSET_d12ae752_intro_card_00_fa6bb86a",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, Here are the\u00a055\u00a0US AI startups that raised $100M o, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, TechCrunch Disrupt 2026 tickets now on sale: Lowes, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -686,11 +686,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups"
+            "TechCrunch Disrupt 2026 ticket"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_lower_third_00_b97ac078",
+          "asset_id": "ASSET_d12ae752_lower_third_00_0ecd43e4",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -707,12 +707,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_lower_third_01_93b6cbd7",
+          "asset_id": "ASSET_d12ae752_lower_third_01_975dcec8",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -729,12 +729,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_lower_third_02_8e634473",
+          "asset_id": "ASSET_d12ae752_lower_third_02_eb9d5225",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -751,12 +751,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_broll_00_cf899ee3",
+          "asset_id": "ASSET_d12ae752_broll_00_8b68bfda",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -775,12 +775,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_broll_01_d1bde4db",
+          "asset_id": "ASSET_d12ae752_broll_01_433aa29c",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -799,12 +799,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_broll_02_1dd8a5ef",
+          "asset_id": "ASSET_d12ae752_broll_02_7311ab4a",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -823,12 +823,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_broll_03_56ba01c1",
+          "asset_id": "ASSET_d12ae752_broll_03_33a5acc6",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -847,12 +847,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_broll_04_5c5cef4f",
+          "asset_id": "ASSET_d12ae752_broll_04_e23e1d03",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -871,12 +871,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_title_card_00_fd711f60",
+          "asset_id": "ASSET_d12ae752_title_card_00_54f8e578",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -893,12 +893,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_title_card_01_e1a9e0ab",
+          "asset_id": "ASSET_d12ae752_title_card_01_28cee4b5",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -915,12 +915,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_title_card_02_79e64f18",
+          "asset_id": "ASSET_d12ae752_title_card_02_a6671377",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -937,12 +937,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups",
+            "TechCrunch Disrupt 2026 ticket",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_74202f76_end_card_00_5b8b0511",
+          "asset_id": "ASSET_d12ae752_end_card_00_b0c19ebc",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -959,7 +959,7 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Here are the\u00a055\u00a0US AI startups"
+            "TechCrunch Disrupt 2026 ticket"
           ]
         }
       ]

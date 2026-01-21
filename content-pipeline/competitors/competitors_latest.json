@@ -1,11 +1,11 @@
 {
-  "analysis_id": "COMP_20260120_111015_3b70195f",
-  "timestamp": "2026-01-20T18:10:15.239328+00:00",
+  "analysis_id": "COMP_20260121_111007_09bcc5b9",
+  "timestamp": "2026-01-21T18:10:07.506292+00:00",
   "status": "healthy",
-  "source_trends": "TREND_20260120_110006_65fd09fe",
+  "source_trends": "TREND_20260121_110014_02bf1f23",
   "analyses": [
     {
-      "trend_title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "trend_title": "YouTube will soon let creators make Shorts with their own AI likeness",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "trend_title": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
+      "trend_title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "trend_title": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
+      "trend_title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "trend_title": "AI cloud startup Runpod hits $120M in ARR \u2014 and it started with a Reddit post",
+      "trend_title": "Language learning marketplace Preply\u2019s unicorn status embodies Ukrainian resilience",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -173,7 +173,7 @@
       ]
     },
     {
-      "trend_title": "Rogue agents and shadow AI: Why VCs are betting big on AI security",
+      "trend_title": "Consumers spent more on mobile apps than games in 2025, driven by AI app adoption",
       "relevant_competitors": [
         {
           "name": "AI Explained",

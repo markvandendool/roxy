@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260120_111215_4b431df5",
-  "timestamp": "2026-01-20T18:12:15.714977+00:00",
+  "bundle_id": "BUNDLE_20260121_111211_2aa6cb7c",
+  "timestamp": "2026-01-21T18:12:11.070408+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260120_110006_65fd09fe",
+      "snapshot_id": "TREND_20260121_110014_02bf1f23",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260120_110520_3944abb8",
+      "brief_id": "BRIEF_20260121_110512_dfa7e578",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260120_111015_3b70195f",
+      "analysis_id": "COMP_20260121_111007_09bcc5b9",
       "status": "healthy",
       "count": 5
     }
@@ -24,9 +24,9 @@
     "brief_count": 5,
     "analysis_count": 5,
     "top_trend": {
-      "title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "title": "YouTube will soon let creators make Shorts with their own AI likeness",
       "source": "TechCrunch AI",
-      "score": 85
+      "score": 75
     },
     "top_competitors": [
       {

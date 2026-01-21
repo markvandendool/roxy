@@ -1,12 +1,12 @@
 {
-  "brief_id": "BRIEF_20260120_112002_780d2bf4",
-  "timestamp": "2026-01-20T18:20:02.999320+00:00",
+  "brief_id": "BRIEF_20260121_112010_27c4f815",
+  "timestamp": "2026-01-21T18:20:10.409257+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260120_111815_36d3ba6d",
+  "source_review": "REVIEW_20260121_111805_796f8eb5",
   "briefs": [
     {
-      "script_id": "SCR_99f6971cc0ae",
-      "title": "Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI, Google alums, raised $480M seed round",
+      "script_id": "SCR_6dfd618b24a5",
+      "title": "YouTube will soon let creators make Shorts with their own AI likeness",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -56,7 +56,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] The AI world is buzzing about Humans&, a \u2018human-centric\u2019 AI startup founded by Anthropic, xAI"
+          "vo_summary": "[HOOK] Here's why YouTube will soon let creators make Shorts with their own AI likeness changes ever"
         },
         {
           "scene_id": "SCENE_02",
@@ -74,7 +74,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Humans&#038;, a startup that believes AI should empower people, not replace them, has repo"
+          "vo_summary": "[DETAILS] YouTube Shorts viewers might soon see AI versions of their favorite creators when scrollin"
         },
         {
           "scene_id": "SCENE_04",
@@ -111,15 +111,12 @@
           "proven"
         ],
         "music_policy": "royalty_free_only",
-        "trademark_risks": [
-          "Google trademark",
-          "Anthropic trademark"
-        ]
+        "trademark_risks": []
       }
     },
     {
-      "script_id": "SCR_322e022e8d87",
-      "title": "Indian vibe-coding startup Emergent triples valuation to $300M with $70M fundraise",
+      "script_id": "SCR_32b9e3eb488e",
+      "title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -187,7 +184,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] The funding comes as the startup claims it has scaled ARR to $50 million, and is targeting"
+          "vo_summary": "[DETAILS] The AI startup is on track to announce its first hardware device in the second half of thi"
         },
         {
           "scene_id": "SCENE_04",
@@ -224,12 +221,14 @@
           "proven"
         ],
         "music_policy": "royalty_free_only",
-        "trademark_risks": []
+        "trademark_risks": [
+          "Openai trademark"
+        ]
       }
     },
     {
-      "script_id": "SCR_74202f76774c",
-      "title": "Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025",
+      "script_id": "SCR_d12ae752d1d0",
+      "title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -279,7 +278,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why Here are the\u00a055\u00a0US AI startups that raised $100M or more in 2025 changes everythin"
+          "vo_summary": "[HOOK] Here's why TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year changes everyth"
         },
         {
           "scene_id": "SCENE_02",
@@ -297,7 +296,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Last year was monumental for the AI industry in the U.S. and beyond. How will 2025 compare"
+          "vo_summary": "[DETAILS] TechCrunch Disrupt\u00a02026\u00a0tickets\u00a0are officially on sale. Save up to $680 on your ticket and"
         },
         {
           "scene_id": "SCENE_04",
