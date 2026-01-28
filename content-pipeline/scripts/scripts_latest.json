@@ -1,22 +1,22 @@
 {
-  "script_id": "SCRIPT_20260121_111626_abe87aec",
-  "timestamp": "2026-01-21T18:16:26.258636+00:00",
+  "script_id": "SCRIPT_20260128_141621_7effc091",
+  "timestamp": "2026-01-28T21:16:21.582613+00:00",
   "status": "healthy",
-  "source_bundle": "BUNDLE_20260121_111211_2aa6cb7c",
-  "source_templates": "TMPL_20260121_111420_9e80f88d",
+  "source_bundle": "BUNDLE_20260128_141201_3f645fdd",
+  "source_templates": "TMPL_20260128_141403_9c7c3933",
   "scripts": [
     {
-      "id": "SCR_6dfd618b24a5",
-      "trend_title": "YouTube will soon let creators make Shorts with their own AI likeness",
+      "id": "SCR_0bfa7176522c",
+      "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "Here's why YouTube will soon let creators make Shorts with their own AI likeness changes everything",
+      "hook": "The AI world is buzzing about Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why YouTube will soon let creators make Shorts with their own AI likeness changes everything",
+          "content": "[HOOK] Here's why Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -28,7 +28,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] YouTube Shorts viewers might soon see AI versions of their favorite creators when scrolling through their feeds....",
+          "content": "[DETAILS] 30-person startup Arcee AI has released a 400B model called Trinity, which it says is one of the biggest open source foundation models from a U.S. company....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -52,9 +52,9 @@
         }
       ],
       "variables": {
-        "headline": "YouTube will soon let creators make Shorts with their own AI likeness",
+        "headline": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
         "source": "TechCrunch AI",
-        "summary": "YouTube Shorts viewers might soon see AI versions of their favorite creators when scrolling through their feeds.",
+        "summary": "30-person startup Arcee AI has released a 400B model called Trinity, which it says is one of the biggest open source foundation models from a U.S. company.",
         "category": "ai"
       },
       "differentiation": [
@@ -65,17 +65,17 @@
       ]
     },
     {
-      "id": "SCR_32b9e3eb488e",
-      "trend_title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
+      "id": "SCR_bad38a66b57b",
+      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "The AI world is buzzing about OpenAI aims to ship its first device in 2026, and it could be earbuds",
+      "hook": "The AI world is buzzing about TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] What TechCrunch AI's announcement really means",
+          "content": "[HOOK] Here's why TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -87,7 +87,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] The AI startup is on track to announce its first hardware device in the second half of this year, OpenAI Chief Global Affairs Officer Chris Lehane said during an interview at Davos....",
+          "content": "[DETAILS] The TechCrunch Disrupt 2026 plus-one passes at\u00a050% off are almost sold out, and this deal ends in 3 days. Register here before this deal ends on Friday, January 30 at 11:59 p.m. PT....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -111,9 +111,9 @@
         }
       ],
       "variables": {
-        "headline": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
+        "headline": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
         "source": "TechCrunch AI",
-        "summary": "The AI startup is on track to announce its first hardware device in the second half of this year, OpenAI Chief Global Affairs Officer Chris Lehane said during an interview at Davos.",
+        "summary": "The TechCrunch Disrupt 2026 plus-one passes at\u00a050% off are almost sold out, and this deal ends in 3 days. Register here before this deal ends on Friday, January 30 at 11:59 p.m. PT.",
         "category": "ai"
       },
       "differentiation": [
@@ -124,17 +124,17 @@
       ]
     },
     {
-      "id": "SCR_d12ae752d1d0",
-      "trend_title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
+      "id": "SCR_d90a8e46f0aa",
+      "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "Here's why TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year changes everything",
+      "hook": "The AI world is buzzing about WhatsApp will now charge AI chatbots to operate in Italy",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year changes everything",
+          "content": "[HOOK] The AI world is buzzing about WhatsApp will now charge AI chatbots to operate in Italy",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -146,7 +146,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] TechCrunch Disrupt\u00a02026\u00a0tickets\u00a0are officially on sale. Save up to $680 on your ticket and be among the\u00a0first 500 registrants\u00a0to score a plus-one\u00a0pass at 50% off. Don't miss 10,000 tech leaders, found...",
+          "content": "[DETAILS] WhatsApp plans to charge developers of AI chatbots per message....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -170,9 +170,9 @@
         }
       ],
       "variables": {
-        "headline": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
+        "headline": "WhatsApp will now charge AI chatbots to operate in Italy",
         "source": "TechCrunch AI",
-        "summary": "TechCrunch Disrupt\u00a02026\u00a0tickets\u00a0are officially on sale. Save up to $680 on your ticket and be among the\u00a0first 500 registrants\u00a0to score a plus-one\u00a0pass at 50% off. Don't miss 10,000 tech leaders, founders, and VCs in San Francisco from October 13-15. Register before these one-time deals vanish.",
+        "summary": "WhatsApp plans to charge developers of AI chatbots per message.",
         "category": "ai"
       },
       "differentiation": [

@@ -1,11 +1,11 @@
 {
-  "analysis_id": "COMP_20260121_111007_09bcc5b9",
-  "timestamp": "2026-01-21T18:10:07.506292+00:00",
+  "analysis_id": "COMP_20260128_141021_87bf1271",
+  "timestamp": "2026-01-28T21:10:21.249313+00:00",
   "status": "healthy",
-  "source_trends": "TREND_20260121_110014_02bf1f23",
+  "source_trends": "TREND_20260128_140019_7872aae6",
   "analyses": [
     {
-      "trend_title": "YouTube will soon let creators make Shorts with their own AI likeness",
+      "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "trend_title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
+      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "trend_title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
+      "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "trend_title": "Language learning marketplace Preply\u2019s unicorn status embodies Ukrainian resilience",
+      "trend_title": "AI data labeler Handshake buys  Cleanlab, an acquisition target of multiple others",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -173,7 +173,7 @@
       ]
     },
     {
-      "trend_title": "Consumers spent more on mobile apps than games in 2025, driven by AI app adoption",
+      "trend_title": "Chrome takes on AI browsers with tighter Gemini integration, agentic features for autonomous tasks",
       "relevant_competitors": [
         {
           "name": "AI Explained",

@@ -1,16 +1,16 @@
 {
-  "pack_id": "PACK_20260121_112206_2d0d11ce",
-  "timestamp": "2026-01-21T18:22:06.502223+00:00",
+  "pack_id": "PACK_20260128_142210_45e87276",
+  "timestamp": "2026-01-28T21:22:10.047077+00:00",
   "status": "healthy",
-  "source_briefs": "BRIEF_20260121_112010_27c4f815",
+  "source_briefs": "BRIEF_20260128_142010_7d718c53",
   "packs": [
     {
-      "script_id": "SCR_6dfd618b24a5",
+      "script_id": "SCR_0bfa7176522c",
       "prompts": [
         {
-          "asset_id": "ASSET_6dfd618b_thumbnail_00_21bf712b",
+          "asset_id": "ASSET_0bfa7176_thumbnail_00_e1f7f51a",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, YouTube will soon let creators make Shorts with th, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, Tiny startup Arcee AI built a 400B-parameter open , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -25,13 +25,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators"
+            "Tiny startup Arcee AI built a "
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_intro_card_00_706891b8",
+          "asset_id": "ASSET_0bfa7176_intro_card_00_a3f7237c",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, YouTube will soon let creators make Shorts with th, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, Tiny startup Arcee AI built a 400B-parameter open , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -46,11 +46,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators"
+            "Tiny startup Arcee AI built a "
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_lower_third_00_2810ce9f",
+          "asset_id": "ASSET_0bfa7176_lower_third_00_72a352af",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -67,12 +67,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_lower_third_01_e2db8026",
+          "asset_id": "ASSET_0bfa7176_lower_third_01_9a656f33",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -89,12 +89,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_lower_third_02_710c58d3",
+          "asset_id": "ASSET_0bfa7176_lower_third_02_8616889a",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -111,12 +111,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_broll_00_7dffdab7",
+          "asset_id": "ASSET_0bfa7176_broll_00_3c725c5e",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -135,12 +135,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_broll_01_5f44fae0",
+          "asset_id": "ASSET_0bfa7176_broll_01_c2ac62cb",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -159,12 +159,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_broll_02_2528c601",
+          "asset_id": "ASSET_0bfa7176_broll_02_805653b7",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -183,12 +183,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_broll_03_b9d1c22d",
+          "asset_id": "ASSET_0bfa7176_broll_03_12d436da",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -207,12 +207,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_broll_04_089efd38",
+          "asset_id": "ASSET_0bfa7176_broll_04_5220e623",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -231,12 +231,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_title_card_00_04bc0283",
+          "asset_id": "ASSET_0bfa7176_title_card_00_894085d0",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -253,12 +253,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_title_card_01_7ea5cab7",
+          "asset_id": "ASSET_0bfa7176_title_card_01_a5a9ac72",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -275,12 +275,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_title_card_02_40031411",
+          "asset_id": "ASSET_0bfa7176_title_card_02_d1890738",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -297,12 +297,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators",
+            "Tiny startup Arcee AI built a ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_6dfd618b_end_card_00_48226720",
+          "asset_id": "ASSET_0bfa7176_end_card_00_1e1041c7",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -319,18 +319,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "YouTube will soon let creators"
+            "Tiny startup Arcee AI built a "
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_32b9e3eb488e",
+      "script_id": "SCR_bad38a66b57b",
       "prompts": [
         {
-          "asset_id": "ASSET_32b9e3eb_thumbnail_00_a8968960",
+          "asset_id": "ASSET_bad38a66_thumbnail_00_f22b5708",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, OpenAI aims to ship its first device in 2026, and , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, TechCrunch Disrupt 2026: Plus-one passes are almos, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -345,13 +345,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first "
+            "TechCrunch Disrupt 2026: Plus-"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_intro_card_00_5be14bd6",
+          "asset_id": "ASSET_bad38a66_intro_card_00_90cde56a",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, OpenAI aims to ship its first device in 2026, and , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, TechCrunch Disrupt 2026: Plus-one passes are almos, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -366,11 +366,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first "
+            "TechCrunch Disrupt 2026: Plus-"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_lower_third_00_fa48bcb1",
+          "asset_id": "ASSET_bad38a66_lower_third_00_4f6b871c",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -387,12 +387,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_lower_third_01_21f0c55a",
+          "asset_id": "ASSET_bad38a66_lower_third_01_21fd8b98",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -409,12 +409,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_lower_third_02_e2d3121a",
+          "asset_id": "ASSET_bad38a66_lower_third_02_271151c3",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -431,12 +431,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_broll_00_26d8cb7d",
+          "asset_id": "ASSET_bad38a66_broll_00_78307b22",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -455,12 +455,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_broll_01_0bef392a",
+          "asset_id": "ASSET_bad38a66_broll_01_9bad8530",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -479,12 +479,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_broll_02_5c5718c3",
+          "asset_id": "ASSET_bad38a66_broll_02_e29a49aa",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -503,12 +503,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_broll_03_346dae1b",
+          "asset_id": "ASSET_bad38a66_broll_03_038a87d9",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -527,12 +527,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_broll_04_e8a52f7a",
+          "asset_id": "ASSET_bad38a66_broll_04_5741ce06",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -551,12 +551,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_title_card_00_c9ff10b9",
+          "asset_id": "ASSET_bad38a66_title_card_00_f8f167f0",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -573,12 +573,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_title_card_01_96fabcb3",
+          "asset_id": "ASSET_bad38a66_title_card_01_0908e4e8",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -595,12 +595,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_title_card_02_e582586f",
+          "asset_id": "ASSET_bad38a66_title_card_02_3292d9ee",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -617,12 +617,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first ",
+            "TechCrunch Disrupt 2026: Plus-",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_32b9e3eb_end_card_00_3e03429a",
+          "asset_id": "ASSET_bad38a66_end_card_00_62249252",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -639,18 +639,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "OpenAI aims to ship its first "
+            "TechCrunch Disrupt 2026: Plus-"
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_d12ae752d1d0",
+      "script_id": "SCR_d90a8e46f0aa",
       "prompts": [
         {
-          "asset_id": "ASSET_d12ae752_thumbnail_00_06c2bc94",
+          "asset_id": "ASSET_d90a8e46_thumbnail_00_43cfc490",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, TechCrunch Disrupt 2026 tickets now on sale: Lowes, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, WhatsApp will now charge AI chatbots to operate in, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -665,13 +665,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket"
+            "WhatsApp will now charge AI ch"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_intro_card_00_fa6bb86a",
+          "asset_id": "ASSET_d90a8e46_intro_card_00_d50071ca",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, TechCrunch Disrupt 2026 tickets now on sale: Lowes, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, WhatsApp will now charge AI chatbots to operate in, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -686,11 +686,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket"
+            "WhatsApp will now charge AI ch"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_lower_third_00_0ecd43e4",
+          "asset_id": "ASSET_d90a8e46_lower_third_00_5f465c33",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -707,12 +707,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_lower_third_01_975dcec8",
+          "asset_id": "ASSET_d90a8e46_lower_third_01_5e24c246",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -729,12 +729,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_lower_third_02_eb9d5225",
+          "asset_id": "ASSET_d90a8e46_lower_third_02_01ecff8e",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -751,12 +751,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_broll_00_8b68bfda",
+          "asset_id": "ASSET_d90a8e46_broll_00_4f30c952",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -775,12 +775,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_broll_01_433aa29c",
+          "asset_id": "ASSET_d90a8e46_broll_01_ddbc51d0",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -799,12 +799,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_broll_02_7311ab4a",
+          "asset_id": "ASSET_d90a8e46_broll_02_c7d1d33d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -823,12 +823,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_broll_03_33a5acc6",
+          "asset_id": "ASSET_d90a8e46_broll_03_0a556968",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -847,12 +847,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_broll_04_e23e1d03",
+          "asset_id": "ASSET_d90a8e46_broll_04_f74ba740",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -871,12 +871,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_title_card_00_54f8e578",
+          "asset_id": "ASSET_d90a8e46_title_card_00_00119492",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -893,12 +893,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_title_card_01_28cee4b5",
+          "asset_id": "ASSET_d90a8e46_title_card_01_48549b16",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -915,12 +915,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_title_card_02_a6671377",
+          "asset_id": "ASSET_d90a8e46_title_card_02_ebcb02d2",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -937,12 +937,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket",
+            "WhatsApp will now charge AI ch",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_d12ae752_end_card_00_b0c19ebc",
+          "asset_id": "ASSET_d90a8e46_end_card_00_f1d02272",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -959,7 +959,7 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026 ticket"
+            "WhatsApp will now charge AI ch"
           ]
         }
       ]

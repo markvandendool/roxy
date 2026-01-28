@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260121_120003_8d5db70e",
-  "timestamp": "2026-01-21T19:00:03.477230+00:00",
+  "snapshot_id": "TREND_20260128_140019_7872aae6",
+  "timestamp": "2026-01-28T21:00:19.139361+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -27,52 +27,84 @@
   ],
   "trends": [
     {
-      "title": "YouTube will soon let creators make Shorts with their own AI likeness",
-      "link": "https://techcrunch.com/2026/01/21/youtube-will-soon-let-creators-make-shorts-with-their-own-ai-likeness/",
+      "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
+      "link": "https://techcrunch.com/2026/01/28/tiny-startup-arcee-ai-built-a-400b-open-source-llm-from-scratch-to-best-metas-llama/",
       "source": "TechCrunch AI",
       "category": "ai",
-      "score": 75,
-      "summary": "YouTube Shorts viewers might soon see AI versions of their favorite creators when scrolling through their feeds."
+      "score": 95,
+      "summary": "30-person startup Arcee AI has released a 400B model called Trinity, which it says is one of the biggest open source foundation models from a U.S. company."
     },
     {
-      "title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
-      "link": "https://techcrunch.com/2026/01/21/openai-aims-to-ship-its-first-device-in-2026-and-it-could-be-earbuds/",
+      "title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
+      "link": "https://techcrunch.com/2026/01/28/techcrunch-disrupt-2026-plus-one-passes-are-almost-gone-and-only-3-days-remain/",
       "source": "TechCrunch AI",
       "category": "ai",
-      "score": 75,
-      "summary": "The AI startup is on track to announce its first hardware device in the second half of this year, OpenAI Chief Global Affairs Officer Chris Lehane said during an interview at Davos."
+      "score": 85,
+      "summary": "The TechCrunch Disrupt 2026 plus-one passes at\u00a050% off are almost sold out, and this deal ends in 3 days. Register here before this deal ends on Friday, January 30 at 11:59 p.m. PT."
     },
     {
-      "title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
-      "link": "https://techcrunch.com/2026/01/21/techcrunch-disrupt-2026-tickets-now-on-sale-lowest-rates-all-year/",
+      "title": "WhatsApp will now charge AI chatbots to operate in Italy",
+      "link": "https://techcrunch.com/2026/01/28/whatsapp-will-now-charge-ai-chatbots-to-operate-in-italy/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "TechCrunch Disrupt\u00a02026\u00a0tickets\u00a0are officially on sale. Save up to $680 on your ticket and be among the\u00a0first 500 registrants\u00a0to score a plus-one\u00a0pass at 50% off. Don't miss 10,000 tech leaders, founders, and VCs in San Francisco from October 13-15. Register before these one-time deals vanish."
+      "summary": "WhatsApp plans to charge developers of AI chatbots per message."
     },
     {
-      "title": "Language learning marketplace Preply\u2019s unicorn status embodies Ukrainian resilience",
-      "link": "https://techcrunch.com/2026/01/21/language-learning-marketplace-preplys-unicorn-status-embodies-ukrainian-resilience/",
+      "title": "AI data labeler Handshake buys  Cleanlab, an acquisition target of multiple others",
+      "link": "https://techcrunch.com/2026/01/28/ai-data-labeler-handshake-buys-cleanlab-an-acquisition-target-of-multiple-others/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Language learning marketplace Preply is now valued at $1.2 billion after raising a $150 million Series D round that marks a new chapter for the 14-year-old company."
+      "summary": "The deal\u2019s purpose is primarily to acquire talent, aka an acqui-hire, adding nine key Cleanlab employees to Handshake\u2019s research organization."
     },
     {
-      "title": "Consumers spent more on mobile apps than games in 2025, driven by AI app adoption",
-      "link": "https://techcrunch.com/2026/01/21/consumers-spent-more-on-mobile-apps-than-games-in-2025-driven-by-ai-app-adoption/",
+      "title": "Chrome takes on AI browsers with tighter Gemini integration, agentic features for autonomous tasks",
+      "link": "https://techcrunch.com/2026/01/28/chrome-takes-on-ai-browsers-with-tighter-gemini-integration-agentic-features-for-autonomous-tasks/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Consumers spent more money in mobile apps than games in 2025, driven by AI app adoption."
+      "summary": "Google Chrome is adding Gemini in the sidebar and is rolling out an agentic feature for AI Pro and Ultra users."
     },
     {
-      "title": "In an effort to protect young users, ChatGPT will now predict how old you are",
-      "link": "https://techcrunch.com/2026/01/20/in-an-effort-to-protect-young-users-chatgpt-will-now-predict-how-old-you-are/",
+      "title": "With Apple\u2019s new Creator Studio Pro, AI is a tool to aid creation, not replace it",
+      "link": "https://techcrunch.com/2026/01/28/with-apples-new-creator-studio-pro-ai-is-a-tool-to-aid-creation-not-replace-it/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The feature is designed to stop problematic content from being delivered to users under the age of 18."
+      "summary": "Apple\u2019s Creator Studio Pro leverages AI to help creators with tedious tasks \u2014 like finding clips or building slides \u2014 without trying to do the work for them."
+    },
+    {
+      "title": "Modelence raises $3M to smooth out the vibe-coding stack",
+      "link": "https://techcrunch.com/2026/01/28/modelence-raises-13-million-to-smooth-out-the-vibe-coding-stack/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "How do you build tooling for the AI software stack? A company called Modelence has an interesting answer."
+    },
+    {
+      "title": "The AI infrastructure boom shows no sign of slowing down",
+      "link": "https://techcrunch.com/2026/01/28/the-ai-infrastructure-boom-shows-no-sign-of-slowing-down/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "ASML\u2019s record orders show chipmakers are still betting big on AI data centers."
+    },
+    {
+      "title": "The conference where founders scale: TechCrunch Founder Summit 2026 tickets are now live at the lowest prices",
+      "link": "https://techcrunch.com/2026/01/28/the-conference-where-founders-scale-founder-summit-2026-tickets-are-now-live-at-the-lowest-prices/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "TechCrunch Founder Summit 2026\u00a0unites 1,100 founders and investors in Boston on June 23 for a day focused on real-world scaling insights and networking that pushes the needle. Save up to $300 on your ticket."
+    },
+    {
+      "title": "Anthropic, Apple, OpenAI CEOs condemn ICE violence, praise Trump",
+      "link": "https://techcrunch.com/2026/01/28/anthropic-and-openai-ceos-condemn-ice-violence-praise-trump/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "Anthropic's Dario Amodei and OpenAI's Sam Altman spoke out against ICE enforcement tactics following Minneapolis violence, with one addressing concerns publicly and the other in an internal message."
     },
     {
       "title": "Generative AI tool helps 3D print personal items that sustain daily use",
@@ -105,38 +137,6 @@
       "category": "ai_research",
       "score": 75,
       "summary": "CSAIL researchers find even \u201cuntrainable\u201d neural nets can learn effectively when guided by another network\u2019s built-in biases using their guidance method."
-    },
-    {
-      "title": "Adobe Acrobat now lets you edit files using prompts, generate podcast summaries",
-      "link": "https://techcrunch.com/2026/01/21/adobe-acrobat-now-lets-you-edit-files-using-prompts-generate-podcast-summaries/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "Adobe is adding AI tools to Acrobat, including the ability to generate podcast summaries of files, create presentations, and a way for users to edit files using prompts."
-    },
-    {
-      "title": "Zanskar thinks 1 TW of geothermal power is being overlooked",
-      "link": "https://techcrunch.com/2026/01/21/zanskar-thinks-1-tw-of-geothermal-power-is-being-overlooked/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "Zanskar has raised $115 million to find about a dozen geothermal resources that could help power the grid throughout the U.S. West."
-    },
-    {
-      "title": "Bolna nabs $6.3M from General Catalyst for its India-focused voice orchestration platform",
-      "link": "https://techcrunch.com/2026/01/20/bolna-nabs-6-3-million-from-general-catalyst-for-its-india-focused-voice-orchestration-platform/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "Bolna said that 75% of its revenue is coming from self-serve customers."
-    },
-    {
-      "title": "Anthropic\u2019s CEO stuns Davos with Nvidia criticism",
-      "link": "https://techcrunch.com/2026/01/20/anthropics-ceo-stuns-davos-with-nvidia-criticism/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "Anthropic CEO Dario Amodei unloaded on both the administration and U.S. chip companies over plans to sell to China. The criticism was particularly notable because one of those chipmakers, Nvidia, is a major partner and investor in Anthropic."
     },
     {
       "title": "Why it\u2019s critical to move beyond overly aggregated machine-learning metrics",

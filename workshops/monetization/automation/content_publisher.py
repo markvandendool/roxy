@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# @pipeline StackKraft
+# @locked true
+# @change_requires HumanApproval
+# @owner Chief
 """
 Content Publisher - One Command, All Platforms
 Uses existing Roxy infrastructure + official APIs

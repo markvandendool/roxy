@@ -1,46 +1,24 @@
 {
-  "review_id": "REVIEW_20260121_111805_796f8eb5",
-  "timestamp": "2026-01-21T18:18:05.997972+00:00",
+  "review_id": "REVIEW_20260128_141828_3c1511d2",
+  "timestamp": "2026-01-28T21:18:28.370616+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260121_111626_abe87aec",
+  "source_scripts": "SCRIPT_20260128_141621_7effc091",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_6dfd618b24a5",
-      "trend_title": "YouTube will soon let creators make Shorts with their own AI likeness",
+      "script_id": "SCR_0bfa7176522c",
+      "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 7,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 9
-      },
-      "recommendations": [],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_32b9e3eb488e",
-      "trend_title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 5,
+        "hook_strength": 4,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
         "overall": 8
       },
-      "recommendations": [],
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
       "approved_sections": [
         "hook",
         "context",
@@ -53,16 +31,42 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_d12ae752d1d0",
-      "trend_title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
+      "script_id": "SCR_bad38a66b57b",
+      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 7,
+        "hook_strength": 4,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
-        "overall": 9
+        "overall": 8
+      },
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_d90a8e46f0aa",
+      "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 6,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
       },
       "recommendations": [],
       "approved_sections": [
@@ -82,7 +86,7 @@
     "approved": 3,
     "needs_revision": 0,
     "rejected": 0,
-    "average_score": 8.7
+    "average_score": 8.0
   },
   "meta": {
     "version": "1.0.0",

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# @pipeline StackKraft
+# @locked true
+# @change_requires HumanApproval
+# @owner Chief
 set -euo pipefail
 
 # package_obs.sh

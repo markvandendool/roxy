@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260121_111211_2aa6cb7c",
-  "timestamp": "2026-01-21T18:12:11.070408+00:00",
+  "bundle_id": "BUNDLE_20260128_141201_3f645fdd",
+  "timestamp": "2026-01-28T21:12:01.109179+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260121_110014_02bf1f23",
+      "snapshot_id": "TREND_20260128_140019_7872aae6",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260121_110512_dfa7e578",
+      "brief_id": "BRIEF_20260128_140504_fbf0e3df",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260121_111007_09bcc5b9",
+      "analysis_id": "COMP_20260128_141021_87bf1271",
       "status": "healthy",
       "count": 5
     }
@@ -24,9 +24,9 @@
     "brief_count": 5,
     "analysis_count": 5,
     "top_trend": {
-      "title": "YouTube will soon let creators make Shorts with their own AI likeness",
+      "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "source": "TechCrunch AI",
-      "score": 75
+      "score": 95
     },
     "top_competitors": [
       {

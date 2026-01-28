@@ -1,4 +1,8 @@
 #!/usr/bin/env /home/mark/llm-benchmarks/venv/bin/python
+# @pipeline StackKraft
+# @locked true
+# @change_requires HumanApproval
+# @owner Chief
 """
 StackKraft Full Automation Pipeline - Opus Clip Killer
 ===============================================

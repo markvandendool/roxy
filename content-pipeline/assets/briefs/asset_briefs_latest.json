@@ -1,12 +1,12 @@
 {
-  "brief_id": "BRIEF_20260121_112010_27c4f815",
-  "timestamp": "2026-01-21T18:20:10.409257+00:00",
+  "brief_id": "BRIEF_20260128_142010_7d718c53",
+  "timestamp": "2026-01-28T21:20:10.282131+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260121_111805_796f8eb5",
+  "source_review": "REVIEW_20260128_141828_3c1511d2",
   "briefs": [
     {
-      "script_id": "SCR_6dfd618b24a5",
-      "title": "YouTube will soon let creators make Shorts with their own AI likeness",
+      "script_id": "SCR_0bfa7176522c",
+      "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -56,7 +56,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why YouTube will soon let creators make Shorts with their own AI likeness changes ever"
+          "vo_summary": "[HOOK] Here's why Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best "
         },
         {
           "scene_id": "SCENE_02",
@@ -74,7 +74,119 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] YouTube Shorts viewers might soon see AI versions of their favorite creators when scrollin"
+          "vo_summary": "[DETAILS] 30-person startup Arcee AI has released a 400B model called Trinity, which it says is one "
+        },
+        {
+          "scene_id": "SCENE_04",
+          "t_start": 89.0,
+          "t_end": 126.0,
+          "section": "analysis",
+          "on_screen_text": "ANALYSIS: Analysis",
+          "broll_intent": "Charts, graphs, expert-style talking head frame",
+          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
+        },
+        {
+          "scene_id": "SCENE_05",
+          "t_start": 126.0,
+          "t_end": 141.0,
+          "section": "takeaway",
+          "on_screen_text": "TAKEAWAY: Takeaway",
+          "broll_intent": "Key point graphics, summary card",
+          "vo_summary": "[TAKEAWAY] The key point to remember..."
+        },
+        {
+          "scene_id": "SCENE_06",
+          "t_start": 141.0,
+          "t_end": 148.0,
+          "section": "cta",
+          "on_screen_text": "CTA: Cta",
+          "broll_intent": "Subscribe button animation, social handles",
+          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
+        }
+      ],
+      "compliance": {
+        "disallowed_words": [
+          "guaranteed",
+          "100%",
+          "proven"
+        ],
+        "music_policy": "royalty_free_only",
+        "trademark_risks": [
+          "Meta trademark"
+        ]
+      }
+    },
+    {
+      "script_id": "SCR_bad38a66b57b",
+      "title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
+      "format": "standard",
+      "duration_target": 150,
+      "visual_style": {
+        "primary_color": "#6366F1",
+        "secondary_color": "#0F0F23",
+        "font_family": "Inter Medium",
+        "mood": "professional",
+        "lighting": "balanced"
+      },
+      "required_assets": [
+        {
+          "asset_type": "thumbnail",
+          "purpose": "Video thumbnail for platforms",
+          "count": 1
+        },
+        {
+          "asset_type": "intro_card",
+          "purpose": "Opening title card",
+          "count": 1
+        },
+        {
+          "asset_type": "lower_third",
+          "purpose": "Name/topic lower thirds",
+          "count": 3
+        },
+        {
+          "asset_type": "broll",
+          "purpose": "B-roll footage pack",
+          "count": 5
+        },
+        {
+          "asset_type": "title_card",
+          "purpose": "Section title cards",
+          "count": 3
+        },
+        {
+          "asset_type": "end_card",
+          "purpose": "Subscribe CTA end card",
+          "count": 1
+        }
+      ],
+      "scene_map": [
+        {
+          "scene_id": "SCENE_01",
+          "t_start": 0.0,
+          "t_end": 15.0,
+          "section": "hook",
+          "on_screen_text": "HOOK: Hook",
+          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
+          "vo_summary": "[HOOK] Here's why TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain ch"
+        },
+        {
+          "scene_id": "SCENE_02",
+          "t_start": 15.0,
+          "t_end": 37.0,
+          "section": "context",
+          "on_screen_text": "CONTEXT: Context",
+          "broll_intent": "Historical footage, timeline graphics",
+          "vo_summary": "[CONTEXT] Background on this development..."
+        },
+        {
+          "scene_id": "SCENE_03",
+          "t_start": 37.0,
+          "t_end": 89.0,
+          "section": "details",
+          "on_screen_text": "DETAILS: Details",
+          "broll_intent": "Product shots, UI demos, data visualizations",
+          "vo_summary": "[DETAILS] The TechCrunch Disrupt 2026 plus-one passes at\u00a050% off are almost sold out, and this deal "
         },
         {
           "scene_id": "SCENE_04",
@@ -115,8 +227,8 @@
       }
     },
     {
-      "script_id": "SCR_32b9e3eb488e",
-      "title": "OpenAI aims to ship its first device in 2026, and it could be earbuds",
+      "script_id": "SCR_d90a8e46f0aa",
+      "title": "WhatsApp will now charge AI chatbots to operate in Italy",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -166,7 +278,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
+          "vo_summary": "[HOOK] The AI world is buzzing about WhatsApp will now charge AI chatbots to operate in Italy"
         },
         {
           "scene_id": "SCENE_02",
@@ -184,119 +296,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] The AI startup is on track to announce its first hardware device in the second half of thi"
-        },
-        {
-          "scene_id": "SCENE_04",
-          "t_start": 89.0,
-          "t_end": 126.0,
-          "section": "analysis",
-          "on_screen_text": "ANALYSIS: Analysis",
-          "broll_intent": "Charts, graphs, expert-style talking head frame",
-          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
-        },
-        {
-          "scene_id": "SCENE_05",
-          "t_start": 126.0,
-          "t_end": 141.0,
-          "section": "takeaway",
-          "on_screen_text": "TAKEAWAY: Takeaway",
-          "broll_intent": "Key point graphics, summary card",
-          "vo_summary": "[TAKEAWAY] The key point to remember..."
-        },
-        {
-          "scene_id": "SCENE_06",
-          "t_start": 141.0,
-          "t_end": 148.0,
-          "section": "cta",
-          "on_screen_text": "CTA: Cta",
-          "broll_intent": "Subscribe button animation, social handles",
-          "vo_summary": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts."
-        }
-      ],
-      "compliance": {
-        "disallowed_words": [
-          "guaranteed",
-          "100%",
-          "proven"
-        ],
-        "music_policy": "royalty_free_only",
-        "trademark_risks": [
-          "Openai trademark"
-        ]
-      }
-    },
-    {
-      "script_id": "SCR_d12ae752d1d0",
-      "title": "TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year",
-      "format": "standard",
-      "duration_target": 150,
-      "visual_style": {
-        "primary_color": "#6366F1",
-        "secondary_color": "#0F0F23",
-        "font_family": "Inter Medium",
-        "mood": "professional",
-        "lighting": "balanced"
-      },
-      "required_assets": [
-        {
-          "asset_type": "thumbnail",
-          "purpose": "Video thumbnail for platforms",
-          "count": 1
-        },
-        {
-          "asset_type": "intro_card",
-          "purpose": "Opening title card",
-          "count": 1
-        },
-        {
-          "asset_type": "lower_third",
-          "purpose": "Name/topic lower thirds",
-          "count": 3
-        },
-        {
-          "asset_type": "broll",
-          "purpose": "B-roll footage pack",
-          "count": 5
-        },
-        {
-          "asset_type": "title_card",
-          "purpose": "Section title cards",
-          "count": 3
-        },
-        {
-          "asset_type": "end_card",
-          "purpose": "Subscribe CTA end card",
-          "count": 1
-        }
-      ],
-      "scene_map": [
-        {
-          "scene_id": "SCENE_01",
-          "t_start": 0.0,
-          "t_end": 15.0,
-          "section": "hook",
-          "on_screen_text": "HOOK: Hook",
-          "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why TechCrunch Disrupt 2026 tickets now on sale: Lowest\u00a0rates all year changes everyth"
-        },
-        {
-          "scene_id": "SCENE_02",
-          "t_start": 15.0,
-          "t_end": 37.0,
-          "section": "context",
-          "on_screen_text": "CONTEXT: Context",
-          "broll_intent": "Historical footage, timeline graphics",
-          "vo_summary": "[CONTEXT] Background on this development..."
-        },
-        {
-          "scene_id": "SCENE_03",
-          "t_start": 37.0,
-          "t_end": 89.0,
-          "section": "details",
-          "on_screen_text": "DETAILS: Details",
-          "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] TechCrunch Disrupt\u00a02026\u00a0tickets\u00a0are officially on sale. Save up to $680 on your ticket and"
+          "vo_summary": "[DETAILS] WhatsApp plans to charge developers of AI chatbots per message...."
         },
         {
           "scene_id": "SCENE_04",

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# @pipeline Skybeam
+# @locked true
+# @change_requires HumanApproval
+# @owner Chief
 """
 SKYBEAM Operator Console CLI Selftest (STORY-027)
 

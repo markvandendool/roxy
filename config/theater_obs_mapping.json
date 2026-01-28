@@ -49,7 +49,7 @@
     },
     "ndi_sources": {
       "landscape": {
-        "name": "MindSong Landscape 8K",
+        "name": "MindSong-Landscape",
         "resolutions": {
           "8k": { "width": 7680, "height": 4320 },
           "4k": { "width": 3840, "height": 2160 },
@@ -59,7 +59,7 @@
         "fallback_resolution": "1080p"
       },
       "portrait": {
-        "name": "MindSong Portrait 4K",
+        "name": "MindSong-Vertical",
         "resolutions": {
           "4k": { "width": 2160, "height": 3840 },
           "1080p": { "width": 1080, "height": 1920 }
@@ -100,7 +100,7 @@
           "name": "NDI Landscape",
           "type": "ndi_source",
           "settings": {
-            "ndi_source_name": "MindSong Landscape 8K",
+            "ndi_source_name": "MindSong-Landscape",
             "bandwidth": "highest",
             "sync": "ndi_timestamp"
           }
@@ -113,7 +113,7 @@
           "name": "NDI Portrait",
           "type": "ndi_source",
           "settings": {
-            "ndi_source_name": "MindSong Portrait 4K",
+            "ndi_source_name": "MindSong-Vertical",
             "bandwidth": "highest",
             "sync": "ndi_timestamp"
           }
