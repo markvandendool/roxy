@@ -1,64 +1,12 @@
 {
-  "review_id": "REVIEW_20260128_141828_3c1511d2",
-  "timestamp": "2026-01-28T21:18:28.370616+00:00",
+  "review_id": "REVIEW_20260128_151828_d7a3f6f1",
+  "timestamp": "2026-01-28T22:18:28.362851+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260128_141621_7effc091",
+  "source_scripts": "SCRIPT_20260128_151609_d7849ccd",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_0bfa7176522c",
+      "script_id": "SCR_737fdaf85ba0",
       "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 4,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 8
-      },
-      "recommendations": [
-        "Hook is too long - trim for impact"
-      ],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_bad38a66b57b",
-      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 4,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 8
-      },
-      "recommendations": [
-        "Hook is too long - trim for impact"
-      ],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_d90a8e46f0aa",
-      "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
@@ -67,6 +15,58 @@
         "structure_flow": 10,
         "differentiation": 9,
         "overall": 8
+      },
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_57e076715e33",
+      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 6,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
+      },
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_059bce5d8711",
+      "trend_title": "ServiceNow inks another AI partnership, this time with Anthropic",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 8,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 9
       },
       "recommendations": [],
       "approved_sections": [
@@ -86,7 +86,7 @@
     "approved": 3,
     "needs_revision": 0,
     "rejected": 0,
-    "average_score": 8.0
+    "average_score": 8.3
   },
   "meta": {
     "version": "1.0.0",

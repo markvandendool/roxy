@@ -1,22 +1,22 @@
 {
-  "script_id": "SCRIPT_20260128_141621_7effc091",
-  "timestamp": "2026-01-28T21:16:21.582613+00:00",
+  "script_id": "SCRIPT_20260128_151609_d7849ccd",
+  "timestamp": "2026-01-28T22:16:09.976965+00:00",
   "status": "healthy",
-  "source_bundle": "BUNDLE_20260128_141201_3f645fdd",
-  "source_templates": "TMPL_20260128_141403_9c7c3933",
+  "source_bundle": "BUNDLE_20260128_151211_69ed9e1b",
+  "source_templates": "TMPL_20260128_151406_ac930ee6",
   "scripts": [
     {
-      "id": "SCR_0bfa7176522c",
+      "id": "SCR_737fdaf85ba0",
       "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "The AI world is buzzing about Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
+      "hook": "Here's why Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama changes everything",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama changes everything",
+          "content": "[HOOK] What TechCrunch AI's announcement really means",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -65,17 +65,17 @@
       ]
     },
     {
-      "id": "SCR_bad38a66b57b",
+      "id": "SCR_57e076715e33",
       "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "The AI world is buzzing about TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
+      "hook": "Here's why TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain changes everything",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain changes everything",
+          "content": "[HOOK] What TechCrunch AI's announcement really means",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -124,17 +124,17 @@
       ]
     },
     {
-      "id": "SCR_d90a8e46f0aa",
-      "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
+      "id": "SCR_059bce5d8711",
+      "trend_title": "ServiceNow inks another AI partnership, this time with Anthropic",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "The AI world is buzzing about WhatsApp will now charge AI chatbots to operate in Italy",
+      "hook": "What TechCrunch AI's announcement really means",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] The AI world is buzzing about WhatsApp will now charge AI chatbots to operate in Italy",
+          "content": "[HOOK] Here's why ServiceNow inks another AI partnership, this time with Anthropic changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -146,7 +146,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] WhatsApp plans to charge developers of AI chatbots per message....",
+          "content": "[DETAILS] ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI as the company takes a multi-model approach....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -170,9 +170,9 @@
         }
       ],
       "variables": {
-        "headline": "WhatsApp will now charge AI chatbots to operate in Italy",
+        "headline": "ServiceNow inks another AI partnership, this time with Anthropic",
         "source": "TechCrunch AI",
-        "summary": "WhatsApp plans to charge developers of AI chatbots per message.",
+        "summary": "ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI as the company takes a multi-model approach.",
         "category": "ai"
       },
       "differentiation": [

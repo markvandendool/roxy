@@ -1,16 +1,16 @@
 {
-  "storyboard_id": "STORYBOARD_20260128_142412_2ee8513e",
-  "timestamp": "2026-01-28T21:24:12.357760+00:00",
+  "storyboard_id": "STORYBOARD_20260128_152402_b1040575",
+  "timestamp": "2026-01-28T22:24:02.857260+00:00",
   "status": "healthy",
-  "source_pack": "PACK_20260128_142210_45e87276",
+  "source_pack": "PACK_20260128_152202_0e590305",
   "storyboards": [
     {
-      "script_id": "SCR_0bfa7176522c",
+      "script_id": "SCR_737fdaf85ba0",
       "frames": [
         {
-          "frame_id": "FRAME_0bfa7176_001",
+          "frame_id": "FRAME_737fdaf8_001",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_0bfa7176_thumbnail_00_e1f7f51a",
+          "asset_id": "ASSET_737fdaf8_thumbnail_00_5b52d4dc",
           "timecode": "00:00:00:00",
           "description": "YouTube video thumbnail, Tiny startup Arcee AI built a 400B-parameter open , professional style, pro",
           "camera": "straight-on, eye-level",
@@ -18,9 +18,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_002",
+          "frame_id": "FRAME_737fdaf8_002",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_0bfa7176_intro_card_00_a3f7237c",
+          "asset_id": "ASSET_737fdaf8_intro_card_00_048dfa75",
           "timecode": "00:00:03:00",
           "description": "Video intro title card, Tiny startup Arcee AI built a 400B-parameter open , professional motion grap",
           "camera": "wide establishing shot",
@@ -28,9 +28,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_003",
+          "frame_id": "FRAME_737fdaf8_003",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_0bfa7176_lower_third_00_72a352af",
+          "asset_id": "ASSET_737fdaf8_lower_third_00_f6b34030",
           "timecode": "00:00:06:00",
           "description": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography,",
           "camera": "rule of thirds, lower frame",
@@ -38,9 +38,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_004",
+          "frame_id": "FRAME_737fdaf8_004",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_0bfa7176_lower_third_01_9a656f33",
+          "asset_id": "ASSET_737fdaf8_lower_third_01_181af30f",
           "timecode": "00:00:08:00",
           "description": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typog",
           "camera": "rule of thirds, lower frame",
@@ -48,9 +48,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_005",
+          "frame_id": "FRAME_737fdaf8_005",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_0bfa7176_lower_third_02_8616889a",
+          "asset_id": "ASSET_737fdaf8_lower_third_02_1f03b6e4",
           "timecode": "00:00:10:00",
           "description": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typog",
           "camera": "rule of thirds, lower frame",
@@ -58,9 +58,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_006",
+          "frame_id": "FRAME_737fdaf8_006",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_0bfa7176_broll_00_3c725c5e",
+          "asset_id": "ASSET_737fdaf8_broll_00_4e917013",
           "timecode": "00:00:12:00",
           "description": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, profes",
           "camera": "dynamic movement, dolly",
@@ -68,9 +68,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_007",
+          "frame_id": "FRAME_737fdaf8_007",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_0bfa7176_broll_01_c2ac62cb",
+          "asset_id": "ASSET_737fdaf8_broll_01_870b4561",
           "timecode": "00:00:17:00",
           "description": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional gra",
           "camera": "dynamic movement, dolly",
@@ -78,9 +78,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_008",
+          "frame_id": "FRAME_737fdaf8_008",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_0bfa7176_broll_02_805653b7",
+          "asset_id": "ASSET_737fdaf8_broll_02_7100bf51",
           "timecode": "00:00:22:00",
           "description": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professio",
           "camera": "dynamic movement, dolly",
@@ -88,9 +88,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_009",
+          "frame_id": "FRAME_737fdaf8_009",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_0bfa7176_broll_03_12d436da",
+          "asset_id": "ASSET_737fdaf8_broll_03_5739c3fc",
           "timecode": "00:00:27:00",
           "description": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, profes",
           "camera": "dynamic movement, dolly",
@@ -98,9 +98,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_010",
+          "frame_id": "FRAME_737fdaf8_010",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_0bfa7176_broll_04_5220e623",
+          "asset_id": "ASSET_737fdaf8_broll_04_a5168fea",
           "timecode": "00:00:32:00",
           "description": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4",
           "camera": "dynamic movement, dolly",
@@ -108,9 +108,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_011",
+          "frame_id": "FRAME_737fdaf8_011",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_0bfa7176_title_card_00_894085d0",
+          "asset_id": "ASSET_737fdaf8_title_card_00_2b8b75ae",
           "timecode": "00:00:37:00",
           "description": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate ae",
           "camera": "centered frame",
@@ -118,9 +118,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_012",
+          "frame_id": "FRAME_737fdaf8_012",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_0bfa7176_title_card_01_a5a9ac72",
+          "asset_id": "ASSET_737fdaf8_title_card_01_4591e65c",
           "timecode": "00:00:39:00",
           "description": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corpor",
           "camera": "centered frame",
@@ -128,9 +128,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_013",
+          "frame_id": "FRAME_737fdaf8_013",
           "scene_id": "SCENE_05",
-          "asset_id": "ASSET_0bfa7176_title_card_02_d1890738",
+          "asset_id": "ASSET_737fdaf8_title_card_02_c2c8c015",
           "timecode": "00:00:41:00",
           "description": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corpor",
           "camera": "centered frame",
@@ -138,9 +138,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_0bfa7176_014",
+          "frame_id": "FRAME_737fdaf8_014",
           "scene_id": "SCENE_05",
-          "asset_id": "ASSET_0bfa7176_end_card_00_1e1041c7",
+          "asset_id": "ASSET_737fdaf8_end_card_00_c5399b78",
           "timecode": "00:00:43:00",
           "description": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corpora",
           "camera": "centered with space for overlays",
@@ -150,98 +150,98 @@
       ],
       "shotlist": [
         {
-          "shot_id": "SHOT_0bfa7176_001",
+          "shot_id": "SHOT_737fdaf8_001",
           "asset_type": "thumbnail",
           "duration": 3.0,
           "description": "YouTube video thumbnail, Tiny startup Arcee AI built a 400B-parameter open , pro",
           "priority": "critical"
         },
         {
-          "shot_id": "SHOT_0bfa7176_002",
+          "shot_id": "SHOT_737fdaf8_002",
           "asset_type": "intro_card",
           "duration": 3.0,
           "description": "Video intro title card, Tiny startup Arcee AI built a 400B-parameter open , prof",
           "priority": "high"
         },
         {
-          "shot_id": "SHOT_0bfa7176_003",
+          "shot_id": "SHOT_737fdaf8_003",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_004",
+          "shot_id": "SHOT_737fdaf8_004",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent back",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_005",
+          "shot_id": "SHOT_737fdaf8_005",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, DETAILS: Details, professional style, semi-transparent back",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_006",
+          "shot_id": "SHOT_737fdaf8_006",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional ci",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_007",
+          "shot_id": "SHOT_737fdaf8_007",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Historical footage, timeline graphics, professional cinematograp",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_008",
+          "shot_id": "SHOT_737fdaf8_008",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Product shots, UI demos, data visualizations, professional cinem",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_009",
+          "shot_id": "SHOT_737fdaf8_009",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Charts, graphs, expert-style talking head frame, professional ci",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_010",
+          "shot_id": "SHOT_737fdaf8_010",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Key point graphics, summary card, professional cinematography, p",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_011",
+          "shot_id": "SHOT_737fdaf8_011",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_012",
+          "shot_id": "SHOT_737fdaf8_012",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, CONTEXT: Context, professional design, minimal clean layout,",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_013",
+          "shot_id": "SHOT_737fdaf8_013",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, DETAILS: Details, professional design, minimal clean layout,",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_0bfa7176_014",
+          "shot_id": "SHOT_737fdaf8_014",
           "asset_type": "end_card",
           "duration": 3.0,
           "description": "YouTube end screen, subscribe CTA, professional style, engaging call to action, ",
@@ -250,12 +250,12 @@
       ]
     },
     {
-      "script_id": "SCR_bad38a66b57b",
+      "script_id": "SCR_57e076715e33",
       "frames": [
         {
-          "frame_id": "FRAME_bad38a66_001",
+          "frame_id": "FRAME_57e07671_001",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_bad38a66_thumbnail_00_f22b5708",
+          "asset_id": "ASSET_57e07671_thumbnail_00_6259a48d",
           "timecode": "00:00:00:00",
           "description": "YouTube video thumbnail, TechCrunch Disrupt 2026: Plus-one passes are almos, professional style, pro",
           "camera": "straight-on, eye-level",
@@ -263,9 +263,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_002",
+          "frame_id": "FRAME_57e07671_002",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_bad38a66_intro_card_00_90cde56a",
+          "asset_id": "ASSET_57e07671_intro_card_00_17ff80e3",
           "timecode": "00:00:03:00",
           "description": "Video intro title card, TechCrunch Disrupt 2026: Plus-one passes are almos, professional motion grap",
           "camera": "wide establishing shot",
@@ -273,9 +273,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_003",
+          "frame_id": "FRAME_57e07671_003",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_bad38a66_lower_third_00_4f6b871c",
+          "asset_id": "ASSET_57e07671_lower_third_00_c9c6100e",
           "timecode": "00:00:06:00",
           "description": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography,",
           "camera": "rule of thirds, lower frame",
@@ -283,9 +283,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_004",
+          "frame_id": "FRAME_57e07671_004",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_bad38a66_lower_third_01_21fd8b98",
+          "asset_id": "ASSET_57e07671_lower_third_01_4827ff31",
           "timecode": "00:00:08:00",
           "description": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typog",
           "camera": "rule of thirds, lower frame",
@@ -293,9 +293,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_005",
+          "frame_id": "FRAME_57e07671_005",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_bad38a66_lower_third_02_271151c3",
+          "asset_id": "ASSET_57e07671_lower_third_02_3a10dfa4",
           "timecode": "00:00:10:00",
           "description": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typog",
           "camera": "rule of thirds, lower frame",
@@ -303,9 +303,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_006",
+          "frame_id": "FRAME_57e07671_006",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_bad38a66_broll_00_78307b22",
+          "asset_id": "ASSET_57e07671_broll_00_b3ed5917",
           "timecode": "00:00:12:00",
           "description": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, profes",
           "camera": "dynamic movement, dolly",
@@ -313,9 +313,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_007",
+          "frame_id": "FRAME_57e07671_007",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_bad38a66_broll_01_9bad8530",
+          "asset_id": "ASSET_57e07671_broll_01_264bdcbb",
           "timecode": "00:00:17:00",
           "description": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional gra",
           "camera": "dynamic movement, dolly",
@@ -323,9 +323,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_008",
+          "frame_id": "FRAME_57e07671_008",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_bad38a66_broll_02_e29a49aa",
+          "asset_id": "ASSET_57e07671_broll_02_5d307bbf",
           "timecode": "00:00:22:00",
           "description": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professio",
           "camera": "dynamic movement, dolly",
@@ -333,9 +333,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_009",
+          "frame_id": "FRAME_57e07671_009",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_bad38a66_broll_03_038a87d9",
+          "asset_id": "ASSET_57e07671_broll_03_81120d2e",
           "timecode": "00:00:27:00",
           "description": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, profes",
           "camera": "dynamic movement, dolly",
@@ -343,9 +343,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_010",
+          "frame_id": "FRAME_57e07671_010",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_bad38a66_broll_04_5741ce06",
+          "asset_id": "ASSET_57e07671_broll_04_f6b4d72f",
           "timecode": "00:00:32:00",
           "description": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4",
           "camera": "dynamic movement, dolly",
@@ -353,9 +353,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_011",
+          "frame_id": "FRAME_57e07671_011",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_bad38a66_title_card_00_f8f167f0",
+          "asset_id": "ASSET_57e07671_title_card_00_6c100847",
           "timecode": "00:00:37:00",
           "description": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate ae",
           "camera": "centered frame",
@@ -363,9 +363,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_012",
+          "frame_id": "FRAME_57e07671_012",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_bad38a66_title_card_01_0908e4e8",
+          "asset_id": "ASSET_57e07671_title_card_01_beec865c",
           "timecode": "00:00:39:00",
           "description": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corpor",
           "camera": "centered frame",
@@ -373,9 +373,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_013",
+          "frame_id": "FRAME_57e07671_013",
           "scene_id": "SCENE_05",
-          "asset_id": "ASSET_bad38a66_title_card_02_3292d9ee",
+          "asset_id": "ASSET_57e07671_title_card_02_f0747df6",
           "timecode": "00:00:41:00",
           "description": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corpor",
           "camera": "centered frame",
@@ -383,9 +383,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_bad38a66_014",
+          "frame_id": "FRAME_57e07671_014",
           "scene_id": "SCENE_05",
-          "asset_id": "ASSET_bad38a66_end_card_00_62249252",
+          "asset_id": "ASSET_57e07671_end_card_00_e12e8a38",
           "timecode": "00:00:43:00",
           "description": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corpora",
           "camera": "centered with space for overlays",
@@ -395,98 +395,98 @@
       ],
       "shotlist": [
         {
-          "shot_id": "SHOT_bad38a66_001",
+          "shot_id": "SHOT_57e07671_001",
           "asset_type": "thumbnail",
           "duration": 3.0,
           "description": "YouTube video thumbnail, TechCrunch Disrupt 2026: Plus-one passes are almos, pro",
           "priority": "critical"
         },
         {
-          "shot_id": "SHOT_bad38a66_002",
+          "shot_id": "SHOT_57e07671_002",
           "asset_type": "intro_card",
           "duration": 3.0,
           "description": "Video intro title card, TechCrunch Disrupt 2026: Plus-one passes are almos, prof",
           "priority": "high"
         },
         {
-          "shot_id": "SHOT_bad38a66_003",
+          "shot_id": "SHOT_57e07671_003",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_004",
+          "shot_id": "SHOT_57e07671_004",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent back",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_005",
+          "shot_id": "SHOT_57e07671_005",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, DETAILS: Details, professional style, semi-transparent back",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_006",
+          "shot_id": "SHOT_57e07671_006",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional ci",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_007",
+          "shot_id": "SHOT_57e07671_007",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Historical footage, timeline graphics, professional cinematograp",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_008",
+          "shot_id": "SHOT_57e07671_008",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Product shots, UI demos, data visualizations, professional cinem",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_009",
+          "shot_id": "SHOT_57e07671_009",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Charts, graphs, expert-style talking head frame, professional ci",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_010",
+          "shot_id": "SHOT_57e07671_010",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Key point graphics, summary card, professional cinematography, p",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_011",
+          "shot_id": "SHOT_57e07671_011",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_012",
+          "shot_id": "SHOT_57e07671_012",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, CONTEXT: Context, professional design, minimal clean layout,",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_013",
+          "shot_id": "SHOT_57e07671_013",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, DETAILS: Details, professional design, minimal clean layout,",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_bad38a66_014",
+          "shot_id": "SHOT_57e07671_014",
           "asset_type": "end_card",
           "duration": 3.0,
           "description": "YouTube end screen, subscribe CTA, professional style, engaging call to action, ",
@@ -495,32 +495,32 @@
       ]
     },
     {
-      "script_id": "SCR_d90a8e46f0aa",
+      "script_id": "SCR_059bce5d8711",
       "frames": [
         {
-          "frame_id": "FRAME_d90a8e46_001",
+          "frame_id": "FRAME_059bce5d_001",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_d90a8e46_thumbnail_00_43cfc490",
+          "asset_id": "ASSET_059bce5d_thumbnail_00_4c5fb722",
           "timecode": "00:00:00:00",
-          "description": "YouTube video thumbnail, WhatsApp will now charge AI chatbots to operate in, professional style, pro",
+          "description": "YouTube video thumbnail, ServiceNow inks another AI partnership, this time , professional style, pro",
           "camera": "straight-on, eye-level",
           "composition": "hero subject center-left, text space right",
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_002",
+          "frame_id": "FRAME_059bce5d_002",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_d90a8e46_intro_card_00_d50071ca",
+          "asset_id": "ASSET_059bce5d_intro_card_00_39ddd9a1",
           "timecode": "00:00:03:00",
-          "description": "Video intro title card, WhatsApp will now charge AI chatbots to operate in, professional motion grap",
+          "description": "Video intro title card, ServiceNow inks another AI partnership, this time , professional motion grap",
           "camera": "wide establishing shot",
           "composition": "cinematic letterbox, title centered",
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_003",
+          "frame_id": "FRAME_059bce5d_003",
           "scene_id": "SCENE_01",
-          "asset_id": "ASSET_d90a8e46_lower_third_00_5f465c33",
+          "asset_id": "ASSET_059bce5d_lower_third_00_3689f5c4",
           "timecode": "00:00:06:00",
           "description": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography,",
           "camera": "rule of thirds, lower frame",
@@ -528,9 +528,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_004",
+          "frame_id": "FRAME_059bce5d_004",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_d90a8e46_lower_third_01_5e24c246",
+          "asset_id": "ASSET_059bce5d_lower_third_01_a439d4bd",
           "timecode": "00:00:08:00",
           "description": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typog",
           "camera": "rule of thirds, lower frame",
@@ -538,9 +538,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_005",
+          "frame_id": "FRAME_059bce5d_005",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_d90a8e46_lower_third_02_01ecff8e",
+          "asset_id": "ASSET_059bce5d_lower_third_02_334841b6",
           "timecode": "00:00:10:00",
           "description": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typog",
           "camera": "rule of thirds, lower frame",
@@ -548,9 +548,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_006",
+          "frame_id": "FRAME_059bce5d_006",
           "scene_id": "SCENE_02",
-          "asset_id": "ASSET_d90a8e46_broll_00_4f30c952",
+          "asset_id": "ASSET_059bce5d_broll_00_a0671a2e",
           "timecode": "00:00:12:00",
           "description": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, profes",
           "camera": "dynamic movement, dolly",
@@ -558,9 +558,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_007",
+          "frame_id": "FRAME_059bce5d_007",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_d90a8e46_broll_01_ddbc51d0",
+          "asset_id": "ASSET_059bce5d_broll_01_f9d582d4",
           "timecode": "00:00:17:00",
           "description": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional gra",
           "camera": "dynamic movement, dolly",
@@ -568,9 +568,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_008",
+          "frame_id": "FRAME_059bce5d_008",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_d90a8e46_broll_02_c7d1d33d",
+          "asset_id": "ASSET_059bce5d_broll_02_ed47f0f8",
           "timecode": "00:00:22:00",
           "description": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professio",
           "camera": "dynamic movement, dolly",
@@ -578,9 +578,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_009",
+          "frame_id": "FRAME_059bce5d_009",
           "scene_id": "SCENE_03",
-          "asset_id": "ASSET_d90a8e46_broll_03_0a556968",
+          "asset_id": "ASSET_059bce5d_broll_03_9d10006a",
           "timecode": "00:00:27:00",
           "description": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, profes",
           "camera": "dynamic movement, dolly",
@@ -588,9 +588,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_010",
+          "frame_id": "FRAME_059bce5d_010",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_d90a8e46_broll_04_f74ba740",
+          "asset_id": "ASSET_059bce5d_broll_04_923fb660",
           "timecode": "00:00:32:00",
           "description": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4",
           "camera": "dynamic movement, dolly",
@@ -598,9 +598,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_011",
+          "frame_id": "FRAME_059bce5d_011",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_d90a8e46_title_card_00_00119492",
+          "asset_id": "ASSET_059bce5d_title_card_00_e48a33ca",
           "timecode": "00:00:37:00",
           "description": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate ae",
           "camera": "centered frame",
@@ -608,9 +608,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_012",
+          "frame_id": "FRAME_059bce5d_012",
           "scene_id": "SCENE_04",
-          "asset_id": "ASSET_d90a8e46_title_card_01_48549b16",
+          "asset_id": "ASSET_059bce5d_title_card_01_1bf7843b",
           "timecode": "00:00:39:00",
           "description": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corpor",
           "camera": "centered frame",
@@ -618,9 +618,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_013",
+          "frame_id": "FRAME_059bce5d_013",
           "scene_id": "SCENE_05",
-          "asset_id": "ASSET_d90a8e46_title_card_02_ebcb02d2",
+          "asset_id": "ASSET_059bce5d_title_card_02_1d102574",
           "timecode": "00:00:41:00",
           "description": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corpor",
           "camera": "centered frame",
@@ -628,9 +628,9 @@
           "notes": "Style: clean lines, corporate aesthetic"
         },
         {
-          "frame_id": "FRAME_d90a8e46_014",
+          "frame_id": "FRAME_059bce5d_014",
           "scene_id": "SCENE_05",
-          "asset_id": "ASSET_d90a8e46_end_card_00_f1d02272",
+          "asset_id": "ASSET_059bce5d_end_card_00_45437b9d",
           "timecode": "00:00:43:00",
           "description": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corpora",
           "camera": "centered with space for overlays",
@@ -640,98 +640,98 @@
       ],
       "shotlist": [
         {
-          "shot_id": "SHOT_d90a8e46_001",
+          "shot_id": "SHOT_059bce5d_001",
           "asset_type": "thumbnail",
           "duration": 3.0,
-          "description": "YouTube video thumbnail, WhatsApp will now charge AI chatbots to operate in, pro",
+          "description": "YouTube video thumbnail, ServiceNow inks another AI partnership, this time , pro",
           "priority": "critical"
         },
         {
-          "shot_id": "SHOT_d90a8e46_002",
+          "shot_id": "SHOT_059bce5d_002",
           "asset_type": "intro_card",
           "duration": 3.0,
-          "description": "Video intro title card, WhatsApp will now charge AI chatbots to operate in, prof",
+          "description": "Video intro title card, ServiceNow inks another AI partnership, this time , prof",
           "priority": "high"
         },
         {
-          "shot_id": "SHOT_d90a8e46_003",
+          "shot_id": "SHOT_059bce5d_003",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_004",
+          "shot_id": "SHOT_059bce5d_004",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent back",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_005",
+          "shot_id": "SHOT_059bce5d_005",
           "asset_type": "lower_third",
           "duration": 2.0,
           "description": "Lower third graphic, DETAILS: Details, professional style, semi-transparent back",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_006",
+          "shot_id": "SHOT_059bce5d_006",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional ci",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_007",
+          "shot_id": "SHOT_059bce5d_007",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Historical footage, timeline graphics, professional cinematograp",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_008",
+          "shot_id": "SHOT_059bce5d_008",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Product shots, UI demos, data visualizations, professional cinem",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_009",
+          "shot_id": "SHOT_059bce5d_009",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Charts, graphs, expert-style talking head frame, professional ci",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_010",
+          "shot_id": "SHOT_059bce5d_010",
           "asset_type": "broll",
           "duration": 5.0,
           "description": "B-roll footage, Key point graphics, summary card, professional cinematography, p",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_011",
+          "shot_id": "SHOT_059bce5d_011",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_012",
+          "shot_id": "SHOT_059bce5d_012",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, CONTEXT: Context, professional design, minimal clean layout,",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_013",
+          "shot_id": "SHOT_059bce5d_013",
           "asset_type": "title_card",
           "duration": 2.0,
           "description": "Section title card, DETAILS: Details, professional design, minimal clean layout,",
           "priority": "medium"
         },
         {
-          "shot_id": "SHOT_d90a8e46_014",
+          "shot_id": "SHOT_059bce5d_014",
           "asset_type": "end_card",
           "duration": 3.0,
           "description": "YouTube end screen, subscribe CTA, professional style, engaging call to action, ",

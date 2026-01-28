@@ -1,8 +1,8 @@
 {
-  "brief_id": "BRIEF_20260128_140504_fbf0e3df",
-  "timestamp": "2026-01-28T21:05:04.876300+00:00",
+  "brief_id": "BRIEF_20260128_150524_ea4a1288",
+  "timestamp": "2026-01-28T22:05:24.044071+00:00",
   "status": "healthy",
-  "source_snapshot": "TREND_20260128_140019_7872aae6",
+  "source_snapshot": "TREND_20260128_150011_240f29db",
   "briefs": [
     {
       "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
@@ -47,6 +47,27 @@
       ]
     },
     {
+      "title": "ServiceNow inks another AI partnership, this time with Anthropic",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/01/28/servicenow-inks-another-ai-partnership-this-time-with-anthropic/",
+      "summary": "ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI as the company takes a multi-model approach.",
+      "claims": [
+        "This trend focuses on: ServiceNow inks another AI partnership, this time with Anthropic",
+        "Key insight: ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI as the company takes a multi-model approach",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
       "title": "WhatsApp will now charge AI chatbots to operate in Italy",
       "source": "TechCrunch AI",
       "category": "ai",
@@ -76,27 +97,6 @@
       "claims": [
         "This trend focuses on: AI data labeler Handshake buys  Cleanlab, an acquisition target of multiple others",
         "Key insight: The deal\u2019s purpose is primarily to acquire talent, aka an acqui-hire, adding nine key Cleanlab employees to Handshake\u2019s research organization",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "Chrome takes on AI browsers with tighter Gemini integration, agentic features for autonomous tasks",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/2026/01/28/chrome-takes-on-ai-browsers-with-tighter-gemini-integration-agentic-features-for-autonomous-tasks/",
-      "summary": "Google Chrome is adding Gemini in the sidebar and is rolling out an agentic feature for AI Pro and Ultra users.",
-      "claims": [
-        "This trend focuses on: Chrome takes on AI browsers with tighter Gemini integration, agentic features for autonomous tasks",
-        "Key insight: Google Chrome is adding Gemini in the sidebar and is rolling out an agentic feature for AI Pro and Ultra users",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"

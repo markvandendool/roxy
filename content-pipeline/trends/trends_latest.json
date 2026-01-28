@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260128_140019_7872aae6",
-  "timestamp": "2026-01-28T21:00:19.139361+00:00",
+  "snapshot_id": "TREND_20260128_160012_cde9891a",
+  "timestamp": "2026-01-28T23:00:12.318176+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -35,12 +35,20 @@
       "summary": "30-person startup Arcee AI has released a 400B model called Trinity, which it says is one of the biggest open source foundation models from a U.S. company."
     },
     {
-      "title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
-      "link": "https://techcrunch.com/2026/01/28/techcrunch-disrupt-2026-plus-one-passes-are-almost-gone-and-only-3-days-remain/",
+      "title": "Tesla invested $2B in Elon Musk\u2019s xAI",
+      "link": "https://techcrunch.com/2026/01/28/tesla-invested-2b-in-elon-musks-xai/",
       "source": "TechCrunch AI",
       "category": "ai",
-      "score": 85,
-      "summary": "The TechCrunch Disrupt 2026 plus-one passes at\u00a050% off are almost sold out, and this deal ends in 3 days. Register here before this deal ends on Friday, January 30 at 11:59 p.m. PT."
+      "score": 75,
+      "summary": "Elon Musk's AI company xAI  disclosed earlier this month it had raised $20 billion."
+    },
+    {
+      "title": "ServiceNow inks another AI partnership, this time with Anthropic",
+      "link": "https://techcrunch.com/2026/01/28/servicenow-inks-another-ai-partnership-this-time-with-anthropic/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI as the company takes a multi-model approach."
     },
     {
       "title": "WhatsApp will now charge AI chatbots to operate in Italy",
@@ -83,30 +91,6 @@
       "summary": "How do you build tooling for the AI software stack? A company called Modelence has an interesting answer."
     },
     {
-      "title": "The AI infrastructure boom shows no sign of slowing down",
-      "link": "https://techcrunch.com/2026/01/28/the-ai-infrastructure-boom-shows-no-sign-of-slowing-down/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "ASML\u2019s record orders show chipmakers are still betting big on AI data centers."
-    },
-    {
-      "title": "The conference where founders scale: TechCrunch Founder Summit 2026 tickets are now live at the lowest prices",
-      "link": "https://techcrunch.com/2026/01/28/the-conference-where-founders-scale-founder-summit-2026-tickets-are-now-live-at-the-lowest-prices/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "TechCrunch Founder Summit 2026\u00a0unites 1,100 founders and investors in Boston on June 23 for a day focused on real-world scaling insights and networking that pushes the needle. Save up to $300 on your ticket."
-    },
-    {
-      "title": "Anthropic, Apple, OpenAI CEOs condemn ICE violence, praise Trump",
-      "link": "https://techcrunch.com/2026/01/28/anthropic-and-openai-ceos-condemn-ice-violence-praise-trump/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "Anthropic's Dario Amodei and OpenAI's Sam Altman spoke out against ICE enforcement tactics following Minneapolis violence, with one addressing concerns publicly and the other in an internal message."
-    },
-    {
       "title": "Generative AI tool helps 3D print personal items that sustain daily use",
       "link": "https://news.mit.edu/2026/genai-tool-helps-3d-print-personal-items-sustain-daily-use-0114",
       "source": "MIT News AI",
@@ -137,6 +121,30 @@
       "category": "ai_research",
       "score": 75,
       "summary": "CSAIL researchers find even \u201cuntrainable\u201d neural nets can learn effectively when guided by another network\u2019s built-in biases using their guidance method."
+    },
+    {
+      "title": "Jellyfin LLM/\"AI\" Development Policy",
+      "link": "https://jellyfin.org/docs/general/contributing/llm-policies/",
+      "source": "Hacker News",
+      "category": "tech",
+      "score": 70,
+      "summary": "<p>Article URL: <a href=\"https://jellyfin.org/docs/general/contributing/llm-policies/\">https://jellyfin.org/docs/general/contributing/llm-policies/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=46801976\">https://news.ycombinator.com/item?id=46801976</a></p>\n<p>Points: 77</p>\n<p># Comments: 38</p>"
+    },
+    {
+      "title": "Mark Zuckerberg says a future without smart glasses is \u2018hard to imagine\u2019",
+      "link": "https://techcrunch.com/2026/01/28/mark-zuckerberg-future-smart-glasses/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "Take Zuckerberg's outlook with a grain of salt. After all, he thought we'd all be hanging out in the metaverse by now."
+    },
+    {
+      "title": "Elon Musk teases a new image-labeling system for X\u2026 we think?",
+      "link": "https://techcrunch.com/2026/01/28/elon-musk-teases-a-new-image-labeling-system-for-xwe-think/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "Elon Musk says X will begin identifying \"manipulated media\" but doesn't share details."
     },
     {
       "title": "Why it\u2019s critical to move beyond overly aggregated machine-learning metrics",
@@ -177,14 +185,6 @@
       "category": "ai_research",
       "score": 65,
       "summary": "MIT graduate student C Jacob Payne reimagines historic architecture and invents new possibilities at the intersection of AI and design."
-    },
-    {
-      "title": "MIT in the media: 2025 in review",
-      "link": "https://news.mit.edu/2025/mit-media-review-1222",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 65,
-      "summary": "MIT community members made headlines with key research advances and their efforts to tackle pressing challenges."
     }
   ],
   "meta": {

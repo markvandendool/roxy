@@ -1,8 +1,8 @@
 {
-  "analysis_id": "COMP_20260128_141021_87bf1271",
-  "timestamp": "2026-01-28T21:10:21.249313+00:00",
+  "analysis_id": "COMP_20260128_151009_956105bf",
+  "timestamp": "2026-01-28T22:10:09.606860+00:00",
   "status": "healthy",
-  "source_trends": "TREND_20260128_140019_7872aae6",
+  "source_trends": "TREND_20260128_150011_240f29db",
   "analyses": [
     {
       "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
@@ -89,6 +89,48 @@
       ]
     },
     {
+      "trend_title": "ServiceNow inks another AI partnership, this time with Anthropic",
+      "relevant_competitors": [
+        {
+          "name": "AI Explained",
+          "category": "ai_deep_dive",
+          "likelihood": "high",
+          "angle": "Technical deep dive into architecture and implications"
+        },
+        {
+          "name": "Matt Wolfe",
+          "category": "ai_tools",
+          "likelihood": "high",
+          "angle": "Practical how-to guide for using related tools"
+        },
+        {
+          "name": "Two Minute Papers",
+          "category": "ai_research",
+          "likelihood": "high",
+          "angle": "Paper review and research context"
+        },
+        {
+          "name": "The AI Advantage",
+          "category": "ai_tools",
+          "likelihood": "high",
+          "angle": "Practical how-to guide for using related tools"
+        },
+        {
+          "name": "Yannic Kilcher",
+          "category": "ai_research",
+          "likelihood": "high",
+          "angle": "Paper review and research context"
+        }
+      ],
+      "coverage_angle": "Technical breakdown with practical applications and code examples",
+      "differentiation": [
+        "Code-first implementation walkthrough",
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
+    {
       "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
       "relevant_competitors": [
         {
@@ -132,48 +174,6 @@
     },
     {
       "trend_title": "AI data labeler Handshake buys  Cleanlab, an acquisition target of multiple others",
-      "relevant_competitors": [
-        {
-          "name": "AI Explained",
-          "category": "ai_deep_dive",
-          "likelihood": "high",
-          "angle": "Technical deep dive into architecture and implications"
-        },
-        {
-          "name": "Matt Wolfe",
-          "category": "ai_tools",
-          "likelihood": "high",
-          "angle": "Practical how-to guide for using related tools"
-        },
-        {
-          "name": "Two Minute Papers",
-          "category": "ai_research",
-          "likelihood": "high",
-          "angle": "Paper review and research context"
-        },
-        {
-          "name": "The AI Advantage",
-          "category": "ai_tools",
-          "likelihood": "high",
-          "angle": "Practical how-to guide for using related tools"
-        },
-        {
-          "name": "Yannic Kilcher",
-          "category": "ai_research",
-          "likelihood": "high",
-          "angle": "Paper review and research context"
-        }
-      ],
-      "coverage_angle": "Technical breakdown with practical applications and code examples",
-      "differentiation": [
-        "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "trend_title": "Chrome takes on AI browsers with tighter Gemini integration, agentic features for autonomous tasks",
       "relevant_competitors": [
         {
           "name": "AI Explained",

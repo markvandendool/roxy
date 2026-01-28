@@ -1,11 +1,11 @@
 {
-  "brief_id": "BRIEF_20260128_142010_7d718c53",
-  "timestamp": "2026-01-28T21:20:10.282131+00:00",
+  "brief_id": "BRIEF_20260128_152004_b939b826",
+  "timestamp": "2026-01-28T22:20:04.115079+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260128_141828_3c1511d2",
+  "source_review": "REVIEW_20260128_151828_d7a3f6f1",
   "briefs": [
     {
-      "script_id": "SCR_0bfa7176522c",
+      "script_id": "SCR_737fdaf85ba0",
       "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
       "format": "standard",
       "duration_target": 150,
@@ -56,7 +56,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best "
+          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
         },
         {
           "scene_id": "SCENE_02",
@@ -117,7 +117,7 @@
       }
     },
     {
-      "script_id": "SCR_bad38a66b57b",
+      "script_id": "SCR_57e076715e33",
       "title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
       "format": "standard",
       "duration_target": 150,
@@ -168,7 +168,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain ch"
+          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
         },
         {
           "scene_id": "SCENE_02",
@@ -227,8 +227,8 @@
       }
     },
     {
-      "script_id": "SCR_d90a8e46f0aa",
-      "title": "WhatsApp will now charge AI chatbots to operate in Italy",
+      "script_id": "SCR_059bce5d8711",
+      "title": "ServiceNow inks another AI partnership, this time with Anthropic",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -278,7 +278,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] The AI world is buzzing about WhatsApp will now charge AI chatbots to operate in Italy"
+          "vo_summary": "[HOOK] Here's why ServiceNow inks another AI partnership, this time with Anthropic changes everythin"
         },
         {
           "scene_id": "SCENE_02",
@@ -296,7 +296,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] WhatsApp plans to charge developers of AI chatbots per message...."
+          "vo_summary": "[DETAILS] ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI "
         },
         {
           "scene_id": "SCENE_04",
@@ -333,7 +333,9 @@
           "proven"
         ],
         "music_policy": "royalty_free_only",
-        "trademark_risks": []
+        "trademark_risks": [
+          "Anthropic trademark"
+        ]
       }
     }
   ],
