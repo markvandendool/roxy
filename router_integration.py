@@ -18,22 +18,24 @@ logger = logging.getLogger("roxy.router_integration")
 W5700X_DISABLED = os.getenv("ROXY_W5700X_DISABLED", "0").lower() in ("1", "true", "yes")
 
 # Pool configuration
-# NOTE: Both pools now use qwen2.5-coder:14b (2026-01-11)
+# NOTE: Default model should be the best 14B Qwen available.
+DEFAULT_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
 # W5700X disabled, all traffic routes to 6900XT
 POOL_CONFIG = {
     "big": {
-        "url": os.getenv("OLLAMA_BIG_URL", "http://127.0.0.1:11434"),
-        "port": 11434,
-        "default_model": "qwen2.5-coder:14b",
+        "url": os.getenv("OLLAMA_BIG_URL", "http://127.0.0.1:11435"),
+        "port": 11435,
+        "default_model": DEFAULT_MODEL,
     },
     "fast": {
         "url": os.getenv("OLLAMA_FAST_URL", "http://127.0.0.1:11435"),
         "port": 11435,
-        "default_model": "qwen2.5-coder:14b",  # Was llama3:8b - upgraded to qwen
+        "default_model": DEFAULT_MODEL,
     },
 }
 
 # Default pool for general queries (FAST for speed, BIG only when needed)
+# Both pools default to 6900XT unless explicitly overridden.
 DEFAULT_POOL = "fast"
 
 
@@ -178,13 +180,7 @@ def get_model_for_type(query_type: QueryType, pool: str) -> str:
         return POOL_CONFIG["fast"]["default_model"]
 
     # BIG pool - choose based on query type
-    # NOTE: All queries now use qwen2.5-coder:14b (2026-01-11)
-    if query_type == QueryType.CODE:
-        return "qwen2.5-coder:14b"
-    elif query_type == QueryType.CREATIVE:
-        return "qwen2.5-coder:14b"  # Was llama3:8b - qwen handles creative too
-    else:
-        return POOL_CONFIG["big"]["default_model"]
+    return POOL_CONFIG["big"]["default_model"]
 
 
 def route_query(query: str, force_deep: bool = False) -> RoutingDecision:

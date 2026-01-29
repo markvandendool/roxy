@@ -6,6 +6,7 @@ Implements Server-Sent Events (SSE) for streaming LLM responses
 import json
 import time
 import logging
+import os
 import requests
 from typing import Iterator, Optional, Dict, Any
 
@@ -240,7 +241,7 @@ class SSEStreamer:
     def stream_rag_response(self,
                            query: str,
                            context: Optional[str] = None,
-                           model: str = "llama3:8b",
+                           model: str = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct"),
                            temperature: float = 0.7,
                            request_id: Optional[str] = None,
                            base_url: Optional[str] = None) -> Iterator[str]:
@@ -394,4 +395,3 @@ def get_streamer() -> SSEStreamer:
     if _streamer is None:
         _streamer = SSEStreamer()
     return _streamer
-

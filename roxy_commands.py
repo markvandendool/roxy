@@ -808,6 +808,17 @@ def execute_command(cmd_type, args):
                     (ts, original, f"REMEMBERED: {payload}", context)
                 )
                 conn.commit()
+            # Also persist into infrastructure memory (Postgres) when available
+            try:
+                sys.path.insert(0, str(ROXY_DIR))
+                from infrastructure import remember_conversation
+                session_id = os.getenv("ROXY_REQUEST_ID") or "manual"
+                remember_conversation(original, f"REMEMBERED: {payload}", session_id, {
+                    "manual_remember": True,
+                    "source": "roxy_commands",
+                })
+            except Exception:
+                pass
             return f"OK: remembered ({len(payload)} chars)", None
         except Exception as e:
             return f"ERROR: remember failed: {e}", None
@@ -897,14 +908,9 @@ def chat_direct(query):
     POOL_ALIASES = {"BIG": "W5700X", "FAST": "6900XT"}
     pool_canonical = POOL_ALIASES.get(pool, pool)
 
-    # Default model logic
-    model = "qwen2.5-coder:14b"
-    if model_override:
-        model = model_override
-    elif pool_canonical == "6900XT":
-        model = "qwen2.5-coder:32b"  # 6900XT has more VRAM
-    elif pool_canonical == "W5700X":
-        model = "llama3.1:8b"  # W5700X - smaller model
+    # Default model logic (always best 14B Qwen unless explicitly overridden)
+    default_model = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+    model = model_override or default_model
         
     prompt = f"""You are ROXY, a helpful, concise AI assistant.
 
@@ -1195,7 +1201,7 @@ Answer:"""
             llm_resp = requests.post(
                 f"{base_url}/api/generate",
                 json={
-                    "model": "qwen2.5-coder:14b",
+                    "model": os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct"),
                     "prompt": prompt,
                     "stream": False,
                     "options": {"temperature": 0.7, "num_predict": 300}
@@ -1211,7 +1217,7 @@ Answer:"""
                     final_response = response
                 
                 # Return both response and model used (fallback model)
-                return {"response": final_response, "model_used": "qwen2.5-coder:14b"}
+                return {"response": final_response, "model_used": os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")}
 
     except Exception as e:
         return f"RAG query failed: {e}"
@@ -1290,13 +1296,16 @@ def main():
     else:
         # Legacy single return
         result_text, model_used = result, None
+    if not model_used:
+        model_used = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
     
     # Build routing_meta for structured response (required for tests)
+    selected_pool = (explicit_pool or "6900XT").lower()
     routing_meta = {
         "query_type": cmd_type,
         "routed_mode": cmd_type,
         "reason": f"default:{cmd_type}",
-        "selected_pool": "fast",
+        "selected_pool": selected_pool,
         "model_used": model_used,
     }
     flags = {}

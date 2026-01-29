@@ -15,6 +15,7 @@ import subprocess
 import atexit
 import uuid
 import hashlib
+import re
 from pathlib import Path
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -77,6 +78,100 @@ ROXY_DIR = Path.home() / ".roxy"
 CONFIG_FILE = ROXY_DIR / "config.json"
 TOKEN_FILE = ROXY_DIR / "secret.token"
 
+# Default model selection (max-strength Qwen 14B unless explicitly overridden)
+DEFAULT_QWEN_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+_MODEL_CACHE = {"model": None, "ts": 0.0}
+_MODEL_CACHE_TTL = 60.0
+
+
+def _score_qwen_model(name: str) -> int:
+    lower = name.lower()
+    score = 0
+    if "instruct" in lower:
+        score += 50
+    if "q6" in lower:
+        score += 20
+    elif "q5" in lower:
+        score += 15
+    elif "q4" in lower:
+        score += 10
+    if "k_m" in lower:
+        score += 2
+    return score
+
+
+def _select_best_qwen_14b(base_url: Optional[str]) -> str:
+    fallback = DEFAULT_QWEN_MODEL
+    override = os.getenv("ROXY_DEFAULT_MODEL")
+    if override:
+        return override.strip()
+    if not base_url:
+        return fallback
+    try:
+        import urllib.request
+        req = urllib.request.Request(f"{base_url}/api/tags", method="GET")
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        models = payload.get("models", [])
+        names = [m.get("name") for m in models if isinstance(m, dict)]
+        names = [n for n in names if isinstance(n, str)]
+        candidates = [n for n in names if "qwen" in n.lower() and "14b" in n.lower()]
+        if not candidates:
+            return fallback
+        candidates.sort(key=_score_qwen_model, reverse=True)
+        return candidates[0]
+    except Exception:
+        return fallback
+
+
+def _get_default_model(base_url: Optional[str] = None) -> str:
+    override = os.getenv("ROXY_DEFAULT_MODEL")
+    if override:
+        return override.strip()
+    now = time.time()
+    cached = _MODEL_CACHE.get("model")
+    if cached and (now - _MODEL_CACHE.get("ts", 0.0) < _MODEL_CACHE_TTL):
+        return cached
+    selected = _select_best_qwen_14b(base_url or _get_ollama_base_url())
+    _MODEL_CACHE["model"] = selected
+    _MODEL_CACHE["ts"] = now
+    return selected
+
+
+_GREETING_PATTERNS = [
+    re.compile(r"^(hi|hello|hey|yo|sup|howdy)(\s+roxy)?[!\.\s]*$", re.IGNORECASE),
+    re.compile(r"^good\s+(morning|afternoon|evening)(\s+roxy)?[!\.\s]*$", re.IGNORECASE),
+    re.compile(r"^(what'?s\s+up|wassup|how'?s\s+it\s+going)(\s+roxy)?[!\.\s]*$", re.IGNORECASE),
+]
+
+
+def _is_pure_greeting(text: str) -> bool:
+    if not text:
+        return True
+    stripped = text.strip()
+    if not stripped:
+        return True
+    for pattern in _GREETING_PATTERNS:
+        if pattern.match(stripped):
+            return True
+    return False
+
+
+MIN_STREAM_MEMORY_CHARS = int(os.getenv("ROXY_MIN_MEMORY_CHARS", "20"))
+
+
+def _should_commit_memory(response_text: str) -> bool:
+    if not response_text:
+        return False
+    stripped = response_text.strip()
+    if not stripped:
+        return False
+    if _is_pure_greeting(stripped):
+        return False
+    if len(stripped) < MIN_STREAM_MEMORY_CHARS:
+        return False
+    return True
+
 
 def _normalize_base_url(url: str | None) -> str | None:
     """Normalize localhost variants and strip trailing slash."""
@@ -107,6 +202,25 @@ except ImportError:
         port_defaults = {"w5700x": 11434, "6900xt": 11435}
         port = port_defaults.get(canonical, 11435)
         return (f"http://127.0.0.1:{port}", False)
+
+
+def _infer_gpu_lane(base_url: Optional[str]) -> Optional[str]:
+    if not base_url:
+        return None
+    normalized = _normalize_base_url(base_url) or base_url
+    pool_config = _resolve_ollama_pools()
+    lane_map = {
+        "6900XT": _normalize_base_url(pool_config.get("6900xt", {}).get("url")),
+        "W5700X": _normalize_base_url(pool_config.get("w5700x", {}).get("url")),
+    }
+    for lane, url in lane_map.items():
+        if url and normalized.startswith(url):
+            return lane
+    if "11435" in normalized:
+        return "6900XT"
+    if "11434" in normalized:
+        return "W5700X"
+    return None
 
 
 # Service bridge for advanced services (optional)
@@ -738,7 +852,7 @@ def _github_api_cached(endpoint: str, endpoint_type: str, token: Optional[str] =
     return result
 
 
-def query_ollama_direct(prompt: str, model: str = "qwen2.5-coder:14b", 
+def query_ollama_direct(prompt: str, model: Optional[str] = None,
                         temperature: float = 0.0, max_tokens: int = 512,
                         timeout: int = 60) -> str:
     """Query Ollama directly, bypassing all ROXY layers.
@@ -747,7 +861,7 @@ def query_ollama_direct(prompt: str, model: str = "qwen2.5-coder:14b",
     """
     try:
         data = json.dumps({
-            "model": model,
+            "model": model or _get_default_model(),
             "prompt": prompt,
             "stream": False,
             "options": {
@@ -1521,6 +1635,17 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             parsed = urlparse(self.path)
             params = parse_qs(parsed.query)
             command = params.get('q', params.get('command', [''])[0])[0] if params.get('q') else params.get('command', [''])[0]
+            allow_greeting = params.get('allow_greeting', [''])[0].lower() in ("1", "true", "yes")
+            if self.headers.get('X-ROXY-Allow-Greeting', '').lower() in ("1", "true", "yes"):
+                allow_greeting = True
+            self._allow_stream_greeting = allow_greeting
+            debug_echo = params.get('debug_echo', [''])[0].lower() in ("1", "true", "yes")
+            if os.getenv("ROXY_DEBUG_ECHO", "").lower() in ("1", "true", "yes"):
+                debug_echo = True
+            if self.headers.get('X-ROXY-Debug', '').lower() in ("1", "true", "yes"):
+                debug_echo = True
+            self._debug_stream_echo = debug_echo
+            self._stream_request_echo = command
             
             if not command:
                 self.send_error(400, "No command provided (use 'q' or 'command' query parameter)")
@@ -1567,18 +1692,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     def _stream_command_response(self, command: str, request_id: str):
         """Stream command response as SSE events with real Ollama streaming"""
         try:
+            full_response = ""
+            allow_greeting = getattr(self, "_allow_stream_greeting", False)
+            debug_echo = getattr(self, "_debug_stream_echo", False)
+            request_echo = getattr(self, "_stream_request_echo", "")
+
             # Import streaming module
             sys.path.insert(0, str(ROXY_DIR))
             from streaming import get_streamer
             streamer = get_streamer()
+
+            if debug_echo:
+                debug_payload = json.dumps({"request_echo": request_echo, "request_id": request_id})
+                self._safe_write(f"event: debug\ndata: {debug_payload}\n\n", request_id)
             
-            # Quick check: if it's a greeting, return fast
-            import re
-            greeting_patterns = [
-                r"^hi\s+roxy", r"^hello\s*$", r"^hey\s+roxy",
-                r"^yo\s+roxy", r"^sup\s+roxy"
-            ]
-            if any(re.match(p, command, re.IGNORECASE) for p in greeting_patterns):
+            # Greeting fast-path only when explicitly allowed
+            if _is_pure_greeting(command) and allow_greeting:
                 response = "Hi! I'm ROXY, your resident AI assistant. How can I help you?"
                 for char in response:
                     event_data = json.dumps({"token": char, "done": False})
@@ -1646,6 +1775,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
 
                 selected_model = routing_decision.selected_model
                 selected_endpoint = routing_decision.selected_endpoint
+                if not selected_model:
+                    selected_model = _get_default_model(selected_endpoint)
             except ImportError:
                 logger.warning("[ROUTING] router_integration not available, using defaults")
                 # Default to FAST pool for speed (Chief directive: FAST unless router says BIG)
@@ -1669,15 +1800,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "routed_mode": mode,
                     "query_type": qtype,
                     "reason": reason,
-                    "selected_pool": "fast",
+                    "selected_pool": "6900xt",
                     "selected_endpoint": "http://127.0.0.1:11435",
-                    "selected_model": "llama3:8b",
+                    "selected_model": _get_default_model("http://127.0.0.1:11435"),
                     "confidence": 0.0,
                     "skip_rag": skip_rag,
                     "skip_rag_reason": skip_rag_reason,
                     "request_id": request_id,
                 }
-                selected_model = "llama3:8b"
+                selected_model = routing_meta["selected_model"]
                 selected_endpoint = "http://127.0.0.1:11435"
 
             if not is_command:
@@ -1774,6 +1905,20 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     routing_event = f"event: routing_meta\ndata: {json.dumps(routing_meta)}\n\n"
                     self._safe_write(routing_event, request_id)
 
+                    def _extract_token(event_str: str) -> str:
+                        if not event_str:
+                            return ""
+                        for line in event_str.splitlines():
+                            if not line.startswith("data: "):
+                                continue
+                            try:
+                                payload = json.loads(line[6:])
+                                token = payload.get("token") or payload.get("response") or ""
+                                return token
+                            except Exception:
+                                continue
+                        return ""
+
                     for sse_event in streamer.stream_rag_response(
                         query=command,
                         context=context if not rag_skipped else "",
@@ -1781,8 +1926,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         request_id=request_id,
                         base_url=selected_endpoint
                     ):
+                        token = _extract_token(sse_event)
+                        if token:
+                            full_response += token
                         if not self._safe_write(sse_event, request_id):
                             return
+                    # Commit memory after streaming completes
+                    if INFRASTRUCTURE_AVAILABLE and _should_commit_memory(full_response):
+                        try:
+                            session_id = self.headers.get('X-ROXY-Session', request_id)
+                            remember_conversation(command, full_response, session_id, {
+                                'response_time': time.time(),
+                                'client_ip': self.client_address[0],
+                                'endpoint': '/stream'
+                            })
+                        except Exception as e:
+                            logger.debug(f"Streaming memory write failed (non-critical): {e}")
                     return
                 except Exception as e:
                     logger.debug(f"RAG streaming failed: {e}, falling back to simple response")
@@ -1810,6 +1969,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 )
                 
                 response_text = (result.stdout or result.stderr or "Command completed").strip()
+                full_response = response_text
                 
                 # Stream response character by character for real-time feel
                 for char in response_text:
@@ -1819,6 +1979,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     time.sleep(0.01)  # Small delay for readability
                 
                 self._safe_write(f"event: complete\ndata: {json.dumps({'done': True})}\n\n", request_id)
+                if INFRASTRUCTURE_AVAILABLE and _should_commit_memory(full_response):
+                    try:
+                        session_id = self.headers.get('X-ROXY-Session', request_id)
+                        remember_conversation(command, full_response, session_id, {
+                            'response_time': time.time(),
+                            'client_ip': self.client_address[0],
+                            'endpoint': '/stream'
+                        })
+                    except Exception as e:
+                        logger.debug(f"Streaming memory write failed (non-critical): {e}")
             else:
                 error_data = json.dumps({"error": "roxy_commands.py not found", "done": True})
                 self._safe_write(f"event: error\ndata: {error_data}\n\n", request_id)
@@ -2106,7 +2276,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             data = json.loads(body.decode('utf-8'))
             
             prompt = data.get('prompt', '').strip()
-            model = data.get('model', 'qwen2.5-coder:14b')
+            model = data.get('model') or _get_default_model()
             temperature = float(data.get('temperature', 0.0))
             max_tokens = int(data.get('max_tokens', 512))
             
@@ -2163,7 +2333,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             data = json.loads(body.decode('utf-8'))
             
             prompt = data.get('prompt', '').strip()
-            model = data.get('model', 'qwen2.5-coder:14b')
+            model = data.get('model') or _get_default_model()
             mode = data.get('mode', 'technical')
             
             if mode not in ROXY_MODES:
@@ -2247,7 +2417,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return
 
             config_defaults = config if 'config' in globals() else {}
-            model = (data.get("model") or config_defaults.get("default_model") or "qwen2.5-coder:14b").strip()
+            model = (data.get("model") or config_defaults.get("default_model") or _get_default_model()).strip()
             result["model"] = model
             prompt = data.get("prompt", "Warmup check.")
             num_predict = max(1, int(data.get("num_predict", 1)))
@@ -3253,6 +3423,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "metadata": {
                     "mode": exec_meta.get("mode", "auto"),
                     "model_used": exec_meta.get("model_used"),
+                    "selected_model": exec_meta.get("selected_model") or exec_meta.get("model_used"),
                     "route": exec_meta.get("route", "unknown"),
                     "pool": exec_meta.get("pool", "auto"),
                     "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
@@ -3261,6 +3432,29 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "tools_count": len(exec_meta.get("tools_executed", []))
                 }
             }
+            debug_echo = os.getenv("ROXY_DEBUG_ECHO", "").lower() in ("1", "true", "yes")
+            if self.headers.get("X-ROXY-Debug", "").lower() in ("1", "true", "yes"):
+                debug_echo = True
+            if debug_echo:
+                response["metadata"]["request_echo"] = command
+            # Add proof-grade metadata for pool + memory state
+            base_url_used = response["metadata"].get("base_url_used")
+            lane = _infer_gpu_lane(base_url_used)
+            if lane:
+                response["metadata"]["gpu_lane"] = lane
+            memory_status = {"enabled": False}
+            if INFRASTRUCTURE_AVAILABLE:
+                try:
+                    infra = get_infrastructure_status()
+                    mem = infra.get("components", {}).get("postgres_memory", {})
+                    memory_status["enabled"] = bool(mem.get("healthy"))
+                    if mem.get("backend"):
+                        memory_status["backend"] = mem.get("backend")
+                    if mem.get("error"):
+                        memory_status["error"] = mem.get("error")
+                except Exception as e:
+                    memory_status["error"] = str(e)
+            response["metadata"]["memory"] = memory_status
             self.wfile.write(json.dumps(response).encode())
             
             # Mark metrics as successful and close context
@@ -3478,15 +3672,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "tools_executed": []
         }
         
-        # GREETING FASTPATH - Instant response for simple greetings
-        import re
-        greeting_patterns = [
-            r"^hi\s+roxy", r"^hello\s*(roxy)?", r"^hey\s+roxy",
-            r"^hi\s*$", r"^hey\s*$", r"^hello\s*$",
-            r"^(what'?s?\s+up|sup|wassup|how'?s?\s+it\s+going|howdy)\s*(roxy)?",
-            r"^good\s+(morning|afternoon|evening)\s*(roxy)?",
-        ]
-        if any(re.match(p, command, re.IGNORECASE) for p in greeting_patterns):
+        # GREETING FASTPATH - only when explicitly allowed
+        allow_greeting = self.headers.get("X-ROXY-Allow-Greeting", "").lower() in ("1", "true", "yes")
+        if _is_pure_greeting(command) and allow_greeting:
             return "Hi! I'm ROXY, your resident AI assistant. How can I help you today?"
         
         # CONVERSATIONAL BYPASS - Detect casual chat (for Truth Gate)
@@ -3595,16 +3783,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     elif pool_normalized in ("W5700X", "6900XT"):
                         return f"ERROR: Pool {pool_normalized} requested but pools are MISCONFIGURED (both point to same endpoint). Fix ROXY_OLLAMA_W5700X_URL and ROXY_OLLAMA_6900XT_URL."
 
-                # If CHAT mode and no explicit pool, we MUST use W5700X (if configured AND reachable).
-                if effective_mode == "CHAT" and pool_normalized == "AUTO":
-                    w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
-                    if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
-                        pool_normalized = "W5700X"
-                        logger.info(f"CHAT mode -> enforcing W5700X pool ({pool_config['w5700x']['url']})")
+                # AUTO pool: default to 6900XT for max strength unless explicitly overridden.
+                if pool_normalized == "AUTO":
+                    xt6900_reach = _check_ollama_reachability(pool_config["6900xt"]["url"])
+                    if pool_config["6900xt"]["configured"] and xt6900_reach["reachable"]:
+                        pool_normalized = "6900XT"
                     else:
-                        # CHIEF'S P0 REQUIREMENT: Do not silently degrade to tiny model.
-                        reason = "not configured" if not pool_config["w5700x"]["configured"] else "not reachable"
-                        return f"ERROR: CHAT mode requires a configured and reachable W5700X pool (ROXY_OLLAMA_W5700X_URL). {reason}. Explicitly set pool=6900XT if you want to use the faster GPU."
+                        w5700x_reach = _check_ollama_reachability(pool_config["w5700x"]["url"])
+                        if pool_config["w5700x"]["configured"] and w5700x_reach["reachable"]:
+                            pool_normalized = "W5700X"
+                            logger.warning("AUTO pool fallback -> W5700X (6900XT unavailable)")
+                        else:
+                            reason = "6900XT not configured/reachable and W5700X unavailable"
+                            return f"ERROR: No reachable pool for AUTO. Configure ROXY_OLLAMA_6900XT_URL (preferred) or ROXY_OLLAMA_W5700X_URL. {reason}."
 
                 # Validate explicit requests (also check reachability)
                 if pool_normalized == "W5700X":
@@ -3635,13 +3826,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 if mode:
                     env["ROXY_MODE"] = effective_mode
                 
-                # Only set ROXY_POOL if it's not AUTO (let roxy_commands decide if truly auto, 
-                # but here we might have forced it to BIG)
-                if effective_pool != "AUTO":
-                    env["ROXY_POOL"] = effective_pool
-
-                if model_override:
-                    env["ROXY_MODEL"] = model_override
+                # Always pass normalized pool and default model to roxy_commands
+                env["ROXY_POOL"] = pool_normalized
+                selected_model = model_override or _get_default_model(self._last_execution_metadata.get("base_url_used"))
+                self._last_execution_metadata["selected_model"] = selected_model
+                env["ROXY_MODEL"] = selected_model
+                env["ROXY_DEFAULT_MODEL"] = selected_model
+                if not self._last_execution_metadata.get("model_used"):
+                    self._last_execution_metadata["model_used"] = selected_model
 
                 commands_python = ROXY_DIR / "venv" / "bin" / "python"
                 python_exec = str(commands_python) if commands_python.exists() else sys.executable
@@ -3689,6 +3881,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             }
                             # Preserve base_url_used from our earlier decision
                             self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
+                            self._last_execution_metadata["selected_model"] = existing_meta.get("selected_model") or self._last_execution_metadata.get("model_used")
+                            if not self._last_execution_metadata.get("model_used"):
+                                self._last_execution_metadata["model_used"] = selected_model
                         except json.JSONDecodeError as e:
                             logger.debug(f"Failed to parse structured response: {e}")
                 
@@ -4029,7 +4224,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
 
             # Extract parameters with defaults
             task = params.get("task", "gsm8k")
-            model = params.get("model", "qwen2.5-coder:14b")
+            model = params.get("model") or _get_default_model()
             pool = params.get("pool", "W5700X")  # Default W5700X (hardware name)
             num_fewshot = params.get("num_fewshot", 5)
             limit = params.get("limit", 50)  # Default 50 samples for quick runs
