@@ -129,6 +129,33 @@ fi
 sudo systemctl restart roxy-voice
 ```
 
+## Remote Access (MacBook Worker / citadel-worker-2)
+The MacBook worker is **citadel-worker-2** (Debian). Use it for remote access and tooling.
+
+- Host: `10.0.0.19`
+- User: `MarkMB`
+- SSH alias (recommended in `~/.ssh/config`):
+
+```text
+Host citadel-worker-2 worker2
+  HostName 10.0.0.19
+  User MarkMB
+  IdentityFile ~/.ssh/mesh_ed25519
+```
+
+### RDP control of the ROXY host (macpro-linux)
+From the MacBook, use the provided scripts:
+
+- LAN: `~/bin/roxy-rdp.sh`
+- Tailscale: `~/bin/roxy-rdp-ts.sh`
+- Auto-select: `~/bin/roxy-rdp-auto.sh`
+
+RDP host targets:
+- LAN: `10.0.0.99:3389`
+- Tailscale: `100.69.30.26:3389`
+
+**Credentials are stored in** `/home/mark/.roxy/etc/roxy.env` (do not commit).
+
 ### Read Enterprise Vision (15 min)
 Read: `docs/MINDSONG_ENTERPRISE_VISION.md`
 - Mission & North Star
@@ -365,7 +392,6 @@ node scripts/agent-breakroom/post-activity.mjs task_claimed "Claimed TASK-XXX" -
 ---
 
 **This is the SINGLE entry point. All other onboarding variants are deprecated.**
-
 
 
 
