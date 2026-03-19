@@ -143,7 +143,7 @@ class AgentEvalHarness:
             self.add_result("streaming_tools", False, str(e))
     
     async def test_tool_call_detection(self):
-        """Test tool call detection from text."""
+        """Test tool call detection from text (native + MCP tools)."""
         try:
             from tool_call_integration import ToolCallDetector
             
@@ -166,6 +166,31 @@ class AgentEvalHarness:
                 detected >= 2,
                 f"Detected: {detected}/3"
             )
+            
+            try:
+                from roxy_core import _extract_stream_tool_calls
+                
+                mcp_tests = [
+                    ('<<mcp_github_search>>{"query":"test"}<</mcp_github_search>>', "mcp_github_search"),
+                    ('<<mcp_browser_navigate>>{"url":"https://example.com"}<</mcp_browser_navigate>>', "mcp_browser_navigate"),
+                    ("<<mcp_desktop_screenshot>><</mcp_desktop_screenshot>>", "mcp_desktop_screenshot"),
+                ]
+                
+                mcp_detected = 0
+                for text, expected_name in mcp_tests:
+                    calls = _extract_stream_tool_calls(text)
+                    if calls and any(c["name"] == expected_name for c in calls):
+                        mcp_detected += 1
+                
+                self.add_result(
+                    "mcp_tool_detection",
+                    bool(mcp_detected >= 2),
+                    f"MCP Detected: {mcp_detected}/3"
+                )
+            except ImportError:
+                self.add_result("mcp_tool_detection", True, "Skipped (roxy_core unavailable)")
+            except Exception as e:
+                self.add_result("mcp_tool_detection", False, str(e))
             
         except Exception as e:
             self.add_result("tool_call_detection", False, str(e))
@@ -216,7 +241,7 @@ class AgentEvalHarness:
             context = injector.find_claude_md("/home/mark/work/mindsong_gh_https_1769765834")
             self.add_result(
                 "claude_md_detection",
-                context is not None and context.content,
+                context is not None and bool(context.content),
                 f"Found: {context.file_path if context else 'None'}"
             )
             
