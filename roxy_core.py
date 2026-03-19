@@ -11,6 +11,7 @@ import sys
 import logging
 import signal
 import time
+import asyncio
 import subprocess
 import atexit
 import uuid
@@ -226,6 +227,229 @@ def _should_commit_memory(response_text: str) -> bool:
     return True
 
 
+# --------------------------------------------------------------------------
+# RCA-003 streaming tool-call execution settings
+# --------------------------------------------------------------------------
+ENABLE_STREAM_TOOL_CALLS = os.getenv("ROXY_ENABLE_STREAM_TOOL_CALLS", "1").lower() in ("1", "true", "yes")
+MAX_STREAM_TOOL_CALLS = max(1, int(os.getenv("ROXY_MAX_STREAM_TOOL_CALLS", "3")))
+MAX_STREAM_TOOL_RUNTIME_SEC = max(10.0, float(os.getenv("ROXY_MAX_STREAM_TOOL_RUNTIME_SEC", "90")))
+STREAM_TOOL_EXEC_TIMEOUT_SEC = max(5.0, float(os.getenv("ROXY_STREAM_TOOL_EXEC_TIMEOUT_SEC", "30")))
+MAX_STREAM_TOOL_DELTA_CHARS = max(128, int(os.getenv("ROXY_MAX_STREAM_TOOL_DELTA_CHARS", "1200")))
+MAX_STREAM_TOOL_RESULT_CHARS = max(256, int(os.getenv("ROXY_MAX_STREAM_TOOL_RESULT_CHARS", "8000")))
+STREAM_TOOL_AUDIT_FILE = ROXY_DIR / "data" / "tool_audit.jsonl"
+STREAM_TOOL_AUDIT_LOCK = Lock()
+
+STREAM_TOOL_ALLOWED = {"bash", "read", "write", "edit", "glob", "grep"}
+STREAM_TOOL_ALIASES = {
+    "execute_command": "bash",
+    "read_file": "read",
+    "write_file": "write",
+    "edit_file": "edit",
+    "search_code": "grep",
+    "list_files": "glob",
+}
+
+STREAM_TOOL_DANGEROUS_BASH_PATTERNS = [
+    r"(^|\s)rm\s+-rf\s+/",
+    r"(^|\s)mkfs(\.| )",
+    r"(^|\s)fdisk(\s|$)",
+    r"(^|\s)dd\s+if=",
+    r"(^|\s)(shutdown|reboot|poweroff|halt)(\s|$)",
+    r":\(\)\s*\{",  # fork bomb pattern
+]
+
+STREAM_TOOL_JSON_FENCE = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.DOTALL | re.IGNORECASE)
+STREAM_TOOL_INLINE_JSON = re.compile(r"<<tool_call>>\s*(\{.*?\})", re.DOTALL | re.IGNORECASE)
+STREAM_TOOL_TAG_PATTERN = re.compile(
+    r"<<(bash|read|write|edit|glob|grep)>>\s*(.*?)\s*<</\1>>",
+    re.DOTALL | re.IGNORECASE,
+)
+
+MCP_TOOL_PATTERN = re.compile(r"<<mcp_([a-z0-9_-]+)>>\s*(.*?)\s*<</mcp_\1>>", re.DOTALL | re.IGNORECASE)
+
+_MCP_CLIENT_CACHE = None
+
+
+def _get_mcp_client():
+    """Lazy-load MCP client singleton."""
+    global _MCP_CLIENT_CACHE
+    if _MCP_CLIENT_CACHE is None:
+        try:
+            from mcp_client import MCPClient
+            _MCP_CLIENT_CACHE = MCPClient()
+        except ImportError:
+            _MCP_CLIENT_CACHE = False
+    return _MCP_CLIENT_CACHE
+
+
+def _truncate_tool_text(text: Any, max_chars: int = MAX_STREAM_TOOL_RESULT_CHARS) -> str:
+    value = str(text or "")
+    if len(value) <= max_chars:
+        return value
+    return value[:max_chars] + f"\n...[truncated {len(value) - max_chars} chars]"
+
+
+def _normalize_stream_tool_call(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if not isinstance(payload, dict):
+        return None
+    raw_name = str(payload.get("tool") or payload.get("name") or "").strip().lower()
+    if not raw_name:
+        return None
+    name = STREAM_TOOL_ALIASES.get(raw_name, raw_name)
+    if name not in STREAM_TOOL_ALLOWED and not name.startswith("mcp_"):
+        return None
+    arguments = payload.get("args", payload.get("arguments", {}))
+    if not isinstance(arguments, dict):
+        arguments = {}
+    if name == "bash":
+        command = arguments.get("command", arguments.get("cmd", ""))
+        arguments = {"command": str(command).strip(), **{k: v for k, v in arguments.items() if k not in ("command", "cmd")}}
+    return {
+        "name": name,
+        "arguments": arguments,
+        "call_id": str(payload.get("call_id") or payload.get("id") or uuid.uuid4())[:12],
+    }
+
+
+def _extract_stream_tool_calls(text: str) -> List[Dict[str, Any]]:
+    if not text:
+        return []
+
+    candidates: List[Dict[str, Any]] = []
+    seen = set()
+
+    def _add_candidate(candidate: Optional[Dict[str, Any]]) -> None:
+        if not candidate:
+            return
+        signature = json.dumps({"name": candidate["name"], "arguments": candidate["arguments"]}, sort_keys=True)
+        if signature in seen:
+            return
+        seen.add(signature)
+        candidates.append(candidate)
+
+    # 1) Tagged tool blocks: <<bash>>...<</bash>>
+    for match in STREAM_TOOL_TAG_PATTERN.finditer(text):
+        tool_name = match.group(1).strip().lower()
+        content = (match.group(2) or "").strip()
+        payload = {
+            "name": tool_name,
+            "arguments": {"command": content} if tool_name == "bash" else {"content": content},
+        }
+        if tool_name == "read":
+            payload["arguments"] = {"file_path": content}
+        elif tool_name == "glob":
+            payload["arguments"] = {"pattern": content}
+        elif tool_name == "grep":
+            payload["arguments"] = {"pattern": content}
+        _add_candidate(_normalize_stream_tool_call(payload))
+
+    # 1b) MCP tool blocks: <<mcp_<server>_<tool>>>...<</mcp_<server>_<tool>>>
+    for match in MCP_TOOL_PATTERN.finditer(text):
+        full_name = match.group(1).strip().lower()
+        content = (match.group(2) or "").strip()
+        try:
+            mcp_args = json.loads(content) if content else {}
+        except (json.JSONDecodeError, TypeError):
+            mcp_args = {"query": content} if content else {}
+        payload = {
+            "name": full_name,
+            "arguments": mcp_args,
+        }
+        _add_candidate(_normalize_stream_tool_call(payload))
+
+    # 2) <<tool_call>>{...}
+    for match in STREAM_TOOL_INLINE_JSON.finditer(text):
+        candidate = match.group(1)
+        try:
+            payload = json.loads(candidate)
+        except Exception:
+            continue
+        if isinstance(payload, list):
+            for item in payload:
+                _add_candidate(_normalize_stream_tool_call(item))
+        else:
+            _add_candidate(_normalize_stream_tool_call(payload))
+
+    # 3) ```json {...} ```
+    for match in STREAM_TOOL_JSON_FENCE.finditer(text):
+        candidate = match.group(1)
+        try:
+            payload = json.loads(candidate)
+        except Exception:
+            continue
+        if isinstance(payload, list):
+            for item in payload:
+                _add_candidate(_normalize_stream_tool_call(item))
+        else:
+            _add_candidate(_normalize_stream_tool_call(payload))
+
+    # 4) Raw JSON object fallback (only if no candidates found yet)
+    if not candidates:
+        stripped = text.strip()
+        if stripped.startswith("{") and stripped.endswith("}"):
+            try:
+                payload = json.loads(stripped)
+                _add_candidate(_normalize_stream_tool_call(payload))
+            except Exception:
+                pass
+
+    return candidates
+
+
+def _pre_tool_use_policy(tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    safety_level = "safe"
+    reason = "allowed"
+    allowed = True
+
+    if tool_name == "bash":
+        safety_level = "guarded"
+        command = str(arguments.get("command", "")).strip()
+        if not command:
+            return {"allow": False, "reason": "missing_command", "safety_level": "guarded"}
+        for pattern in STREAM_TOOL_DANGEROUS_BASH_PATTERNS:
+            if re.search(pattern, command, flags=re.IGNORECASE):
+                return {"allow": False, "reason": f"blocked_pattern:{pattern}", "safety_level": "dangerous"}
+        if command.startswith("sudo "):
+            return {"allow": False, "reason": "sudo_blocked", "safety_level": "dangerous"}
+
+    if tool_name in {"write", "edit"}:
+        safety_level = "guarded"
+        file_path = arguments.get("file_path") or arguments.get("path") or ""
+        file_path = str(file_path).strip()
+        if not file_path:
+            return {"allow": False, "reason": "missing_file_path", "safety_level": "guarded"}
+        try:
+            candidate = Path(file_path).expanduser()
+            resolved = candidate if candidate.is_absolute() else (ROXY_DIR / candidate).resolve()
+            roots = [Path.home().resolve(), ROXY_DIR.resolve()]
+            if not any(str(resolved).startswith(str(root)) for root in roots):
+                return {"allow": False, "reason": "path_outside_allowed_roots", "safety_level": "dangerous"}
+        except Exception:
+            return {"allow": False, "reason": "path_resolution_failed", "safety_level": "guarded"}
+
+    if tool_name.startswith("mcp_"):
+        safety_level = "guarded"
+        parts = tool_name.split("_", 2)
+        if len(parts) >= 3:
+            server = parts[1]
+            mcp_read_only_servers = {"desktop", "voice", "obs", "content"}
+            if server not in mcp_read_only_servers:
+                allowed = True
+
+    return {"allow": allowed, "reason": reason, "safety_level": safety_level}
+
+
+def _append_tool_audit(record: Dict[str, Any]) -> None:
+    try:
+        STREAM_TOOL_AUDIT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        payload = _json_sanitize(record)
+        with STREAM_TOOL_AUDIT_LOCK:
+            with STREAM_TOOL_AUDIT_FILE.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(payload, ensure_ascii=True) + "\n")
+    except Exception as exc:
+        logger.debug(f"Tool audit append failed (non-critical): {exc}")
+
+
 MAX_MEMORY_CONTEXT_CHARS = int(os.getenv("ROXY_MEMORY_CONTEXT_MAX_CHARS", "2200"))
 MAX_MEMORY_SNIPPET_CHARS = int(os.getenv("ROXY_MEMORY_SNIPPET_CHARS", "220"))
 MAX_MEMORY_RECALL_ITEMS = int(os.getenv("ROXY_MEMORY_RECALL_ITEMS", "5"))
@@ -237,6 +461,19 @@ ENABLE_AGENTIC_PIPELINE = os.getenv("ROXY_ENABLE_AGENTIC_PIPELINE", "1").lower()
 ENABLE_PROACTIVE_HINTS = os.getenv("ROXY_ENABLE_PROACTIVE_HINTS", "1").lower() in ("1", "true", "yes")
 MAX_AGENTIC_PLAN_STEPS = int(os.getenv("ROXY_MAX_AGENTIC_PLAN_STEPS", "6"))
 GOAL_TRACKER_LIMIT = int(os.getenv("ROXY_GOAL_TRACKER_LIMIT", "12"))
+_USER_ID_SANITIZE = re.compile(r"[^a-zA-Z0-9_.:-]+")
+try:
+    from canonical_identity import CANONICAL_USER_ID  # type: ignore
+except Exception:
+    CANONICAL_USER_ID = "default"
+
+DEFAULT_ROXY_USER_ID = (
+    os.getenv("ROXY_USER_ID")
+    or os.getenv("ROXY_DEFAULT_USER_ID")
+    or os.getenv("ROXY_CANONICAL_USER_ID")
+    or str(CANONICAL_USER_ID)
+    or "default"
+)
 
 _AMBIGUOUS_REFERENCE_PATTERN = re.compile(
     r"\b(it|those|them|do that|do this|fix it|make it better)\b",
@@ -261,6 +498,21 @@ _INTENT_KEYWORDS = {
 
 _SESSION_GOALS: Dict[str, Dict[str, Any]] = {}
 _SESSION_GOALS_LOCK = Lock()
+
+
+def _sanitize_user_id(candidate: Optional[str]) -> str:
+    cleaned = _USER_ID_SANITIZE.sub("-", str(candidate or "").strip())
+    return cleaned or _USER_ID_SANITIZE.sub("-", str(DEFAULT_ROXY_USER_ID).strip()) or "default"
+
+
+def _resolve_request_user_id(
+    headers: Optional[Dict[str, str]] = None,
+    payload_user_id: Optional[str] = None,
+) -> str:
+    header_user_id = None
+    if headers:
+        header_user_id = headers.get("X-ROXY-User-Id") or headers.get("X-ROXY-User")
+    return _sanitize_user_id(payload_user_id or header_user_id or DEFAULT_ROXY_USER_ID)
 
 
 def _verify_and_enhance_response(
@@ -463,7 +715,11 @@ def _trim_text(value: str, max_len: int = 200) -> str:
     return text[:max_len].rstrip() + "..."
 
 
-def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> tuple[str, dict]:
+def _build_memory_context_for_prompt(
+    query: str,
+    session_id: Optional[str],
+    user_id: Optional[str] = None,
+) -> tuple[str, dict]:
     """
     Build prompt-ready episodic memory + profile block.
     Returns (context_block, metadata).
@@ -474,6 +730,7 @@ def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> t
         "profile_items": 0,
         "context_chars": 0,
         "query_rewritten": False,
+        "user_id": _sanitize_user_id(user_id),
     }
     if not INFRASTRUCTURE_AVAILABLE:
         return "", meta
@@ -497,6 +754,7 @@ def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> t
             query,
             k=MAX_MEMORY_RECALL_ITEMS,
             session_id=session_id,
+            user_id=meta["user_id"],
             min_score=MIN_MEMORY_RECALL_SCORE,
             min_similarity=MIN_MEMORY_RECALL_SIMILARITY,
         ) or []
@@ -506,6 +764,7 @@ def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> t
             global_memories = recall_conversations(
                 query,
                 k=MAX_MEMORY_RECALL_ITEMS,
+                user_id=meta["user_id"],
                 min_score=max(MIN_MEMORY_RECALL_SCORE - 0.04, 0.0),
                 min_similarity=max(MIN_MEMORY_RECALL_SIMILARITY - 0.05, 0.0),
             ) or []
@@ -527,7 +786,7 @@ def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> t
         memories = []
 
     try:
-        profile = get_user_profile(limit=MAX_PROFILE_ITEMS) or []
+        profile = get_user_profile(limit=MAX_PROFILE_ITEMS, user_id=meta["user_id"]) or []
     except Exception as e:
         logger.debug(f"Profile context build failed: {e}")
         profile = []
@@ -567,12 +826,15 @@ def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> t
         meta["memory_items"] = len(filtered_memories[:MAX_MEMORY_RECALL_ITEMS])
 
     if profile:
+        identity_values = []
         lines = []
         for item in profile[:MAX_PROFILE_ITEMS]:
             category = item.get("category", "general")
             preference = item.get("preference", "")
             if not preference:
                 continue
+            if category in {"name", "preferred_name"}:
+                identity_values.append(str(preference).strip().lower())
             confidence = item.get("confidence")
             if confidence is None:
                 lines.append(f"- {category}: {preference}")
@@ -584,6 +846,18 @@ def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> t
         if lines:
             sections.append("Learned user profile facts/preferences:\n" + "\n".join(lines))
             meta["profile_items"] = len(lines)
+        unique_identity_values = sorted({v for v in identity_values if v})
+        if len(unique_identity_values) > 1:
+            meta["identity_conflict"] = True
+            meta["identity_candidates"] = unique_identity_values
+            logger.warning(
+                "Identity conflict detected user_id=%s candidates=%s",
+                meta["user_id"],
+                unique_identity_values,
+            )
+        elif unique_identity_values:
+            meta["identity_conflict"] = False
+            meta["identity_candidates"] = unique_identity_values
 
     if not sections:
         return "", meta
@@ -2300,15 +2574,207 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             debug_echo = getattr(self, "_debug_stream_echo", False)
             request_echo = getattr(self, "_stream_request_echo", "")
             session_id = self.headers.get('X-ROXY-Session', request_id)
+            user_id = _resolve_request_user_id(self.headers)
             memory_context = ""
             memory_context_meta = {"enabled": False, "memory_items": 0, "profile_items": 0, "context_chars": 0}
             if INFRASTRUCTURE_AVAILABLE:
-                memory_context, memory_context_meta = _build_memory_context_for_prompt(command, session_id)
+                memory_context, memory_context_meta = _build_memory_context_for_prompt(
+                    command,
+                    session_id,
+                    user_id=user_id,
+                )
 
             # Import streaming module
             sys.path.insert(0, str(ROXY_DIR))
             from streaming import get_streamer
             streamer = get_streamer()
+
+            def _emit_event(event_type: str, payload: Dict[str, Any]) -> bool:
+                event_payload = _json_sanitize(payload)
+                return self._safe_write(
+                    f"event: {event_type}\ndata: {json.dumps(event_payload)}\n\n",
+                    request_id,
+                )
+
+            def _parse_sse_event(event_str: str) -> Tuple[str, Dict[str, Any]]:
+                if not event_str:
+                    return "unknown", {}
+                event_type = "message"
+                payload: Dict[str, Any] = {}
+                for line in event_str.splitlines():
+                    if line.startswith("event: "):
+                        event_type = line[len("event: "):].strip()
+                    elif line.startswith("data: "):
+                        try:
+                            payload = json.loads(line[len("data: "):])
+                        except Exception:
+                            payload = {"raw": line[len("data: "):]}
+                return event_type, payload
+
+            def _stream_rag_pass(query_text: str, context_text: str = "") -> Tuple[bool, str]:
+                pass_text = ""
+                for sse_event in streamer.stream_rag_response(
+                    query=query_text,
+                    context=context_text,
+                    model=selected_model,
+                    request_id=request_id,
+                    base_url=selected_endpoint,
+                ):
+                    # Keep-alive comments from upstream streamer
+                    if sse_event.startswith(":"):
+                        if not self._safe_write(sse_event, request_id):
+                            return False, pass_text
+                        continue
+                    event_type, payload = _parse_sse_event(sse_event)
+                    if event_type == "token":
+                        token = str(payload.get("token") or payload.get("response") or "")
+                        if token:
+                            pass_text += token
+                    # Suppress upstream complete so we can emit one terminal event.
+                    if event_type == "complete":
+                        continue
+                    if not _emit_event(event_type, payload):
+                        return False, pass_text
+                return True, pass_text
+
+            def _execute_stream_tool_call(tool_call: Dict[str, Any]) -> Dict[str, Any]:
+                tool_name = tool_call.get("name", "")
+                arguments = tool_call.get("arguments", {}) or {}
+                call_id = tool_call.get("call_id", str(uuid.uuid4())[:12])
+                started = time.time()
+                result_payload: Dict[str, Any] = {
+                    "call_id": call_id,
+                    "tool_name": tool_name,
+                    "arguments": arguments,
+                    "success": False,
+                }
+
+                if tool_name == "bash":
+                    try:
+                        from tool_executor import ToolExecutor
+
+                        async def _run_bash() -> Any:
+                            executor = ToolExecutor(
+                                timeout=STREAM_TOOL_EXEC_TIMEOUT_SEC,
+                                workdir=str(ROXY_DIR),
+                            )
+
+                            async def _stream_callback(chunk: str, is_error: bool = False) -> None:
+                                await asyncio.sleep(0)
+                                _emit_event(
+                                    "tool_output_delta",
+                                    {
+                                        "call_id": call_id,
+                                        "tool_name": tool_name,
+                                        "stream": "stderr" if is_error else "stdout",
+                                        "chunk": _truncate_tool_text(chunk, MAX_STREAM_TOOL_DELTA_CHARS),
+                                    },
+                                )
+
+                            return await executor.execute_bash(
+                                str(arguments.get("command", "")),
+                                timeout=float(arguments.get("timeout", STREAM_TOOL_EXEC_TIMEOUT_SEC)),
+                                workdir=arguments.get("workdir", str(ROXY_DIR)),
+                                stream_callback=_stream_callback,
+                            )
+
+                        tool_result = asyncio.run(_run_bash())
+                        result_payload.update(
+                            {
+                                "success": bool(tool_result.success),
+                                "exit_code": int(tool_result.exit_code),
+                                "duration": float(tool_result.duration),
+                                "output": _truncate_tool_text(tool_result.output, MAX_STREAM_TOOL_RESULT_CHARS),
+                                "error": _truncate_tool_text(tool_result.error, MAX_STREAM_TOOL_RESULT_CHARS),
+                                "metadata": tool_result.metadata,
+                            }
+                        )
+                    except Exception as exc:
+                        result_payload.update({"success": False, "error": str(exc), "exit_code": -1})
+                elif tool_name.startswith("mcp_"):
+                    try:
+                        mcp_client = _get_mcp_client()
+                        if not mcp_client:
+                            result_payload.update({"success": False, "error": "MCP client not available"})
+                        else:
+                            parts = tool_name.split("_", 2)
+                            if len(parts) >= 3:
+                                server_id = parts[1]
+                                mcp_tool_name = parts[2]
+
+                                async def _call_mcp():
+                                    return await mcp_client.call_tool(
+                                        server_id,
+                                        mcp_tool_name,
+                                        arguments,
+                                        timeout=float(arguments.get("_timeout", STREAM_TOOL_EXEC_TIMEOUT_SEC)),
+                                    )
+
+                                mcp_result = asyncio.run(_call_mcp())
+                                if mcp_result:
+                                    content_text = ""
+                                    for content_block in (mcp_result.content or []):
+                                        if isinstance(content_block, dict):
+                                            content_text += str(content_block.get("text", ""))
+                                        elif isinstance(content_block, str):
+                                            content_text += content_block
+                                    result_payload.update({
+                                        "success": not mcp_result.isError,
+                                        "output": _truncate_tool_text(content_text, MAX_STREAM_TOOL_RESULT_CHARS),
+                                        "error": "" if not mcp_result.isError else content_text,
+                                        "metadata": {"mcp_server": server_id, "mcp_tool": mcp_tool_name},
+                                    })
+                                    if content_text:
+                                        _emit_event(
+                                            "tool_output_delta",
+                                            {
+                                                "call_id": call_id,
+                                                "tool_name": tool_name,
+                                                "stream": "stdout",
+                                                "chunk": _truncate_tool_text(content_text, MAX_STREAM_TOOL_DELTA_CHARS),
+                                            },
+                                        )
+                                else:
+                                    result_payload.update({"success": False, "error": "MCP tool call returned no result"})
+                            else:
+                                result_payload.update({"success": False, "error": f"Invalid MCP tool name: {tool_name}"})
+                    except Exception as exc:
+                        result_payload.update({"success": False, "error": str(exc)})
+                else:
+                    try:
+                        from tools.streaming_tools import StreamingTools
+
+                        async def _run_file_tool() -> Any:
+                            tools = StreamingTools(workdir=str(ROXY_DIR))
+                            return await tools.execute_tool(tool_name, arguments)
+
+                        tool_result = asyncio.run(_run_file_tool())
+                        data_preview = tool_result.data
+                        if isinstance(data_preview, (dict, list)):
+                            data_preview = json.dumps(data_preview)
+                        result_payload.update(
+                            {
+                                "success": bool(tool_result.success),
+                                "output": _truncate_tool_text(data_preview, MAX_STREAM_TOOL_RESULT_CHARS),
+                                "error": _truncate_tool_text(tool_result.error, MAX_STREAM_TOOL_RESULT_CHARS),
+                                "metadata": tool_result.metadata,
+                            }
+                        )
+                        if data_preview:
+                            _emit_event(
+                                "tool_output_delta",
+                                {
+                                    "call_id": call_id,
+                                    "tool_name": tool_name,
+                                    "stream": "stdout",
+                                    "chunk": _truncate_tool_text(data_preview, MAX_STREAM_TOOL_DELTA_CHARS),
+                                },
+                            )
+                    except Exception as exc:
+                        result_payload.update({"success": False, "error": str(exc)})
+
+                result_payload["duration"] = float(time.time() - started)
+                return result_payload
 
             if debug_echo:
                 debug_payload = json.dumps({"request_echo": request_echo, "request_id": request_id})
@@ -2516,35 +2982,185 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     routing_meta["memory_context_len"] = int(memory_context_meta.get("context_chars", 0))
                     routing_meta["memory_items"] = int(memory_context_meta.get("memory_items", 0))
                     routing_meta["profile_items"] = int(memory_context_meta.get("profile_items", 0))
-                    routing_event = f"event: routing_meta\ndata: {json.dumps(routing_meta)}\n\n"
-                    self._safe_write(routing_event, request_id)
+                    if not _emit_event("routing_meta", routing_meta):
+                        return
 
-                    def _extract_token(event_str: str) -> str:
-                        if not event_str:
-                            return ""
-                        for line in event_str.splitlines():
-                            if not line.startswith("data: "):
-                                continue
-                            try:
-                                payload = json.loads(line[6:])
-                                token = payload.get("token") or payload.get("response") or ""
-                                return token
-                            except Exception:
-                                continue
-                        return ""
+                    # Pass 1: stream model output
+                    ok, initial_response = _stream_rag_pass(
+                        query_text=command,
+                        context_text=context if not rag_skipped else "",
+                    )
+                    if not ok:
+                        return
+                    full_response += initial_response
 
-                    for sse_event in streamer.stream_rag_response(
-                        query=command,
-                        context=context if not rag_skipped else "",
-                        model=selected_model,
-                        request_id=request_id,
-                        base_url=selected_endpoint
-                    ):
-                        token = _extract_token(sse_event)
-                        if token:
-                            full_response += token
-                        if not self._safe_write(sse_event, request_id):
-                            return
+                    # RCA-003: detect tool calls in streamed model output and execute with hooks.
+                    if ENABLE_STREAM_TOOL_CALLS:
+                        stream_start = time.time()
+                        executed_count = 0
+                        seen_signatures = set()
+                        latest_response = initial_response
+
+                        while executed_count < MAX_STREAM_TOOL_CALLS:
+                            if (time.time() - stream_start) > MAX_STREAM_TOOL_RUNTIME_SEC:
+                                _emit_event(
+                                    "tool_execution_failed",
+                                    {
+                                        "reason": "tool_runtime_budget_exceeded",
+                                        "max_runtime_sec": MAX_STREAM_TOOL_RUNTIME_SEC,
+                                        "executed_count": executed_count,
+                                    },
+                                )
+                                break
+
+                            tool_calls = _extract_stream_tool_calls(latest_response)
+                            if not tool_calls:
+                                break
+
+                            selected_call = None
+                            for candidate in tool_calls:
+                                signature = json.dumps(
+                                    {"name": candidate.get("name"), "arguments": candidate.get("arguments", {})},
+                                    sort_keys=True,
+                                )
+                                if signature in seen_signatures:
+                                    continue
+                                seen_signatures.add(signature)
+                                selected_call = candidate
+                                break
+
+                            if not selected_call:
+                                break
+
+                            call_id = selected_call.get("call_id", str(uuid.uuid4())[:12])
+                            tool_name = selected_call.get("name")
+                            tool_args = selected_call.get("arguments", {})
+
+                            if not _emit_event(
+                                "tool_call_detected",
+                                {"call_id": call_id, "tool_name": tool_name, "arguments": tool_args},
+                            ):
+                                return
+
+                            pre_policy = _pre_tool_use_policy(tool_name, tool_args)
+                            if not pre_policy.get("allow", False):
+                                denial_record = {
+                                    "timestamp": datetime.now().isoformat(),
+                                    "request_id": request_id,
+                                    "session_id": session_id,
+                                    "user_id": user_id,
+                                    "call_id": call_id,
+                                    "tool_name": tool_name,
+                                    "arguments": tool_args,
+                                    "status": "denied",
+                                    "reason": pre_policy.get("reason", "policy_denied"),
+                                    "safety_level": pre_policy.get("safety_level", "guarded"),
+                                }
+                                _append_tool_audit(denial_record)
+                                if not _emit_event(
+                                    "tool_execution_failed",
+                                    {
+                                        "call_id": call_id,
+                                        "tool_name": tool_name,
+                                        "reason": pre_policy.get("reason", "policy_denied"),
+                                        "safety_level": pre_policy.get("safety_level", "guarded"),
+                                    },
+                                ):
+                                    return
+                                latest_response = ""
+                                continue
+
+                            if not _emit_event(
+                                "tool_execution_started",
+                                {
+                                    "call_id": call_id,
+                                    "tool_name": tool_name,
+                                    "safety_level": pre_policy.get("safety_level", "safe"),
+                                },
+                            ):
+                                return
+
+                            tool_result = _execute_stream_tool_call(
+                                {"name": tool_name, "arguments": tool_args, "call_id": call_id}
+                            )
+                            executed_count += 1
+
+                            audit_record = {
+                                "timestamp": datetime.now().isoformat(),
+                                "request_id": request_id,
+                                "session_id": session_id,
+                                "user_id": user_id,
+                                "call_id": call_id,
+                                "tool_name": tool_name,
+                                "arguments": tool_args,
+                                "status": "success" if tool_result.get("success") else "failed",
+                                "reason": pre_policy.get("reason", "allowed"),
+                                "safety_level": pre_policy.get("safety_level", "safe"),
+                                "duration": tool_result.get("duration", 0.0),
+                                "exit_code": tool_result.get("exit_code"),
+                                "error": _truncate_tool_text(tool_result.get("error", ""), 600),
+                            }
+                            _append_tool_audit(audit_record)
+
+                            if not tool_result.get("success"):
+                                if not _emit_event(
+                                    "tool_execution_failed",
+                                    {
+                                        "call_id": call_id,
+                                        "tool_name": tool_name,
+                                        "error": tool_result.get("error", "tool_failed"),
+                                        "duration": tool_result.get("duration", 0.0),
+                                    },
+                                ):
+                                    return
+                                latest_response = ""
+                                continue
+
+                            if not _emit_event(
+                                "tool_execution_finished",
+                                {
+                                    "call_id": call_id,
+                                    "tool_name": tool_name,
+                                    "success": True,
+                                    "duration": tool_result.get("duration", 0.0),
+                                    "exit_code": tool_result.get("exit_code", 0),
+                                },
+                            ):
+                                return
+
+                            # Ask model to synthesize final response from tool output.
+                            # This enables model->tool->response loop in streaming mode.
+                            tool_output = tool_result.get("output", "")
+                            tool_error = tool_result.get("error", "")
+                            followup_query = (
+                                f"Original user request:\n{command}\n\n"
+                                f"Tool executed: {tool_name}\n"
+                                f"Tool arguments: {json.dumps(tool_args, ensure_ascii=True)}\n"
+                                f"Tool output:\n{_truncate_tool_text(tool_output, 3000)}\n"
+                                f"Tool error:\n{_truncate_tool_text(tool_error, 800)}\n\n"
+                                "Respond to the user with the result. "
+                                "Do not emit tool calls, JSON tool payloads, or pseudo-tags."
+                            )
+
+                            ok, followup_response = _stream_rag_pass(query_text=followup_query, context_text="")
+                            if not ok:
+                                return
+                            if followup_response:
+                                full_response += ("\n" + followup_response)
+                            latest_response = followup_response
+
+                        if executed_count:
+                            _emit_event(
+                                "tool_execution_summary",
+                                {
+                                    "executed": executed_count,
+                                    "max_allowed": MAX_STREAM_TOOL_CALLS,
+                                    "runtime_sec": round(time.time() - stream_start, 3),
+                                },
+                            )
+
+                    # Final completion event (single terminal event for full pipeline)
+                    _emit_event("complete", {"done": True})
                     # Commit memory after streaming completes
                     if INFRASTRUCTURE_AVAILABLE and _should_commit_memory(full_response):
                         try:
@@ -2552,12 +3168,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 'response_time': time.time(),
                                 'client_ip': self.client_address[0],
                                 'endpoint': '/stream'
-                            })
+                            }, user_id=user_id)
                         except Exception as e:
                             logger.debug(f"Streaming memory write failed (non-critical): {e}")
                     if INFRASTRUCTURE_AVAILABLE:
                         try:
-                            learn_user_facts(command, session_id=session_id)
+                            learn_user_facts(command, session_id=session_id, user_id=user_id)
                         except Exception as e:
                             logger.debug(f"Streaming fact learning failed (non-critical): {e}")
                     return
@@ -2576,6 +3192,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env["ROXY_SESSION_ID"] = session_id
                 else:
                     env.pop("ROXY_SESSION_ID", None)
+                env["ROXY_USER_ID"] = user_id
                 if memory_context:
                     env["ROXY_MEMORY_CONTEXT"] = memory_context
                 else:
@@ -2611,12 +3228,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             'response_time': time.time(),
                             'client_ip': self.client_address[0],
                             'endpoint': '/stream'
-                        })
+                        }, user_id=user_id)
                     except Exception as e:
                         logger.debug(f"Streaming memory write failed (non-critical): {e}")
                 if INFRASTRUCTURE_AVAILABLE:
                     try:
-                        learn_user_facts(command, session_id=session_id)
+                        learn_user_facts(command, session_id=session_id, user_id=user_id)
                     except Exception as e:
                         logger.debug(f"Streaming fact learning failed (non-critical): {e}")
             else:
@@ -2799,6 +3416,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             query = data.get('query', '').strip()
             k = int(data.get('k', data.get('limit', 5)))
             session_id = data.get('session_id')
+            user_id = _resolve_request_user_id(self.headers, data.get("user_id"))
             time_window_days = data.get('time_window_days')
             min_score = data.get('min_score')
             min_similarity = data.get('min_similarity')
@@ -2827,6 +3445,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     query,
                     k,
                     session_id=session_id,
+                    user_id=user_id,
                     time_window_days=time_window_days,
                     min_score=min_score,
                     min_similarity=min_similarity,
@@ -3876,6 +4495,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             explicit_pool = data.get('pool', '').upper()  # AUTO, W5700X, 6900XT (or legacy BIG/FAST)
             model_override = data.get('model', '')  # Optional model override
             session_id = data.get('session_id') or self.headers.get('X-ROXY-Session') or request_id
+            user_id = _resolve_request_user_id(self.headers, data.get("user_id"))
             
             # Security: Sanitize input - CRITICAL SECURITY FEATURE
             try:
@@ -3922,7 +4542,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             memory_context = ""
             memory_context_meta = {"enabled": False, "memory_items": 0, "profile_items": 0, "context_chars": 0}
             if INFRASTRUCTURE_AVAILABLE:
-                memory_context, memory_context_meta = _build_memory_context_for_prompt(command, session_id)
+                memory_context, memory_context_meta = _build_memory_context_for_prompt(
+                    command,
+                    session_id,
+                    user_id=user_id,
+                )
 
             agentic_meta = {
                 "intent": "general",
@@ -3972,6 +4596,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 pool=explicit_pool,
                 model_override=model_override,
                 session_id=session_id,
+                user_id=user_id,
                 memory_context=memory_context,
                 plan_steps=agentic_meta.get("plan_steps", []),
             )
@@ -3991,6 +4616,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     pool=explicit_pool,
                     model_override=model_override,
                     session_id=session_id,
+                    user_id=user_id,
                     memory_context=memory_context,
                     plan_steps=[],
                 )
@@ -4128,9 +4754,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             'intent': agentic_meta.get("intent"),
                             'complex_query': bool(agentic_meta.get("complex")),
                             'proactive_suggestions': len(proactive_suggestions),
-                        })
+                        }, user_id=user_id)
                     try:
-                        fact_learning = learn_user_facts(command, session_id=session_id)
+                        fact_learning = learn_user_facts(command, session_id=session_id, user_id=user_id)
                         learned_facts = fact_learning.get("learned", []) if isinstance(fact_learning, dict) else []
                     except Exception as e:
                         logger.debug(f"User fact learning failed (non-critical): {e}")
@@ -4218,6 +4844,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             response["metadata"]["memory"]["memory_items"] = int(memory_context_meta.get("memory_items", 0))
             response["metadata"]["memory"]["profile_items"] = int(memory_context_meta.get("profile_items", 0))
             response["metadata"]["memory"]["facts_learned"] = len(learned_facts)
+            response["metadata"]["memory"]["user_id"] = user_id
+            response["metadata"]["memory"]["identity_conflict"] = bool(memory_context_meta.get("identity_conflict", False))
+            response["metadata"]["memory"]["identity_candidates"] = memory_context_meta.get("identity_candidates", [])
             response["metadata"]["agentic"] = {
                 "enabled": ENABLE_AGENTIC_PIPELINE,
                 "intent": agentic_meta.get("intent"),
@@ -4375,6 +5004,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             data = json.loads(body.decode('utf-8'))
             
             commands = data.get('commands', [])
+            batch_session_id = data.get('session_id') or self.headers.get('X-ROXY-Session') or request_id
+            batch_user_id = _resolve_request_user_id(self.headers, data.get("user_id"))
             if not commands or not isinstance(commands, list):
                 self.send_error(400, "No commands provided or invalid format")
                 return
@@ -4386,7 +5017,13 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             results = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 futures = {
-                    executor.submit(self._execute_command, cmd, f"{request_id}:{idx}"): cmd
+                    executor.submit(
+                        self._execute_command,
+                        cmd,
+                        request_id=f"{request_id}:{idx}",
+                        session_id=batch_session_id,
+                        user_id=batch_user_id,
+                    ): cmd
                     for idx, cmd in enumerate(commands)
                 }
                 for future in concurrent.futures.as_completed(futures):
@@ -4439,6 +5076,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         pool: str = "",
         model_override: str = "",
         session_id: Optional[str] = None,
+        user_id: Optional[str] = None,
         memory_context: str = "",
         plan_steps: Optional[List[str]] = None,
     ) -> str:
@@ -4451,15 +5089,21 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             pool: Explicit pool (AUTO, W5700X, 6900XT or legacy BIG/FAST) - empty means auto
             model_override: Optional model name override
             session_id: Optional conversation session identifier
+            user_id: Optional user identifier for memory/profile isolation
             memory_context: Optional prebuilt memory/profile context for prompt injection
             plan_steps: Optional execution plan hints for agentic prompting
         """
         effective_session_id = session_id or self.headers.get('X-ROXY-Session') or request_id
+        effective_user_id = _sanitize_user_id(user_id)
         effective_memory_context = memory_context or ""
         effective_plan_steps = [step.strip() for step in (plan_steps or []) if str(step).strip()]
         if not effective_memory_context and INFRASTRUCTURE_AVAILABLE:
             try:
-                built_context, _ = _build_memory_context_for_prompt(command, effective_session_id)
+                built_context, _ = _build_memory_context_for_prompt(
+                    command,
+                    effective_session_id,
+                    user_id=effective_user_id,
+                )
                 effective_memory_context = built_context or ""
             except Exception as e:
                 logger.debug(f"Memory context assembly failed in execute path: {e}")
@@ -4580,6 +5224,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env["ROXY_SESSION_ID"] = effective_session_id
                 else:
                     env.pop("ROXY_SESSION_ID", None)
+                env["ROXY_USER_ID"] = effective_user_id
                 if effective_memory_context:
                     env["ROXY_MEMORY_CONTEXT"] = effective_memory_context
                 else:
