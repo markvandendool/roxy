@@ -74,7 +74,19 @@ class MCPClient:
     
     def __init__(self, config_path: Optional[str] = None):
         self.sessions: Dict[str, MCPSession] = {}
-        self.config_path = config_path or os.path.expanduser("~/.mcp.json")
+        if config_path:
+            self.config_path = config_path
+        else:
+            for candidate in [
+                os.path.expanduser("~/.config/claude/mcp.json"),
+                os.path.expanduser("~/.mcp.json"),
+                os.path.expanduser("~/.config/claude-code/mcp.json"),
+            ]:
+                if Path(candidate).exists():
+                    self.config_path = candidate
+                    break
+            else:
+                self.config_path = os.path.expanduser("~/.mcp.json")
         self._health_check_interval = 30.0
         self._reconnect_delay = 5.0
         self._max_reconnect_attempts = 3

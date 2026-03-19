@@ -400,6 +400,14 @@ If episodic memory is provided, use it to maintain continuity with past conversa
             record_rag_query(latency)
 
 
+# Import tool integration (lazy to avoid circular imports)
+TOOL_INTEGRATION_AVAILABLE = False
+try:
+    from tool_call_integration import StreamingToolIntegration
+    TOOL_INTEGRATION_AVAILABLE = True
+except ImportError:
+    pass
+
 # Global streamer instance
 _streamer = None
 
@@ -410,3 +418,10 @@ def get_streamer() -> SSEStreamer:
     if _streamer is None:
         _streamer = SSEStreamer()
     return _streamer
+
+
+def get_tool_integration() -> Optional['StreamingToolIntegration']:
+    """Get or create tool integration instance for streaming pipeline."""
+    if not TOOL_INTEGRATION_AVAILABLE:
+        return None
+    return StreamingToolIntegration()
