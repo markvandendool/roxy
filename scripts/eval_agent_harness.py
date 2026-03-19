@@ -6,10 +6,13 @@ Part of ROXY-AUTONOMOUS-CODING-AGENT-V1 (RCA-008)
 import asyncio
 import json
 import logging
+import os
 import sys
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("roxy.agent_eval")
@@ -55,6 +58,7 @@ class AgentEvalHarness:
         await self.test_governance_hooks()
         await self.test_claude_md_injector()
         await self.test_mcp_client()
+        await self.test_benchmark_suite()
         
         duration = time.time() - start
         
@@ -275,6 +279,40 @@ class AgentEvalHarness:
             
         except Exception as e:
             self.add_result("mcp_client", False, str(e))
+    
+    async def test_benchmark_suite(self):
+        """Test benchmark suite and failure cluster modules."""
+        try:
+            from benchmark_suite import run_all_benchmarks
+            from failure_cluster import FailureClusterer
+            
+            bench_results = await run_all_benchmarks()
+            
+            passed = bench_results["summary"]["passed"]
+            total = bench_results["summary"]["total"]
+            rate = bench_results["summary"]["pass_rate"]
+            self.add_result(
+                "benchmark_suite_run",
+                rate >= 60.0,
+                f"Benchmarks: {passed}/{total} passed ({rate:.1f}%)"
+            )
+            
+            clusterer = FailureClusterer()
+            clusterer.load_failures_from_audit(hours=1)
+            clusterer.load_failures_from_errors(hours=1)
+            report = clusterer.get_analysis_report()
+            self.add_result(
+                "failure_cluster_analysis",
+                "summary" in report and "top_clusters" in report,
+                f"Failures: {report['summary']['total_failures']}, Clusters: {report['summary']['unique_clusters']}"
+            )
+            
+        except ImportError as e:
+            self.add_result("benchmark_suite_run", False, f"Import error: {e}")
+            self.add_result("failure_cluster_analysis", False, f"Import error: {e}")
+        except Exception as e:
+            self.add_result("benchmark_suite_run", False, str(e))
+            self.add_result("failure_cluster_analysis", False, str(e))
     
     def print_report(self):
         """Print evaluation report."""

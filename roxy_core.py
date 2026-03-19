@@ -1859,6 +1859,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_bench_artifact()
         elif path == "/bench/tasks" or path == "/v1/bench/tasks":
             self._handle_bench_tasks()
+        elif path == "/stories" or path == "/v1/stories":
+            self._handle_stories()
+        elif path == "/stories/next" or path == "/v1/stories/next":
+            self._handle_story_next()
+        elif path == "/stories/status" or path == "/v1/stories/status":
+            self._handle_story_status()
+        elif path == "/scheduler/status" or path == "/v1/scheduler/status":
+            self._handle_scheduler_status()
+        elif path == "/debug/benchmarks" or path == "/v1/debug/benchmarks":
+            self._handle_debug_benchmarks()
+        elif path == "/debug/failures" or path == "/v1/debug/failures":
+            self._handle_debug_failures()
         else:
             self.send_response(404)
             self.end_headers()
@@ -5797,6 +5809,178 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode())
 
+    def _handle_stories(self):
+        """GET /stories - List stories from SKOREQ plans"""
+        try:
+            from story_selector import StorySelector
+            selector = StorySelector()
+            stories = selector.find_all_stories()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "total": len(stories),
+                "stories": [
+                    {
+                        "id": s.id,
+                        "title": s.title,
+                        "priority": s.priority,
+                        "status": s.status,
+                        "points": s.points,
+                        "plan": s.plan_id,
+                        "sprint": s.sprint,
+                    }
+                    for s in stories[:50]
+                ]
+            }, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Stories list failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_story_next(self):
+        """GET /stories/next - Get next best story to work on"""
+        try:
+            from story_selector import StorySelector
+            selector = StorySelector()
+            story = selector.get_next_story()
+            if not story:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "No stories available"}).encode())
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "id": story.id,
+                "title": story.title,
+                "description": story.description,
+                "priority": story.priority,
+                "status": story.status,
+                "points": story.points,
+                "plan": story.plan_id,
+                "sprint": story.sprint,
+                "files_in_scope": story.files_in_scope,
+                "acceptance_criteria": story.acceptance_criteria,
+                "dependencies": story.dependencies,
+            }, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Story next failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_story_status(self):
+        """GET /stories/status - Get story status summary"""
+        try:
+            from story_selector import StorySelector
+            selector = StorySelector()
+            summary = selector.get_status_summary()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(summary, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Story status failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_scheduler_status(self):
+        """GET /scheduler/status - Get background scheduler status"""
+        try:
+            core = getattr(self, "_core", None)
+            if not core or not hasattr(core, "background_scheduler"):
+                self.send_response(503)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Scheduler not available"}).encode())
+                return
+            status = core.background_scheduler._get_status()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(status, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Scheduler status failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_debug_benchmarks(self):
+        """GET/POST /debug/benchmarks - Run or list ROXY performance benchmarks"""
+        try:
+            import asyncio
+            from benchmark_suite import run_all_benchmarks, save_benchmark_evidence
+
+            method = self.command
+            if method == "POST":
+                loop = asyncio.new_event_loop()
+                results = loop.run_until_complete(run_all_benchmarks())
+                loop.close()
+                evidence_file = save_benchmark_evidence(results)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "results": results,
+                    "evidence_file": str(evidence_file),
+                }, indent=2).encode())
+            else:
+                from pathlib import Path
+                evidence_dir = Path.home() / ".roxy" / "evidence" / "benchmarks"
+                files = sorted(evidence_dir.glob("benchmark_*.json"), reverse=True)[:10]
+                history = []
+                for f in files:
+                    try:
+                        with open(f) as fp:
+                            data = json.load(fp)
+                            history.append({
+                                "file": f.name,
+                                "timestamp": data.get("timestamp"),
+                                "summary": data.get("summary"),
+                            })
+                    except Exception:
+                        continue
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"history": history}, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Debug benchmarks failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_debug_failures(self):
+        """GET /debug/failures - Analyze failure patterns and clustering"""
+        try:
+            params = self._parse_query_params()
+            hours = int(params.get("hours", 24))
+            from failure_cluster import FailureClusterer
+            clusterer = FailureClusterer()
+            clusterer.load_failures_from_audit(hours)
+            clusterer.load_failures_from_errors(hours)
+            report = clusterer.get_analysis_report()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(report, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Debug failures failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
 
 class RoxyCore:
     """Always-on ROXY background service"""
@@ -5899,7 +6083,21 @@ class RoxyCore:
     
     def _start_background_tasks(self):
         """Start optional background monitoring/indexing"""
-        # Check if advanced services are available for background tasks
+        try:
+            from story_selector import StorySelector
+            self.story_selector = StorySelector()
+            logger.info(f"✓ Story selector ready ({self.story_selector.get_status_summary()['total_stories']} stories)")
+        except Exception as e:
+            logger.warning(f"Story selector unavailable: {e}")
+        
+        try:
+            from background_scheduler import BackgroundScheduler, setup_scheduler
+            self.background_scheduler = BackgroundScheduler()
+            setup_scheduler(self.background_scheduler)
+            logger.info(f"✓ Background scheduler ready ({len(self.background_scheduler.tasks)} tasks)")
+        except Exception as e:
+            logger.warning(f"Background scheduler unavailable: {e}")
+        
         if SERVICE_BRIDGE_AVAILABLE:
             try:
                 from adapters.service_bridge import get_observability
