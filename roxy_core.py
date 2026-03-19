@@ -352,7 +352,7 @@ def _extract_stream_tool_calls(text: str) -> List[Dict[str, Any]]:
         except (json.JSONDecodeError, TypeError):
             mcp_args = {"query": content} if content else {}
         payload = {
-            "name": full_name,
+            "name": f"mcp_{full_name}",
             "arguments": mcp_args,
         }
         _add_candidate(_normalize_stream_tool_call(payload))
