@@ -1,0 +1,15 @@
+Generated: 2026-03-18T07:00:09.690585
+
+Good morning, Mark! I've got your morning briefing ready.
+
+First off, our MRR is looking great - $12,500, that's an 8.5% growth from last month. That's a fantastic start to the day!
+
+Moving on, I want to bring your attention to our active students. We have 156 of them currently engaged, and I've flagged eight as being at-risk. Let's make sure we prioritize those students and offer any necessary support.
+
+Now, let's talk content. We have 14 clips ready to go, and another 21 scheduled for release in the coming days. That's a lot of awesome stuff heading your way!
+
+On the product side, I've got three open PRs that need attention. Our next release is v0.4.0, and it's looking like we'll be on track to meet our deadline.
+
+Finally, let me give you a quick rundown of your calendar for today. You have two meetings scheduled - a team sync at 10:00 AM, so make sure to clear your schedule for that one!
+
+What would you like to focus on first?

@@ -1,0 +1,40 @@
+INFO:roxy.eval:Starting ROXY evaluation suite...
+INFO:roxy.eval:Running test: memory_identity
+INFO:roxy.eval:  ❌ FAIL: memory_identity
+INFO:roxy.eval:Running test: memory_production
+INFO:roxy.eval:  ✅ PASS: memory_production
+INFO:roxy.eval:Running test: memory_preferences
+INFO:roxy.eval:  ✅ PASS: memory_preferences
+INFO:roxy.eval:Running test: confidence_known
+INFO:roxy.eval:  ✅ PASS: confidence_known
+INFO:roxy.eval:Running test: confidence_unknown
+INFO:roxy.eval:  ✅ PASS: confidence_unknown
+INFO:roxy.eval:Running test: quality_technical
+INFO:roxy.eval:  ✅ PASS: quality_technical
+INFO:roxy.eval:Running test: quality_production
+INFO:roxy.eval:  ✅ PASS: quality_production
+
+======================================================================
+ROXY EVALUATION REPORT
+======================================================================
+Timestamp: 2026-03-19T14:49:17.906185
+Total Tests: 7
+Passed: 6
+Failed: 1
+Pass Rate: 85.7%
+Meets Threshold (85%): ✅ YES
+
+By Category:
+  memory: 67% (2/3)
+  confidence: 100% (2/2)
+  quality: 100% (2/2)
+
+Detailed Results:
+  ❌ [memory] memory_identity
+  ✅ [memory] memory_production
+  ✅ [memory] memory_preferences
+  ✅ [confidence] confidence_known
+  ✅ [confidence] confidence_unknown
+  ✅ [quality] quality_technical
+  ✅ [quality] quality_production
+======================================================================

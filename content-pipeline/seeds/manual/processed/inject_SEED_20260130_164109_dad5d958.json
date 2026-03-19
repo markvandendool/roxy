@@ -1,0 +1,24 @@
+{
+  "seed_id": "SEED_20260130_164109_dad5d958",
+  "created": "2026-01-30T16:41:09.809862+00:00",
+  "type": "manual_inject",
+  "priority": "high",
+  "source": "cli_inject",
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "platform": "youtube",
+  "tags": [
+    "mindsong",
+    "theater8k"
+  ],
+  "request": {
+    "source_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "inject_priority": "high",
+    "manual_injection": true
+  },
+  "meta": {
+    "version": "1.0.0",
+    "service": "skybeam_inject",
+    "story_id": "SKYBEAM-STORY-030",
+    "injected_at": "2026-01-30T16:41:09.809862+00:00"
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260128_160012_cde9891a",
-  "timestamp": "2026-01-28T23:00:12.318176+00:00",
+  "snapshot_id": "TREND_20260319_150013_674de435",
+  "timestamp": "2026-03-19T21:00:13.557250+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -27,164 +27,164 @@
   ],
   "trends": [
     {
-      "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
-      "link": "https://techcrunch.com/2026/01/28/tiny-startup-arcee-ai-built-a-400b-open-source-llm-from-scratch-to-best-metas-llama/",
+      "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
+      "link": "https://techcrunch.com/2026/03/19/techcrunch-startup-battlefield-200-nominations-are-still-open/",
       "source": "TechCrunch AI",
       "category": "ai",
-      "score": 95,
-      "summary": "30-person startup Arcee AI has released a 400B model called Trinity, which it says is one of the biggest open source foundation models from a U.S. company."
+      "score": 85,
+      "summary": "Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access."
     },
     {
-      "title": "Tesla invested $2B in Elon Musk\u2019s xAI",
-      "link": "https://techcrunch.com/2026/01/28/tesla-invested-2b-in-elon-musks-xai/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "Elon Musk's AI company xAI  disclosed earlier this month it had raised $20 billion."
-    },
-    {
-      "title": "ServiceNow inks another AI partnership, this time with Anthropic",
-      "link": "https://techcrunch.com/2026/01/28/servicenow-inks-another-ai-partnership-this-time-with-anthropic/",
+      "title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+      "link": "https://techcrunch.com/2026/03/19/meta-rolls-out-new-ai-content-enforcement-systems-while-reducing-reliance-on-third-party-vendors/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "ServiceNow partners with Anthropic just a week after announcing a partnership with OpenAI as the company takes a multi-model approach."
+      "summary": "Meta believes these AI systems can detect more violations with greater accuracy, better prevent scams, respond more quickly to real-world events, and reduce over-enforcement."
     },
     {
-      "title": "WhatsApp will now charge AI chatbots to operate in Italy",
-      "link": "https://techcrunch.com/2026/01/28/whatsapp-will-now-charge-ai-chatbots-to-operate-in-italy/",
+      "title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
+      "link": "https://techcrunch.com/2026/03/19/doordash-launches-a-new-tasks-app-that-pays-couriers-to-submit-videos-to-train-ai/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "WhatsApp plans to charge developers of AI chatbots per message."
+      "summary": "Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language."
     },
     {
-      "title": "AI data labeler Handshake buys  Cleanlab, an acquisition target of multiple others",
-      "link": "https://techcrunch.com/2026/01/28/ai-data-labeler-handshake-buys-cleanlab-an-acquisition-target-of-multiple-others/",
+      "title": "Multiverse Computing pushes its compressed AI models into the mainstream",
+      "link": "https://techcrunch.com/2026/03/19/multiverse-computing-pushes-its-compressed-ai-models-into-the-mainstream/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The deal\u2019s purpose is primarily to acquire talent, aka an acqui-hire, adding nine key Cleanlab employees to Handshake\u2019s research organization."
+      "summary": "After compressing models from major AI labs, including OpenAI, Meta, DeepSeek, and Mistral AI, Multiverse Computing has launched both an app that showcases the capabilities of its compressed models and an API that makes them more widely available."
     },
     {
-      "title": "Chrome takes on AI browsers with tighter Gemini integration, agentic features for autonomous tasks",
-      "link": "https://techcrunch.com/2026/01/28/chrome-takes-on-ai-browsers-with-tighter-gemini-integration-agentic-features-for-autonomous-tasks/",
+      "title": "Meta is having trouble with rogue AI agents",
+      "link": "https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Google Chrome is adding Gemini in the sidebar and is rolling out an agentic feature for AI Pro and Ultra users."
+      "summary": "A rogue AI agent inadvertently exposed Meta company and user data to engineers who didn't have permission to see it."
     },
     {
-      "title": "With Apple\u2019s new Creator Studio Pro, AI is a tool to aid creation, not replace it",
-      "link": "https://techcrunch.com/2026/01/28/with-apples-new-creator-studio-pro-ai-is-a-tool-to-aid-creation-not-replace-it/",
+      "title": "Nothing CEO Carl Pei says smartphone apps will disappear as AI agents take their place",
+      "link": "https://techcrunch.com/2026/03/18/nothing-ceo-carl-pei-says-smartphone-apps-will-disappear-as-ai-agents-take-their-place/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Apple\u2019s Creator Studio Pro leverages AI to help creators with tedious tasks \u2014 like finding clips or building slides \u2014 without trying to do the work for them."
+      "summary": "Nothing CEO Carl Pei says AI agents will eventually replace apps, shifting smartphones toward systems that understand intent and act on a user's behalf."
     },
     {
-      "title": "Modelence raises $3M to smooth out the vibe-coding stack",
-      "link": "https://techcrunch.com/2026/01/28/modelence-raises-13-million-to-smooth-out-the-vibe-coding-stack/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "How do you build tooling for the AI software stack? A company called Modelence has an interesting answer."
-    },
-    {
-      "title": "Generative AI tool helps 3D print personal items that sustain daily use",
-      "link": "https://news.mit.edu/2026/genai-tool-helps-3d-print-personal-items-sustain-daily-use-0114",
+      "title": "Generative AI improves a wireless vision system that sees through obstructions",
+      "link": "https://news.mit.edu/2026/generative-ai-improves-wireless-vision-system-sees-through-obstructions-0319",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "\u201cMechStyle\u201d allows users to personalize 3D models, while ensuring they\u2019re physically viable after fabrication, producing unique personal items and assistive technology."
+      "summary": "With this new technique, a robot could more accurately detect hidden objects or understand an indoor scene using reflected Wi-Fi signals."
     },
     {
-      "title": "3 Questions: How AI could optimize the power grid",
-      "link": "https://news.mit.edu/2026/3-questions-how-ai-could-optimize-power-grid-0109",
+      "title": "Sustaining diplomacy amid competition in US-China relations",
+      "link": "https://news.mit.edu/2026/sustaining-diplomacy-amid-us-china-competition-0318",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "While the growing energy demands of AI are worrying, some techniques can also help make power grids cleaner and more efficient."
+      "summary": "At MIT, former U.S. ambassador to China Nicholas Burns highlights climate change as an area for diplomatic engagement, while exploring areas including China's emphasis on STEM education."
     },
     {
-      "title": "MIT scientists investigate memorization risk in the age of clinical AI",
-      "link": "https://news.mit.edu/2026/mit-scientists-investigate-memorization-risk-clinical-ai-0105",
+      "title": "MIT-IBM Watson AI Lab seed to signal: Amplifying early-career faculty impact",
+      "link": "https://news.mit.edu/2026/mit-ibm-watson-ai-lab-seed-signal-amplifying-early-career-faculty-impact-0317",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "New research demonstrates how AI models can be tested to ensure they don\u2019t cause harm by revealing anonymized patient health data."
+      "summary": "Academia-industry relationship is an early-stage accelerator, supporting professional progress and research."
     },
     {
-      "title": "Guided learning lets \u201cuntrainable\u201d neural networks realize their potential",
-      "link": "https://news.mit.edu/2025/guided-learning-lets-untrainable-neural-networks-realize-their-potential-1218",
+      "title": "Can AI help predict which heart-failure patients will worsen within a year?",
+      "link": "https://news.mit.edu/2026/can-ai-help-predict-which-heart-failure-patients-will-worsen-0312",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "CSAIL researchers find even \u201cuntrainable\u201d neural nets can learn effectively when guided by another network\u2019s built-in biases using their guidance method."
+      "summary": "Researchers at MIT, Mass General Brigham, and Harvard Medical School developed a deep-learning model to forecast a patient\u2019s heart failure prognosis up to a year in advance."
     },
     {
-      "title": "Jellyfin LLM/\"AI\" Development Policy",
-      "link": "https://jellyfin.org/docs/general/contributing/llm-policies/",
-      "source": "Hacker News",
-      "category": "tech",
-      "score": 70,
-      "summary": "<p>Article URL: <a href=\"https://jellyfin.org/docs/general/contributing/llm-policies/\">https://jellyfin.org/docs/general/contributing/llm-policies/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=46801976\">https://news.ycombinator.com/item?id=46801976</a></p>\n<p>Points: 77</p>\n<p># Comments: 38</p>"
+      "title": "3 Questions: On the future of AI and the mathematical and physical sciences",
+      "link": "https://news.mit.edu/2026/3-questions-future-of-ai-and-mathematical-physical-sciences-0311",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "score": 75,
+      "summary": "Professor Jesse Thaler describes a vision for a two-way bridge between artificial intelligence and the mathematical and physical sciences \u2014 one that promises to advance both."
     },
     {
-      "title": "Mark Zuckerberg says a future without smart glasses is \u2018hard to imagine\u2019",
-      "link": "https://techcrunch.com/2026/01/28/mark-zuckerberg-future-smart-glasses/",
+      "title": "Online bot traffic will exceed human traffic by 2027, Cloudflare CEO says",
+      "link": "https://techcrunch.com/2026/03/19/online-bot-traffic-will-exceed-human-traffic-by-2027-cloudflare-ceo-says/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 65,
-      "summary": "Take Zuckerberg's outlook with a grain of salt. After all, he thought we'd all be hanging out in the metaverse by now."
+      "summary": "AI bots may outnumber humans online by 2027, says Cloudflare CEO Matthew Prince, as generative AI agents dramatically increase web traffic and infrastructure demands."
     },
     {
-      "title": "Elon Musk teases a new image-labeling system for X\u2026 we think?",
-      "link": "https://techcrunch.com/2026/01/28/elon-musk-teases-a-new-image-labeling-system-for-xwe-think/",
+      "title": "Amazon brings Alexa+ to the UK",
+      "link": "https://techcrunch.com/2026/03/19/amazon-brings-alexa-to-the-uk/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 65,
-      "summary": "Elon Musk says X will begin identifying \"manipulated media\" but doesn't share details."
+      "summary": "The company is currently letting users in the U.K. try out Alexa+ for free via an early access program."
     },
     {
-      "title": "Why it\u2019s critical to move beyond overly aggregated machine-learning metrics",
-      "link": "https://news.mit.edu/2026/why-its-critical-to-move-beyond-overly-aggregated-machine-learning-metrics-0120",
+      "title": "Sam Altman\u2019s thank-you to coders draws the memes",
+      "link": "https://techcrunch.com/2026/03/18/sam-altmans-thank-you-to-coders-draws-the-memes/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "Altman expresses gratitude for people who knew how to write their code from scratch. The internet replies with salty jokes."
+    },
+    {
+      "title": "Nvidia is quietly building a multibillion-dollar behemoth to rival its chips business",
+      "link": "https://techcrunch.com/2026/03/18/nvidia-networking-division-building-a-multibillion-dollar-behemoth-to-rival-its-chips-business/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "Nvidia's networking business raked in $11 billion last quarter despite getting significantly less fanfare than chips and gaming."
+    },
+    {
+      "title": "A better method for identifying overconfident large language models",
+      "link": "https://news.mit.edu/2026/better-method-identifying-overconfident-large-language-models-0319",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "New research detects hidden evidence of mistaken correlations \u2014 and provides a method to improve accuracy."
+      "summary": "This new metric for measuring uncertainty could flag hallucinations and help users know whether to trust an AI model."
     },
     {
-      "title": "At MIT, a continued commitment to understanding intelligence",
-      "link": "https://news.mit.edu/2026/continued-commitment-to-understanding-intelligence-0114",
+      "title": "New MIT class uses anthropology to improve chatbots",
+      "link": "https://news.mit.edu/2026/mit-class-uses-anthropology-to-improve-chatbots-0311",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "With support from the Siegel Family Endowment, the newly renamed MIT Siegel Family Quest for Intelligence investigates how brains produce intelligence and how it can be replicated to solve problems."
+      "summary": "MIT computer science students design AI chatbots to help young users become more social, and socially confident."
     },
     {
-      "title": "Decoding the Arctic to predict winter weather",
-      "link": "https://news.mit.edu/2026/decoding-arctic-to-predict-winter-weather-0108",
+      "title": "A better method for planning complex visual tasks",
+      "link": "https://news.mit.edu/2026/better-method-planning-complex-visual-tasks-0311",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "With the help of AI, MIT Research Scientist Judah Cohen is reshaping subseasonal forecasting, with the goal of extending the lead time for predicting impactful weather."
+      "summary": "A new hybrid system could help robots navigate in changing environments or increase the efficiency of multirobot assembly teams."
     },
     {
-      "title": "Stone Center on Inequality and Shaping the Future of Work Launches at MIT",
-      "link": "https://news.mit.edu/2026/stone-center-inequality-shaping-future-work-launches-0107",
+      "title": "3 Questions: Building predictive models to characterize tumor progression",
+      "link": "https://news.mit.edu/2026/3-questions-building-predictive-models-characterize-tumor-progression-0310",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "Recent launch event for the center featured discussions on pro-worker AI, wealth inequality, and the future of liberal democracy."
+      "summary": "Assistant Professor Matthew Jones is working to decode molecular processes on the genetic, epigenetic, and microenvironment levels to anticipate how and when tumors evolve to resist treatment."
     },
     {
-      "title": "Using design to interpret the past and envision the future",
-      "link": "https://news.mit.edu/2026/using-design-interpret-past-envision-future-c-jacob-payne-0105",
+      "title": "How Joseph Paradiso\u2019s sensing innovations bridge the arts, medicine, and ecology",
+      "link": "https://news.mit.edu/2026/mit-professor-joseph-paradiso-sensing-innovations-0310",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "MIT graduate student C Jacob Payne reimagines historic architecture and invents new possibilities at the intersection of AI and design."
+      "summary": "From early motion-sensing platforms to environmental monitoring, the professor and head of the Program in Media Arts and Sciences has turned decades of cross-disciplinary research into real-world impact."
     }
   ],
   "meta": {

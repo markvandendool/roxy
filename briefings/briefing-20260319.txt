@@ -1,0 +1,15 @@
+Generated: 2026-03-19T07:00:10.726253
+
+Good morning, Mark! I've got your morning briefing ready.
+
+First off, let's talk about our MRR - we're seeing a nice 8.5% growth, which is fantastic news! That's $12,500 in revenue so far this month. You should be proud of the team for driving that momentum.
+
+On the active student front, we've got 156 students engaged, with 8 who are at-risk and need our attention. Let's make sure to prioritize those relationships and get them back on track.
+
+In terms of content, we're looking good - 14 clips are ready to go, and we've got another 21 scheduled for the coming week. That's a lot of valuable learning material in the pipeline!
+
+On the product side, we've got three open PRs waiting for your input, and our next release is v0.4.0. We're making progress, but there's still work to be done.
+
+Last but not least, let's take a look at the calendar - we've got two meetings scheduled, with the first one at 10:00 AM being our team sync. Make sure you're prepared for that.
+
+That's your morning briefing, Mark! What would you like to focus on first?

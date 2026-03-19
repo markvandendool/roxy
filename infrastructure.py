@@ -5,6 +5,7 @@ Provides unified interface for all infrastructure services
 """
 import json
 import logging
+import re
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -287,15 +288,206 @@ def remember_conversation(query: str, response: str, session_id: str = None, con
             logger.debug(f"Memory store failed: {e}")
 
 
-def recall_conversations(query: str, k: int = 5) -> list:
+def recall_conversations(
+    query: str,
+    k: int = 5,
+    session_id: Optional[str] = None,
+    time_window_days: Optional[int] = None,
+    min_score: Optional[float] = None,
+    min_similarity: Optional[float] = None,
+) -> list:
     """Recall relevant conversations from memory."""
     memory = get_memory()
     if memory:
         try:
-            return memory.recall(query, k)
+            try:
+                return memory.recall(
+                    query,
+                    k,
+                    session_id=session_id,
+                    time_window_days=time_window_days,
+                    min_score=min_score,
+                    min_similarity=min_similarity,
+                )
+            except TypeError:
+                # Backward compatibility for memory backends without new thresholds.
+                return memory.recall(
+                    query,
+                    k,
+                    session_id=session_id,
+                    time_window_days=time_window_days,
+                )
         except Exception as e:
             logger.debug(f"Memory recall failed: {e}")
     return []
+
+
+def _clean_fact_value(value: str, max_len: int = 80) -> str:
+    cleaned = (value or "").strip().strip("\"'`")
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    cleaned = re.sub(r"[.!,;:]+$", "", cleaned)
+    return cleaned[:max_len]
+
+
+def extract_user_facts(text: str) -> list:
+    """
+    Extract simple explicit user facts/preferences from natural language text.
+    Returns: [{"category": str, "preference": str, "confidence": float}, ...]
+    """
+    if not text:
+        return []
+
+    facts = []
+    content = text.strip()
+
+    # Name and identity
+    name_patterns = [
+        re.compile(
+            r"\bmy name is ([A-Za-z][A-Za-z' -]{0,40}?)(?:\s+(?:and|but)\b|[.,;!\n]|$)",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"\bcall me ([A-Za-z][A-Za-z' -]{0,40}?)(?:\s+(?:and|but)\b|[.,;!\n]|$)",
+            re.IGNORECASE,
+        ),
+    ]
+    for pattern in name_patterns:
+        m = pattern.search(content)
+        if m:
+            value = _clean_fact_value(m.group(1), max_len=50)
+            if value:
+                category = "preferred_name" if "call me" in pattern.pattern else "name"
+                facts.append({"category": category, "preference": value, "confidence": 0.98})
+
+    # Strong preference statements
+    pref_match = re.search(
+        r"\b(?:i prefer|i like|i love)\s+([^.;,\n]{2,100})",
+        content,
+        re.IGNORECASE,
+    )
+    if pref_match:
+        value = _clean_fact_value(pref_match.group(1))
+        if value:
+            facts.append({"category": "general_preference", "preference": value, "confidence": 0.72})
+
+    # Explicit dislikes are useful for personalization and recommendation filters.
+    dislike_match = re.search(
+        r"\b(?:i don't like|i do not like|i hate)\s+([^.;,\n]{2,100})",
+        content,
+        re.IGNORECASE,
+    )
+    if dislike_match:
+        value = _clean_fact_value(dislike_match.group(1))
+        if value:
+            facts.append({"category": "general_dislike", "preference": value, "confidence": 0.74})
+
+    # Age ("I'm 35 years old", "my age is 35")
+    age_patterns = [
+        re.compile(r"\b(?:i am|i'm)\s+(\d{1,3})\s*(?:years?\s+old|yo|yrs?\s+old)\b", re.IGNORECASE),
+        re.compile(r"\bmy age is\s+(\d{1,3})\b", re.IGNORECASE),
+    ]
+    for pattern in age_patterns:
+        age_match = pattern.search(content)
+        if not age_match:
+            continue
+        try:
+            age_num = int(age_match.group(1))
+        except Exception:
+            continue
+        if 0 < age_num < 121:
+            facts.append({"category": "age", "preference": str(age_num), "confidence": 0.96})
+            break
+
+    # Favorite X is Y
+    favorite_match = re.search(
+        r"\bmy favorite\s+([a-zA-Z _-]{2,40})\s+is\s+([^.;,\n]{2,100})",
+        content,
+        re.IGNORECASE,
+    )
+    if favorite_match:
+        thing = _clean_fact_value(favorite_match.group(1), max_len=40).lower().replace(" ", "_")
+        value = _clean_fact_value(favorite_match.group(2))
+        if thing and value:
+            facts.append({"category": f"favorite_{thing}", "preference": value, "confidence": 0.88})
+
+    # Location/timezone (often useful for scheduling and date handling)
+    location_match = re.search(r"\bi live in\s+([^.;,\n]{2,100})", content, re.IGNORECASE)
+    if location_match:
+        value = _clean_fact_value(location_match.group(1))
+        if value:
+            facts.append({"category": "location", "preference": value, "confidence": 0.82})
+
+    timezone_match = re.search(r"\bmy timezone is\s+([A-Za-z0-9_./+-]{2,40})", content, re.IGNORECASE)
+    if timezone_match:
+        value = _clean_fact_value(timezone_match.group(1), max_len=40)
+        if value:
+            facts.append({"category": "timezone", "preference": value, "confidence": 0.9})
+
+    # Deduplicate preserving order
+    deduped = []
+    seen = set()
+    for fact in facts:
+        key = (fact["category"], fact["preference"].lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(fact)
+    return deduped
+
+
+def learn_user_facts(query: str, session_id: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Learn explicit user facts/preferences from query text and store them as preferences.
+    Returns {"learned": [...], "count": int}
+    """
+    memory = get_memory()
+    if not memory:
+        return {"learned": [], "count": 0}
+
+    learned = []
+    try:
+        facts = extract_user_facts(query)
+        for fact in facts:
+            category = fact.get("category")
+            preference = fact.get("preference")
+            confidence = float(fact.get("confidence", 0.6))
+            if not category or not preference:
+                continue
+            memory.learn_preference(category, preference, confidence=confidence)
+            learned.append({
+                "category": category,
+                "preference": preference,
+                "confidence": confidence,
+                "session_id": session_id,
+            })
+    except Exception as e:
+        logger.debug(f"User fact learning failed: {e}")
+
+    return {"learned": learned, "count": len(learned)}
+
+
+def get_user_profile(category: Optional[str] = None, limit: int = 10) -> list:
+    """Get top learned profile/preferences for prompt personalization."""
+    memory = get_memory()
+    if not memory:
+        return []
+    try:
+        prefs = memory.get_preferences(category=category) or []
+        try:
+            prefs = sorted(
+                prefs,
+                key=lambda p: (
+                    float(p.get("confidence", 0.0)),
+                    str(p.get("updated_at", "")),
+                ),
+                reverse=True,
+            )
+        except Exception:
+            pass
+        return prefs[:max(1, int(limit))]
+    except Exception as e:
+        logger.debug(f"Get user profile failed: {e}")
+        return []
 
 
 def route_query(query: str, context: Dict = None, system: str = None) -> str:

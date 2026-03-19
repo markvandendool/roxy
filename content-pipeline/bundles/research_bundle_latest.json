@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260128_151211_69ed9e1b",
-  "timestamp": "2026-01-28T22:12:11.112333+00:00",
+  "bundle_id": "BUNDLE_20260319_141226_345c9760",
+  "timestamp": "2026-03-19T20:12:26.242365+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260128_150011_240f29db",
+      "snapshot_id": "TREND_20260319_140020_241d507e",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260128_150524_ea4a1288",
+      "brief_id": "BRIEF_20260319_140516_b9866ee1",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260128_151009_956105bf",
+      "analysis_id": "COMP_20260319_141026_109618ef",
       "status": "healthy",
       "count": 5
     }
@@ -24,9 +24,9 @@
     "brief_count": 5,
     "analysis_count": 5,
     "top_trend": {
-      "title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
+      "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "source": "TechCrunch AI",
-      "score": 95
+      "score": 85
     },
     "top_competitors": [
       {

@@ -22,8 +22,8 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from urllib.parse import parse_qs, urlparse
 import json
-from threading import Thread
-from typing import Optional, Tuple
+from threading import Thread, Lock
+from typing import Optional, Tuple, List, Dict, Any
 from collections import defaultdict, deque
 
 # =============================================================================
@@ -80,13 +80,17 @@ TOKEN_FILE = ROXY_DIR / "secret.token"
 
 # Default model selection (max-strength Qwen 14B unless explicitly overridden)
 DEFAULT_QWEN_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
-_MODEL_CACHE = {"model": None, "ts": 0.0}
+_MODEL_CACHE = {"selected": {}, "models": [], "ts": 0.0}
 _MODEL_CACHE_TTL = 60.0
 
 
 def _score_qwen_model(name: str) -> int:
     lower = name.lower()
     score = 0
+    if "qwen3" in lower:
+        score += 25
+    elif "qwen2.5" in lower:
+        score += 15
     if "instruct" in lower:
         score += 50
     if "q6" in lower:
@@ -100,13 +104,9 @@ def _score_qwen_model(name: str) -> int:
     return score
 
 
-def _select_best_qwen_14b(base_url: Optional[str]) -> str:
-    fallback = DEFAULT_QWEN_MODEL
-    override = os.getenv("ROXY_DEFAULT_MODEL")
-    if override:
-        return override.strip()
+def _fetch_model_names(base_url: Optional[str]) -> List[str]:
     if not base_url:
-        return fallback
+        return []
     try:
         import urllib.request
         req = urllib.request.Request(f"{base_url}/api/tags", method="GET")
@@ -114,26 +114,79 @@ def _select_best_qwen_14b(base_url: Optional[str]) -> str:
             payload = json.loads(resp.read().decode("utf-8"))
         models = payload.get("models", [])
         names = [m.get("name") for m in models if isinstance(m, dict)]
-        names = [n for n in names if isinstance(n, str)]
-        candidates = [n for n in names if "qwen" in n.lower() and "14b" in n.lower()]
-        if not candidates:
-            return fallback
-        candidates.sort(key=_score_qwen_model, reverse=True)
-        return candidates[0]
+        return [n for n in names if isinstance(n, str)]
     except Exception:
+        return []
+
+
+def _infer_model_task(query: str, mode: str = "") -> str:
+    q = (query or "").lower()
+    if mode.upper() == "EXEC":
+        return "code"
+    code_markers = ("code", "python", "bash", "stack trace", "traceback", "refactor", "unit test", "compile")
+    reasoning_markers = ("why", "reason", "analyze", "benchmark", "evaluate", "compare", "tradeoff")
+    if any(marker in q for marker in code_markers):
+        return "code"
+    if any(marker in q for marker in reasoning_markers):
+        return "reasoning"
+    return "general"
+
+
+def _score_runtime_model(name: str, task: str = "general") -> int:
+    lower = name.lower()
+    score = 0
+    if "14b" in lower:
+        score += 80
+    if any(big in lower for big in ("32b", "34b", "70b", "72b")):
+        score -= 120
+    if "qwen3" in lower:
+        score += 30
+    if "qwen2.5" in lower:
+        score += 20
+    if "deepseek-r1" in lower:
+        score += 45 if task == "reasoning" else 18
+    if "deepcoder" in lower or "coder" in lower:
+        score += 50 if task == "code" else 5
+    if "instruct" in lower:
+        score += 18
+    if "q6" in lower:
+        score += 16
+    elif "q5" in lower:
+        score += 12
+    elif "q4" in lower:
+        score += 8
+    if ":latest" in lower:
+        score -= 2
+    return score
+
+
+def _select_best_model(base_url: Optional[str], query: str = "", mode: str = "") -> str:
+    fallback = DEFAULT_QWEN_MODEL
+    names = _fetch_model_names(base_url)
+    if not names:
         return fallback
 
+    task = _infer_model_task(query, mode)
+    candidates = [n for n in names if "14b" in n.lower()]
+    if not candidates:
+        candidates = [n for n in names if "qwen" in n.lower()]
+    if not candidates:
+        return fallback
+    candidates.sort(key=lambda name: _score_runtime_model(name, task=task), reverse=True)
+    return candidates[0]
 
-def _get_default_model(base_url: Optional[str] = None) -> str:
+
+def _get_default_model(base_url: Optional[str] = None, query: str = "", mode: str = "") -> str:
     override = os.getenv("ROXY_DEFAULT_MODEL")
     if override:
         return override.strip()
+    cache_key = f"{base_url or _get_ollama_base_url()}::{_infer_model_task(query, mode)}"
     now = time.time()
-    cached = _MODEL_CACHE.get("model")
+    cached = _MODEL_CACHE.get("selected", {}).get(cache_key)
     if cached and (now - _MODEL_CACHE.get("ts", 0.0) < _MODEL_CACHE_TTL):
         return cached
-    selected = _select_best_qwen_14b(base_url or _get_ollama_base_url())
-    _MODEL_CACHE["model"] = selected
+    selected = _select_best_model(base_url or _get_ollama_base_url(), query=query, mode=mode)
+    _MODEL_CACHE.setdefault("selected", {})[cache_key] = selected
     _MODEL_CACHE["ts"] = now
     return selected
 
@@ -171,6 +224,551 @@ def _should_commit_memory(response_text: str) -> bool:
     if len(stripped) < MIN_STREAM_MEMORY_CHARS:
         return False
     return True
+
+
+MAX_MEMORY_CONTEXT_CHARS = int(os.getenv("ROXY_MEMORY_CONTEXT_MAX_CHARS", "2200"))
+MAX_MEMORY_SNIPPET_CHARS = int(os.getenv("ROXY_MEMORY_SNIPPET_CHARS", "220"))
+MAX_MEMORY_RECALL_ITEMS = int(os.getenv("ROXY_MEMORY_RECALL_ITEMS", "5"))
+MAX_PROFILE_ITEMS = int(os.getenv("ROXY_PROFILE_ITEMS", "8"))
+MIN_MEMORY_RECALL_SCORE = float(os.getenv("ROXY_MEMORY_RECALL_MIN_SCORE", "0.20"))
+MIN_MEMORY_RECALL_SIMILARITY = float(os.getenv("ROXY_MEMORY_RECALL_MIN_SIMILARITY", "0.18"))
+MIN_MEMORY_RECALL_LEXICAL = float(os.getenv("ROXY_MEMORY_RECALL_MIN_LEXICAL", "0.12"))
+ENABLE_AGENTIC_PIPELINE = os.getenv("ROXY_ENABLE_AGENTIC_PIPELINE", "1").lower() in ("1", "true", "yes")
+ENABLE_PROACTIVE_HINTS = os.getenv("ROXY_ENABLE_PROACTIVE_HINTS", "1").lower() in ("1", "true", "yes")
+MAX_AGENTIC_PLAN_STEPS = int(os.getenv("ROXY_MAX_AGENTIC_PLAN_STEPS", "6"))
+GOAL_TRACKER_LIMIT = int(os.getenv("ROXY_GOAL_TRACKER_LIMIT", "12"))
+
+_AMBIGUOUS_REFERENCE_PATTERN = re.compile(
+    r"\b(it|those|them|do that|do this|fix it|make it better)\b",
+    re.IGNORECASE,
+)
+_PROFILE_QUERY_PATTERN = re.compile(
+    r"\b(my name|who am i|how old am i|my age|what do i like|what do i dislike|remember about me|my preference)\b",
+    re.IGNORECASE,
+)
+_MEMORY_MISS_PATTERN = re.compile(
+    r"(no mention|cannot answer|can(?: ?')?t answer|not (?:provided|available)|given context|doesn(?: ?')?t contain|insufficient context)",
+    re.IGNORECASE,
+)
+_GOAL_INTRO_PATTERN = re.compile(r"\b(i need to|i want to|my goal is|help me|please help)\b", re.IGNORECASE)
+_ACTION_SPLIT_PATTERN = re.compile(r"\b(?:and then|and|then|after that|next|,|;)\b", re.IGNORECASE)
+_INTENT_KEYWORDS = {
+    "diagnose": ("error", "failing", "not working", "broken", "unstable"),
+    "optimize": ("optimize", "improve", "speed", "latency", "benchmark", "score"),
+    "implement": ("build", "implement", "add", "create", "upgrade"),
+    "operate": ("run", "start", "restart", "status", "health", "open"),
+}
+
+_SESSION_GOALS: Dict[str, Dict[str, Any]] = {}
+_SESSION_GOALS_LOCK = Lock()
+
+
+def _verify_and_enhance_response(
+    query: str,
+    response_text: str,
+    memory_context: str,
+    truth_packet: str
+) -> tuple[str, dict]:
+    """
+    Verify response for hallucinations and add confidence warnings.
+    Returns (enhanced_response, verification_metadata).
+    """
+    verification = {
+        "confidence": 1.0,
+        "flags": [],
+        "needs_reflection": False,
+        "verified": True,
+    }
+    
+    try:
+        sys.path.insert(0, str(ROXY_DIR))
+        from reflection import get_reflection_verifier
+        verifier = get_reflection_verifier()
+        verification = verifier.verify_response(
+            query=query,
+            response=response_text,
+            memory_context=memory_context,
+            truth_packet=truth_packet
+        )
+        
+        # Add confidence warning to response if needed
+        if verification.get("needs_reflection"):
+            enhanced = verifier.add_confidence_warning(verification, response_text)
+            return enhanced, verification
+        
+    except ImportError:
+        pass
+    except Exception as e:
+        logger.debug(f"Response verification failed (non-critical): {e}")
+    
+    return response_text, verification
+
+
+# Configuration for retry behavior
+ENABLE_REFLECTION_RETRY = os.getenv("ROXY_ENABLE_REFLECTION_RETRY", "1").lower() in ("1", "true", "yes")
+REFLECTION_RETRY_THRESHOLD = float(os.getenv("ROXY_REFLECTION_RETRY_THRESHOLD", "0.7"))
+REFLECTION_MAX_RETRIES = int(os.getenv("ROXY_REFLECTION_MAX_RETRIES", "2"))
+
+
+def _regenerate_with_memory_first(
+    query: str,
+    session_id: str,
+    memory_context: str,
+    model: str = "qwen2.5-coder:14b-instruct"
+) -> tuple[str, dict]:
+    """
+    Regenerate response with explicit memory-first prompting.
+    Used when initial response has low confidence.
+    
+    Returns:
+        (regenerated_response, regeneration_metadata)
+    """
+    meta = {
+        "regenerated": True,
+        "method": "memory_first_retry",
+        "prompt_injected": bool(memory_context),
+    }
+    
+    if not memory_context:
+        meta["error"] = "no_memory_context"
+        return "", meta
+    
+    try:
+        # Build enhanced memory-first prompt
+        enhanced_prompt = f"""You are ROXY, the MindSong Studios CEO AI. Answer based ONLY on the memory provided below.
+
+MEMORY (use this first, it contains user facts and preferences):
+{memory_context}
+
+CRITICAL INSTRUCTIONS:
+1. If the user asks about themselves (name, preferences, history), answer from MEMORY only
+2. Do NOT say "I don't know" or "based on context" if MEMORY contains the answer
+3. State facts directly: "Your name is Mark" not "Based on memory, your name is Mark"
+4. If MEMORY does not contain the answer, say "I don't have that information in my memory"
+
+User: {query}
+
+Answer:"""
+        
+        # Call LLM directly
+        import requests
+        base_url = _get_ollama_base_url()
+        resp = requests.post(
+            f"{base_url}/api/generate",
+            json={
+                "model": model,
+                "prompt": enhanced_prompt,
+                "stream": False,
+                "options": {
+                    "temperature": 0.3,  # Lower temp for factual responses
+                    "num_predict": 500
+                }
+            },
+            timeout=30
+        )
+        
+        if resp.status_code == 200:
+            result = resp.json().get("response", "").strip()
+            meta["success"] = True
+            return result, meta
+        else:
+            meta["error"] = f"llm_error:{resp.status_code}"
+            meta["success"] = False
+            return "", meta
+            
+    except Exception as e:
+        meta["error"] = str(e)
+        meta["success"] = False
+        return "", meta
+
+
+def _verify_and_enhance_with_retry(
+    query: str,
+    response_text: str,
+    memory_context: str,
+    truth_packet: str,
+    session_id: str,
+    model: str = "qwen2.5-coder:14b-instruct"
+) -> tuple[str, dict]:
+    """
+    Verify response, regenerate if confidence is low, and return best result.
+    Implements true retry loop for hallucination prevention.
+    """
+    # Initial verification
+    result, verification = _verify_and_enhance_response(
+        query, response_text, memory_context, truth_packet
+    )
+    
+    # If confidence is acceptable, return as-is
+    if verification.get("confidence", 1.0) >= REFLECTION_RETRY_THRESHOLD:
+        verification["retry_performed"] = False
+        return result, verification
+    
+    # Confidence is low - check if retries are enabled
+    if not ENABLE_REFLECTION_RETRY:
+        verification["retry_performed"] = False
+        verification["retry_skipped"] = "disabled"
+        return result, verification
+    
+    # Attempt regeneration with memory-first prompt
+    logger.info(f"Low confidence ({verification.get('confidence')}), attempting memory-first regeneration...")
+    
+    for attempt in range(REFLECTION_MAX_RETRIES):
+        # Regenerate with explicit memory injection
+        regenerated, regen_meta = _regenerate_with_memory_first(
+            query, session_id, memory_context, model
+        )
+        
+        if not regenerated:
+            verification["retry_performed"] = True
+            verification["regeneration_attempts"] = attempt + 1
+            verification["regeneration_failed"] = True
+            break
+        
+        # Verify the regenerated response
+        result, verification = _verify_and_enhance_response(
+            query, regenerated, memory_context, truth_packet
+        )
+        
+        # Check if confidence improved
+        if verification.get("confidence", 0) >= REFLECTION_RETRY_THRESHOLD:
+            verification["retry_performed"] = True
+            verification["regeneration_attempts"] = attempt + 1
+            verification["regeneration_improved"] = True
+            logger.info(f"Regeneration improved confidence to {verification.get('confidence')}")
+            return result, verification
+        
+        logger.debug(f"Regeneration attempt {attempt + 1} still low confidence: {verification.get('confidence')}")
+    
+    # All retries exhausted or failed
+    verification["retry_performed"] = True
+    verification["regeneration_attempts"] = REFLECTION_MAX_RETRIES
+    verification["regeneration_exhausted"] = True
+    
+    # Add warning about low confidence
+    try:
+        from reflection import get_reflection_verifier
+        verifier = get_reflection_verifier()
+        result = verifier.add_confidence_warning(verification, result)
+    except:
+        pass
+    
+    return result, verification
+
+
+def _trim_text(value: str, max_len: int = 200) -> str:
+    text = (value or "").strip()
+    if len(text) <= max_len:
+        return text
+    return text[:max_len].rstrip() + "..."
+
+
+def _build_memory_context_for_prompt(query: str, session_id: Optional[str]) -> tuple[str, dict]:
+    """
+    Build prompt-ready episodic memory + profile block.
+    Returns (context_block, metadata).
+    """
+    meta = {
+        "enabled": False,
+        "memory_items": 0,
+        "profile_items": 0,
+        "context_chars": 0,
+        "query_rewritten": False,
+    }
+    if not INFRASTRUCTURE_AVAILABLE:
+        return "", meta
+
+    # Apply query rewriting for better retrieval
+    try:
+        from query_rewriting import rewrite_query_for_retrieval
+        rewritten_query, query_meta = rewrite_query_for_retrieval(query)
+        meta["query_rewritten"] = query_meta.get("rewritten") != query
+        meta["query_entities"] = query_meta.get("entities", [])
+        if meta["query_rewritten"]:
+            logger.debug(f"Query rewritten: '{query}' -> '{rewritten_query}'")
+            query = rewritten_query
+    except ImportError:
+        pass
+    except Exception as e:
+        logger.debug(f"Query rewriting failed: {e}")
+
+    try:
+        memories = recall_conversations(
+            query,
+            k=MAX_MEMORY_RECALL_ITEMS,
+            session_id=session_id,
+            min_score=MIN_MEMORY_RECALL_SCORE,
+            min_similarity=MIN_MEMORY_RECALL_SIMILARITY,
+        ) or []
+
+        # If session-scoped recall is sparse, blend in global recall for cross-session continuity.
+        if len(memories) < 2:
+            global_memories = recall_conversations(
+                query,
+                k=MAX_MEMORY_RECALL_ITEMS,
+                min_score=max(MIN_MEMORY_RECALL_SCORE - 0.04, 0.0),
+                min_similarity=max(MIN_MEMORY_RECALL_SIMILARITY - 0.05, 0.0),
+            ) or []
+            seen = set()
+            merged = []
+            for m in memories + global_memories:
+                key = (
+                    m.get("id"),
+                    m.get("query"),
+                    m.get("created_at"),
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                merged.append(m)
+            memories = merged[:MAX_MEMORY_RECALL_ITEMS]
+    except Exception as e:
+        logger.debug(f"Memory recall context build failed: {e}")
+        memories = []
+
+    try:
+        profile = get_user_profile(limit=MAX_PROFILE_ITEMS) or []
+    except Exception as e:
+        logger.debug(f"Profile context build failed: {e}")
+        profile = []
+
+    sections = []
+    if memories:
+        filtered_memories = []
+        for memory in memories:
+            try:
+                score = float(memory.get("score", 0.0))
+            except Exception:
+                score = 0.0
+            try:
+                similarity = float(memory.get("similarity", 0.0))
+            except Exception:
+                similarity = 0.0
+            try:
+                lexical_overlap = float(memory.get("lexical_overlap", 0.0))
+            except Exception:
+                lexical_overlap = 0.0
+            if (
+                score >= MIN_MEMORY_RECALL_SCORE
+                or similarity >= MIN_MEMORY_RECALL_SIMILARITY
+                or lexical_overlap >= MIN_MEMORY_RECALL_LEXICAL
+            ):
+                filtered_memories.append(memory)
+        if not filtered_memories:
+            filtered_memories = memories[: min(len(memories), 2)]
+
+        lines = []
+        for idx, memory in enumerate(filtered_memories[:MAX_MEMORY_RECALL_ITEMS], start=1):
+            q = _trim_text(memory.get("query", ""), max_len=120)
+            r = _trim_text(memory.get("response", ""), max_len=MAX_MEMORY_SNIPPET_CHARS)
+            lines.append(f"{idx}. User: {q}")
+            lines.append(f"   ROXY: {r}")
+        sections.append("Relevant past conversation snippets:\n" + "\n".join(lines))
+        meta["memory_items"] = len(filtered_memories[:MAX_MEMORY_RECALL_ITEMS])
+
+    if profile:
+        lines = []
+        for item in profile[:MAX_PROFILE_ITEMS]:
+            category = item.get("category", "general")
+            preference = item.get("preference", "")
+            if not preference:
+                continue
+            confidence = item.get("confidence")
+            if confidence is None:
+                lines.append(f"- {category}: {preference}")
+            else:
+                try:
+                    lines.append(f"- {category}: {preference} (confidence {float(confidence):.2f})")
+                except Exception:
+                    lines.append(f"- {category}: {preference}")
+        if lines:
+            sections.append("Learned user profile facts/preferences:\n" + "\n".join(lines))
+            meta["profile_items"] = len(lines)
+
+    if not sections:
+        return "", meta
+
+    context_block = (
+        "EPISODIC MEMORY CONTEXT (cross-session, use only when relevant):\n"
+        + "\n\n".join(sections)
+    )
+    context_block = _trim_text(context_block, max_len=MAX_MEMORY_CONTEXT_CHARS)
+    meta["enabled"] = True
+    meta["context_chars"] = len(context_block)
+    return context_block, meta
+
+
+def _normalize_text(text: str) -> str:
+    return re.sub(r"\s+", " ", (text or "").strip())
+
+
+def _infer_intent(query: str) -> str:
+    lowered = (query or "").lower()
+    for intent, keywords in _INTENT_KEYWORDS.items():
+        if any(kw in lowered for kw in keywords):
+            return intent
+    if "?" in lowered:
+        return "question"
+    return "general"
+
+
+def _is_complex_query(query: str) -> bool:
+    cleaned = _normalize_text(query)
+    if not cleaned:
+        return False
+    words = cleaned.split()
+    if len(words) >= 16:
+        return True
+    if len(_ACTION_SPLIT_PATTERN.split(cleaned)) >= 3:
+        return True
+    complexity_markers = ("first", "second", "third", "step", "pipeline", "end-to-end")
+    return any(marker in cleaned.lower() for marker in complexity_markers)
+
+
+def _build_plan_steps(query: str, limit: int = MAX_AGENTIC_PLAN_STEPS) -> List[str]:
+    lowered = _normalize_text(query).lower()
+    if not lowered:
+        return []
+
+    if "benchmark" in lowered or "score" in lowered:
+        plan = [
+            "Establish baseline metrics from current benchmark harness.",
+            "Identify worst-performing categories and map to concrete code paths.",
+            "Apply targeted fixes and model/runtime tuning.",
+            "Re-run benchmark suite and compare deltas by metric.",
+        ]
+    elif any(token in lowered for token in ("error", "failing", "broken", "not working", "unstable")):
+        plan = [
+            "Capture current failure symptoms and reproducible signals.",
+            "Isolate likely root-cause components from logs and health checks.",
+            "Apply minimal corrective changes with rollback-safe scope.",
+            "Validate fix with direct smoke tests and regression checks.",
+        ]
+    elif any(token in lowered for token in ("implement", "build", "add", "upgrade")):
+        plan = [
+            "Define scope and acceptance criteria for requested capability.",
+            "Implement smallest high-leverage code changes first.",
+            "Add tests for new behavior and edge cases.",
+            "Verify runtime behavior in live service path.",
+        ]
+    else:
+        plan = [
+            "Clarify the target outcome and constraints.",
+            "Execute the highest-impact action first.",
+            "Validate result quality and reliability.",
+        ]
+
+    return plan[: max(1, int(limit))]
+
+
+def _analyze_agentic_request(query: str) -> Dict[str, Any]:
+    cleaned = _normalize_text(query)
+    lowered = cleaned.lower()
+    is_complex = _is_complex_query(cleaned)
+    has_ambiguous_ref = bool(_AMBIGUOUS_REFERENCE_PATTERN.search(cleaned))
+    noun_anchors = ("roxy", "model", "service", "memory", "benchmark", "repo", "file", "gpu", "command center")
+    anchored = any(anchor in lowered for anchor in noun_anchors)
+    needs_clarification = has_ambiguous_ref and not anchored and len(cleaned.split()) <= 14
+    clarifying_question = ""
+    if needs_clarification:
+        clarifying_question = "Can you specify exactly what 'it/that' refers to (service, file, model, or workflow)?"
+
+    return {
+        "intent": _infer_intent(cleaned),
+        "complex": is_complex,
+        "needs_clarification": needs_clarification,
+        "clarifying_question": clarifying_question,
+        "plan_steps": _build_plan_steps(cleaned) if is_complex else [],
+    }
+
+
+def _response_indicates_memory_miss(response_text: str) -> bool:
+    if not response_text:
+        return True
+    return bool(_MEMORY_MISS_PATTERN.search(response_text))
+
+
+def _should_attempt_memory_rescue(query: str, response_text: str, memory_context: str) -> bool:
+    if not memory_context:
+        return False
+    if not _PROFILE_QUERY_PATTERN.search(query or ""):
+        return False
+    return _response_indicates_memory_miss(response_text)
+
+
+def _build_proactive_suggestions(query: str) -> List[str]:
+    lowered = (query or "").lower()
+    suggestions: List[str] = []
+
+    if any(token in lowered for token in ("benchmark", "score", "performance", "latency")):
+        suggestions.extend([
+            "Run a fresh benchmark baseline before and after each change to track measurable deltas.",
+            "Tune context length and quantization per model to balance quality and throughput on GPU.",
+        ])
+    if any(token in lowered for token in ("error", "failing", "broken", "not working", "unstable")):
+        suggestions.extend([
+            "Capture a timestamped health snapshot and the latest service logs for root-cause clarity.",
+            "Validate the fix with a minimal reproducible command before broader testing.",
+        ])
+    if any(token in lowered for token in ("install", "setup", "upgrade", "update")):
+        suggestions.extend([
+            "Pin versions for critical dependencies and record them in service metadata.",
+            "Add a smoke-test endpoint check after installation to prevent silent startup failures.",
+        ])
+
+    deduped: List[str] = []
+    seen = set()
+    for item in suggestions:
+        key = item.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped[:3]
+
+
+def _append_proactive_suggestions(query: str, result_text: str) -> tuple[str, List[str]]:
+    if not ENABLE_PROACTIVE_HINTS:
+        return result_text, []
+    if not result_text:
+        return result_text, []
+    if "Recommended next steps:" in result_text:
+        return result_text, []
+
+    suggestions = _build_proactive_suggestions(query)
+    if not suggestions:
+        return result_text, []
+
+    lines = [result_text.rstrip(), "", "Recommended next steps:"]
+    for idx, item in enumerate(suggestions, start=1):
+        lines.append(f"{idx}. {item}")
+    return "\n".join(lines), suggestions
+
+
+def _update_goal_tracker(session_id: str, query: str, result_text: str):
+    if not session_id:
+        return
+    cleaned = _normalize_text(query)
+    if not cleaned:
+        return
+    completed = bool(re.search(r"\b(done|completed|resolved|fixed)\b", result_text or "", re.IGNORECASE))
+    with _SESSION_GOALS_LOCK:
+        state = _SESSION_GOALS.setdefault(session_id, {"active": deque(maxlen=GOAL_TRACKER_LIMIT), "history": deque(maxlen=GOAL_TRACKER_LIMIT)})
+        if _GOAL_INTRO_PATTERN.search(cleaned):
+            state["active"].append(cleaned)
+        if completed and state["active"]:
+            goal = state["active"].popleft()
+            state["history"].append(goal)
+
+
+def _goal_tracker_summary(session_id: str) -> Dict[str, int]:
+    if not session_id:
+        return {"active_goals": 0, "completed_goals": 0}
+    with _SESSION_GOALS_LOCK:
+        state = _SESSION_GOALS.get(session_id, {})
+        active = state.get("active") or []
+        history = state.get("history") or []
+        return {"active_goals": len(active), "completed_goals": len(history)}
 
 
 def _normalize_base_url(url: str | None) -> str | None:
@@ -271,6 +869,7 @@ try:
         get_cache, get_memory, get_router, get_event_stream, get_feedback,
         cache_query, get_cached_response,
         remember_conversation, recall_conversations,
+        learn_user_facts, get_user_profile,
         route_query, classify_query,
         publish_event, publish_query_event, publish_response_event,
         record_feedback, get_feedback_stats, get_all_stats
@@ -307,6 +906,10 @@ except ImportError as e:
     def remember_conversation(*args, **kwargs): pass
 
     def recall_conversations(*args, **kwargs): return []
+
+    def learn_user_facts(*args, **kwargs): return {"learned": [], "count": 0}
+
+    def get_user_profile(*args, **kwargs): return []
 
     def route_query(*args, **kwargs): return ""
 
@@ -1696,6 +2299,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             allow_greeting = getattr(self, "_allow_stream_greeting", False)
             debug_echo = getattr(self, "_debug_stream_echo", False)
             request_echo = getattr(self, "_stream_request_echo", "")
+            session_id = self.headers.get('X-ROXY-Session', request_id)
+            memory_context = ""
+            memory_context_meta = {"enabled": False, "memory_items": 0, "profile_items": 0, "context_chars": 0}
+            if INFRASTRUCTURE_AVAILABLE:
+                memory_context, memory_context_meta = _build_memory_context_for_prompt(command, session_id)
 
             # Import streaming module
             sys.path.insert(0, str(ROXY_DIR))
@@ -1776,7 +2384,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 selected_model = routing_decision.selected_model
                 selected_endpoint = routing_decision.selected_endpoint
                 if not selected_model:
-                    selected_model = _get_default_model(selected_endpoint)
+                    selected_model = _get_default_model(selected_endpoint, query=command, mode=routing_meta.get("routed_mode", ""))
             except ImportError:
                 logger.warning("[ROUTING] router_integration not available, using defaults")
                 # Default to FAST pool for speed (Chief directive: FAST unless router says BIG)
@@ -1802,7 +2410,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "reason": reason,
                     "selected_pool": "6900xt",
                     "selected_endpoint": "http://127.0.0.1:11435",
-                    "selected_model": _get_default_model("http://127.0.0.1:11435"),
+                    "selected_model": _get_default_model("http://127.0.0.1:11435", query=command, mode=mode),
                     "confidence": 0.0,
                     "skip_rag": skip_rag,
                     "skip_rag_reason": skip_rag_reason,
@@ -1898,10 +2506,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
 
                 # Stream RAG response (with or without context)
                 try:
+                    if memory_context and not rag_skipped:
+                        context = f"{memory_context}\n\n{context}" if context else memory_context
+
                     # Emit routing metadata event (Directive #10)
                     routing_meta["latency_ms"] = int((time_mod.time() - route_start) * 1000)
                     routing_meta["rag_context_len"] = len(context) if context else 0
                     routing_meta["rag_sources_top3"] = rag_sources
+                    routing_meta["memory_context_len"] = int(memory_context_meta.get("context_chars", 0))
+                    routing_meta["memory_items"] = int(memory_context_meta.get("memory_items", 0))
+                    routing_meta["profile_items"] = int(memory_context_meta.get("profile_items", 0))
                     routing_event = f"event: routing_meta\ndata: {json.dumps(routing_meta)}\n\n"
                     self._safe_write(routing_event, request_id)
 
@@ -1934,7 +2548,6 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     # Commit memory after streaming completes
                     if INFRASTRUCTURE_AVAILABLE and _should_commit_memory(full_response):
                         try:
-                            session_id = self.headers.get('X-ROXY-Session', request_id)
                             remember_conversation(command, full_response, session_id, {
                                 'response_time': time.time(),
                                 'client_ip': self.client_address[0],
@@ -1942,6 +2555,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             })
                         except Exception as e:
                             logger.debug(f"Streaming memory write failed (non-critical): {e}")
+                    if INFRASTRUCTURE_AVAILABLE:
+                        try:
+                            learn_user_facts(command, session_id=session_id)
+                        except Exception as e:
+                            logger.debug(f"Streaming fact learning failed (non-critical): {e}")
                     return
                 except Exception as e:
                     logger.debug(f"RAG streaming failed: {e}, falling back to simple response")
@@ -1954,6 +2572,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env["ROXY_REQUEST_ID"] = request_id
                 else:
                     env.pop("ROXY_REQUEST_ID", None)
+                if session_id:
+                    env["ROXY_SESSION_ID"] = session_id
+                else:
+                    env.pop("ROXY_SESSION_ID", None)
+                if memory_context:
+                    env["ROXY_MEMORY_CONTEXT"] = memory_context
+                else:
+                    env.pop("ROXY_MEMORY_CONTEXT", None)
 
                 commands_python = ROXY_DIR / "venv" / "bin" / "python"
                 python_exec = str(commands_python) if commands_python.exists() else sys.executable
@@ -1981,7 +2607,6 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self._safe_write(f"event: complete\ndata: {json.dumps({'done': True})}\n\n", request_id)
                 if INFRASTRUCTURE_AVAILABLE and _should_commit_memory(full_response):
                     try:
-                        session_id = self.headers.get('X-ROXY-Session', request_id)
                         remember_conversation(command, full_response, session_id, {
                             'response_time': time.time(),
                             'client_ip': self.client_address[0],
@@ -1989,6 +2614,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         })
                     except Exception as e:
                         logger.debug(f"Streaming memory write failed (non-critical): {e}")
+                if INFRASTRUCTURE_AVAILABLE:
+                    try:
+                        learn_user_facts(command, session_id=session_id)
+                    except Exception as e:
+                        logger.debug(f"Streaming fact learning failed (non-critical): {e}")
             else:
                 error_data = json.dumps({"error": "roxy_commands.py not found", "done": True})
                 self._safe_write(f"event: error\ndata: {error_data}\n\n", request_id)
@@ -2167,14 +2797,40 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             data = json.loads(body.decode('utf-8'))
             
             query = data.get('query', '').strip()
-            k = int(data.get('k', 5))
+            k = int(data.get('k', data.get('limit', 5)))
+            session_id = data.get('session_id')
+            time_window_days = data.get('time_window_days')
+            min_score = data.get('min_score')
+            min_similarity = data.get('min_similarity')
+            if time_window_days is not None:
+                try:
+                    time_window_days = int(time_window_days)
+                except Exception:
+                    time_window_days = None
+            if min_score is not None:
+                try:
+                    min_score = float(min_score)
+                except Exception:
+                    min_score = None
+            if min_similarity is not None:
+                try:
+                    min_similarity = float(min_similarity)
+                except Exception:
+                    min_similarity = None
             
             if not query:
                 self.send_error(400, "Query required")
                 return
             
             if INFRASTRUCTURE_AVAILABLE:
-                memories = recall_conversations(query, k)
+                memories = recall_conversations(
+                    query,
+                    k,
+                    session_id=session_id,
+                    time_window_days=time_window_days,
+                    min_score=min_score,
+                    min_similarity=min_similarity,
+                )
             else:
                 memories = []
 
@@ -3219,6 +3875,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             explicit_mode = data.get('mode', '').upper()  # CHAT, RAG, EXEC
             explicit_pool = data.get('pool', '').upper()  # AUTO, W5700X, 6900XT (or legacy BIG/FAST)
             model_override = data.get('model', '')  # Optional model override
+            session_id = data.get('session_id') or self.headers.get('X-ROXY-Session') or request_id
             
             # Security: Sanitize input - CRITICAL SECURITY FEATURE
             try:
@@ -3261,6 +3918,48 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return
             
             logger.info(f"Executing command: {command} mode={explicit_mode or 'auto'} pool={explicit_pool or 'auto'}")
+
+            memory_context = ""
+            memory_context_meta = {"enabled": False, "memory_items": 0, "profile_items": 0, "context_chars": 0}
+            if INFRASTRUCTURE_AVAILABLE:
+                memory_context, memory_context_meta = _build_memory_context_for_prompt(command, session_id)
+
+            agentic_meta = {
+                "intent": "general",
+                "complex": False,
+                "needs_clarification": False,
+                "clarifying_question": "",
+                "plan_steps": [],
+            }
+            if ENABLE_AGENTIC_PIPELINE:
+                agentic_meta = _analyze_agentic_request(command)
+                if agentic_meta.get("needs_clarification"):
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    response = {
+                        "status": "clarification_needed",
+                        "command": command,
+                        "result": agentic_meta.get("clarifying_question"),
+                        "metadata": {
+                            "mode": "agentic",
+                            "route": "clarification",
+                            "memory": {
+                                "context_injected": bool(memory_context),
+                                "context_chars": int(memory_context_meta.get("context_chars", 0)),
+                                "memory_items": int(memory_context_meta.get("memory_items", 0)),
+                                "profile_items": int(memory_context_meta.get("profile_items", 0)),
+                            },
+                            "agentic": {
+                                "intent": agentic_meta.get("intent"),
+                                "complex_query": bool(agentic_meta.get("complex")),
+                                "needs_clarification": True,
+                                "plan_steps": agentic_meta.get("plan_steps", []),
+                            },
+                        },
+                    }
+                    self.wfile.write(json.dumps(response).encode())
+                    return
             
             # Track execution timing for metadata
             exec_start = time.time()
@@ -3271,8 +3970,37 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 request_id=request_id,
                 mode=explicit_mode,
                 pool=explicit_pool,
-                model_override=model_override
+                model_override=model_override,
+                session_id=session_id,
+                memory_context=memory_context,
+                plan_steps=agentic_meta.get("plan_steps", []),
             )
+            memory_rescue_attempted = False
+            memory_rescue_applied = False
+            if ENABLE_AGENTIC_PIPELINE and _should_attempt_memory_rescue(command, result, memory_context):
+                memory_rescue_attempted = True
+                rescue_prompt = (
+                    "Use known user memory facts to answer directly and concisely. "
+                    "If unknown, say unknown without guessing.\n"
+                    f"Question: {command}"
+                )
+                rescue_result = self._execute_command(
+                    rescue_prompt,
+                    request_id=request_id,
+                    mode="CHAT",
+                    pool=explicit_pool,
+                    model_override=model_override,
+                    session_id=session_id,
+                    memory_context=memory_context,
+                    plan_steps=[],
+                )
+                if (
+                    rescue_result
+                    and not str(rescue_result).startswith("ERROR:")
+                    and not _response_indicates_memory_miss(str(rescue_result))
+                ):
+                    result = rescue_result
+                    memory_rescue_applied = True
             exec_end = time.time()
             response_time = exec_end - start_time
             total_ms = round((exec_end - exec_start) * 1000, 1)
@@ -3335,6 +4063,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 logger.error(f"Output filtering failed: {e}", exc_info=True)
                 # Log but don't block - output filtering is less critical than input
+
+            proactive_suggestions: List[str] = []
+            if ENABLE_AGENTIC_PIPELINE:
+                result, proactive_suggestions = _append_proactive_suggestions(command, result)
+                _update_goal_tracker(session_id, command, result)
             
             # Observability - ALWAYS log (don't swallow errors)
             sys.path.insert(0, str(ROXY_DIR))
@@ -3364,6 +4097,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 # Non-critical, continue execution
             
             # Infrastructure integration - Cache, Memory, Events (non-blocking)
+            learned_facts = []
             if INFRASTRUCTURE_AVAILABLE:
                 try:
                     # Cache the response with routing metadata preserved
@@ -3376,11 +4110,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
                         "tools_executed": exec_meta.get("tools_executed", []),
                         "total_ms": exec_meta.get("total_ms") if isinstance(exec_meta, dict) else None,
+                        "memory_context_chars": exec_meta.get("memory_context_chars", 0) if isinstance(exec_meta, dict) else 0,
                     }
                     cache_query(command, result, metadata=cache_metadata)
                     
                     # Store in episodic memory (skip if memory_store already wrote)
-                    session_id = self.headers.get('X-ROXY-Session', request_id)
                     exec_meta = getattr(self, '_last_execution_metadata', {})
                     flags = exec_meta.get("flags", {}) if isinstance(exec_meta, dict) else {}
                     skip_memory = isinstance(exec_meta, dict) and (
@@ -3390,8 +4124,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         remember_conversation(command, result, session_id, {
                             'response_time': response_time,
                             'client_ip': client_ip,
-                            'endpoint': '/run'
+                            'endpoint': '/run',
+                            'intent': agentic_meta.get("intent"),
+                            'complex_query': bool(agentic_meta.get("complex")),
+                            'proactive_suggestions': len(proactive_suggestions),
                         })
+                    try:
+                        fact_learning = learn_user_facts(command, session_id=session_id)
+                        learned_facts = fact_learning.get("learned", []) if isinstance(fact_learning, dict) else []
+                    except Exception as e:
+                        logger.debug(f"User fact learning failed (non-critical): {e}")
                     
                     # Publish response event
                     publish_response_event(
@@ -3403,6 +4145,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     )
                 except Exception as e:
                     logger.debug(f"Infrastructure integration failed (non-critical): {e}")
+            
+            # Reflection/Verification pass - check for hallucinations, regenerate if needed
+            try:
+                truth_packet_snippet = ""
+                model_used = exec_meta.get("selected_model") or exec_meta.get("model_used") or "qwen2.5-coder:14b-instruct"
+                result, verification = _verify_and_enhance_with_retry(
+                    query=command,
+                    response_text=result,
+                    memory_context=memory_context,
+                    truth_packet=truth_packet_snippet,
+                    session_id=session_id,
+                    model=model_used
+                )
+            except Exception as e:
+                logger.debug(f"Response verification failed (non-critical): {e}")
+                verification = {"confidence": 1.0, "flags": [], "needs_reflection": False}
             
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -3455,6 +4213,29 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 except Exception as e:
                     memory_status["error"] = str(e)
             response["metadata"]["memory"] = memory_status
+            response["metadata"]["memory"]["context_injected"] = bool(memory_context)
+            response["metadata"]["memory"]["context_chars"] = int(memory_context_meta.get("context_chars", 0))
+            response["metadata"]["memory"]["memory_items"] = int(memory_context_meta.get("memory_items", 0))
+            response["metadata"]["memory"]["profile_items"] = int(memory_context_meta.get("profile_items", 0))
+            response["metadata"]["memory"]["facts_learned"] = len(learned_facts)
+            response["metadata"]["agentic"] = {
+                "enabled": ENABLE_AGENTIC_PIPELINE,
+                "intent": agentic_meta.get("intent"),
+                "complex_query": bool(agentic_meta.get("complex")),
+                "plan_steps": agentic_meta.get("plan_steps", []),
+                "needs_clarification": bool(agentic_meta.get("needs_clarification")),
+                "memory_rescue_attempted": memory_rescue_attempted,
+                "memory_rescue_applied": memory_rescue_applied,
+                "proactive_suggestions_added": len(proactive_suggestions),
+                **_goal_tracker_summary(session_id),
+            }
+            # Add reflection/verification metadata
+            response["metadata"]["reflection"] = {
+                "confidence": verification.get("confidence", 1.0),
+                "flags": verification.get("flags", []),
+                "needs_reflection": verification.get("needs_reflection", False),
+                "unverified_claims": verification.get("unverified_claims", []),
+            }
             self.wfile.write(json.dumps(response).encode())
             
             # Mark metrics as successful and close context
@@ -3650,8 +4431,17 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             response = {"status": "error", "message": str(e)}
             self.wfile.write(json.dumps(response).encode())
     
-    def _execute_command(self, command: str, request_id: Optional[str] = None,
-                          mode: str = "", pool: str = "", model_override: str = "") -> str:
+    def _execute_command(
+        self,
+        command: str,
+        request_id: Optional[str] = None,
+        mode: str = "",
+        pool: str = "",
+        model_override: str = "",
+        session_id: Optional[str] = None,
+        memory_context: str = "",
+        plan_steps: Optional[List[str]] = None,
+    ) -> str:
         """Execute command via roxy_commands.py with caching and validation
 
         Args:
@@ -3660,7 +4450,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             mode: Explicit mode (CHAT, RAG, EXEC) - empty means auto-route
             pool: Explicit pool (AUTO, W5700X, 6900XT or legacy BIG/FAST) - empty means auto
             model_override: Optional model name override
+            session_id: Optional conversation session identifier
+            memory_context: Optional prebuilt memory/profile context for prompt injection
+            plan_steps: Optional execution plan hints for agentic prompting
         """
+        effective_session_id = session_id or self.headers.get('X-ROXY-Session') or request_id
+        effective_memory_context = memory_context or ""
+        effective_plan_steps = [step.strip() for step in (plan_steps or []) if str(step).strip()]
+        if not effective_memory_context and INFRASTRUCTURE_AVAILABLE:
+            try:
+                built_context, _ = _build_memory_context_for_prompt(command, effective_session_id)
+                effective_memory_context = built_context or ""
+            except Exception as e:
+                logger.debug(f"Memory context assembly failed in execute path: {e}")
         
         # Initialize execution metadata for this call
         self._last_execution_metadata = {
@@ -3669,7 +4471,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "route": "unknown",
             "pool": pool.lower() if pool else "auto",
             "base_url_used": _get_ollama_base_url(),
-            "tools_executed": []
+            "tools_executed": [],
+            "memory_context_chars": len(effective_memory_context),
+            "plan_steps": effective_plan_steps,
         }
         
         # GREETING FASTPATH - only when explicitly allowed
@@ -3704,6 +4508,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             command.startswith('RUN_TOOL ') or  # Explicit tool syntax
             self._is_file_claim_query(command)  # File-existence queries
         )
+        if effective_memory_context:
+            # Personalized responses should not use generic cache entries.
+            bypass_cache = True
         
         # Check cache first (for pure RAG queries only)
         if not bypass_cache and self._is_rag_query(command):
@@ -3737,6 +4544,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         "pool": cached_metadata.get("pool", self._last_execution_metadata.get("pool", "auto")),
                         "base_url_used": cached_metadata.get("base_url_used", self._last_execution_metadata.get("base_url_used", _get_ollama_base_url())),
                         "tools_executed": cached_metadata.get("tools_executed", self._last_execution_metadata.get("tools_executed", [])),
+                        "memory_context_chars": cached_metadata.get(
+                            "memory_context_chars",
+                            self._last_execution_metadata.get("memory_context_chars", 0),
+                        ),
                     })
                     if "total_ms" in cached_metadata:
                         self._last_execution_metadata["total_ms"] = cached_metadata["total_ms"]
@@ -3765,6 +4576,20 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     env["ROXY_REQUEST_ID"] = request_id
                 else:
                     env.pop("ROXY_REQUEST_ID", None)
+                if effective_session_id:
+                    env["ROXY_SESSION_ID"] = effective_session_id
+                else:
+                    env.pop("ROXY_SESSION_ID", None)
+                if effective_memory_context:
+                    env["ROXY_MEMORY_CONTEXT"] = effective_memory_context
+                else:
+                    env.pop("ROXY_MEMORY_CONTEXT", None)
+                if effective_plan_steps:
+                    env["ROXY_PLAN_CONTEXT"] = "\n".join(
+                        f"{idx}. {step}" for idx, step in enumerate(effective_plan_steps, start=1)
+                    )
+                else:
+                    env.pop("ROXY_PLAN_CONTEXT", None)
                 
                 # Pass explicit operator controls as env vars (Chief's mode/pool)
                 # --- CHIEF'S LOGIC: Strict Pool Enforcement ---
@@ -3828,7 +4653,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 
                 # Always pass normalized pool and default model to roxy_commands
                 env["ROXY_POOL"] = pool_normalized
-                selected_model = model_override or _get_default_model(self._last_execution_metadata.get("base_url_used"))
+                selected_model = model_override or _get_default_model(
+                    self._last_execution_metadata.get("base_url_used"),
+                    query=command,
+                    mode=effective_mode,
+                )
                 self._last_execution_metadata["selected_model"] = selected_model
                 env["ROXY_MODEL"] = selected_model
                 env["ROXY_DEFAULT_MODEL"] = selected_model
@@ -3877,7 +4706,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "route": mode,  # rag, tool_direct, etc.
                                 "pool": metadata.get("routing_meta", {}).get("selected_pool", effective_pool.lower()),
                                 "tools_executed": tools_executed,
-                                "flags": flags
+                                "flags": flags,
+                                "memory_context_chars": existing_meta.get("memory_context_chars", len(effective_memory_context)),
+                                "plan_steps": existing_meta.get("plan_steps", effective_plan_steps),
                             }
                             # Preserve base_url_used from our earlier decision
                             self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
@@ -3929,6 +4760,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             "base_url_used": cache_exec_meta.get("base_url_used", _get_ollama_base_url()),
                             "tools_executed": cache_exec_meta.get("tools_executed", []),
                             "total_ms": cache_exec_meta.get("total_ms"),
+                            "memory_context_chars": cache_exec_meta.get("memory_context_chars", 0),
                         }
                         # Use infrastructure cache (Redis with fallback)
                         if INFRASTRUCTURE_AVAILABLE:

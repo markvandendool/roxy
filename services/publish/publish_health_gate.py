@@ -319,7 +319,7 @@ def check_master_consistency() -> Dict[str, Any]:
             }
         }
 
-    latest_entry = queue_data.get("latest_entry", {})
+    latest_entry = queue_data.get("latest_entry") or {}
     queue_sha = latest_entry.get("master_sha256", "")
     package_sha = package_data.get("master_sha256", "")
 

@@ -1,16 +1,16 @@
 {
-  "pack_id": "PACK_20260128_152202_0e590305",
-  "timestamp": "2026-01-28T22:22:02.024760+00:00",
+  "pack_id": "PACK_20260319_142214_d10ff359",
+  "timestamp": "2026-03-19T20:22:14.983012+00:00",
   "status": "healthy",
-  "source_briefs": "BRIEF_20260128_152004_b939b826",
+  "source_briefs": "BRIEF_20260319_142004_cff6b436",
   "packs": [
     {
-      "script_id": "SCR_737fdaf85ba0",
+      "script_id": "SCR_0ae0fee3d3ff",
       "prompts": [
         {
-          "asset_id": "ASSET_737fdaf8_thumbnail_00_5b52d4dc",
+          "asset_id": "ASSET_0ae0fee3_thumbnail_00_b19105d3",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, Tiny startup Arcee AI built a 400B-parameter open , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -25,13 +25,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a "
+            "TechCrunch\u00a0Startup Battlefield"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_intro_card_00_048dfa75",
+          "asset_id": "ASSET_0ae0fee3_intro_card_00_15fd0b65",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, Tiny startup Arcee AI built a 400B-parameter open , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -46,11 +46,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a "
+            "TechCrunch\u00a0Startup Battlefield"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_lower_third_00_f6b34030",
+          "asset_id": "ASSET_0ae0fee3_lower_third_00_a97debf3",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -67,12 +67,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_lower_third_01_181af30f",
+          "asset_id": "ASSET_0ae0fee3_lower_third_01_546b77dc",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -89,12 +89,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_lower_third_02_1f03b6e4",
+          "asset_id": "ASSET_0ae0fee3_lower_third_02_e8aa076e",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -111,12 +111,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_broll_00_4e917013",
+          "asset_id": "ASSET_0ae0fee3_broll_00_308fa9ef",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -135,12 +135,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_broll_01_870b4561",
+          "asset_id": "ASSET_0ae0fee3_broll_01_2b513860",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -159,12 +159,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_broll_02_7100bf51",
+          "asset_id": "ASSET_0ae0fee3_broll_02_ecf30107",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -183,12 +183,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_broll_03_5739c3fc",
+          "asset_id": "ASSET_0ae0fee3_broll_03_bda7cfef",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -207,12 +207,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_broll_04_a5168fea",
+          "asset_id": "ASSET_0ae0fee3_broll_04_ef5f2d8d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -231,12 +231,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_title_card_00_2b8b75ae",
+          "asset_id": "ASSET_0ae0fee3_title_card_00_ec43c83f",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -253,12 +253,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_title_card_01_4591e65c",
+          "asset_id": "ASSET_0ae0fee3_title_card_01_9f79e03c",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -275,12 +275,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_title_card_02_c2c8c015",
+          "asset_id": "ASSET_0ae0fee3_title_card_02_2759d323",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -297,12 +297,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a ",
+            "TechCrunch\u00a0Startup Battlefield",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_737fdaf8_end_card_00_c5399b78",
+          "asset_id": "ASSET_0ae0fee3_end_card_00_70f789be",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -319,18 +319,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "Tiny startup Arcee AI built a "
+            "TechCrunch\u00a0Startup Battlefield"
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_57e076715e33",
+      "script_id": "SCR_a2e355ba7f05",
       "prompts": [
         {
-          "asset_id": "ASSET_57e07671_thumbnail_00_6259a48d",
+          "asset_id": "ASSET_a2e355ba_thumbnail_00_ee7dd32c",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, TechCrunch Disrupt 2026: Plus-one passes are almos, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, Meta rolls out new AI content enforcement systems , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -345,13 +345,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-"
+            "Meta rolls out new AI content "
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_intro_card_00_17ff80e3",
+          "asset_id": "ASSET_a2e355ba_intro_card_00_c0001277",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, TechCrunch Disrupt 2026: Plus-one passes are almos, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, Meta rolls out new AI content enforcement systems , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -366,11 +366,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-"
+            "Meta rolls out new AI content "
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_lower_third_00_c9c6100e",
+          "asset_id": "ASSET_a2e355ba_lower_third_00_3e4a22a2",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -387,12 +387,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_lower_third_01_4827ff31",
+          "asset_id": "ASSET_a2e355ba_lower_third_01_3595ddae",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -409,12 +409,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_lower_third_02_3a10dfa4",
+          "asset_id": "ASSET_a2e355ba_lower_third_02_7a831311",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -431,12 +431,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_broll_00_b3ed5917",
+          "asset_id": "ASSET_a2e355ba_broll_00_302c57d9",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -455,12 +455,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_broll_01_264bdcbb",
+          "asset_id": "ASSET_a2e355ba_broll_01_0217c004",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -479,12 +479,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_broll_02_5d307bbf",
+          "asset_id": "ASSET_a2e355ba_broll_02_01ac4730",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -503,12 +503,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_broll_03_81120d2e",
+          "asset_id": "ASSET_a2e355ba_broll_03_1d145397",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -527,12 +527,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_broll_04_f6b4d72f",
+          "asset_id": "ASSET_a2e355ba_broll_04_5fbc17f7",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -551,12 +551,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_title_card_00_6c100847",
+          "asset_id": "ASSET_a2e355ba_title_card_00_d427a131",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -573,12 +573,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_title_card_01_beec865c",
+          "asset_id": "ASSET_a2e355ba_title_card_01_112eaec4",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -595,12 +595,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_title_card_02_f0747df6",
+          "asset_id": "ASSET_a2e355ba_title_card_02_aac354b6",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -617,12 +617,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-",
+            "Meta rolls out new AI content ",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_57e07671_end_card_00_e12e8a38",
+          "asset_id": "ASSET_a2e355ba_end_card_00_d9b8ef6b",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -639,18 +639,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch Disrupt 2026: Plus-"
+            "Meta rolls out new AI content "
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_059bce5d8711",
+      "script_id": "SCR_8e93f5e2bf9a",
       "prompts": [
         {
-          "asset_id": "ASSET_059bce5d_thumbnail_00_4c5fb722",
+          "asset_id": "ASSET_8e93f5e2_thumbnail_00_7c3aefa4",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, ServiceNow inks another AI partnership, this time , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, DoorDash launches a new \u2018Tasks\u2019 app that pays cour, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -665,13 +665,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par"
+            "DoorDash launches a new \u2018Tasks"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_intro_card_00_39ddd9a1",
+          "asset_id": "ASSET_8e93f5e2_intro_card_00_27bd2aa5",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, ServiceNow inks another AI partnership, this time , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, DoorDash launches a new \u2018Tasks\u2019 app that pays cour, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -686,11 +686,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par"
+            "DoorDash launches a new \u2018Tasks"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_lower_third_00_3689f5c4",
+          "asset_id": "ASSET_8e93f5e2_lower_third_00_7f9e30ca",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -707,12 +707,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_lower_third_01_a439d4bd",
+          "asset_id": "ASSET_8e93f5e2_lower_third_01_e2adee19",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -729,12 +729,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_lower_third_02_334841b6",
+          "asset_id": "ASSET_8e93f5e2_lower_third_02_d2de3b03",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -751,12 +751,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_broll_00_a0671a2e",
+          "asset_id": "ASSET_8e93f5e2_broll_00_32e72e38",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -775,12 +775,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_broll_01_f9d582d4",
+          "asset_id": "ASSET_8e93f5e2_broll_01_d9fc6d4d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -799,12 +799,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_broll_02_ed47f0f8",
+          "asset_id": "ASSET_8e93f5e2_broll_02_2e53aab8",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -823,12 +823,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_broll_03_9d10006a",
+          "asset_id": "ASSET_8e93f5e2_broll_03_3916d7ae",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -847,12 +847,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_broll_04_923fb660",
+          "asset_id": "ASSET_8e93f5e2_broll_04_77793a6d",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -871,12 +871,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_title_card_00_e48a33ca",
+          "asset_id": "ASSET_8e93f5e2_title_card_00_b88cfe21",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -893,12 +893,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_title_card_01_1bf7843b",
+          "asset_id": "ASSET_8e93f5e2_title_card_01_3d0d71d5",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -915,12 +915,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_title_card_02_1d102574",
+          "asset_id": "ASSET_8e93f5e2_title_card_02_e1ae0e8b",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -937,12 +937,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par",
+            "DoorDash launches a new \u2018Tasks",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_059bce5d_end_card_00_45437b9d",
+          "asset_id": "ASSET_8e93f5e2_end_card_00_b50be215",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -959,7 +959,7 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "ServiceNow inks another AI par"
+            "DoorDash launches a new \u2018Tasks"
           ]
         }
       ]

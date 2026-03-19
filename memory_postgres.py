@@ -9,6 +9,8 @@ import os
 import time
 import sqlite3
 import shutil
+import re
+import math
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -25,6 +27,16 @@ ENV_FILES = [
     ROXY_ROOT / "etc" / "roxy.env",
     LEGACY_ROOT / ".env",
 ]
+
+_TOKEN_PATTERN = re.compile(r"[a-z0-9']+")
+_MEMORY_STOPWORDS = {
+    "a", "an", "and", "are", "as", "at", "be", "been", "by", "for",
+    "from", "had", "has", "have", "he", "her", "his", "i", "if", "in",
+    "is", "it", "its", "me", "my", "of", "on", "or", "our", "she",
+    "that", "the", "their", "them", "there", "they", "this", "to",
+    "was", "we", "were", "what", "when", "where", "who", "why", "with",
+    "you", "your",
+}
 
 
 def _load_env_file(path: Path) -> Dict[str, str]:
@@ -165,6 +177,32 @@ class PostgresMemory:
         # In-memory fallback
         self._memory_store: List[Dict[str, Any]] = []
         self._max_memory_size = 1000
+        try:
+            self.recall_fetch_multiplier = max(
+                1, int(os.getenv("ROXY_MEMORY_RECALL_FETCH_MULTIPLIER", "4"))
+            )
+        except Exception:
+            self.recall_fetch_multiplier = 4
+        try:
+            self.recall_max_candidates = max(
+                10, int(os.getenv("ROXY_MEMORY_MAX_CANDIDATES", "40"))
+            )
+        except Exception:
+            self.recall_max_candidates = 40
+        try:
+            self.recall_min_score = float(os.getenv("ROXY_MEMORY_MIN_SCORE", "0.18"))
+        except Exception:
+            self.recall_min_score = 0.18
+        try:
+            self.recall_min_similarity = float(
+                os.getenv("ROXY_MEMORY_MIN_SIMILARITY", "0.20")
+            )
+        except Exception:
+            self.recall_min_similarity = 0.20
+        try:
+            self.recall_min_lexical = float(os.getenv("ROXY_MEMORY_MIN_LEXICAL", "0.12"))
+        except Exception:
+            self.recall_min_lexical = 0.12
         
         if self.require_postgres and not POSTGRES_AVAILABLE:
             raise RuntimeError("PostgreSQL adapter required but psycopg2 is unavailable")
@@ -225,6 +263,63 @@ class PostgresMemory:
             logger.warning(f"Failed to load encoder: {e}")
             self.embeddings_enabled = False
             self.encoder = None
+    
+    def _ensure_cross_encoder(self):
+        """Lazy-load cross-encoder for precise reranking."""
+        if hasattr(self, '_cross_encoder') and self._cross_encoder is not None:
+            return
+        try:
+            from sentence_transformers import CrossEncoder
+            self._cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2', device='cpu')
+            self._cross_encoder_loaded = True
+            logger.info("Loaded cross-encoder for memory reranking (CPU mode)")
+        except Exception as e:
+            logger.warning(f"Failed to load cross-encoder: {e}")
+            self._cross_encoder = None
+            self._cross_encoder_loaded = False
+    
+    def _rerank_with_cross_encoder(
+        self, 
+        query: str, 
+        memories: List[Dict[str, Any]], 
+        top_k: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Rerank memories using cross-encoder for precise relevance scoring.
+        Cross-encoder scores query-document pairs directly for better precision.
+        """
+        if not memories:
+            return []
+        
+        # Ensure cross-encoder is loaded
+        self._ensure_cross_encoder()
+        
+        if not self._cross_encoder:
+            # Fallback to current scoring
+            return memories[:top_k]
+        
+        try:
+            # Prepare query-document pairs
+            pairs = [
+                (query, f"{m.get('query', '')} {str(m.get('response', ''))[:240]}")
+                for m in memories
+            ]
+            
+            # Get cross-encoder scores
+            scores = self._cross_encoder.predict(pairs)
+            
+            # Attach scores and sort
+            for m, score in zip(memories, scores):
+                m['cross_encoder_score'] = float(score)
+            
+            memories.sort(key=lambda x: x['cross_encoder_score'], reverse=True)
+            
+            logger.debug(f"Cross-encoder reranked {len(memories)} memories")
+            return memories[:top_k]
+            
+        except Exception as e:
+            logger.debug(f"Cross-encoder reranking failed: {e}")
+            return memories[:top_k]
     
     def _setup_schema(self):
         """Create database schema with pgvector support."""
@@ -746,11 +841,279 @@ class PostgresMemory:
         conn.close()
         return row_id
     
+    def _tokenize_for_overlap(self, text: str) -> set[str]:
+        if not text:
+            return set()
+        tokens = _TOKEN_PATTERN.findall(text.lower())
+        return {
+            token for token in tokens
+            if len(token) > 1 and token not in _MEMORY_STOPWORDS
+        }
+
+    def _lexical_overlap(self, query: str, candidate: str) -> float:
+        query_tokens = self._tokenize_for_overlap(query)
+        candidate_tokens = self._tokenize_for_overlap(candidate)
+        if not query_tokens or not candidate_tokens:
+            return 0.0
+        overlap = len(query_tokens & candidate_tokens)
+        query_recall = overlap / max(len(query_tokens), 1)
+        jaccard = overlap / max(len(query_tokens | candidate_tokens), 1)
+        return max(0.0, min((0.75 * query_recall) + (0.25 * jaccard), 1.0))
+    
+    def _bm25_score(self, query: str, candidate: str, avg_doc_len: float = 50.0, k1: float = 1.5, b: float = 0.75) -> float:
+        """
+        Calculate BM25 score for query vs candidate document.
+        BM25 is a ranking function used by search engines.
+        """
+        query_tokens = self._tokenize_for_overlap(query)
+        candidate_tokens = self._tokenize_for_overlap(candidate)
+        
+        if not query_tokens:
+            return 0.0
+        
+        # Tokenize and count
+        cand_lower = candidate.lower()
+        cand_words = cand_lower.split()
+        doc_len = len(cand_words)
+        
+        # Calculate BM25 for each query term
+        score = 0.0
+        for token in query_tokens:
+            if len(token) < 2:
+                continue
+            # Term frequency in candidate
+            tf = cand_words.count(token)
+            if tf == 0:
+                continue
+            # IDF approximation (simplified - in production, calculate from corpus)
+            idf = 1.0  # Simplified IDF
+            # BM25 formula
+            numerator = tf * (k1 + 1)
+            denominator = tf + k1 * (1 - b + b * (doc_len / max(avg_doc_len, 1)))
+            score += idf * (numerator / max(denominator, 0.1))
+        
+        # Normalize to 0-1 range
+        return min(score / max(len(query_tokens), 1), 1.0)
+    
+    def _reciprocal_rank_fusion(self, rankings: List[List[tuple]], k: int = 60) -> List[tuple]:
+        """
+        Reciprocal Rank Fusion (RRF) combines multiple rankings.
+        
+        For each ranking, RRF assigns a score based on position.
+        Final score = sum of 1/(k + position) for each ranking.
+        This is the gold standard for fusing multiple retrieval methods.
+        """
+        scores: Dict[int, float] = {}
+        
+        for ranking in rankings:
+            for position, item in enumerate(ranking):
+                item_id = item[0] if isinstance(item, tuple) else item
+                if isinstance(item, dict):
+                    item_id = item.get('id', id(item))
+                else:
+                    item_id = item
+                # RRF formula
+                rrf_score = 1.0 / (k + position + 1)
+                scores[item_id] = scores.get(item_id, 0.0) + rrf_score
+        
+        # Sort by fused score
+        fused = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        return fused
+    
+    def _hybrid_recall(
+        self,
+        query: str,
+        k: int,
+        session_id: Optional[str] = None,
+        time_window_days: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Hybrid retrieval combining vector similarity + BM25 + lexical overlap.
+        Uses Reciprocal Rank Fusion to combine rankings.
+        """
+        if not self.conn:
+            return []
+        
+        fetch_limit = min(k * 4, self.recall_max_candidates)
+        
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Get all candidate memories
+            sql = """
+                SELECT 
+                    id, session_id, query, response, context, 
+                    importance, emotional_valence, access_count,
+                    created_at, accessed_at,
+                    0.0 as vector_similarity
+                FROM conversations
+                WHERE 1=1
+            """
+            params = []
+            
+            if session_id:
+                sql += " AND session_id = %s"
+                params.append(session_id)
+            
+            if time_window_days:
+                sql += " AND created_at > NOW() - (%s * INTERVAL '1 day')"
+                params.append(int(time_window_days))
+            
+            sql += f" ORDER BY importance DESC, created_at DESC LIMIT {fetch_limit}"
+            cur.execute(sql, params)
+            candidates = [dict(row) for row in cur.fetchall()]
+        
+        if not candidates:
+            return []
+        
+        # Score each candidate with multiple methods
+        scored_candidates = []
+        for mem in candidates:
+            cand_text = f"{mem.get('query', '')} {str(mem.get('response', ''))[:240]}"
+            
+            # Vector similarity (if available)
+            vector_sim = float(mem.get('vector_similarity', 0.0))
+            
+            # BM25 score
+            bm25 = self._bm25_score(query, cand_text)
+            
+            # Lexical overlap
+            lexical = self._lexical_overlap(query, cand_text)
+            
+            # Composite score with weights
+            composite = (0.4 * vector_sim) + (0.4 * bm25) + (0.2 * lexical)
+            
+            mem['vector_similarity'] = vector_sim
+            mem['bm25'] = bm25
+            mem['lexical_overlap'] = lexical
+            mem['hybrid_score'] = composite
+            mem['score'] = composite
+            mem['similarity'] = vector_sim
+            
+            scored_candidates.append(mem)
+        
+        # Sort by hybrid score
+        scored_candidates.sort(key=lambda x: x['hybrid_score'], reverse=True)
+        
+        return scored_candidates[:k]
+
+    def _coerce_datetime(self, value) -> datetime:
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            except Exception:
+                pass
+        return datetime.now()
+
+    # MindSong/SkyBeam production keywords - boosted for CEO role
+    _MINESONG_PRODUCTION_KEYWORDS = {
+        'skybeam', 'skydream', 'shotcaller', 'stackkraft', 'mimiq', 'mqqc',
+        'luno', 'pixel', 'rocky', 'mindsong', 'render', 'rendering', 'export',
+        'monetization', 'master', 'mastering', 'orchestration', 'orchestrate',
+        'queue', 'gpu', '6900xt', 'w5700x', 'ollama', 'pipeline', 'content',
+        'video', 'audio', 'music', 'song', 'beat', 'track', 'arrangement',
+        'production', 'deadline', 'shot', 'takes', 'stems', 'bounce', 'compress',
+        'eq', 'mix', 'studio', 'creative', 'workflow'
+    }
+    _MINESONG_BOOST_WEIGHT = 0.15
+
+    def _composite_recall_score(self, query: str, memory: Dict[str, Any], same_session: bool) -> Dict[str, float]:
+        similarity = float(memory.get("similarity") or 0.0)
+        candidate_text = f"{memory.get('query', '')} {str(memory.get('response', ''))[:240]}"
+        lexical = self._lexical_overlap(query, candidate_text)
+        importance = float(memory.get("importance") or 0.5)
+        created_at = self._coerce_datetime(memory.get("created_at"))
+        days_old = max((datetime.now(created_at.tzinfo) - created_at).total_seconds() / 86400.0, 0.0)
+        recency = math.exp(-0.02 * days_old)
+        session_boost = 0.08 if same_session else 0.0
+        
+        # MindSong/SkyBeam production boost - CEO priority
+        query_lower = query.lower()
+        candidate_lower = candidate_text.lower()
+        combined_lower = query_lower + " " + candidate_lower
+        
+        production_boost = 0.0
+        query_hits = sum(1 for kw in self._MINESONG_PRODUCTION_KEYWORDS if kw in query_lower)
+        candidate_hits = sum(1 for kw in self._MINESONG_PRODUCTION_KEYWORDS if kw in candidate_lower)
+        
+        # Boost if query mentions production terms AND candidate contains them
+        if query_hits > 0 and candidate_hits > 0:
+            production_boost = min(self._MINESONG_BOOST_WEIGHT * (query_hits + candidate_hits) / 4.0, 0.25)
+        
+        composite = (
+            (0.50 * max(0.0, min(similarity, 1.0)))
+            + (0.20 * lexical)
+            + (0.12 * max(0.0, min(importance, 1.0)))
+            + (0.05 * recency)
+            + session_boost
+            + production_boost
+        )
+        return {
+            "similarity": max(0.0, min(similarity, 1.0)),
+            "lexical_overlap": lexical,
+            "composite_score": max(0.0, min(composite, 1.2)),
+            "production_boost": production_boost,
+        }
+
+    def _rerank_and_filter_memories(
+        self,
+        query: str,
+        memories: List[Dict[str, Any]],
+        k: int,
+        session_id: Optional[str] = None,
+        min_score: Optional[float] = None,
+        min_similarity: Optional[float] = None,
+    ) -> List[Dict[str, Any]]:
+        if not memories:
+            return []
+
+        score_gate = self.recall_min_score if min_score is None else float(min_score)
+        similarity_gate = self.recall_min_similarity if min_similarity is None else float(min_similarity)
+        lexical_gate = self.recall_min_lexical
+
+        scored: List[Dict[str, Any]] = []
+        for memory in memories:
+            same_session = bool(session_id and memory.get("session_id") == session_id)
+            score_parts = self._composite_recall_score(query, memory, same_session=same_session)
+            memory_view = dict(memory)
+            memory_view["raw_score"] = float(memory.get("score") or 0.0)
+            memory_view["similarity"] = score_parts["similarity"]
+            memory_view["lexical_overlap"] = score_parts["lexical_overlap"]
+            memory_view["score"] = score_parts["composite_score"]
+            scored.append(memory_view)
+
+        scored.sort(
+            key=lambda m: (
+                float(m.get("score", 0.0)),
+                float(m.get("similarity", 0.0)),
+                self._coerce_datetime(m.get("created_at")).timestamp(),
+            ),
+            reverse=True,
+        )
+
+        filtered = [
+            m for m in scored
+            if (
+                float(m.get("score", 0.0)) >= score_gate
+                or float(m.get("similarity", 0.0)) >= similarity_gate
+                or float(m.get("lexical_overlap", 0.0)) >= lexical_gate
+            )
+        ]
+        minimum_keep = min(k, 2)
+        if len(filtered) < minimum_keep:
+            filtered = scored[:k]
+        else:
+            filtered = filtered[:k]
+        return filtered
+
     def recall(self, 
               query: str, 
               k: int = 5, 
               session_id: str = None,
-              time_window_days: int = None) -> List[Dict[str, Any]]:
+              time_window_days: int = None,
+              min_score: Optional[float] = None,
+              min_similarity: Optional[float] = None,
+              use_cross_encoder: bool = True) -> List[Dict[str, Any]]:
         """
         Recall relevant memories for a query.
         
@@ -759,27 +1122,85 @@ class PostgresMemory:
             k: Number of memories to return
             session_id: Optional session to filter by
             time_window_days: Optional time window filter
+            min_score: Optional minimum composite score threshold
+            min_similarity: Optional minimum semantic similarity threshold
+            use_cross_encoder: Whether to use cross-encoder reranking (default True)
             
         Returns:
             List of relevant memories with similarity scores
         """
-        # Try PostgreSQL first
-        if self.conn:
-            try:
-                return self._recall_postgres(query, k, session_id, time_window_days)
-            except Exception as e:
-                logger.warning(f"PostgreSQL recall failed: {e}")
+        k = max(int(k or 5), 1)
+
+        # Try hybrid retrieval first (BM25 + vector + lexical)
+        try:
+            hybrid_memories = self._hybrid_recall(
+                query,
+                k=k,
+                session_id=session_id,
+                time_window_days=time_window_days,
+            )
+            if hybrid_memories:
+                # Apply cross-encoder reranking for better precision
+                if use_cross_encoder and len(hybrid_memories) > 1:
+                    hybrid_memories = self._rerank_with_cross_encoder(query, hybrid_memories, top_k=k)
+                # Apply final filtering with scoring
+                return self._rerank_and_filter_memories(
+                    query,
+                    hybrid_memories,
+                    k,
+                    session_id=session_id,
+                    min_score=min_score,
+                    min_similarity=min_similarity,
+                )
+        except Exception as e:
+            logger.debug(f"Hybrid recall failed, falling back: {e}")
+        
+        # Fall back to vector-only if hybrid fails
+        try:
+            memories = self._recall_postgres(
+                query,
+                k,
+                session_id,
+                time_window_days,
+                min_score=min_score,
+                min_similarity=min_similarity,
+            )
+            # Apply cross-encoder reranking for better precision
+            if use_cross_encoder and len(memories) > 1:
+                memories = self._rerank_with_cross_encoder(query, memories, top_k=k)
+            return memories
+        except Exception as e:
+            logger.warning(f"PostgreSQL recall failed: {e}")
 
         # Ensure SQLite cache is loaded if available
         if self._sqlite_enabled and not self._memory_store:
             self._load_sqlite_cache()
         
         # Fall back to in-memory
-        return self._recall_memory(query, k, session_id, time_window_days)
+        return self._recall_memory(
+            query,
+            k,
+            session_id,
+            time_window_days,
+            min_score=min_score,
+            min_similarity=min_similarity,
+        )
     
-    def _recall_postgres(self, query, k, session_id, time_window_days) -> List[Dict]:
+    def _recall_postgres(
+        self,
+        query,
+        k,
+        session_id,
+        time_window_days,
+        min_score: Optional[float] = None,
+        min_similarity: Optional[float] = None,
+    ) -> List[Dict]:
         """Recall from PostgreSQL with semantic search and temporal decay."""
         memories = []
+        fetch_limit = min(
+            max(k, k * self.recall_fetch_multiplier),
+            self.recall_max_candidates,
+        )
         
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Build query based on available features
@@ -788,7 +1209,7 @@ class PostgresMemory:
             if self.encoder and self.use_pgvector:
                 embedding = self.encoder.encode(query).tolist()
                 
-                # Semantic search with temporal decay
+                # Candidate retrieval by semantic similarity, then rerank in Python.
                 sql = """
                     SELECT 
                         id, session_id, query, response, context, 
@@ -806,11 +1227,11 @@ class PostgresMemory:
                     params.append(session_id)
                 
                 if time_window_days:
-                    sql += " AND created_at > NOW() - INTERVAL '%s days'"
-                    params.append(time_window_days)
+                    sql += " AND created_at > NOW() - (%s * INTERVAL '1 day')"
+                    params.append(int(time_window_days))
                 
-                sql += " ORDER BY score DESC LIMIT %s"
-                params.append(k)
+                sql += " ORDER BY similarity DESC NULLS LAST, created_at DESC LIMIT %s"
+                params.append(fetch_limit)
                 
                 cur.execute(sql, params)
             else:
@@ -820,7 +1241,7 @@ class PostgresMemory:
                         id, session_id, query, response, context,
                         importance, emotional_valence, access_count,
                         created_at, accessed_at,
-                        0.5 as similarity,
+                        0.0 as similarity,
                         importance * exp(-0.01 * EXTRACT(EPOCH FROM (NOW() - created_at))/86400) as score
                     FROM conversations
                     WHERE 1=1
@@ -832,15 +1253,23 @@ class PostgresMemory:
                     params.append(session_id)
                 
                 if time_window_days:
-                    sql += " AND created_at > NOW() - INTERVAL '%s days'"
-                    params.append(time_window_days)
+                    sql += " AND created_at > NOW() - (%s * INTERVAL '1 day')"
+                    params.append(int(time_window_days))
                 
                 sql += " ORDER BY created_at DESC LIMIT %s"
-                params.append(k)
+                params.append(fetch_limit)
                 
                 cur.execute(sql, params)
             
-            memories = cur.fetchall()
+            raw_memories = [dict(m) for m in cur.fetchall()]
+            memories = self._rerank_and_filter_memories(
+                query,
+                raw_memories,
+                k,
+                session_id=session_id,
+                min_score=min_score,
+                min_similarity=min_similarity,
+            )
             
             # Update access times for recalled memories
             if memories:
@@ -852,9 +1281,17 @@ class PostgresMemory:
                 """, (memory_ids,))
                 self.conn.commit()
         
-        return [dict(m) for m in memories]
+        return memories
     
-    def _recall_memory(self, query, k, session_id, time_window_days) -> List[Dict]:
+    def _recall_memory(
+        self,
+        query,
+        k,
+        session_id,
+        time_window_days,
+        min_score: Optional[float] = None,
+        min_similarity: Optional[float] = None,
+    ) -> List[Dict]:
         """Recall from in-memory store with simple text matching."""
         query_lower = query.lower()
         query_words = set(query_lower.split())
@@ -879,7 +1316,7 @@ class PostgresMemory:
             # Apply importance and temporal decay
             created = datetime.fromisoformat(memory['created_at'])
             days_old = (datetime.now() - created).days
-            decay = np.exp(-0.01 * days_old) if self.embeddings_enabled else 0.99 ** days_old
+            decay = math.exp(-0.01 * days_old)
             
             score = memory['importance'] * decay * (0.5 + 0.5 * similarity)
             
@@ -889,15 +1326,21 @@ class PostgresMemory:
                 'score': score
             })
         
-        # Sort by score and return top k
-        scored_memories.sort(key=lambda m: m['score'], reverse=True)
+        ranked = self._rerank_and_filter_memories(
+            query,
+            scored_memories,
+            k,
+            session_id=session_id,
+            min_score=min_score,
+            min_similarity=min_similarity,
+        )
         
         # Update access counts
-        for m in scored_memories[:k]:
+        for m in ranked:
             m['access_count'] = m.get('access_count', 0) + 1
             m['accessed_at'] = datetime.now().isoformat()
         
-        return scored_memories[:k]
+        return ranked
     
     def get_session_history(self, session_id: str, limit: int = 20) -> List[Dict]:
         """Get conversation history for a specific session."""

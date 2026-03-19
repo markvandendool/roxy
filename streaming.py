@@ -49,6 +49,21 @@ except ImportError:
 # Query detection functions - imported from shared module (avoids circular imports)
 from query_detection import is_time_date_query, is_repo_query
 
+# Import reflection/verifier for hallucination prevention
+try:
+    from reflection import get_reflection_verifier
+    REFLECTION_AVAILABLE = True
+except ImportError:
+    REFLECTION_AVAILABLE = False
+    logger.warning("Reflection module not available - response verification disabled")
+    def get_reflection_verifier():
+        class NoOpVerifier:
+            def verify_response(self, *args, **kwargs):
+                return {"confidence": 1.0, "flags": [], "needs_reflection": False}
+            def add_confidence_warning(self, *args, **kwargs):
+                return args[0]
+        return NoOpVerifier()
+
 
 class SSEStreamer:
     """Server-Sent Events streamer for LLM responses"""

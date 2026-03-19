@@ -1,11 +1,11 @@
 {
-  "analysis_id": "COMP_20260128_151009_956105bf",
-  "timestamp": "2026-01-28T22:10:09.606860+00:00",
+  "analysis_id": "COMP_20260319_141026_109618ef",
+  "timestamp": "2026-03-19T20:10:26.071164+00:00",
   "status": "healthy",
-  "source_trends": "TREND_20260128_150011_240f29db",
+  "source_trends": "TREND_20260319_140020_241d507e",
   "analyses": [
     {
-      "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
+      "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
+      "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "trend_title": "ServiceNow inks another AI partnership, this time with Anthropic",
+      "trend_title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "trend_title": "WhatsApp will now charge AI chatbots to operate in Italy",
+      "trend_title": "Multiverse Computing pushes its compressed AI models into the mainstream",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -173,7 +173,7 @@
       ]
     },
     {
-      "trend_title": "AI data labeler Handshake buys  Cleanlab, an acquisition target of multiple others",
+      "trend_title": "Meta is having trouble with rogue AI agents",
       "relevant_competitors": [
         {
           "name": "AI Explained",

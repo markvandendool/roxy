@@ -283,6 +283,8 @@ def _run_benchmark_thread(
         "--log_samples",
         "--apply_chat_template",
     ]
+    if task in {"mbpp", "humaneval"}:
+        cmd.append("--confirm_run_unsafe_code")
 
     if limit:
         cmd.extend(["--limit", str(limit)])
@@ -327,11 +329,16 @@ def _run_benchmark_thread(
         # Run lm-eval using Popen for cancel support
         global _current_process
         with open(stdout_path, "w") as stdout_f, open(stderr_path, "w") as stderr_f:
+            env = os.environ.copy()
+            # Required by lm-eval code_eval metric used by MBPP/HumanEval.
+            if task in {"mbpp", "humaneval"}:
+                env["HF_ALLOW_CODE_EVAL"] = "1"
             proc = subprocess.Popen(
                 cmd,
                 stdout=stdout_f,
                 stderr=stderr_f,
                 cwd=str(evidence_dir),
+                env=env,
             )
             with _run_lock:
                 _current_process = proc
@@ -365,11 +372,21 @@ def _run_benchmark_thread(
                             task_data = task_results[task]
                             # Try flexible-extract first (more lenient), then strict
                             for metric in ["exact_match,flexible-extract", "exact_match,strict-match",
-                                           "acc", "acc_norm", "exact_match", "em"]:
+                                           "acc", "acc_norm", "exact_match", "em",
+                                           "pass_at_1,none", "pass@1", "pass_at_1"]:
                                 if metric in task_data:
                                     manifest["score"] = task_data[metric]
                                     manifest["metric"] = metric
                                     break
+                            # Generic fallback: pick first scalar metric-like field
+                            if manifest.get("score") is None:
+                                for key, value in task_data.items():
+                                    if key.endswith("_stderr") or key.endswith("_stderr,none"):
+                                        continue
+                                    if isinstance(value, (int, float)):
+                                        manifest["score"] = float(value)
+                                        manifest["metric"] = key
+                                        break
 
                     # Store lm-eval version and config
                     manifest["lm_eval_config"] = results_data.get("config", {})
@@ -520,6 +537,7 @@ def _run_benchmark_thread(
 
 # Map Ollama model names to HuggingFace tokenizer repos
 TOKENIZER_MAP = {
+    "qwen3:14b": "Qwen/Qwen3-14B",
     "qwen2.5-coder:14b": "Qwen/Qwen2.5-Coder-14B-Instruct",
     "qwen2.5-coder:7b": "Qwen/Qwen2.5-Coder-7B-Instruct",
     "qwen2.5:32b": "Qwen/Qwen2.5-32B-Instruct",
@@ -530,6 +548,8 @@ TOKENIZER_MAP = {
     "codellama:13b": "codellama/CodeLlama-13b-Instruct-hf",
     "mistral:7b": "mistralai/Mistral-7B-Instruct-v0.3",
     "deepseek-coder:6.7b": "deepseek-ai/deepseek-coder-6.7b-instruct",
+    "deepseek-r1:14b": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+    "deepcoder:14b": "agentica-org/DeepCoder-14B-Preview",
 }
 
 # Authoritative threshold

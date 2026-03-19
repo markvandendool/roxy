@@ -1,74 +1,74 @@
 {
-  "review_id": "REVIEW_20260128_151828_d7a3f6f1",
-  "timestamp": "2026-01-28T22:18:28.362851+00:00",
+  "review_id": "REVIEW_20260319_141808_43b4a484",
+  "timestamp": "2026-03-19T20:18:08.486522+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260128_151609_d7849ccd",
+  "source_scripts": "SCRIPT_20260319_141618_68966c16",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_737fdaf85ba0",
-      "trend_title": "Tiny startup Arcee AI built a 400B-parameter open source LLM from scratch to best Meta\u2019s Llama",
+      "script_id": "SCR_0ae0fee3d3ff",
+      "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 6,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 8
-      },
-      "recommendations": [
-        "Hook is too long - trim for impact"
-      ],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_57e076715e33",
-      "trend_title": "TechCrunch Disrupt 2026: Plus-one passes are almost gone and only 3 days remain",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 6,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 8
-      },
-      "recommendations": [
-        "Hook is too long - trim for impact"
-      ],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_059bce5d8711",
-      "trend_title": "ServiceNow inks another AI partnership, this time with Anthropic",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 8,
+        "hook_strength": 7,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
         "overall": 9
       },
       "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_a2e355ba7f05",
+      "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 6,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
+      },
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_8e93f5e2bf9a",
+      "trend_title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 6,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 8
+      },
+      "recommendations": [
+        "Hook is too long - trim for impact"
+      ],
       "approved_sections": [
         "hook",
         "context",

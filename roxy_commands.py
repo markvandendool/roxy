@@ -35,6 +35,58 @@ logger = logging.getLogger("roxy.commands")
 LAST_MODEL_USED = None
 
 
+def _get_memory_context_from_env(max_chars: int = 2200) -> str:
+    raw = (os.environ.get("ROXY_MEMORY_CONTEXT") or "").strip()
+    if not raw:
+        return ""
+    if len(raw) > max_chars:
+        raw = raw[:max_chars].rstrip() + "..."
+    return raw
+
+
+def _get_plan_context_from_env(max_chars: int = 1000) -> str:
+    raw = (os.environ.get("ROXY_PLAN_CONTEXT") or "").strip()
+    if not raw:
+        return ""
+    if len(raw) > max_chars:
+        raw = raw[:max_chars].rstrip() + "..."
+    return raw
+
+
+def _inject_memory_context(prompt: str) -> str:
+    """
+    Inject episodic/profile context into prompt when available.
+    Keeps behavior deterministic when no context is provided.
+    """
+    memory_context = _get_memory_context_from_env()
+    plan_context = _get_plan_context_from_env()
+    if not memory_context and not plan_context:
+        return prompt
+    sections = []
+    if memory_context:
+        sections.append(
+            "SYSTEM MEMORY DIRECTIVES:\n"
+            "- The memory block below contains user-specific facts from prior sessions.\n"
+            "- For questions about the user (name, age, preferences, prior requests), use memory first.\n"
+            "- If memory contains the answer, state it directly and concisely.\n"
+            "- If memory is incomplete or conflicting, acknowledge uncertainty and ask one clarifying question.\n"
+            "- Never invent user facts.\n\n"
+            "<memory_context>\n"
+            f"{memory_context}\n"
+            "</memory_context>"
+        )
+    if plan_context:
+        sections.append(
+            "EXECUTION PLAN HINTS:\n"
+            "- Follow these steps when relevant and preserve ordering where possible.\n"
+            "- Be explicit about what is completed vs pending.\n\n"
+            "<plan_context>\n"
+            f"{plan_context}\n"
+            "</plan_context>"
+        )
+    return "\n\n".join(sections) + f"\n\n{prompt}"
+
+
 def _mount_type_for(path: Path) -> str:
     """Return filesystem type for a path using /proc/mounts (Linux)."""
     try:
@@ -812,7 +864,7 @@ def execute_command(cmd_type, args):
             try:
                 sys.path.insert(0, str(ROXY_DIR))
                 from infrastructure import remember_conversation
-                session_id = os.getenv("ROXY_REQUEST_ID") or "manual"
+                session_id = os.getenv("ROXY_SESSION_ID") or os.getenv("ROXY_REQUEST_ID") or "manual"
                 remember_conversation(original, f"REMEMBERED: {payload}", session_id, {
                     "manual_remember": True,
                     "source": "roxy_commands",
@@ -917,6 +969,7 @@ def chat_direct(query):
 User: {query}
 
 Assistant:"""
+    prompt = _inject_memory_context(prompt)
 
     try:
         # Try to use router first
@@ -1167,6 +1220,7 @@ Instructions:
 - Cite sources when relevant
 
 Answer:"""
+        prompt = _inject_memory_context(prompt)
 
         # Use LLM router for intelligent model selection
         try:
