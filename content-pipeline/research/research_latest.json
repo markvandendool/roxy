@@ -1,9 +1,30 @@
 {
-  "brief_id": "BRIEF_20260319_190515_9048779d",
-  "timestamp": "2026-03-20T01:05:15.154889+00:00",
+  "brief_id": "BRIEF_20260320_110519_53f12e40",
+  "timestamp": "2026-03-20T17:05:19.175218+00:00",
   "status": "healthy",
-  "source_snapshot": "TREND_20260319_190014_2b00b2da",
+  "source_snapshot": "TREND_20260320_110022_d55b6918",
   "briefs": [
+    {
+      "title": "The best AI investment might be in energy tech",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/03/20/the-best-ai-investment-might-be-in-energy-tech/",
+      "summary": "Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's creating an opening for investors.",
+      "claims": [
+        "This trend focuses on: The best AI investment might be in energy tech",
+        "Key insight: Power has become one of the biggest bottlenecks in rolling out new AI data centers",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
     {
       "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "source": "TechCrunch AI",
@@ -26,14 +47,14 @@
       ]
     },
     {
-      "title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "title": "WordPress.com now lets AI agents write and publish posts, and more",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/19/jeff-bezos-reportedly-wants-100-billion-to-buy-and-transform-old-manufacturing-firms-with-ai/",
-      "summary": "The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology.",
+      "link": "https://techcrunch.com/2026/03/20/wordpress-com-now-lets-ai-agents-write-and-publish-posts-and-more/",
+      "summary": "New AI agents on WordPress.com could lower barriers to publishing while increasing machine-generated content across the web.",
       "claims": [
-        "This trend focuses on: Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
-        "Key insight: The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology",
+        "This trend focuses on: WordPress.com now lets AI agents write and publish posts, and more",
+        "Key insight: New AI agents on WordPress",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"
@@ -47,17 +68,17 @@
       ]
     },
     {
-      "title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+      "title": "Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/19/meta-rolls-out-new-ai-content-enforcement-systems-while-reducing-reliance-on-third-party-vendors/",
-      "summary": "Meta believes these AI systems can detect more violations with greater accuracy, better prevent scams, respond more quickly to real-world events, and reduce over-enforcement.",
+      "link": "https://techcrunch.com/2026/03/20/trumps-ai-framework-targets-state-laws-shifts-child-safety-burden-to-parents/",
+      "summary": "Trump\u2019s AI framework pushes federal preemption of state laws, emphasizes innovation, and shifts responsibility for child safety toward parents while laying out lighter-touch rules for tech companies.",
       "claims": [
-        "This trend focuses on: Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
-        "Key insight: Meta believes these AI systems can detect more violations with greater accuracy, better prevent scams, respond more quickly to real-world events, and ",
+        "This trend focuses on: Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
+        "Key insight: Trump\u2019s AI framework pushes federal preemption of state laws, emphasizes innovation, and shifts responsibility for child safety toward parents while l",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
-        "This appears to be a new announcement or product launch"
+        "This is general technology news coverage"
       ],
       "followups": [
         "What are the key players/companies mentioned?",
@@ -68,35 +89,14 @@
       ]
     },
     {
-      "title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
+      "title": "These AI notetaking devices can help you record and transcribe your meetings",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/19/doordash-launches-a-new-tasks-app-that-pays-couriers-to-submit-videos-to-train-ai/",
-      "summary": "Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language.",
+      "link": "https://techcrunch.com/2026/03/20/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/",
+      "summary": "These physical notetakers transcribe audio and give users summaries and action items of meetings using AI. Some even offer live translation.",
       "claims": [
-        "This trend focuses on: DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
-        "Key insight: Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This appears to be a new announcement or product launch"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "Multiverse Computing pushes its compressed AI models into the mainstream",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/2026/03/19/multiverse-computing-pushes-its-compressed-ai-models-into-the-mainstream/",
-      "summary": "After compressing models from major AI labs, including OpenAI, Meta, DeepSeek, and Mistral AI, Multiverse Computing has launched both an app that showcases the capabilities of its compressed models an",
-      "claims": [
-        "This trend focuses on: Multiverse Computing pushes its compressed AI models into the mainstream",
-        "Key insight: After compressing models from major AI labs, including OpenAI, Meta, DeepSeek, and Mistral AI, Multiverse Computing has launched both an app that show",
+        "This trend focuses on: These AI notetaking devices can help you record and transcribe your meetings",
+        "Key insight: These physical notetakers transcribe audio and give users summaries and action items of meetings using AI",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"

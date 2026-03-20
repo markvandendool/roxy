@@ -1,0 +1,16 @@
+{"ts": 1774025794.3534703, "iso": "2026-03-20T10:56:34.353471", "mission_id": "m3", "event": "execute_started", "story_id": "S3", "goal_len": 52, "goal_preview": "/deep goal\n\nProvide detailed evidence of completion.", "files_in_scope": []}
+{"ts": 1774025794.3539307, "iso": "2026-03-20T10:56:34.353932", "mission_id": "m3", "event": "stream_request_started", "method": "GET", "url": "http://127.0.0.1:8766/stream", "timeout": 600.0}
+{"ts": 1774025794.3541968, "iso": "2026-03-20T10:56:34.354197", "mission_id": "m3", "event": "stream_response_received", "status_code": 200, "content_type": "text/event-stream"}
+{"ts": 1774025794.3544014, "iso": "2026-03-20T10:56:34.354402", "mission_id": "m3", "event": "stream_event", "event_type": "tool_execution_started", "tool_name": "bash", "call_id": "abc"}
+{"ts": 1774025794.3548675, "iso": "2026-03-20T10:56:34.354868", "mission_id": "m3", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": "tool_execution_started"}
+{"ts": 1774025794.355084, "iso": "2026-03-20T10:56:34.355084", "mission_id": "m3", "event": "stream_event", "event_type": "complete", "tool_name": null, "call_id": null}
+{"ts": 1774025794.355236, "iso": "2026-03-20T10:56:34.355236", "mission_id": "m3", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": "complete"}
+{"ts": 1774025794.3553753, "iso": "2026-03-20T10:56:34.355375", "mission_id": "m3", "event": "execute_finished", "tool_call_count": 1, "files_modified": [], "output_len": 4}
+{"ts": 1774025820.0810678, "iso": "2026-03-20T10:57:00.081069", "mission_id": "m3", "event": "execute_started", "story_id": "S3", "goal_len": 52, "goal_preview": "/deep goal\n\nProvide detailed evidence of completion.", "files_in_scope": []}
+{"ts": 1774025820.081449, "iso": "2026-03-20T10:57:00.081450", "mission_id": "m3", "event": "stream_request_started", "method": "GET", "url": "http://127.0.0.1:8766/stream", "timeout": 600.0}
+{"ts": 1774025820.0816772, "iso": "2026-03-20T10:57:00.081678", "mission_id": "m3", "event": "stream_response_received", "status_code": 200, "content_type": "text/event-stream"}
+{"ts": 1774025820.0818632, "iso": "2026-03-20T10:57:00.081864", "mission_id": "m3", "event": "stream_event", "event_type": "tool_execution_started", "tool_name": "bash", "call_id": "abc"}
+{"ts": 1774025820.0820034, "iso": "2026-03-20T10:57:00.082004", "mission_id": "m3", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": "tool_execution_started"}
+{"ts": 1774025820.0821755, "iso": "2026-03-20T10:57:00.082176", "mission_id": "m3", "event": "stream_event", "event_type": "complete", "tool_name": null, "call_id": null}
+{"ts": 1774025820.0823076, "iso": "2026-03-20T10:57:00.082308", "mission_id": "m3", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": "complete"}
+{"ts": 1774025820.082431, "iso": "2026-03-20T10:57:00.082431", "mission_id": "m3", "event": "execute_finished", "tool_call_count": 1, "files_modified": [], "output_len": 4}

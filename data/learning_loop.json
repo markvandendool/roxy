@@ -1,0 +1,97 @@
+{
+  "patterns": {
+    "ac7251f0adbd": {
+      "pattern_id": "ac7251f0adbd",
+      "error_type": "missing_file_path",
+      "error_message": "missing_file_path",
+      "tool_name": "write",
+      "command_hint": "",
+      "occurrences": 4,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T05:25:26.842956",
+      "last_seen": "2026-03-20T07:27:38.131404",
+      "success_rate": 0.0
+    },
+    "ca7ce392efc1": {
+      "pattern_id": "ca7ce392efc1",
+      "error_type": "tool_failed",
+      "error_message": "/usr/bin/ls: cannot access 'src/services/': No such file or directory\n",
+      "tool_name": "bash",
+      "command_hint": "/usr/bin/ls src/services/",
+      "occurrences": 1,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T06:51:54.795493",
+      "last_seen": "2026-03-20T06:51:54.795493",
+      "success_rate": 0.0
+    },
+    "34617bef1a1e": {
+      "pattern_id": "34617bef1a1e",
+      "error_type": "tool_failed",
+      "error_message": "/usr/bin/ls: cannot access 'src/services': No such file or directory\n",
+      "tool_name": "bash",
+      "command_hint": "/usr/bin/ls src/services",
+      "occurrences": 1,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T06:52:31.834747",
+      "last_seen": "2026-03-20T06:52:31.834747",
+      "success_rate": 0.0
+    },
+    "58b8d3273085": {
+      "pattern_id": "58b8d3273085",
+      "error_type": "tool_failed",
+      "error_message": "StreamingTools.glob() got an unexpected keyword argument 'command'",
+      "tool_name": "glob",
+      "command_hint": "echo 'validating...' && ",
+      "occurrences": 2,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T07:14:50.836953",
+      "last_seen": "2026-03-20T12:04:32.511827",
+      "success_rate": 0.0
+    },
+    "cb8b09a94240": {
+      "pattern_id": "cb8b09a94240",
+      "error_type": "tool_failed",
+      "error_message": "Non-relative patterns are unsupported",
+      "tool_name": "glob",
+      "command_hint": "",
+      "occurrences": 3,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T07:15:56.453237",
+      "last_seen": "2026-03-20T07:18:05.856357",
+      "success_rate": 0.0
+    },
+    "cea870317268": {
+      "pattern_id": "cea870317268",
+      "error_type": "tool_failed",
+      "error_message": "/bin/sh: 1: glob: not found\n",
+      "tool_name": "bash",
+      "command_hint": "glob /home/mark/work/mindsong_gh_https_1769765834/src/**/*.ts",
+      "occurrences": 1,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T08:57:13.837379",
+      "last_seen": "2026-03-20T08:57:13.837379",
+      "success_rate": 0.0
+    },
+    "19b7d1d248fc": {
+      "pattern_id": "19b7d1d248fc",
+      "error_type": "tool_failed",
+      "error_message": "grep: /var/log/roxy/production.log: No such file or directory\n",
+      "tool_name": "bash",
+      "command_hint": "/usr/bin/echo \"Checking production logs...\"\ngrep -i error /var/log/roxy/production.log",
+      "occurrences": 1,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-20T12:37:46.340072",
+      "last_seen": "2026-03-20T12:37:46.340072",
+      "success_rate": 0.0
+    }
+  },
+  "recipes": {},
+  "last_updated": "2026-03-20T12:37:46.340103"
+}

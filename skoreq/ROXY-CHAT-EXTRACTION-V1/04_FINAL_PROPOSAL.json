@@ -1,0 +1,136 @@
+{
+  "epic": {
+    "id": "ROXY-CHAT-EXTRACTION-V1",
+    "title": "Extract Gold from Claude/Codex Chat Logs",
+    "description": "Mine 715MB of chat history for plans, loose ends, scripts, and actionable knowledge. Ingest into existing RAG brain.",
+    "createdAt": "2026-03-20T12:00:00Z",
+    "createdBy": "claude-opus-4.5"
+  },
+  "stories": [
+    {
+      "id": "EXTRACT-001",
+      "title": "Create unified chat log parser",
+      "description": "Parse Claude history.jsonl (720 entries), Codex history.jsonl (442 entries), and 931 session transcript lines into unified ConversationTurn format",
+      "priority": "critical",
+      "points": 5,
+      "status": "done",
+      "filesInScope": [
+        "~/.roxy/scripts/knowledge/chat_log_parser.py",
+        "~/.claude/history.jsonl",
+        "~/.codex/history.jsonl"
+      ],
+      "acceptanceCriteria": [
+        "All 1162+ chat entries parsed without errors",
+        "Unified ConversationTurn dataclass with timestamp, session_id, content, source",
+        "JSONL output at ~/.roxy/knowledge/parsed_conversations.jsonl",
+        "Code blocks extracted separately with language detection"
+      ],
+      "completedAt": "2026-03-20T06:48:00Z"
+    },
+    {
+      "id": "EXTRACT-002",
+      "title": "Implement knowledge extractor with regex + LLM",
+      "description": "Extract structured knowledge using fast regex patterns and Ollama LLM for nuanced extraction",
+      "priority": "critical",
+      "points": 8,
+      "status": "done",
+      "filesInScope": [
+        "~/.roxy/scripts/knowledge/knowledge_extractor.py",
+        "~/.codex/prompts/deep-reflector.md",
+        "~/.codex/prompts/insight-documenter.md"
+      ],
+      "acceptanceCriteria": [
+        "Regex extraction for: TODO, FIXME, shell scripts, error patterns",
+        "LLM extraction using existing deep-reflector.md prompt",
+        "Confidence scoring (0-1) for each extracted item",
+        "Knowledge types: PLAN, TODO, SCRIPT, PROBLEM, SOLUTION, INSIGHT, DECISION",
+        "Output: ~/.roxy/knowledge/extracted_{type}.jsonl for each type"
+      ],
+      "completedAt": "2026-03-20T06:49:00Z"
+    },
+    {
+      "id": "EXTRACT-003",
+      "title": "Ingest extracted knowledge into RAG brain",
+      "description": "Use existing PostgresMemory.remember() and ChromaDB to store extracted knowledge with embeddings",
+      "priority": "critical",
+      "points": 5,
+      "status": "done",
+      "filesInScope": [
+        "~/.roxy/scripts/knowledge/knowledge_ingestor.py",
+        "~/.roxy/memory_postgres.py",
+        "~/.roxy/ingest_rag.py"
+      ],
+      "acceptanceCriteria": [
+        "Reuse existing PostgresMemory.remember() - no new tables",
+        "Reuse existing ingest_rag.py chunking (1000 chars, paragraph boundaries)",
+        "All knowledge items have embeddings (384-dim)",
+        "Queryable via /memory/recall endpoint",
+        "Deduplication against existing brain docs (SHA256 check)"
+      ],
+      "completedAt": "2026-03-20T06:52:00Z"
+    },
+    {
+      "id": "EXTRACT-004",
+      "title": "Generate actionable reports",
+      "description": "Generate LOOSE_ENDS.md, SCRIPTS_CATALOG.md, DECISIONS.md from extracted knowledge",
+      "priority": "high",
+      "points": 5,
+      "status": "done",
+      "filesInScope": [
+        "~/.roxy/knowledge/reports/LOOSE_ENDS.md",
+        "~/.roxy/knowledge/reports/SCRIPTS_CATALOG.md",
+        "~/.roxy/knowledge/reports/DECISIONS.md"
+      ],
+      "acceptanceCriteria": [
+        "LOOSE_ENDS.md: All TODOs sorted by priority with source links",
+        "SCRIPTS_CATALOG.md: All extracted shell scripts with descriptions",
+        "DECISIONS.md: Architectural decisions with rationale",
+        "Each report has table of contents and search-friendly format"
+      ],
+      "completedAt": "2026-03-20T06:54:00Z"
+    },
+    {
+      "id": "EXTRACT-005",
+      "title": "Create extraction orchestrator with monitoring",
+      "description": "Main orchestrator script that runs full pipeline with progress tracking and error handling",
+      "priority": "high",
+      "points": 5,
+      "status": "done",
+      "filesInScope": [
+        "~/.roxy/scripts/knowledge/extraction_orchestrator.py"
+      ],
+      "acceptanceCriteria": [
+        "Single entry point: python extraction_orchestrator.py",
+        "Progress bar with ETA",
+        "Error handling with resume capability",
+        "Statistics output: items parsed, extracted, ingested",
+        "Can run in background with nohup"
+      ],
+      "completedAt": "2026-03-20T06:53:00Z"
+    },
+    {
+      "id": "EXTRACT-006",
+      "title": "Launch on Mac Studio and monitor",
+      "description": "Deploy extraction pipeline to Mac Studio, launch ROXY mission, and monitor first hour",
+      "priority": "high",
+      "points": 3,
+      "status": "todo",
+      "filesInScope": [
+        "~/.roxy/mission_supervisor.py",
+        "~/.ssh/config"
+      ],
+      "acceptanceCriteria": [
+        "Scripts synced to Mac Studio via SSH",
+        "Full extraction run completed",
+        "Reports generated and accessible",
+        "Knowledge queryable via /memory/recall"
+      ]
+    }
+  ],
+  "meta": {
+    "totalPoints": 31,
+    "completedPoints": 28,
+    "completionPercentage": 90.3,
+    "lastUpdated": "2026-03-20T06:55:00Z"
+  }
+}

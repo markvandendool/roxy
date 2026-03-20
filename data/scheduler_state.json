@@ -1,20 +1,20 @@
 {
   "tasks": {
     "memory_consolidation": {
-      "last_run": 1773969395.8307302,
-      "next_run": 1773972995.830733,
+      "last_run": 1774006084.5912647,
+      "next_run": 1774009684.5912669,
       "error_count": 0,
       "enabled": true
     },
     "story_selection_check": {
-      "last_run": 1773970664.357263,
-      "next_run": 1773970964.3572657,
+      "last_run": 1774007587.184404,
+      "next_run": 1774007887.184406,
       "error_count": 0,
       "enabled": true
     },
     "health_check": {
-      "last_run": 1773970664.3903596,
-      "next_run": 1773970964.3903623,
+      "last_run": 1774007587.2370348,
+      "next_run": 1774007887.2370374,
       "error_count": 0,
       "enabled": true
     },
@@ -25,17 +25,17 @@
       "enabled": true
     },
     "sync_skoreq_status": {
-      "last_run": 1773970424.0033998,
-      "next_run": 1773971024.0034027,
+      "last_run": 1774007286.7669196,
+      "next_run": 1774007926.0231533,
       "error_count": 0,
       "enabled": true
     },
     "mission_execution": {
-      "last_run": 1773970784.5487201,
-      "next_run": 1773971684.5487227,
+      "last_run": 1774007827.4488509,
+      "next_run": 1774008727.4488564,
       "error_count": 0,
       "enabled": true
     }
   },
-  "saved_at": "2026-03-19T19:41:30.555197"
+  "saved_at": "2026-03-20T06:08:24.722463"
 }

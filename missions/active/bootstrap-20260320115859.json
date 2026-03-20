@@ -1,0 +1,18 @@
+{
+  "mission_id": "bootstrap-20260320115859",
+  "objective": "Keep ROXY command center healthy, execute queued stories safely, and preserve production readiness.",
+  "constraints": [
+    "No destructive git operations",
+    "Preserve existing worktree changes",
+    "Run targeted verification before completion",
+    "Log all tool calls and outcomes"
+  ],
+  "priority": "high",
+  "budget": 0.0,
+  "timeout_sec": 900,
+  "metadata": {
+    "source": "preflight_bridge",
+    "auto_generated": true,
+    "created_at": "2026-03-20T11:58:59.145862+00:00"
+  }
+}

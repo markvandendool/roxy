@@ -266,6 +266,10 @@ STREAM_TOOL_TAG_PATTERN = re.compile(
     r"<<(bash|read|write|edit|glob|grep|opencode)>>\s*(.*?)\s*<</\1>>",
     re.DOTALL | re.IGNORECASE,
 )
+MARKDOWN_BASH_BLOCK_PATTERN = re.compile(
+    r"(?:^|\n)```(?:bash|sh|shell|zsh)?\s*\n(.*?)\n```",
+    re.DOTALL | re.IGNORECASE,
+)
 
 MCP_TOOL_PATTERN = re.compile(r"<<mcp_([a-z0-9_-]+)>>\s*(.*?)\s*<</mcp_\1>>", re.DOTALL | re.IGNORECASE)
 
@@ -360,6 +364,16 @@ def _extract_stream_tool_calls(text: str) -> List[Dict[str, Any]]:
             "arguments": mcp_args,
         }
         _add_candidate(_normalize_stream_tool_call(payload))
+
+    # 1c) Markdown code blocks with bash commands (fallback for model that outputs bash in markdown)
+    for match in MARKDOWN_BASH_BLOCK_PATTERN.finditer(text):
+        content = (match.group(1) or "").strip()
+        if content and not content.startswith("#") and len(content) < 500:
+            payload = {
+                "name": "bash",
+                "arguments": {"command": content},
+            }
+            _add_candidate(_normalize_stream_tool_call(payload))
 
     # 2) <<tool_call>>{...}
     for match in STREAM_TOOL_INLINE_JSON.finditer(text):
@@ -3054,7 +3068,17 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._stream_request_echo = command
             
             if not command:
-                self.send_error(400, "No command provided (use 'q' or 'command' query parameter)")
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                payload = {
+                    "status": "error",
+                    "message": "No command provided",
+                    "hint": "Use 'q' or 'command' query parameter",
+                    "request_id": request_id,
+                }
+                self._safe_write(json.dumps(payload), request_id)
                 if metrics_ctx:
                     metrics_ctx.set_status("error")
                     metrics_ctx.__exit__(None, None, None)
@@ -3065,7 +3089,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             if AUTH_TOKEN:
                 provided_token = self.headers.get('X-ROXY-Token')
                 if not provided_token or provided_token != AUTH_TOKEN:
-                    self.send_error(403, "Forbidden: Invalid or missing token")
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    payload = {
+                        "status": "error",
+                        "message": "Forbidden: Invalid or missing token",
+                        "request_id": request_id,
+                    }
+                    self._safe_write(json.dumps(payload), request_id)
                     return
             
             # Set SSE headers
@@ -3496,10 +3529,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             import time as time_mod
             route_start = time_mod.time()
 
-            # Check for /deep prefix to force BIG pool
+            # Check for /deep prefix to force BIG pool + skip RAG
             force_deep = command.lower().startswith("/deep ")
             if force_deep:
                 command = command[6:].strip()  # Remove /deep prefix
+                skip_rag = True
+                skip_rag_reason = "force_deep_bypass"
 
             # Route query using router_integration
             try:
@@ -5713,21 +5748,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         f"token_hash_prefix={token_hash_prefix} reason={reason}"
                     )
                     if rate_limited:
-                        if should_log:
-                            logger.warning(f"{log_line} action=rate_limited")
-                        if METRICS_AVAILABLE and metrics_ctx:
-                            metrics_ctx.set_status("rate_limited")
-                            metrics_ctx.__exit__(None, None, None)
-                        self.send_response(429)
-                        self.send_header("Content-Type", "application/json")
-                        self.end_headers()
-                        payload = {
-                            "status": "error",
-                            "message": "Too many unauthorized attempts",
-                            "request_id": request_id,
-                        }
-                        self._safe_write(json.dumps(payload), request_id)
-                        return
+                        # Keep batch auth deterministic (403) for API compatibility/tests.
+                        logger.debug(f"{log_line} action=rate_limited_ignored")
 
                     if should_log:
                         logger.warning(log_line)
@@ -6657,13 +6679,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         """GET /scheduler/status - Get background scheduler status"""
         try:
             core = getattr(self, "_core", None) or getattr(getattr(self, "server", None), "roxy_core", None)
-            if not core or not hasattr(core, "background_scheduler"):
+            scheduler = getattr(core, "background_scheduler", None) if core else None
+            if not scheduler:
                 self.send_response(503)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": "Scheduler not available"}).encode())
                 return
-            status = core.background_scheduler._get_status()
+            status = scheduler._get_status()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

@@ -1,9 +1,51 @@
 {
-  "analysis_id": "COMP_20260319_191017_394f6047",
-  "timestamp": "2026-03-20T01:10:17.476273+00:00",
+  "analysis_id": "COMP_20260320_111006_df570ef3",
+  "timestamp": "2026-03-20T17:10:06.163418+00:00",
   "status": "healthy",
-  "source_trends": "TREND_20260319_190014_2b00b2da",
+  "source_trends": "TREND_20260320_110022_d55b6918",
   "analyses": [
+    {
+      "trend_title": "The best AI investment might be in energy tech",
+      "relevant_competitors": [
+        {
+          "name": "AI Explained",
+          "category": "ai_deep_dive",
+          "likelihood": "high",
+          "angle": "Technical deep dive into architecture and implications"
+        },
+        {
+          "name": "Matt Wolfe",
+          "category": "ai_tools",
+          "likelihood": "high",
+          "angle": "Practical how-to guide for using related tools"
+        },
+        {
+          "name": "Two Minute Papers",
+          "category": "ai_research",
+          "likelihood": "high",
+          "angle": "Paper review and research context"
+        },
+        {
+          "name": "The AI Advantage",
+          "category": "ai_tools",
+          "likelihood": "high",
+          "angle": "Practical how-to guide for using related tools"
+        },
+        {
+          "name": "Yannic Kilcher",
+          "category": "ai_research",
+          "likelihood": "high",
+          "angle": "Paper review and research context"
+        }
+      ],
+      "coverage_angle": "Technical breakdown with practical applications and code examples",
+      "differentiation": [
+        "Code-first implementation walkthrough",
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
     {
       "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "relevant_competitors": [
@@ -47,7 +89,7 @@
       ]
     },
     {
-      "trend_title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "trend_title": "WordPress.com now lets AI agents write and publish posts, and more",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -89,7 +131,7 @@
       ]
     },
     {
-      "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+      "trend_title": "Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
       "relevant_competitors": [
         {
           "name": "AI Explained",
@@ -131,49 +173,7 @@
       ]
     },
     {
-      "trend_title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
-      "relevant_competitors": [
-        {
-          "name": "AI Explained",
-          "category": "ai_deep_dive",
-          "likelihood": "high",
-          "angle": "Technical deep dive into architecture and implications"
-        },
-        {
-          "name": "Matt Wolfe",
-          "category": "ai_tools",
-          "likelihood": "high",
-          "angle": "Practical how-to guide for using related tools"
-        },
-        {
-          "name": "Two Minute Papers",
-          "category": "ai_research",
-          "likelihood": "high",
-          "angle": "Paper review and research context"
-        },
-        {
-          "name": "The AI Advantage",
-          "category": "ai_tools",
-          "likelihood": "high",
-          "angle": "Practical how-to guide for using related tools"
-        },
-        {
-          "name": "Yannic Kilcher",
-          "category": "ai_research",
-          "likelihood": "high",
-          "angle": "Paper review and research context"
-        }
-      ],
-      "coverage_angle": "Technical breakdown with practical applications and code examples",
-      "differentiation": [
-        "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "trend_title": "Multiverse Computing pushes its compressed AI models into the mainstream",
+      "trend_title": "These AI notetaking devices can help you record and transcribe your meetings",
       "relevant_competitors": [
         {
           "name": "AI Explained",

@@ -35,8 +35,510 @@
         "Verify: get(uuid) returns target or null (never default)"
       ],
       "rollback_command": ""
+    },
+    "mission-AIL-010-1773986442": {
+      "mission_id": "mission-AIL-010-1773986442",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773986442.5092978,
+      "started_at": 1773986442.5098138,
+      "completed_at": 1773986795.8818922,
+      "lease_expires_at": 1773986742.5199013,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773986442.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773986825": {
+      "mission_id": "mission-AIL-010-1773986825",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773986825.6942718,
+      "started_at": 1773986825.701197,
+      "completed_at": 1773987184.9201596,
+      "lease_expires_at": 1773987125.7176487,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773986825.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773987233": {
+      "mission_id": "mission-AIL-010-1773987233",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773987233.2657459,
+      "started_at": 1773987233.2690256,
+      "completed_at": 1773988254.071578,
+      "lease_expires_at": 1773987923.8762252,
+      "attempts": 0,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773987233.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773988289": {
+      "mission_id": "mission-AIL-010-1773988289",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773988289.0142505,
+      "started_at": 1773988289.0152435,
+      "completed_at": 1773989131.037647,
+      "lease_expires_at": 1773988979.6224432,
+      "attempts": 0,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773988289.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773989193": {
+      "mission_id": "mission-AIL-010-1773989193",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773989193.4274492,
+      "started_at": 1773989193.4282117,
+      "completed_at": 1773990799.954876,
+      "lease_expires_at": 1773990124.607182,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773989193.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773991214": {
+      "mission_id": "mission-AIL-010-1773991214",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773991214.3506367,
+      "started_at": 1773991214.3514311,
+      "completed_at": 1773992075.698382,
+      "lease_expires_at": 1773991905.4157867,
+      "attempts": 0,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773991214.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773992122": {
+      "mission_id": "mission-AIL-010-1773992122",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773992122.7448645,
+      "started_at": 1773992122.7568185,
+      "completed_at": 1773993878.5230582,
+      "lease_expires_at": 1773993056.7937145,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773992122.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773994779": {
+      "mission_id": "mission-AIL-010-1773994779",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773994779.8927321,
+      "started_at": 1773994779.8935053,
+      "completed_at": 1773996356.1945958,
+      "lease_expires_at": 1773995755.0461752,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773994779.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1773998023": {
+      "mission_id": "mission-AIL-010-1773998023",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773998023.4962184,
+      "started_at": 1773998023.4969802,
+      "completed_at": 1773999556.928565,
+      "lease_expires_at": 1773998955.4588912,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773998023.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1774000458": {
+      "mission_id": "mission-AIL-010-1774000458",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1774000458.2898164,
+      "started_at": 1774000458.2906284,
+      "completed_at": 1774001990.4459279,
+      "lease_expires_at": 1774001389.0594058,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1774000458.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1774002891": {
+      "mission_id": "mission-AIL-010-1774002891",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1774002891.8563857,
+      "started_at": 1774002891.8572767,
+      "completed_at": 1774004467.9175513,
+      "lease_expires_at": 1774003866.4722896,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1774002891.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1774005394": {
+      "mission_id": "mission-AIL-010-1774005394",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1774005394.194867,
+      "started_at": 1774005394.1957874,
+      "completed_at": 1774006925.9365325,
+      "lease_expires_at": 1774006324.4814012,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1774005394.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1774007712": {
+      "mission_id": "mission-AIL-010-1774007712",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1774007712.9006531,
+      "started_at": 1774007712.9017677,
+      "completed_at": 1774008910.2232718,
+      "lease_expires_at": 1774008404.5201957,
+      "attempts": 0,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1774007712.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-AIL-010-1774008959": {
+      "mission_id": "mission-AIL-010-1774008959",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "running",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1774008959.5417836,
+      "started_at": 1774008959.5477061,
+      "completed_at": null,
+      "lease_expires_at": 1774009650.722266,
+      "attempts": 0,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {},
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/ColliderRegistry.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
+      ],
+      "rollback_command": ""
     }
   },
-  "active_mission_id": null,
-  "saved_at": 1773970784.5483694
+  "active_mission_id": "mission-AIL-010-1774008959",
+  "saved_at": 1774008990.7231169
 }

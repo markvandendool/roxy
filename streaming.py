@@ -368,23 +368,18 @@ You have discussed similar topics before with the user. Here are relevant memori
                 logger.debug(f"[RAG] Memory recall failed (non-critical): {e}")
 
         # === BUILD FINAL PROMPT ===
-        # Order: System → Truth → Memory → Query → RAG (if any)
+        # Order: System → Truth → Memory → TOOL USE → Query → RAG (if any)
+        # Tool use comes BEFORE context so model prioritizes tools for coding tasks
         prompt = f"""{system_prompt}
 
 {truth_section}
 {memory_section}
-{query_section}
-{rag_section}
 
-Respond to the user's query. If using reference material, synthesize it but remember:
-the TRUTH PACKET is AUTHORITATIVE for current date/time and system state.
-If episodic memory is provided, use it to maintain continuity with past conversations.
-
-TOOL USE (IMPORTANT):
+TOOL USE (CRITICAL - for all coding, file, and search tasks):
 When you need to perform file operations, run commands, or search code, emit a tool call using this format:
 
 <<bash>>
-YOUR_COMMAND_HERE
+YOUR COMMAND
 <</bash>>
 
 <<read>>
@@ -400,15 +395,18 @@ search_term
 <</grep>>
 
 <<tool_call>>
-{"name": "write", "arguments": {"file_path": "/path/to/file.txt", "content": "File content here"}}
+{{"name": "write", "arguments": {{"file_path": "/path/to/file.txt", "content": "content"}}}}
 <</tool_call>>
 
-<<tool_call>>
-{"name": "tool_name", "arguments": {"arg1": "value1"}}
-<</tool_call>>
+Emit a tool call for EVERY coding task. Do not describe what you would do — actually do it.
+If a task requires multiple steps, emit ONE tool call at a time and wait for the result.
 
-Only emit ONE tool call per response. Wait for the result before continuing.
-Do NOT emit tool calls for greetings, opinions, or purely conversational responses."""
+{query_section}
+{rag_section}
+
+If the query is a coding task (writing code, running commands, searching files), use tools above.
+If the query is a simple greeting or opinion, respond conversationally without tools.
+If using reference material for a question, synthesize it but remember: the TRUTH PACKET is AUTHORITATIVE."""
 
         logger.debug(f"[RAG] Built prompt for requestId={request_tag}, context_len={len(context) if context else 0}")
 

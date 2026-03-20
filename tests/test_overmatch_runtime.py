@@ -1,12 +1,14 @@
 import asyncio
 import json
 from pathlib import Path
+import time
 import types
 
 import infrastructure
 import mission_supervisor
 import repo_intel
 import roxy_core
+import story_selector
 import tool_retry
 from repo_intel import RepoIndexer, query_symbol
 
@@ -196,8 +198,11 @@ def test_mission_executor_derives_auto_verification_commands(tmp_path, monkeypat
 def test_mission_executor_execute_touches_lease(monkeypatch):
     import requests
 
+    captured = {}
+
     class FakeResponse:
         status_code = 200
+        headers = {"Content-Type": "text/event-stream"}
 
         def iter_lines(self):
             payloads = [
@@ -207,7 +212,12 @@ def test_mission_executor_execute_touches_lease(monkeypatch):
             for payload in payloads:
                 yield b"data: " + json.dumps(payload).encode("utf-8")
 
-    monkeypatch.setattr(requests, "post", lambda *args, **kwargs: FakeResponse())
+    def fake_request(url, **kwargs):
+        captured["url"] = url
+        captured["params"] = kwargs.get("params", {})
+        return FakeResponse()
+
+    monkeypatch.setattr(requests, "get", fake_request)
 
     touches = []
     executor = mission_supervisor.MissionExecutor()
@@ -224,6 +234,9 @@ def test_mission_executor_execute_touches_lease(monkeypatch):
 
     assert result["success"] is True
     assert touches
+    assert captured["url"].endswith("/stream")
+    assert captured["params"]["command"].startswith("/deep ")
+    assert result["trace_path"].endswith("m3.jsonl")
 
 
 def test_mission_executor_execute_verification_stops_on_failure():
@@ -245,3 +258,255 @@ def test_mission_executor_execute_verification_stops_on_failure():
 
     assert len(results) == 1
     assert results[0]["success"] is False
+
+
+def test_mission_ledger_story_blocklist_covers_terminal_and_active_states(tmp_path, monkeypatch):
+    ledger_path = tmp_path / "mission_ledger.json"
+    evidence_dir = tmp_path / "evidence"
+    trace_dir = tmp_path / "trace"
+    evidence_dir.mkdir()
+    trace_dir.mkdir()
+
+    monkeypatch.setattr(mission_supervisor, "MISSION_LEDGER", ledger_path)
+    monkeypatch.setattr(mission_supervisor, "EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(mission_supervisor, "TRACE_DIR", trace_dir)
+
+    now = 10_000.0
+    ledger = mission_supervisor.MissionLedger()
+    ledger.missions = {
+        "complete-1": mission_supervisor.Mission(
+            mission_id="complete-1",
+            story_id="DONE-1",
+            story_title="Done Story",
+            status=mission_supervisor.MissionStatus.COMPLETE,
+            goal="done",
+            created_at=1.0,
+            completed_at=now - 50.0,
+        ),
+        "active-1": mission_supervisor.Mission(
+            mission_id="active-1",
+            story_id="RUN-1",
+            story_title="Running Story",
+            status=mission_supervisor.MissionStatus.RUNNING,
+            goal="running",
+            created_at=1.0,
+        ),
+        "cooldown-1": mission_supervisor.Mission(
+            mission_id="cooldown-1",
+            story_id="COOL-1",
+            story_title="Cooling Story",
+            status=mission_supervisor.MissionStatus.EXPIRED,
+            goal="cooldown",
+            created_at=1.0,
+            completed_at=now - 30.0,
+            attempts=1,
+        ),
+        "max-1": mission_supervisor.Mission(
+            mission_id="max-1",
+            story_id="MAX-1",
+            story_title="Maxed Story",
+            status=mission_supervisor.MissionStatus.FAILED,
+            goal="failed",
+            created_at=1.0,
+            completed_at=now - mission_supervisor.STORY_COOLDOWN_SEC - 50.0,
+            attempts=mission_supervisor.MAX_STORY_ATTEMPTS,
+        ),
+    }
+
+    blocklist = ledger.get_story_blocklist(now=now)
+
+    assert blocklist["DONE-1"] == "complete"
+    assert blocklist["RUN-1"] == "active"
+    assert blocklist["COOL-1"] == "cooldown"
+    assert blocklist["MAX-1"] == "max_attempts"
+
+
+def test_mission_executor_writes_trace_artifact(tmp_path, monkeypatch):
+    import requests
+
+    trace_dir = tmp_path / "trace"
+    trace_dir.mkdir()
+    monkeypatch.setattr(mission_supervisor, "TRACE_DIR", trace_dir)
+
+    class FakeResponse:
+        status_code = 200
+        headers = {"Content-Type": "text/event-stream"}
+
+        def iter_lines(self):
+            payloads = [
+                {"event": "tool_call_detected", "tool_name": "read", "call_id": "abc", "arguments": {"path": "src/demo.py"}},
+                {"event": "complete", "data": {"response": "done"}},
+            ]
+            for payload in payloads:
+                yield b"data: " + json.dumps(payload).encode("utf-8")
+
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: FakeResponse())
+
+    executor = mission_supervisor.MissionExecutor()
+    mission = mission_supervisor.Mission(
+        mission_id="trace-mission-1",
+        story_id="TRACE-1",
+        story_title="Trace Story",
+        status=mission_supervisor.MissionStatus.RUNNING,
+        goal="goal",
+        created_at=0.0,
+    )
+
+    result = asyncio.run(executor.execute(mission))
+    trace_path = Path(result["trace_path"])
+
+    assert trace_path.exists()
+    trace_text = trace_path.read_text()
+    assert "execute_started" in trace_text
+    assert "stream_event" in trace_text
+    assert "execute_finished" in trace_text
+
+
+def test_run_mission_task_resumes_acquired_mission_without_reselecting_story(tmp_path, monkeypatch):
+    ledger_path = tmp_path / "mission_ledger.json"
+    evidence_dir = tmp_path / "evidence"
+    trace_dir = tmp_path / "trace"
+    evidence_dir.mkdir()
+    trace_dir.mkdir()
+
+    monkeypatch.setattr(mission_supervisor, "MISSION_LEDGER", ledger_path)
+    monkeypatch.setattr(mission_supervisor, "EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(mission_supervisor, "TRACE_DIR", trace_dir)
+
+    ledger = mission_supervisor.MissionLedger()
+    envelope = mission_supervisor.MissionEnvelope(
+        mission_id="mission-acquired-1",
+        story_id="STORY-ACQ",
+        story_title="Resume Me",
+        goal="Finish the active story",
+        files_in_scope=["src/demo.py"],
+        verification_plan=["cmd: python -c \"print('ok')\""],
+    )
+    mission = ledger.create_mission(envelope)
+    mission.status = mission_supervisor.MissionStatus.ACQUIRED
+    mission.attempts = 1
+    ledger._save()
+
+    class FakeSelector:
+        def __init__(self):
+            self.get_next_story_calls = 0
+            self.completed = []
+
+        def get_next_story(self, active_executions=None):
+            self.get_next_story_calls += 1
+            return None
+
+        def mark_complete(self, story_id):
+            self.completed.append(story_id)
+            return True
+
+    class FakeExecutor:
+        async def execute(self, mission, lease_touch=None):
+            if lease_touch:
+                lease_touch(120.0)
+            return {
+                "success": True,
+                "tool_calls": [],
+                "files_modified": ["src/demo.py"],
+                "output": "done",
+                "trace_path": str(trace_dir / f"{mission.mission_id}.jsonl"),
+            }
+
+        async def execute_verification(self, mission, files_modified):
+            return [{"label": "smoke", "command": "python -c \"print('ok')\"", "success": True}]
+
+    selector = FakeSelector()
+    monkeypatch.setattr(mission_supervisor, "get_ledger", lambda: ledger)
+    monkeypatch.setattr(mission_supervisor, "get_executor", lambda: FakeExecutor())
+    monkeypatch.setattr(story_selector, "StorySelector", lambda: selector)
+
+    result = asyncio.run(mission_supervisor.run_mission_task())
+
+    assert "completed successfully" in result
+    assert selector.get_next_story_calls == 0
+    assert selector.completed == ["STORY-ACQ"]
+    assert ledger.missions["mission-acquired-1"].status == mission_supervisor.MissionStatus.COMPLETE
+
+
+def test_run_mission_task_expires_active_and_dispatches_next_story_same_cycle(tmp_path, monkeypatch):
+    ledger_path = tmp_path / "mission_ledger.json"
+    evidence_dir = tmp_path / "evidence"
+    trace_dir = tmp_path / "trace"
+    evidence_dir.mkdir()
+    trace_dir.mkdir()
+
+    monkeypatch.setattr(mission_supervisor, "MISSION_LEDGER", ledger_path)
+    monkeypatch.setattr(mission_supervisor, "EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(mission_supervisor, "TRACE_DIR", trace_dir)
+
+    ledger = mission_supervisor.MissionLedger()
+    expired_envelope = mission_supervisor.MissionEnvelope(
+        mission_id="mission-old-1",
+        story_id="STORY-OLD",
+        story_title="Old Story",
+        goal="stale mission",
+    )
+    expired_mission = ledger.create_mission(expired_envelope)
+    expired_mission.status = mission_supervisor.MissionStatus.RUNNING
+    expired_mission.started_at = 100.0
+    expired_mission.lease_expires_at = time.time() - 5.0
+    ledger._save()
+
+    next_story = story_selector.Story(
+        id="STORY-NEW",
+        title="Fresh Story",
+        description="Do the next thing",
+        status="todo",
+        files_in_scope=["src/fresh.py"],
+    )
+
+    class FakeSelector:
+        def __init__(self):
+            self.active_executions = []
+            self.completed = []
+
+        def get_next_story(self, active_executions=None):
+            self.active_executions = list(active_executions or [])
+            return next_story
+
+        def build_envelope(self, story):
+            return mission_supervisor.MissionEnvelope(
+                mission_id="mission-new-1",
+                story_id=story.id,
+                story_title=story.title,
+                goal=story.title,
+                files_in_scope=story.files_in_scope,
+                verification_plan=["cmd: python -c \"print('ok')\""],
+            )
+
+        def mark_complete(self, story_id):
+            self.completed.append(story_id)
+            return True
+
+    class FakeExecutor:
+        async def execute(self, mission, lease_touch=None):
+            if lease_touch:
+                lease_touch(120.0)
+            return {
+                "success": True,
+                "tool_calls": [],
+                "files_modified": mission.files_in_scope,
+                "output": "done",
+                "trace_path": str(trace_dir / f"{mission.mission_id}.jsonl"),
+            }
+
+        async def execute_verification(self, mission, files_modified):
+            return [{"label": "smoke", "command": "python -c \"print('ok')\"", "success": True}]
+
+    selector = FakeSelector()
+    monkeypatch.setattr(mission_supervisor, "get_ledger", lambda: ledger)
+    monkeypatch.setattr(mission_supervisor, "get_executor", lambda: FakeExecutor())
+    monkeypatch.setattr(story_selector, "StorySelector", lambda: selector)
+
+    result = asyncio.run(mission_supervisor.run_mission_task())
+
+    assert "completed successfully" in result
+    assert "STORY-OLD" in selector.active_executions
+    assert selector.completed == ["STORY-NEW"]
+    assert ledger.missions["mission-old-1"].status == mission_supervisor.MissionStatus.EXPIRED
+    assert ledger.missions["mission-new-1"].status == mission_supervisor.MissionStatus.COMPLETE

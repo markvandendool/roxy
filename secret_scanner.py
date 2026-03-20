@@ -215,8 +215,10 @@ class SecretPatterns:
         r'\.env\.template',
         r'\.env\.bak',
         r'\.env\.backup',
-        r'/\.env$',
-        r'/etc/roxy\.env$',
+        r'^/home/mark/\.roxy/\.env$',
+        r'^/home/mark/\.roxy/etc/roxy\.env$',
+        r'^/home/mark/\.roxy/.*/\.env$',
+        r'^/home/mark/\.roxy/.*/\.env\.[^/]+$',
         r'obs-portable/',
         r'node_modules/',
         r'vendor/',
@@ -242,10 +244,10 @@ class SecretPatterns:
     ]
     
     SCAN_EXTENSIONS = {
-        '.py', '.js', '.ts', '.jsx', '.tsx',
+        '.py', '.js', '.ts', '.jsx', '.tsx', '.json', '.yaml', '.yml',
         '.env', '.ini', '.cfg', '.conf', '.toml', '.properties', '.sh',
         '.bash', '.zsh', '.bashrc', '.zshrc', '.vimrc', '.sql', '.pem',
-        '.xml', '.gradle', '.properties'
+        '.txt', '.md', '.xml', '.gradle'
     }
 
 

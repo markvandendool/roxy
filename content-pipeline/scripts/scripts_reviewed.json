@@ -1,16 +1,16 @@
 {
-  "review_id": "REVIEW_20260319_191807_1f0762c2",
-  "timestamp": "2026-03-20T01:18:07.733724+00:00",
+  "review_id": "REVIEW_20260320_111815_652f1104",
+  "timestamp": "2026-03-20T17:18:15.984847+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260319_191611_a6805a7d",
+  "source_scripts": "SCRIPT_20260320_111615_5edd1e0a",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_4d67851d60b6",
-      "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
+      "script_id": "SCR_74ac4c746b97",
+      "trend_title": "The best AI investment might be in energy tech",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 8,
+        "hook_strength": 7,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
@@ -29,20 +29,18 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_f760ff11caa3",
-      "trend_title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "script_id": "SCR_a8bc4e18f00d",
+      "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 4,
+        "hook_strength": 7,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
-        "overall": 8
+        "overall": 9
       },
-      "recommendations": [
-        "Hook is too long - trim for impact"
-      ],
+      "recommendations": [],
       "approved_sections": [
         "hook",
         "context",
@@ -55,20 +53,18 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_abc9f86e1f44",
-      "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+      "script_id": "SCR_6bea7c64fbea",
+      "trend_title": "WordPress.com now lets AI agents write and publish posts, and more",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 4,
+        "hook_strength": 5,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
         "overall": 8
       },
-      "recommendations": [
-        "Hook is too long - trim for impact"
-      ],
+      "recommendations": [],
       "approved_sections": [
         "hook",
         "context",
@@ -86,7 +82,7 @@
     "approved": 3,
     "needs_revision": 0,
     "rejected": 0,
-    "average_score": 8.3
+    "average_score": 8.7
   },
   "meta": {
     "version": "1.0.0",

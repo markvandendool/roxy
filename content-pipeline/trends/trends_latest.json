@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260319_190014_2b00b2da",
-  "timestamp": "2026-03-20T01:00:14.950761+00:00",
+  "snapshot_id": "TREND_20260320_110022_d55b6918",
+  "timestamp": "2026-03-20T17:00:22.225391+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -27,12 +27,44 @@
   ],
   "trends": [
     {
+      "title": "The best AI investment might be in energy tech",
+      "link": "https://techcrunch.com/2026/03/20/the-best-ai-investment-might-be-in-energy-tech/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 85,
+      "summary": "Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's creating an opening for investors."
+    },
+    {
       "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "link": "https://techcrunch.com/2026/03/19/techcrunch-startup-battlefield-200-nominations-are-still-open/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 85,
       "summary": "Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access."
+    },
+    {
+      "title": "WordPress.com now lets AI agents write and publish posts, and more",
+      "link": "https://techcrunch.com/2026/03/20/wordpress-com-now-lets-ai-agents-write-and-publish-posts-and-more/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "New AI agents on WordPress.com could lower barriers to publishing while increasing machine-generated content across the web."
+    },
+    {
+      "title": "Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
+      "link": "https://techcrunch.com/2026/03/20/trumps-ai-framework-targets-state-laws-shifts-child-safety-burden-to-parents/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "Trump\u2019s AI framework pushes federal preemption of state laws, emphasizes innovation, and shifts responsibility for child safety toward parents while laying out lighter-touch rules for tech companies."
+    },
+    {
+      "title": "These AI notetaking devices can help you record and transcribe your meetings",
+      "link": "https://techcrunch.com/2026/03/20/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "These physical notetakers transcribe audio and give users summaries and action items of meetings using AI. Some even offer live translation."
     },
     {
       "title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
@@ -59,28 +91,20 @@
       "summary": "Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language."
     },
     {
-      "title": "Multiverse Computing pushes its compressed AI models into the mainstream",
-      "link": "https://techcrunch.com/2026/03/19/multiverse-computing-pushes-its-compressed-ai-models-into-the-mainstream/",
-      "source": "TechCrunch AI",
-      "category": "ai",
+      "title": "What\u2019s the right path for AI?",
+      "link": "https://news.mit.edu/2026/right-path-for-ai-karen-hao-paola-ricaurte-0320",
+      "source": "MIT News AI",
+      "category": "ai_research",
       "score": 75,
-      "summary": "After compressing models from major AI labs, including OpenAI, Meta, DeepSeek, and Mistral AI, Multiverse Computing has launched both an app that showcases the capabilities of its compressed models and an API that makes them more widely available."
+      "summary": "Conference speakers discussed the unfolding trajectory of AI and the benefits of shaping technology to meets people\u2019s needs."
     },
     {
-      "title": "Meta is having trouble with rogue AI agents",
-      "link": "https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents/",
-      "source": "TechCrunch AI",
-      "category": "ai",
+      "title": "MIT and Hasso Plattner Institute establish collaborative hub for AI and creativity",
+      "link": "https://news.mit.edu/2026/mit-hasso-plattner-institute-collaborative-hub-for-ai-and-creativity-0320",
+      "source": "MIT News AI",
+      "category": "ai_research",
       "score": 75,
-      "summary": "A rogue AI agent inadvertently exposed Meta company and user data to engineers who didn't have permission to see it."
-    },
-    {
-      "title": "Nothing CEO Carl Pei says smartphone apps will disappear as AI agents take their place",
-      "link": "https://techcrunch.com/2026/03/18/nothing-ceo-carl-pei-says-smartphone-apps-will-disappear-as-ai-agents-take-their-place/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "Nothing CEO Carl Pei says AI agents will eventually replace apps, shifting smartphones toward systems that understand intent and act on a user's behalf."
+      "summary": "Jointly led by the MIT Morningside Academy for Design, MIT Schwarzman College of Computing, and the Hasso Plattner Institute in Potsdam, the hub will foster a dynamic community where computing, creativity, and human-centered innovation meet."
     },
     {
       "title": "Generative AI improves a wireless vision system that sees through obstructions",
@@ -139,14 +163,6 @@
       "summary": "The company is currently letting users in the U.K. try out Alexa+ for free via an early access program."
     },
     {
-      "title": "Sam Altman\u2019s thank-you to coders draws the memes",
-      "link": "https://techcrunch.com/2026/03/18/sam-altmans-thank-you-to-coders-draws-the-memes/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "Altman expresses gratitude for people who knew how to write their code from scratch. The internet replies with salty jokes."
-    },
-    {
       "title": "A better method for identifying overconfident large language models",
       "link": "https://news.mit.edu/2026/better-method-identifying-overconfident-large-language-models-0319",
       "source": "MIT News AI",
@@ -169,22 +185,6 @@
       "category": "ai_research",
       "score": 65,
       "summary": "A new hybrid system could help robots navigate in changing environments or increase the efficiency of multirobot assembly teams."
-    },
-    {
-      "title": "3 Questions: Building predictive models to characterize tumor progression",
-      "link": "https://news.mit.edu/2026/3-questions-building-predictive-models-characterize-tumor-progression-0310",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 65,
-      "summary": "Assistant Professor Matthew Jones is working to decode molecular processes on the genetic, epigenetic, and microenvironment levels to anticipate how and when tumors evolve to resist treatment."
-    },
-    {
-      "title": "How Joseph Paradiso\u2019s sensing innovations bridge the arts, medicine, and ecology",
-      "link": "https://news.mit.edu/2026/mit-professor-joseph-paradiso-sensing-innovations-0310",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 65,
-      "summary": "From early motion-sensing platforms to environmental monitoring, the professor and head of the Program in Media Arts and Sciences has turned decades of cross-disciplinary research into real-world impact."
     }
   ],
   "meta": {

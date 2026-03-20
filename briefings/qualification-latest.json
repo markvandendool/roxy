@@ -1,0 +1,310 @@
+{
+  "timestamp": "2026-03-20T06:28:23.111924+00:00",
+  "qualified": true,
+  "QUALIFIED": "YES",
+  "overall_score": 1.0,
+  "gates": [
+    {
+      "name": "security_scan",
+      "passed": true,
+      "duration_ms": 3882.174253463745,
+      "message": "No secrets detected",
+      "details": {
+        "scan_note": "scan_truncated:max_files=3000"
+      }
+    },
+    {
+      "name": "eval_harness",
+      "passed": true,
+      "duration_ms": 104856.33111000061,
+      "message": "Eval harness passed",
+      "details": {
+        "attempts": [
+          {
+            "attempt": 1,
+            "returncode": 0,
+            "passed": true,
+            "stdout": "ailed: 0\nPass Rate: 100.0%\nMeets Threshold (95%): \u2705 YES\n\nBy Category:\n  runtime: 100% (1/1)\n  memory: 100% (3/3)\n  confidence: 100% (2/2)\n  quality: 100% (2/2)\n\nDetailed Results:\n  \u2705 [runtime] mcp_gate\n  \u2705 [memory] memory_identity\n  \u2705 [memory] memory_production\n  \u2705 [memory] memory_preferences\n  \u2705 [confidence] confidence_known\n  \u2705 [confidence] confidence_unknown\n  \u2705 [quality] quality_technical\n  \u2705 [quality] quality_production\n======================================================================\n",
+            "stderr": "on\nINFO:roxy.eval:  \u2705 PASS: memory_production\nINFO:roxy.eval:Running test: memory_preferences\nINFO:roxy.eval:  \u2705 PASS: memory_preferences\nINFO:roxy.eval:Running test: confidence_known\nINFO:roxy.eval:  \u2705 PASS: confidence_known\nINFO:roxy.eval:Running test: confidence_unknown\nINFO:roxy.eval:  \u2705 PASS: confidence_unknown\nINFO:roxy.eval:Running test: quality_technical\nINFO:roxy.eval:  \u2705 PASS: quality_technical\nINFO:roxy.eval:Running test: quality_production\nINFO:roxy.eval:  \u2705 PASS: quality_production\n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp_auth",
+      "passed": true,
+      "duration_ms": 21745.2175617218,
+      "message": "14/20 MCP servers connected",
+      "details": {
+        "roxy-browser": {
+          "connected": true,
+          "tool_count": 4
+        },
+        "roxy-desktop": {
+          "connected": true,
+          "tool_count": 9
+        },
+        "roxy-voice": {
+          "connected": true,
+          "tool_count": 4
+        },
+        "roxy-obs": {
+          "connected": true,
+          "tool_count": 10
+        },
+        "roxy-content": {
+          "connected": true,
+          "tool_count": 6
+        },
+        "mindsong-skills": {
+          "connected": false,
+          "tool_count": 0
+        },
+        "blender": {
+          "connected": false,
+          "tool_count": 0
+        },
+        "playwright": {
+          "connected": true,
+          "tool_count": 22
+        },
+        "chrome-devtools": {
+          "connected": true,
+          "tool_count": 26
+        },
+        "puppeteer": {
+          "connected": true,
+          "tool_count": 7
+        },
+        "figma": {
+          "connected": false,
+          "tool_count": 0
+        },
+        "notion": {
+          "connected": true,
+          "tool_count": 21
+        },
+        "atlassian": {
+          "connected": false,
+          "tool_count": 0
+        },
+        "github": {
+          "connected": true,
+          "tool_count": 26
+        },
+        "memory": {
+          "connected": true,
+          "tool_count": 9
+        },
+        "filesystem": {
+          "connected": true,
+          "tool_count": 14
+        },
+        "sequential-thinking": {
+          "connected": true,
+          "tool_count": 1
+        },
+        "greptile": {
+          "connected": true,
+          "tool_count": 5
+        },
+        "huggingface": {
+          "connected": false,
+          "tool_count": 0
+        },
+        "gsd": {
+          "connected": false,
+          "tool_count": 0
+        }
+      }
+    },
+    {
+      "name": "preflight",
+      "passed": true,
+      "duration_ms": 22860.40759086609,
+      "message": "Preflight: degraded",
+      "details": {
+        "timestamp": "2026-03-20T06:28:21.797708+00:00",
+        "overall_ready": "degraded",
+        "models_ready": [
+          "opencode/mimo-v2-pro-free",
+          "opencode/big-pickle",
+          "openai/gpt-5.4"
+        ],
+        "mcp_ready": [
+          "roxy-browser",
+          "roxy-desktop",
+          "roxy-voice",
+          "roxy-obs",
+          "roxy-content",
+          "playwright",
+          "chrome-devtools",
+          "puppeteer",
+          "notion",
+          "github",
+          "memory",
+          "filesystem",
+          "sequential-thinking",
+          "greptile"
+        ],
+        "skills_ready": [
+          "skill_code_review",
+          "skill_data_analysis",
+          "skill_web_research"
+        ],
+        "mission_valid": false,
+        "components": [
+          {
+            "name": "models",
+            "status": "ok",
+            "message": "3 preferred models available",
+            "details": {
+              "available": [
+                "opencode/mimo-v2-pro-free",
+                "opencode/big-pickle",
+                "openai/gpt-5.4"
+              ],
+              "total_models": 116
+            }
+          },
+          {
+            "name": "api_keys",
+            "status": "ok",
+            "message": "Auth token present",
+            "details": {}
+          },
+          {
+            "name": "luno_service",
+            "status": "warn",
+            "message": "Luno service check failed",
+            "details": {
+              "stdout": "",
+              "stderr": "$ bun run src/cli/index.ts status\nerror: Cannot find package 'commander' from '/home/mark/work/mindsong/luno-orchestrator/src/cli/index.ts'\n\nBun v1.3.5 (Linux x64)\nerror: script \"status\" exited with c"
+            }
+          },
+          {
+            "name": "mcp_servers",
+            "status": "warn",
+            "message": "14/20 MCP servers connected",
+            "details": {
+              "roxy-browser": {
+                "connected": true,
+                "tool_count": 4
+              },
+              "roxy-desktop": {
+                "connected": true,
+                "tool_count": 9
+              },
+              "roxy-voice": {
+                "connected": true,
+                "tool_count": 4
+              },
+              "roxy-obs": {
+                "connected": true,
+                "tool_count": 10
+              },
+              "roxy-content": {
+                "connected": true,
+                "tool_count": 6
+              },
+              "mindsong-skills": {
+                "connected": false,
+                "tool_count": 0
+              },
+              "blender": {
+                "connected": false,
+                "tool_count": 0
+              },
+              "playwright": {
+                "connected": true,
+                "tool_count": 22
+              },
+              "chrome-devtools": {
+                "connected": true,
+                "tool_count": 26
+              },
+              "puppeteer": {
+                "connected": true,
+                "tool_count": 7
+              },
+              "figma": {
+                "connected": false,
+                "tool_count": 0
+              },
+              "notion": {
+                "connected": true,
+                "tool_count": 21
+              },
+              "atlassian": {
+                "connected": false,
+                "tool_count": 0
+              },
+              "github": {
+                "connected": true,
+                "tool_count": 26
+              },
+              "memory": {
+                "connected": true,
+                "tool_count": 9
+              },
+              "filesystem": {
+                "connected": true,
+                "tool_count": 14
+              },
+              "sequential-thinking": {
+                "connected": true,
+                "tool_count": 1
+              },
+              "greptile": {
+                "connected": true,
+                "tool_count": 5
+              },
+              "huggingface": {
+                "connected": false,
+                "tool_count": 0
+              },
+              "gsd": {
+                "connected": false,
+                "tool_count": 0
+              }
+            }
+          },
+          {
+            "name": "skills",
+            "status": "ok",
+            "message": "3 skills found",
+            "details": {
+              "count": 3,
+              "skills": [
+                "skill_code_review",
+                "skill_data_analysis",
+                "skill_web_research"
+              ]
+            }
+          },
+          {
+            "name": "mission_contract",
+            "status": "warn",
+            "message": "No mission directory",
+            "details": {}
+          }
+        ],
+        "blocking_reasons": [],
+        "warnings": [
+          "Luno service: Luno service check failed",
+          "MCP servers: 14/20 MCP servers connected"
+        ]
+      }
+    },
+    {
+      "name": "opencode_probe",
+      "passed": true,
+      "duration_ms": 1314.0027523040771,
+      "message": "OpenCode CLI available",
+      "details": {}
+    }
+  ],
+  "blocking_issues": [],
+  "warnings": [],
+  "recommendations": []
+}

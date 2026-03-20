@@ -31,7 +31,9 @@ logger = logging.getLogger("roxy.mission_supervisor")
 ROXY_DIR = Path.home() / ".roxy"
 MISSION_LEDGER = ROXY_DIR / "data" / "mission_ledger.json"
 EVIDENCE_DIR = ROXY_DIR / "evidence" / "missions"
+TRACE_DIR = ROXY_DIR / "data" / "mission_traces"
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+TRACE_DIR.mkdir(parents=True, exist_ok=True)
 
 ROXY_BASE_URL = os.getenv("ROXY_BASE_URL", "http://127.0.0.1:8766")
 AUTH_TOKEN_FILE = ROXY_DIR / "secret.token"
@@ -40,11 +42,36 @@ DEFAULT_MISSION_TIMEOUT = 600.0
 DEFAULT_LEASE_TTL = 300.0
 MAX_CONCURRENT_MISSIONS = 1
 LEASE_TOUCH_INTERVAL = 30.0
+STORY_COOLDOWN_SEC = max(300.0, float(os.getenv("ROXY_STORY_COOLDOWN_SEC", "1800")))
+MAX_STORY_ATTEMPTS = max(1, int(os.getenv("ROXY_MAX_STORY_ATTEMPTS", "3")))
 VERIFICATION_COMMAND_PREFIXES = ("cmd:", "bash:", "shell:")
 VERIFICATION_COMMAND_STARTERS = (
     "bun ", "npm ", "pnpm ", "pytest ", "python ", "python3 ", "node ",
     "npx ", "tsx ", "vitest ", "playwright ", "./", "bash ", "git ",
 )
+
+
+def _mission_trace_path(mission_id: str) -> Path:
+    return TRACE_DIR / f"{mission_id}.jsonl"
+
+
+def _append_mission_trace(mission_id: str, event: str, **payload: Any) -> str:
+    path = _mission_trace_path(mission_id)
+    record = {
+        "ts": time.time(),
+        "iso": datetime.now().isoformat(),
+        "mission_id": mission_id,
+        "event": event,
+        **payload,
+    }
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a") as f:
+            json.dump(record, f, default=str)
+            f.write("\n")
+    except Exception as e:
+        logger.warning(f"Failed to append mission trace {path}: {e}")
+    return str(path)
 
 
 class MissionStatus(str, Enum):
@@ -215,6 +242,15 @@ class MissionLedger:
             created_at=time.time(),
             lease_expires_at=time.time() + DEFAULT_LEASE_TTL,
         )
+        trace_path = _append_mission_trace(
+            mission.mission_id,
+            "mission_created",
+            story_id=mission.story_id,
+            story_title=mission.story_title,
+            files_in_scope=mission.files_in_scope,
+            verification_plan=mission.verification_plan,
+        )
+        mission.evidence_bundle = {**mission.evidence_bundle, "trace_path": trace_path}
         self.missions[mission.mission_id] = mission
         self._active = mission.mission_id
         self._save()
@@ -236,6 +272,13 @@ class MissionLedger:
             m = self.missions[mission_id]
             m.status = MissionStatus.COMPLETE
             m.completed_at = time.time()
+            trace_path = _append_mission_trace(
+                m.mission_id,
+                "mission_completed",
+                story_id=m.story_id,
+                files_modified=evidence_bundle.get("files_modified", []),
+                verification_results=evidence_bundle.get("verification_results", []),
+            )
             artifact_path = self._write_evidence_artifact(
                 m,
                 {
@@ -244,7 +287,11 @@ class MissionLedger:
                     "written_at": datetime.now().isoformat(),
                 },
             )
-            m.evidence_bundle = {**evidence_bundle, "artifact_path": artifact_path}
+            m.evidence_bundle = {
+                **evidence_bundle,
+                "artifact_path": artifact_path,
+                "trace_path": trace_path,
+            }
             self._active = None
             self._save()
 
@@ -256,6 +303,13 @@ class MissionLedger:
                 m.status = MissionStatus.FAILED
                 m.error = error
                 m.completed_at = time.time()
+                trace_path = _append_mission_trace(
+                    m.mission_id,
+                    "mission_failed",
+                    story_id=m.story_id,
+                    attempts=m.attempts,
+                    error=error,
+                )
                 artifact_path = self._write_evidence_artifact(
                     m,
                     {
@@ -264,11 +318,24 @@ class MissionLedger:
                         "written_at": datetime.now().isoformat(),
                     },
                 )
-                m.evidence_bundle = {**m.evidence_bundle, "artifact_path": artifact_path}
+                m.evidence_bundle = {
+                    **m.evidence_bundle,
+                    "artifact_path": artifact_path,
+                    "trace_path": trace_path,
+                }
                 self._active = None
             else:
                 m.status = MissionStatus.ACQUIRED
                 m.lease_expires_at = time.time() + DEFAULT_LEASE_TTL
+                trace_path = _append_mission_trace(
+                    m.mission_id,
+                    "mission_retry_scheduled",
+                    story_id=m.story_id,
+                    attempts=m.attempts,
+                    error=error,
+                    next_lease_expires_at=m.lease_expires_at,
+                )
+                m.evidence_bundle = {**m.evidence_bundle, "trace_path": trace_path}
             self._save()
 
     def expire(self, mission_id: str):
@@ -276,6 +343,12 @@ class MissionLedger:
             m = self.missions[mission_id]
             m.status = MissionStatus.EXPIRED
             m.completed_at = time.time()
+            trace_path = _append_mission_trace(
+                m.mission_id,
+                "mission_expired",
+                story_id=m.story_id,
+                lease_expires_at=m.lease_expires_at,
+            )
             artifact_path = self._write_evidence_artifact(
                 m,
                 {
@@ -284,7 +357,11 @@ class MissionLedger:
                     "written_at": datetime.now().isoformat(),
                 },
             )
-            m.evidence_bundle = {**m.evidence_bundle, "artifact_path": artifact_path}
+            m.evidence_bundle = {
+                **m.evidence_bundle,
+                "artifact_path": artifact_path,
+                "trace_path": trace_path,
+            }
             self._active = None
             self._save()
 
@@ -315,6 +392,45 @@ class MissionLedger:
             "completed": by_status.get("complete", 0),
             "failed": by_status.get("failed", 0),
         }
+
+    def get_story_blocklist(self, now: Optional[float] = None) -> Dict[str, str]:
+        current_time = now or time.time()
+        blocklist: Dict[str, str] = {}
+        terminal_attempts: Dict[str, int] = {}
+
+        for mission in self.missions.values():
+            story_id = mission.story_id
+            if not story_id:
+                continue
+
+            if mission.status == MissionStatus.COMPLETE:
+                blocklist[story_id] = "complete"
+                continue
+
+            if mission.status in {
+                MissionStatus.PENDING,
+                MissionStatus.ACQUIRED,
+                MissionStatus.RUNNING,
+                MissionStatus.VERIFYING,
+            }:
+                blocklist[story_id] = "active"
+                continue
+
+            if mission.status in {
+                MissionStatus.FAILED,
+                MissionStatus.EXPIRED,
+                MissionStatus.CANCELLED,
+            }:
+                terminal_attempts[story_id] = terminal_attempts.get(story_id, 0) + max(1, mission.attempts or 1)
+                completed_at = mission.completed_at or mission.started_at or mission.created_at
+                if completed_at and (current_time - completed_at) < STORY_COOLDOWN_SEC:
+                    blocklist.setdefault(story_id, "cooldown")
+
+        for story_id, attempts in terminal_attempts.items():
+            if attempts >= MAX_STORY_ATTEMPTS and story_id not in blocklist:
+                blocklist[story_id] = "max_attempts"
+
+        return blocklist
 
 
 class MissionExecutor:
@@ -592,7 +708,7 @@ class MissionExecutor:
 
         goal = self._build_goal(mission)
 
-        headers = {"Content-Type": "application/json"}
+        headers = {"Accept": "text/event-stream"}
         if self._auth_token:
             headers["X-ROXY-Token"] = self._auth_token
 
@@ -600,15 +716,48 @@ class MissionExecutor:
         files_modified = set()
         output = ""
         last_touch = time.time()
+        trace_path = _append_mission_trace(
+            mission.mission_id,
+            "execute_started",
+            story_id=mission.story_id,
+            goal_len=len(goal),
+            goal_preview=goal[:240],
+            files_in_scope=mission.files_in_scope,
+        )
+        mission.evidence_bundle = {**mission.evidence_bundle, "trace_path": trace_path}
 
         try:
-            response = requests.post(
+            logger.info(f"[EXECUTOR] Calling /stream with goal length={len(goal)}")
+            logger.info(f"[EXECUTOR] Goal first 200 chars: {repr(goal[:200])}")
+            _append_mission_trace(
+                mission.mission_id,
+                "stream_request_started",
+                method="GET",
+                url=f"{ROXY_BASE_URL}/stream",
+                timeout=DEFAULT_MISSION_TIMEOUT,
+            )
+            response = requests.get(
                 f"{ROXY_BASE_URL}/stream",
                 headers=headers,
-                json={"command": goal},
+                params={"command": goal},
                 stream=True,
                 timeout=DEFAULT_MISSION_TIMEOUT,
             )
+            logger.info(f"[EXECUTOR] /stream response status={response.status_code}")
+            _append_mission_trace(
+                mission.mission_id,
+                "stream_response_received",
+                status_code=response.status_code,
+                content_type=response.headers.get("Content-Type", ""),
+            )
+            if response.status_code not in (200, 202):
+                logger.error(f"[EXECUTOR] /stream error: {response.text[:200]}")
+                _append_mission_trace(
+                    mission.mission_id,
+                    "stream_response_error",
+                    status_code=response.status_code,
+                    body_preview=response.text[:200],
+                )
 
             if response.status_code not in (200, 202):
                 return {
@@ -617,6 +766,7 @@ class MissionExecutor:
                     "tool_calls": [],
                     "files_modified": [],
                     "output": "",
+                    "trace_path": trace_path,
                 }
 
             for line in response.iter_lines():
@@ -625,13 +775,31 @@ class MissionExecutor:
                 try:
                     if lease_touch and (time.time() - last_touch) >= LEASE_TOUCH_INTERVAL:
                         lease_touch(max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL))
+                        _append_mission_trace(
+                            mission.mission_id,
+                            "lease_touched",
+                            source="stream_activity",
+                            ttl=max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL),
+                        )
                         last_touch = time.time()
                     if line.startswith(b"data: "):
                         data = json.loads(line[6:])
                     else:
+                        _append_mission_trace(
+                            mission.mission_id,
+                            "stream_line_skipped",
+                            line_preview=line[:200].decode("utf-8", errors="replace"),
+                        )
                         continue
 
                     event_type = data.get("event", "")
+                    _append_mission_trace(
+                        mission.mission_id,
+                        "stream_event",
+                        event_type=event_type,
+                        tool_name=data.get("tool_name"),
+                        call_id=data.get("call_id"),
+                    )
                     if event_type == "tool_call_detected":
                         tool_name = data.get("tool_name")
                         arguments = data.get("arguments", {}) or {}
@@ -692,39 +860,75 @@ class MissionExecutor:
                         output = data.get("data", {}).get("response", "")
                     if lease_touch:
                         lease_touch(max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL))
+                        _append_mission_trace(
+                            mission.mission_id,
+                            "lease_touched",
+                            source="event_processed",
+                            ttl=max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL),
+                            event_type=event_type,
+                        )
                         last_touch = time.time()
 
-                except Exception:
+                except Exception as e:
+                    _append_mission_trace(
+                        mission.mission_id,
+                        "stream_parse_error",
+                        error=str(e),
+                        line_preview=line[:200].decode("utf-8", errors="replace"),
+                    )
                     continue
 
+            _append_mission_trace(
+                mission.mission_id,
+                "execute_finished",
+                tool_call_count=len(tool_calls),
+                files_modified=sorted(files_modified),
+                output_len=len(output),
+            )
             return {
                 "success": True,
                 "tool_calls": tool_calls,
                 "files_modified": list(files_modified),
                 "output": output if "output" in dir() else "",
                 "error": "",
+                "trace_path": trace_path,
             }
 
         except requests.exceptions.Timeout:
+            _append_mission_trace(
+                mission.mission_id,
+                "execute_timeout",
+                timeout=DEFAULT_MISSION_TIMEOUT,
+            )
             return {
                 "success": False,
                 "error": f"Mission timed out after {DEFAULT_MISSION_TIMEOUT}s",
                 "tool_calls": tool_calls,
                 "files_modified": list(files_modified),
                 "output": "",
+                "trace_path": trace_path,
             }
         except Exception as e:
+            _append_mission_trace(
+                mission.mission_id,
+                "execute_exception",
+                error=str(e),
+            )
             return {
                 "success": False,
                 "error": str(e),
                 "tool_calls": tool_calls,
                 "files_modified": list(files_modified),
                 "output": "",
+                "trace_path": trace_path,
             }
 
     def _build_goal(self, mission: Mission) -> str:
         """Build the goal prompt for the mission."""
         goal = mission.goal
+
+        if not goal.startswith("/deep "):
+            goal = "/deep " + goal
 
         if mission.files_in_scope:
             goal += f"\n\nFiles in scope: {', '.join(mission.files_in_scope)}"
@@ -782,30 +986,69 @@ async def run_mission_task() -> str:
     """
     ledger = get_ledger()
     executor = get_executor()
-
-    if ledger.get_active():
-        active = ledger.get_active()
-        if ledger.is_lease_valid(active.mission_id):
-            return f"Mission {active.mission_id} ({active.story_id}) still running"
-
-        ledger.expire(active.mission_id)
-        return f"Mission {active.mission_id} expired"
+    mission: Optional[Mission] = None
+    expired_message: Optional[str] = None
 
     try:
         from story_selector import StorySelector
         selector = StorySelector()
-        next_story = selector.get_next_story()
+        active = ledger.get_active()
 
-        if not next_story:
-            return "No eligible stories found"
+        if active:
+            if active.status in {MissionStatus.PENDING, MissionStatus.ACQUIRED}:
+                mission = active
+                _append_mission_trace(
+                    mission.mission_id,
+                    "mission_resumed",
+                    story_id=mission.story_id,
+                    attempts=mission.attempts,
+                )
+                logger.info(
+                    f"[Mission] Resuming acquired mission: {mission.story_id} "
+                    f"(attempt {mission.attempts + 1}/{mission.max_retries})"
+                )
+            elif ledger.is_lease_valid(active.mission_id):
+                return f"Mission {active.mission_id} ({active.story_id}) still running"
+            else:
+                ledger.expire(active.mission_id)
+                expired_message = f"Mission {active.mission_id} expired"
 
-        envelope = selector.build_envelope(next_story)
-        mission = ledger.create_mission(envelope)
+        if mission is None:
+            blocklist = ledger.get_story_blocklist()
+            next_story = selector.get_next_story(active_executions=sorted(blocklist.keys()))
+            if next_story:
+                _append_mission_trace(
+                    f"selection-{int(time.time())}",
+                    "story_selected",
+                    story_id=next_story.id,
+                    blocklist=blocklist,
+                )
+            else:
+                _append_mission_trace(
+                    f"selection-{int(time.time())}",
+                    "no_story_selected",
+                    blocklist=blocklist,
+                )
+
+            if not next_story:
+                if expired_message:
+                    return f"{expired_message}; no eligible stories found"
+                return "No eligible stories found"
+
+            envelope = selector.build_envelope(next_story)
+            mission = ledger.create_mission(envelope)
 
         logger.info(f"[Mission] Starting: {mission.story_id} - {mission.story_title}")
+        _append_mission_trace(
+            mission.mission_id,
+            "mission_started",
+            story_id=mission.story_id,
+            story_title=mission.story_title,
+        )
 
         mission.status = MissionStatus.RUNNING
-        mission.started_at = time.time()
+        if mission.started_at is None:
+            mission.started_at = time.time()
         mission.lease_expires_at = time.time() + max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL)
         ledger._save()
 
@@ -818,8 +1061,18 @@ async def run_mission_task() -> str:
             mission.status = MissionStatus.VERIFYING
             mission.tool_calls = result["tool_calls"]
             mission.files_modified = result["files_modified"]
+            mission.evidence_bundle = {
+                **mission.evidence_bundle,
+                "trace_path": result.get("trace_path", mission.evidence_bundle.get("trace_path")),
+            }
             ledger.touch_lease(mission.mission_id, ttl_seconds=120)
             ledger._save()
+            _append_mission_trace(
+                mission.mission_id,
+                "mission_verifying",
+                tool_call_count=len(result["tool_calls"]),
+                files_modified=result["files_modified"],
+            )
 
             verification_results = await executor.execute_verification(
                 mission,
@@ -837,6 +1090,11 @@ async def run_mission_task() -> str:
                     "verification_failed",
                 )
                 ledger.fail(mission.mission_id, failure_summary[:500])
+                _append_mission_trace(
+                    mission.mission_id,
+                    "verification_failed",
+                    failure_summary=failure_summary[:500],
+                )
                 logger.warning(f"[Mission] Verification failed: {mission.story_id} - {failure_summary[:200]}")
                 return f"Mission {mission.story_id} verification failed: {failure_summary[:200]}"
 
@@ -854,16 +1112,29 @@ async def run_mission_task() -> str:
                 "verification_results": mission.verification_results,
                 "verification_plan": mission.verification_plan,
                 "required_evidence": mission.required_evidence,
+                "trace_path": result.get("trace_path", mission.evidence_bundle.get("trace_path")),
             }
 
             ledger.complete(mission.mission_id, evidence_bundle)
-            selector.mark_complete(next_story.id)
+            selector.mark_complete(mission.story_id)
+            _append_mission_trace(
+                mission.mission_id,
+                "mission_complete_acknowledged",
+                story_id=mission.story_id,
+            )
 
             logger.info(f"[Mission] Complete: {mission.story_id}")
             return f"Mission {mission.story_id} completed successfully"
 
         else:
             ledger.fail(mission.mission_id, result["error"])
+            _append_mission_trace(
+                mission.mission_id,
+                "mission_failed_before_verification",
+                story_id=mission.story_id,
+                error=result["error"],
+                trace_path=result.get("trace_path"),
+            )
             logger.warning(f"[Mission] Failed: {mission.story_id} - {result['error']}")
             return f"Mission {mission.story_id} failed: {result['error'][:200]}"
 

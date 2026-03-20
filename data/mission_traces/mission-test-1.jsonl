@@ -1,0 +1,4 @@
+{"ts": 1774025794.3450718, "iso": "2026-03-20T10:56:34.345074", "mission_id": "mission-test-1", "event": "mission_created", "story_id": "TEST-001", "story_title": "Test Story", "files_in_scope": ["src/demo.py"], "verification_plan": ["pytest tests/test_demo.py"]}
+{"ts": 1774025794.3458643, "iso": "2026-03-20T10:56:34.345866", "mission_id": "mission-test-1", "event": "mission_completed", "story_id": "TEST-001", "files_modified": [], "verification_results": []}
+{"ts": 1774025820.0713608, "iso": "2026-03-20T10:57:00.071364", "mission_id": "mission-test-1", "event": "mission_created", "story_id": "TEST-001", "story_title": "Test Story", "files_in_scope": ["src/demo.py"], "verification_plan": ["pytest tests/test_demo.py"]}
+{"ts": 1774025820.072253, "iso": "2026-03-20T10:57:00.072256", "mission_id": "mission-test-1", "event": "mission_completed", "story_id": "TEST-001", "files_modified": [], "verification_results": []}

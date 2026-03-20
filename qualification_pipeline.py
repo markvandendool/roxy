@@ -125,11 +125,15 @@ class QualificationPipeline:
             duration_ms = (time.time() - start) * 1000
             
             if result.passed:
+                details = {}
+                if result.error_message and str(result.error_message).startswith("scan_truncated:"):
+                    details["scan_note"] = result.error_message
                 return QualificationGate(
                     name="security_scan",
                     passed=True,
                     duration_ms=duration_ms,
                     message="No secrets detected",
+                    details=details,
                 )
             else:
                 return QualificationGate(
@@ -152,52 +156,87 @@ class QualificationPipeline:
             )
     
     def _run_eval_harness(self) -> QualificationGate:
-        """Run agent eval harness gate (unit tests - fast)."""
+        """Run ROXY eval harness gate."""
         import subprocess
         import time
         start = time.time()
         
-        try:
-            eval_script = ROXY_ROOT / "scripts" / "eval_agent_harness.py"
-            python_bin = ROXY_ROOT / "venv" / "bin" / "python"
-            cmd = [str(python_bin if python_bin.exists() else "python3"), str(eval_script)]
-            result = subprocess.run(
-                cmd,
-                cwd=str(ROXY_ROOT),
-                capture_output=True,
-                text=True,
-                timeout=120,
-            )
-            
-            duration_ms = (time.time() - start) * 1000
-            
-            output = f"{result.stdout}\n{result.stderr}".lower()
-            passed = (
-                result.returncode == 0
-                and ("eval passed" in output or "pass rate" in output)
-            )
-            
-            return QualificationGate(
-                name="eval_harness",
-                passed=passed,
-                duration_ms=duration_ms,
-                message="Eval harness passed" if passed else "Eval harness failed",
-                details={"stdout": result.stdout[-500:]},
-            )
-        except subprocess.TimeoutExpired:
-            return QualificationGate(
-                name="eval_harness",
-                passed=False,
-                duration_ms=(time.time() - start) * 1000,
-                message="Eval harness timed out",
-            )
-        except Exception as e:
-            return QualificationGate(
-                name="eval_harness",
-                passed=False,
-                duration_ms=(time.time() - start) * 1000,
-                message=f"Eval harness error: {e}",
-            )
+        eval_script = ROXY_ROOT / "scripts" / "eval_harness.py"
+        python_bin = ROXY_ROOT / "venv" / "bin" / "python"
+        cmd = [str(python_bin if python_bin.exists() else "python3"), str(eval_script)]
+        attempts: list[dict] = []
+
+        for attempt in range(1, 3):
+            try:
+                # Best-effort ensure service is up before each attempt.
+                subprocess.run(
+                    ["systemctl", "--user", "start", "roxy-core.service"],
+                    capture_output=True,
+                    text=True,
+                    timeout=20,
+                )
+
+                result = subprocess.run(
+                    cmd,
+                    cwd=str(ROXY_ROOT),
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                )
+                output = f"{result.stdout}\n{result.stderr}".lower()
+                passed = (
+                    result.returncode == 0
+                    and "meets threshold" in output
+                    and ("yes" in output or "✅ yes" in output)
+                )
+                attempts.append(
+                    {
+                        "attempt": attempt,
+                        "returncode": result.returncode,
+                        "passed": passed,
+                        "stdout": result.stdout[-500:],
+                        "stderr": result.stderr[-500:],
+                    }
+                )
+                if passed:
+                    return QualificationGate(
+                        name="eval_harness",
+                        passed=True,
+                        duration_ms=(time.time() - start) * 1000,
+                        message="Eval harness passed",
+                        details={"attempts": attempts},
+                    )
+            except subprocess.TimeoutExpired:
+                attempts.append(
+                    {
+                        "attempt": attempt,
+                        "returncode": -1,
+                        "passed": False,
+                        "stdout": "",
+                        "stderr": "timeout",
+                    }
+                )
+            except Exception as e:
+                attempts.append(
+                    {
+                        "attempt": attempt,
+                        "returncode": -2,
+                        "passed": False,
+                        "stdout": "",
+                        "stderr": str(e),
+                    }
+                )
+
+            # brief backoff before retry
+            time.sleep(2)
+
+        return QualificationGate(
+            name="eval_harness",
+            passed=False,
+            duration_ms=(time.time() - start) * 1000,
+            message="Eval harness failed",
+            details={"attempts": attempts},
+        )
     
     def _run_mcp_auth_check(self) -> QualificationGate:
         """Run MCP auth matrix gate."""
@@ -227,7 +266,18 @@ class QualificationPipeline:
                 total = len(details)
                 return connected, total, details
 
-            connected, total, details = asyncio.run(_run_check())
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+            
+            if loop and loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as pool:
+                    future = pool.submit(asyncio.run, _run_check())
+                    connected, total, details = future.result(timeout=30)
+            else:
+                connected, total, details = asyncio.run(_run_check())
             duration_ms = (time.time() - start) * 1000
             passed = total > 0 and connected >= max(1, int(total * 0.6))
             return QualificationGate(

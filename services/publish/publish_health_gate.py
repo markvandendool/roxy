@@ -59,6 +59,13 @@ FRESHNESS_WARNING_HOURS = 2.0
 FRESHNESS_CRITICAL_HOURS = 4.0
 FAILED_RECEIPTS_WARNING = 2
 FAILED_RECEIPTS_CRITICAL = 5
+QUEUE_STUCK_ACTIVE_WINDOW_HOURS = float(os.getenv("QUEUE_STUCK_ACTIVE_WINDOW_HOURS", "24"))
+QUEUE_STUCK_IGNORE_HISTORICAL = os.getenv("QUEUE_STUCK_IGNORE_HISTORICAL", "1").lower() in {"1", "true", "yes", "on"}
+QUEUE_NON_BLOCKING_MODES = {
+    mode.strip().lower()
+    for mode in os.getenv("QUEUE_NON_BLOCKING_MODES", "handoff,dry_run").split(",")
+    if mode.strip()
+}
 
 # Constants
 NATS_TOPIC = "ghost.publish.health"
@@ -123,7 +130,6 @@ def check_queue_stuck() -> Dict[str, Any]:
             "details": {"queue_available": False}
         }
 
-    queue_stats = queue_data.get("queue_length", 0)
     entries = queue_data.get("entries", [])
 
     if not entries:
@@ -135,37 +141,153 @@ def check_queue_stuck() -> Dict[str, Any]:
             "details": {"queue_length": 0}
         }
 
-    # Find oldest queued item
+    # Build receipt mode index so handoff/dry-run queues are treated as non-blocking.
+    receipts_dir = PIPELINE_BASE / "publish" / "receipts"
+    receipt_modes_by_publish_id: Dict[str, set[str]] = {}
+    if receipts_dir.exists():
+        for receipt_file in receipts_dir.glob("*.json"):
+            receipt = load_json(receipt_file)
+            if not isinstance(receipt, dict):
+                continue
+            publish_id = str(receipt.get("publish_id", "")).strip()
+            mode = str(receipt.get("mode", "")).strip().lower()
+            if not publish_id:
+                continue
+            if publish_id not in receipt_modes_by_publish_id:
+                receipt_modes_by_publish_id[publish_id] = set()
+            if mode:
+                receipt_modes_by_publish_id[publish_id].add(mode)
+
+    # Find queued ages, split by blocking vs non-blocking mode.
     now = datetime.now(timezone.utc)
-    oldest_age_hours = 0
+    blocking_ages_hours: List[float] = []
+    non_blocking_ages_hours: List[float] = []
 
     for entry in entries:
         if entry.get("status") == "queued":
             enqueue_ts = entry.get("enqueue_timestamp", "")
+            publish_id = str(entry.get("publish_id", "")).strip()
             if enqueue_ts:
                 try:
                     enqueue_dt = datetime.fromisoformat(enqueue_ts.replace("Z", "+00:00"))
                     age_hours = (now - enqueue_dt).total_seconds() / 3600
-                    oldest_age_hours = max(oldest_age_hours, age_hours)
+                    if age_hours >= 0:
+                        modes = receipt_modes_by_publish_id.get(publish_id, set())
+                        is_non_blocking = bool(modes) and modes.issubset(QUEUE_NON_BLOCKING_MODES)
+                        if is_non_blocking:
+                            non_blocking_ages_hours.append(age_hours)
+                        else:
+                            blocking_ages_hours.append(age_hours)
                 except (ValueError, TypeError):
                     pass
 
+    total_queued_with_age = len(blocking_ages_hours) + len(non_blocking_ages_hours)
+    if total_queued_with_age == 0:
+        return {
+            "check_id": "CHK_HEALTH_001",
+            "check_type": "queue_stuck",
+            "result": "pass",
+            "message": "No queued entries with valid timestamps",
+            "details": {
+                "queue_length": len(entries),
+                "queued_entries": 0,
+                "blocking_entries": 0,
+                "non_blocking_entries": 0,
+            },
+        }
+
+    if blocking_ages_hours:
+        oldest_age_hours = max(blocking_ages_hours)
+    else:
+        oldest_age_hours = 0.0
+
+    if not blocking_ages_hours and non_blocking_ages_hours:
+        oldest_non_blocking = max(non_blocking_ages_hours)
+        return {
+            "check_id": "CHK_HEALTH_001",
+            "check_type": "queue_stuck",
+            "result": "pass",
+            "message": (
+                "Queue entries are in non-blocking manual modes "
+                f"({', '.join(sorted(QUEUE_NON_BLOCKING_MODES))}); oldest={oldest_non_blocking:.1f}h"
+            ),
+            "details": {
+                "queue_length": len(entries),
+                "queued_entries": total_queued_with_age,
+                "blocking_entries": 0,
+                "non_blocking_entries": len(non_blocking_ages_hours),
+                "oldest_non_blocking_age_hours": round(oldest_non_blocking, 2),
+                "non_blocking_modes": sorted(QUEUE_NON_BLOCKING_MODES),
+            },
+            "threshold": {
+                "warning": QUEUE_STUCK_WARNING_HOURS,
+                "critical": QUEUE_STUCK_CRITICAL_HOURS,
+                "actual": 0.0,
+            },
+        }
+
+    effective_ages = list(blocking_ages_hours)
+    historical_ignored = False
+    if QUEUE_STUCK_IGNORE_HISTORICAL:
+        in_window = [age for age in blocking_ages_hours if age <= QUEUE_STUCK_ACTIVE_WINDOW_HOURS]
+        if in_window:
+            effective_ages = in_window
+        else:
+            historical_ignored = True
+
+    if historical_ignored:
+        return {
+            "check_id": "CHK_HEALTH_001",
+            "check_type": "queue_stuck",
+            "result": "pass",
+            "message": (
+                f"Historical queued backlog ignored "
+                f"(oldest={oldest_age_hours:.1f}h, active_window={QUEUE_STUCK_ACTIVE_WINDOW_HOURS:.1f}h)"
+            ),
+            "details": {
+                "queue_length": len(entries),
+                "queued_entries": total_queued_with_age,
+                "blocking_entries": len(blocking_ages_hours),
+                "non_blocking_entries": len(non_blocking_ages_hours),
+                "oldest_age_hours": round(oldest_age_hours, 2),
+                "active_window_hours": QUEUE_STUCK_ACTIVE_WINDOW_HOURS,
+                "historical_backlog_ignored": True,
+            },
+            "threshold": {
+                "warning": QUEUE_STUCK_WARNING_HOURS,
+                "critical": QUEUE_STUCK_CRITICAL_HOURS,
+                "active_window_hours": QUEUE_STUCK_ACTIVE_WINDOW_HOURS,
+                "actual": round(oldest_age_hours, 2),
+            },
+        }
+
+    oldest_effective_age_hours = max(effective_ages)
     result = "pass"
-    if oldest_age_hours >= QUEUE_STUCK_CRITICAL_HOURS:
+    if oldest_effective_age_hours >= QUEUE_STUCK_CRITICAL_HOURS:
         result = "critical"
-    elif oldest_age_hours >= QUEUE_STUCK_WARNING_HOURS:
+    elif oldest_effective_age_hours >= QUEUE_STUCK_WARNING_HOURS:
         result = "warning"
 
     return {
         "check_id": "CHK_HEALTH_001",
         "check_type": "queue_stuck",
         "result": result,
-        "message": f"Oldest queued item: {oldest_age_hours:.1f} hours",
-        "details": {"queue_length": len(entries), "oldest_age_hours": round(oldest_age_hours, 2)},
+        "message": f"Oldest active queued item: {oldest_effective_age_hours:.1f} hours",
+        "details": {
+            "queue_length": len(entries),
+            "queued_entries": total_queued_with_age,
+            "blocking_entries": len(blocking_ages_hours),
+            "non_blocking_entries": len(non_blocking_ages_hours),
+            "oldest_age_hours": round(oldest_age_hours, 2),
+            "oldest_active_age_hours": round(oldest_effective_age_hours, 2),
+            "active_window_hours": QUEUE_STUCK_ACTIVE_WINDOW_HOURS,
+            "historical_backlog_ignored": False,
+        },
         "threshold": {
             "warning": QUEUE_STUCK_WARNING_HOURS,
             "critical": QUEUE_STUCK_CRITICAL_HOURS,
-            "actual": round(oldest_age_hours, 2)
+            "active_window_hours": QUEUE_STUCK_ACTIVE_WINDOW_HOURS,
+            "actual": round(oldest_effective_age_hours, 2),
         }
     }
 
