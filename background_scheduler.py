@@ -477,6 +477,8 @@ def create_cleanup_logs_task():
         
         return f"Deleted {deleted} old log files"
 
+    return run
+
 
 def setup_scheduler(scheduler: BackgroundScheduler):
     """Setup handlers for default tasks."""
