@@ -37,6 +37,38 @@ _MEMORY_STOPWORDS = {
     "was", "we", "were", "what", "when", "where", "who", "why", "with",
     "you", "your",
 }
+_USER_ID_SANITIZE = re.compile(r"[^a-zA-Z0-9_.:-]+")
+DEFAULT_MEMORY_RECORD_TYPES = {
+    "conversation",
+    "decision",
+    "bug",
+    "fix_recipe",
+    "verification_recipe",
+    "failure_event",
+    "repo_fact",
+    "content_rule",
+}
+
+
+def _resolve_default_user_id() -> str:
+    """Resolve the fallback user_id used for memory/profile isolation."""
+    configured = (
+        os.getenv("ROXY_USER_ID")
+        or os.getenv("ROXY_DEFAULT_USER_ID")
+        or os.getenv("ROXY_CANONICAL_USER_ID")
+    )
+    if configured:
+        cleaned = _USER_ID_SANITIZE.sub("-", configured.strip())
+        if cleaned:
+            return cleaned
+    try:
+        from canonical_identity import CANONICAL_USER_ID  # type: ignore
+        cleaned = _USER_ID_SANITIZE.sub("-", str(CANONICAL_USER_ID).strip())
+        if cleaned:
+            return cleaned
+    except Exception:
+        pass
+    return "default"
 
 
 def _load_env_file(path: Path) -> Dict[str, str]:
@@ -154,6 +186,7 @@ class PostgresMemory:
         self.database = env_db or database
         self.user = env_user or user
         self.password = env_password or password
+        self.default_user_id = _resolve_default_user_id()
         
         self.conn = None
         self.encoder = None
@@ -173,6 +206,9 @@ class PostgresMemory:
         self._sqlite_path: Optional[Path] = None
         self._sqlite_cols: Dict[str, Optional[str]] = {}
         self._sqlite_tables: set = set()
+        self._typed_records_store: List[Dict[str, Any]] = []
+        self.hot_memory_limit = max(25, int(os.getenv("ROXY_MEMORY_HOT_LIMIT", "500")))
+        self._hot_memory_cache: List[Dict[str, Any]] = []
         
         # In-memory fallback
         self._memory_store: List[Dict[str, Any]] = []
@@ -214,6 +250,17 @@ class PostgresMemory:
             self._init_sqlite_fallback()
         if self.require_persistent and not self.conn and not self._sqlite_enabled:
             raise RuntimeError("Persistent memory required but no backend available")
+        self._refresh_hot_memory_cache()
+
+    def _normalize_user_id(self, user_id: Optional[str], context: Optional[Dict[str, Any]] = None) -> str:
+        """Return a stable, sanitized user identifier for memory isolation."""
+        source = user_id
+        if not source and isinstance(context, dict):
+            source = context.get("user_id")
+        cleaned = _USER_ID_SANITIZE.sub("-", str(source or "").strip())
+        if cleaned:
+            return cleaned
+        return self.default_user_id
     
     def _connect(self):
         """Establish PostgreSQL connection and setup schema."""
@@ -343,6 +390,7 @@ class PostgresMemory:
                         CREATE TABLE IF NOT EXISTS conversations (
                             id SERIAL PRIMARY KEY,
                             session_id TEXT,
+                            user_id TEXT DEFAULT 'default',
                             query TEXT NOT NULL,
                             response TEXT NOT NULL,
                             query_embedding vector(384),
@@ -366,6 +414,7 @@ class PostgresMemory:
                         CREATE TABLE IF NOT EXISTS conversations (
                             id SERIAL PRIMARY KEY,
                             session_id TEXT,
+                            user_id TEXT DEFAULT 'default',
                             query TEXT NOT NULL,
                             response TEXT NOT NULL,
                             importance FLOAT DEFAULT 0.5,
@@ -382,6 +431,7 @@ class PostgresMemory:
                     CREATE INDEX IF NOT EXISTS idx_conv_session 
                     ON conversations(session_id, created_at DESC)
                 """)
+
                 
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_conv_importance 
@@ -420,14 +470,88 @@ class PostgresMemory:
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS learned_preferences (
                         id SERIAL PRIMARY KEY,
+                        user_id TEXT DEFAULT 'default',
                         category TEXT NOT NULL,
                         preference TEXT NOT NULL,
                         confidence FLOAT DEFAULT 0.5,
                         evidence JSONB DEFAULT '[]',
                         created_at TIMESTAMP DEFAULT NOW(),
                         updated_at TIMESTAMP DEFAULT NOW(),
-                        UNIQUE(category, preference)
+                        UNIQUE(user_id, category, preference)
                     )
+                """)
+
+                if self.use_pgvector:
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS memory_records (
+                            id SERIAL PRIMARY KEY,
+                            user_id TEXT DEFAULT 'default',
+                            record_type TEXT NOT NULL,
+                            content TEXT NOT NULL,
+                            scope TEXT DEFAULT '',
+                            provenance TEXT DEFAULT '',
+                            confidence FLOAT DEFAULT 0.5,
+                            metadata JSONB DEFAULT '{}',
+                            verified_at TIMESTAMP NULL,
+                            embedding vector(384),
+                            created_at TIMESTAMP DEFAULT NOW(),
+                            updated_at TIMESTAMP DEFAULT NOW()
+                        )
+                    """)
+                    cur.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_memory_records_embedding
+                        ON memory_records USING ivfflat (embedding vector_cosine_ops)
+                        WITH (lists = 100)
+                    """)
+                else:
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS memory_records (
+                            id SERIAL PRIMARY KEY,
+                            user_id TEXT DEFAULT 'default',
+                            record_type TEXT NOT NULL,
+                            content TEXT NOT NULL,
+                            scope TEXT DEFAULT '',
+                            provenance TEXT DEFAULT '',
+                            confidence FLOAT DEFAULT 0.5,
+                            metadata JSONB DEFAULT '{}',
+                            verified_at TIMESTAMP NULL,
+                            created_at TIMESTAMP DEFAULT NOW(),
+                            updated_at TIMESTAMP DEFAULT NOW()
+                        )
+                    """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_memory_records_user_type
+                    ON memory_records(user_id, record_type, updated_at DESC)
+                """)
+
+                # Schema migrations for older databases
+                cur.execute("ALTER TABLE conversations ADD COLUMN IF NOT EXISTS user_id TEXT")
+                cur.execute("ALTER TABLE conversations ADD COLUMN IF NOT EXISTS memory_type TEXT DEFAULT 'conversation'")
+                cur.execute("ALTER TABLE conversations ADD COLUMN IF NOT EXISTS provenance TEXT")
+                cur.execute("ALTER TABLE conversations ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP NULL")
+                cur.execute(
+                    "UPDATE conversations SET user_id = %s WHERE user_id IS NULL OR user_id = ''",
+                    (self.default_user_id,),
+                )
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_conv_user_session
+                    ON conversations(user_id, session_id, created_at DESC)
+                """)
+                cur.execute("ALTER TABLE learned_preferences ADD COLUMN IF NOT EXISTS user_id TEXT")
+                cur.execute(
+                    "UPDATE learned_preferences SET user_id = %s WHERE user_id IS NULL OR user_id = ''",
+                    (self.default_user_id,),
+                )
+                cur.execute(
+                    "ALTER TABLE learned_preferences DROP CONSTRAINT IF EXISTS learned_preferences_category_preference_key"
+                )
+                cur.execute("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS idx_lp_user_category_preference
+                    ON learned_preferences(user_id, category, preference)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_lp_user_category
+                    ON learned_preferences(user_id, category, confidence DESC)
                 """)
                 
                 self.conn.commit()
@@ -481,17 +605,38 @@ class PostgresMemory:
                     CREATE TABLE IF NOT EXISTS conversations (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         session_id TEXT,
+                        user_id TEXT,
                         query TEXT NOT NULL,
                         response TEXT NOT NULL,
                         importance REAL DEFAULT 0.5,
                         emotional_valence REAL DEFAULT 0.0,
                         context TEXT,
+                        query_embedding TEXT,
+                        memory_type TEXT DEFAULT 'conversation',
+                        provenance TEXT,
+                        verified_at TEXT,
                         access_count INTEGER DEFAULT 0,
                         created_at TEXT NOT NULL,
                         accessed_at TEXT NOT NULL
                     )
                 """)
                 tables.add("conversations")
+            else:
+                conv_cols = [row[1] for row in conn.execute("PRAGMA table_info(conversations)").fetchall()]
+                if "user_id" not in conv_cols:
+                    conn.execute("ALTER TABLE conversations ADD COLUMN user_id TEXT")
+                if "query_embedding" not in conv_cols:
+                    conn.execute("ALTER TABLE conversations ADD COLUMN query_embedding TEXT")
+                if "memory_type" not in conv_cols:
+                    conn.execute("ALTER TABLE conversations ADD COLUMN memory_type TEXT DEFAULT 'conversation'")
+                if "provenance" not in conv_cols:
+                    conn.execute("ALTER TABLE conversations ADD COLUMN provenance TEXT")
+                if "verified_at" not in conv_cols:
+                    conn.execute("ALTER TABLE conversations ADD COLUMN verified_at TEXT")
+                conn.execute(
+                    "UPDATE conversations SET user_id = ? WHERE user_id IS NULL OR user_id = ''",
+                    (self.default_user_id,),
+                )
 
             if "user_preferences" not in tables:
                 conn.execute("""
@@ -502,6 +647,25 @@ class PostgresMemory:
                     )
                 """)
                 tables.add("user_preferences")
+
+            if "memory_records" not in tables:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS memory_records (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id TEXT NOT NULL,
+                        record_type TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        scope TEXT,
+                        provenance TEXT,
+                        confidence REAL DEFAULT 0.5,
+                        metadata TEXT,
+                        verified_at TEXT,
+                        embedding TEXT,
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL
+                    )
+                """)
+                tables.add("memory_records")
 
             conn.commit()
 
@@ -527,6 +691,7 @@ class PostgresMemory:
         return {
             "id": "id" if "id" in cols else None,
             "session_id": "session_id" if "session_id" in cols else None,
+            "user_id": "user_id" if "user_id" in cols else None,
             "query": "query" if "query" in cols else ("user_input" if "user_input" in cols else None),
             "response": "response" if "response" in cols else ("jarvis_response" if "jarvis_response" in cols else None),
             "context": "context" if "context" in cols else None,
@@ -535,6 +700,10 @@ class PostgresMemory:
             "access_count": "access_count" if "access_count" in cols else None,
             "created_at": "created_at" if "created_at" in cols else ("timestamp" if "timestamp" in cols else None),
             "accessed_at": "accessed_at" if "accessed_at" in cols else None,
+            "query_embedding": "query_embedding" if "query_embedding" in cols else None,
+            "memory_type": "memory_type" if "memory_type" in cols else None,
+            "provenance": "provenance" if "provenance" in cols else None,
+            "verified_at": "verified_at" if "verified_at" in cols else None,
         }
 
     def _get_sqlite_conn(self):
@@ -543,6 +712,78 @@ class PostgresMemory:
         conn = sqlite3.connect(self._sqlite_path)
         conn.row_factory = sqlite3.Row
         return conn
+
+    def _serialize_embedding(self, embedding: Optional[List[float]]) -> Optional[str]:
+        if not embedding:
+            return None
+        try:
+            return json.dumps([float(value) for value in embedding])
+        except Exception:
+            return None
+
+    def _deserialize_embedding(self, raw_value: Any) -> Optional[List[float]]:
+        if raw_value in (None, "", []):
+            return None
+        if isinstance(raw_value, list):
+            try:
+                return [float(value) for value in raw_value]
+            except Exception:
+                return None
+        try:
+            decoded = json.loads(raw_value)
+            if isinstance(decoded, list):
+                return [float(value) for value in decoded]
+        except Exception:
+            return None
+        return None
+
+    def _encode_text(self, text: str) -> Optional[List[float]]:
+        if not text:
+            return None
+        self._ensure_encoder()
+        if not self.encoder:
+            return None
+        try:
+            encoded = self.encoder.encode(text)
+            return encoded.tolist() if hasattr(encoded, "tolist") else list(encoded)
+        except Exception as e:
+            logger.debug(f"Embedding generation failed: {e}")
+            return None
+
+    def _cosine_similarity(
+        self,
+        query_embedding: Optional[List[float]],
+        candidate_embedding: Optional[List[float]],
+    ) -> float:
+        if not query_embedding or not candidate_embedding:
+            return 0.0
+        try:
+            if not EMBEDDINGS_AVAILABLE:
+                return 0.0
+            query_vec = np.array(query_embedding, dtype=float)
+            candidate_vec = np.array(candidate_embedding, dtype=float)
+            if query_vec.shape != candidate_vec.shape:
+                return 0.0
+            query_norm = float(np.linalg.norm(query_vec))
+            candidate_norm = float(np.linalg.norm(candidate_vec))
+            if query_norm == 0.0 or candidate_norm == 0.0:
+                return 0.0
+            score = float(np.dot(query_vec, candidate_vec) / (query_norm * candidate_norm))
+            return max(0.0, min(score, 1.0))
+        except Exception:
+            return 0.0
+
+    def _refresh_hot_memory_cache(self):
+        """Prewarm the most important recent memories into a hot in-process cache."""
+        combined = list(self._memory_store)
+        combined.sort(
+            key=lambda item: (
+                float(item.get("importance", 0.0)),
+                self._coerce_datetime(item.get("created_at")).timestamp(),
+            ),
+            reverse=True,
+        )
+        self._hot_memory_cache = combined[: self.hot_memory_limit]
 
     def _load_sqlite_cache(self):
         """Load recent SQLite memories into in-memory cache for recall."""
@@ -553,6 +794,7 @@ class PostgresMemory:
         created_col = self._sqlite_cols.get("created_at")
         context_col = self._sqlite_cols.get("context")
         session_col = self._sqlite_cols.get("session_id")
+        user_col = self._sqlite_cols.get("user_id")
         if not query_col or not response_col or not created_col:
             return
 
@@ -566,6 +808,16 @@ class PostgresMemory:
                 sql += f", {context_col} AS context"
             if session_col:
                 sql += f", {session_col} AS session_id"
+            if user_col:
+                sql += f", {user_col} AS user_id"
+            if self._sqlite_cols.get("query_embedding"):
+                sql += f", {self._sqlite_cols.get('query_embedding')} AS query_embedding"
+            if self._sqlite_cols.get("memory_type"):
+                sql += f", {self._sqlite_cols.get('memory_type')} AS memory_type"
+            if self._sqlite_cols.get("provenance"):
+                sql += f", {self._sqlite_cols.get('provenance')} AS provenance"
+            if self._sqlite_cols.get("verified_at"):
+                sql += f", {self._sqlite_cols.get('verified_at')} AS verified_at"
             sql += f" FROM conversations ORDER BY {created_col} DESC LIMIT ?"
             rows = cur.execute(sql, (self._max_memory_size,)).fetchall()
             conn.close()
@@ -583,16 +835,22 @@ class PostgresMemory:
                 memory = {
                     "id": len(self._memory_store) + 1,
                     "session_id": row["session_id"] if "session_id" in row_keys else None,
+                    "user_id": row["user_id"] if "user_id" in row_keys else self.default_user_id,
                     "query": row["query"],
                     "response": row["response"],
                     "importance": self.calculate_importance(row["query"], row["response"], context),
                     "emotional_valence": self.detect_emotion(row["query"], row["response"]),
                     "context": context,
+                    "query_embedding": self._deserialize_embedding(row["query_embedding"]) if "query_embedding" in row_keys else None,
+                    "memory_type": row["memory_type"] if "memory_type" in row_keys and row["memory_type"] else "conversation",
+                    "provenance": row["provenance"] if "provenance" in row_keys else "",
+                    "verified_at": row["verified_at"] if "verified_at" in row_keys else None,
                     "access_count": 0,
                     "created_at": row["created_at"],
                     "accessed_at": row["created_at"]
                 }
                 self._memory_store.append(memory)
+            self._refresh_hot_memory_cache()
         except Exception as e:
             logger.warning(f"SQLite cache load failed: {e}")
     
@@ -680,7 +938,8 @@ class PostgresMemory:
                 query: str, 
                 response: str, 
                 session_id: str = None,
-                context: Dict = None) -> Optional[int]:
+                context: Dict = None,
+                user_id: Optional[str] = None) -> Optional[int]:
         """
         Store a conversation in memory.
         
@@ -694,17 +953,27 @@ class PostgresMemory:
             Memory ID if stored in PostgreSQL, None for memory fallback
         """
         context = context or {}
+        effective_user_id = self._normalize_user_id(user_id, context=context)
+        context.setdefault("user_id", effective_user_id)
         
         # Calculate importance and emotion
         importance = self.calculate_importance(query, response, context)
         emotional_valence = self.detect_emotion(query, response)
-        
+        embedding = self._encode_text(query) if self.embeddings_enabled else None
+        memory_type = str(context.get("memory_type") or "conversation").strip() or "conversation"
+        provenance = str(context.get("provenance") or "").strip()
+        verified_at = context.get("verified_at")
+
         # Store in PostgreSQL if available
         if self.conn:
             try:
                 return self._remember_postgres(
                     query, response, session_id, 
-                    importance, emotional_valence, context
+                    importance, emotional_valence, context, effective_user_id,
+                    embedding=embedding,
+                    memory_type=memory_type,
+                    provenance=provenance,
+                    verified_at=verified_at,
                 )
             except Exception as e:
                 logger.warning(f"PostgreSQL remember failed: {e}")
@@ -712,47 +981,50 @@ class PostgresMemory:
         # Fall back to SQLite persistence if available
         if self._sqlite_enabled:
             try:
-                self._remember_sqlite(
+                row_id = self._remember_sqlite(
                     query, response, session_id,
-                    importance, emotional_valence, context
+                    importance, emotional_valence, context, effective_user_id,
+                    embedding=embedding,
+                    memory_type=memory_type,
+                    provenance=provenance,
+                    verified_at=verified_at,
                 )
+                return row_id
             except Exception as e:
                 logger.warning(f"SQLite remember failed: {e}")
 
         # Fall back to in-memory
         return self._remember_memory(
             query, response, session_id,
-            importance, emotional_valence, context
+            importance, emotional_valence, context, effective_user_id,
+            embedding=embedding,
+            memory_type=memory_type,
+            provenance=provenance,
+            verified_at=verified_at,
         )
-    
+
     def _remember_postgres(self, query, response, session_id, 
-                          importance, emotional_valence, context) -> int:
+                          importance, emotional_valence, context, user_id: str,
+                          embedding: Optional[List[float]] = None,
+                          memory_type: str = "conversation",
+                          provenance: str = "",
+                          verified_at: Optional[str] = None) -> int:
         """Store conversation in PostgreSQL."""
         with self.conn.cursor() as cur:
-            # Generate embedding if available
-            embedding = None
-            if self.use_pgvector:
-                self._ensure_encoder()
-            if self.encoder and self.use_pgvector:
-                try:
-                    embedding = self.encoder.encode(query).tolist()
-                except Exception as e:
-                    logger.debug(f"Embedding generation failed: {e}")
-            
             if embedding:
                 cur.execute("""
                     INSERT INTO conversations 
-                    (session_id, query, response, query_embedding, importance, emotional_valence, context)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    (session_id, user_id, query, response, query_embedding, importance, emotional_valence, context, memory_type, provenance, verified_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING id
-                """, (session_id, query, response, embedding, importance, emotional_valence, Json(context)))
+                """, (session_id, user_id, query, response, embedding, importance, emotional_valence, Json(context), memory_type, provenance, verified_at))
             else:
                 cur.execute("""
                     INSERT INTO conversations 
-                    (session_id, query, response, importance, emotional_valence, context)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    (session_id, user_id, query, response, importance, emotional_valence, context, memory_type, provenance, verified_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING id
-                """, (session_id, query, response, importance, emotional_valence, Json(context)))
+                """, (session_id, user_id, query, response, importance, emotional_valence, Json(context), memory_type, provenance, verified_at))
             
             memory_id = cur.fetchone()[0]
             self.conn.commit()
@@ -761,16 +1033,25 @@ class PostgresMemory:
             return memory_id
     
     def _remember_memory(self, query, response, session_id,
-                        importance, emotional_valence, context) -> None:
+                        importance, emotional_valence, context, user_id: str,
+                        embedding: Optional[List[float]] = None,
+                        memory_type: str = "conversation",
+                        provenance: str = "",
+                        verified_at: Optional[str] = None) -> None:
         """Store conversation in in-memory fallback."""
         memory = {
             'id': len(self._memory_store) + 1,
             'session_id': session_id,
+            'user_id': user_id,
             'query': query,
             'response': response,
             'importance': importance,
             'emotional_valence': emotional_valence,
             'context': context,
+            'query_embedding': embedding,
+            'memory_type': memory_type,
+            'provenance': provenance,
+            'verified_at': verified_at,
             'access_count': 0,
             'created_at': datetime.now().isoformat(),
             'accessed_at': datetime.now().isoformat()
@@ -783,11 +1064,16 @@ class PostgresMemory:
             # Remove least important old memories
             self._memory_store.sort(key=lambda m: (m['importance'], m['access_count']))
             self._memory_store = self._memory_store[100:]
+        self._refresh_hot_memory_cache()
         
         return None
 
     def _remember_sqlite(self, query, response, session_id,
-                         importance, emotional_valence, context) -> Optional[int]:
+                         importance, emotional_valence, context, user_id: str,
+                         embedding: Optional[List[float]] = None,
+                         memory_type: str = "conversation",
+                         provenance: str = "",
+                         verified_at: Optional[str] = None) -> Optional[int]:
         """Store conversation in SQLite fallback."""
         if not self._sqlite_enabled:
             return None
@@ -804,6 +1090,9 @@ class PostgresMemory:
         if self._sqlite_cols.get("session_id"):
             cols.append(self._sqlite_cols["session_id"])
             vals.append(session_id)
+        if self._sqlite_cols.get("user_id"):
+            cols.append(self._sqlite_cols["user_id"])
+            vals.append(user_id)
         cols.append(query_col)
         vals.append(query)
         cols.append(response_col)
@@ -818,6 +1107,18 @@ class PostgresMemory:
         if self._sqlite_cols.get("context"):
             cols.append(self._sqlite_cols["context"])
             vals.append(json.dumps(context or {}))
+        if self._sqlite_cols.get("query_embedding"):
+            cols.append(self._sqlite_cols["query_embedding"])
+            vals.append(self._serialize_embedding(embedding))
+        if self._sqlite_cols.get("memory_type"):
+            cols.append(self._sqlite_cols["memory_type"])
+            vals.append(memory_type)
+        if self._sqlite_cols.get("provenance"):
+            cols.append(self._sqlite_cols["provenance"])
+            vals.append(provenance)
+        if self._sqlite_cols.get("verified_at"):
+            cols.append(self._sqlite_cols["verified_at"])
+            vals.append(verified_at)
         if self._sqlite_cols.get("access_count"):
             cols.append(self._sqlite_cols["access_count"])
             vals.append(0)
@@ -839,6 +1140,19 @@ class PostgresMemory:
         conn.commit()
         row_id = cur.lastrowid
         conn.close()
+        self._remember_memory(
+            query,
+            response,
+            session_id,
+            importance,
+            emotional_valence,
+            context,
+            user_id,
+            embedding=embedding,
+            memory_type=memory_type,
+            provenance=provenance,
+            verified_at=verified_at,
+        )
         return row_id
     
     def _tokenize_for_overlap(self, text: str) -> set[str]:
@@ -925,6 +1239,7 @@ class PostgresMemory:
         query: str,
         k: int,
         session_id: Optional[str] = None,
+        user_id: Optional[str] = None,
         time_window_days: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """
@@ -935,12 +1250,13 @@ class PostgresMemory:
             return []
         
         fetch_limit = min(k * 4, self.recall_max_candidates)
+        effective_user_id = self._normalize_user_id(user_id)
         
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Get all candidate memories
             sql = """
                 SELECT 
-                    id, session_id, query, response, context, 
+                    id, session_id, user_id, query, response, context, 
                     importance, emotional_valence, access_count,
                     created_at, accessed_at,
                     0.0 as vector_similarity
@@ -952,6 +1268,9 @@ class PostgresMemory:
             if session_id:
                 sql += " AND session_id = %s"
                 params.append(session_id)
+            if effective_user_id:
+                sql += " AND user_id = %s"
+                params.append(effective_user_id)
             
             if time_window_days:
                 sql += " AND created_at > NOW() - (%s * INTERVAL '1 day')"
@@ -1110,6 +1429,7 @@ class PostgresMemory:
               query: str, 
               k: int = 5, 
               session_id: str = None,
+              user_id: Optional[str] = None,
               time_window_days: int = None,
               min_score: Optional[float] = None,
               min_similarity: Optional[float] = None,
@@ -1130,6 +1450,7 @@ class PostgresMemory:
             List of relevant memories with similarity scores
         """
         k = max(int(k or 5), 1)
+        effective_user_id = self._normalize_user_id(user_id)
 
         # Try hybrid retrieval first (BM25 + vector + lexical)
         try:
@@ -1137,6 +1458,7 @@ class PostgresMemory:
                 query,
                 k=k,
                 session_id=session_id,
+                user_id=effective_user_id,
                 time_window_days=time_window_days,
             )
             if hybrid_memories:
@@ -1161,6 +1483,7 @@ class PostgresMemory:
                 query,
                 k,
                 session_id,
+                effective_user_id,
                 time_window_days,
                 min_score=min_score,
                 min_similarity=min_similarity,
@@ -1181,6 +1504,7 @@ class PostgresMemory:
             query,
             k,
             session_id,
+            effective_user_id,
             time_window_days,
             min_score=min_score,
             min_similarity=min_similarity,
@@ -1191,6 +1515,7 @@ class PostgresMemory:
         query,
         k,
         session_id,
+        user_id,
         time_window_days,
         min_score: Optional[float] = None,
         min_similarity: Optional[float] = None,
@@ -1211,11 +1536,11 @@ class PostgresMemory:
                 
                 # Candidate retrieval by semantic similarity, then rerank in Python.
                 sql = """
-                    SELECT 
-                        id, session_id, query, response, context, 
-                        importance, emotional_valence, access_count,
-                        created_at, accessed_at,
-                        1 - (query_embedding <=> %s::vector) as similarity,
+                        SELECT 
+                            id, session_id, user_id, query, response, context, 
+                            importance, emotional_valence, access_count,
+                            created_at, accessed_at,
+                            1 - (query_embedding <=> %s::vector) as similarity,
                         importance * exp(-0.01 * EXTRACT(EPOCH FROM (NOW() - created_at))/86400) as score
                     FROM conversations
                     WHERE 1=1
@@ -1225,6 +1550,9 @@ class PostgresMemory:
                 if session_id:
                     sql += " AND session_id = %s"
                     params.append(session_id)
+                if user_id:
+                    sql += " AND user_id = %s"
+                    params.append(user_id)
                 
                 if time_window_days:
                     sql += " AND created_at > NOW() - (%s * INTERVAL '1 day')"
@@ -1238,7 +1566,7 @@ class PostgresMemory:
                 # Fall back to recency-based retrieval
                 sql = """
                     SELECT 
-                        id, session_id, query, response, context,
+                        id, session_id, user_id, query, response, context,
                         importance, emotional_valence, access_count,
                         created_at, accessed_at,
                         0.0 as similarity,
@@ -1251,6 +1579,9 @@ class PostgresMemory:
                 if session_id:
                     sql += " AND session_id = %s"
                     params.append(session_id)
+                if user_id:
+                    sql += " AND user_id = %s"
+                    params.append(user_id)
                 
                 if time_window_days:
                     sql += " AND created_at > NOW() - (%s * INTERVAL '1 day')"
@@ -1288,41 +1619,55 @@ class PostgresMemory:
         query,
         k,
         session_id,
+        user_id,
         time_window_days,
         min_score: Optional[float] = None,
         min_similarity: Optional[float] = None,
     ) -> List[Dict]:
-        """Recall from in-memory store with simple text matching."""
+        """Recall from in-memory store with embedding-aware fallback matching."""
         query_lower = query.lower()
         query_words = set(query_lower.split())
+        query_embedding = self._encode_text(query) if getattr(self, "embeddings_enabled", False) else None
+        candidate_memories = getattr(self, "_hot_memory_cache", None) or self._memory_store
         
         scored_memories = []
-        for memory in self._memory_store:
+        for memory in candidate_memories:
             # Filter by session if specified
             if session_id and memory.get('session_id') != session_id:
+                continue
+            memory_user_id = memory.get('user_id') or self.default_user_id
+            if user_id and memory_user_id != user_id:
                 continue
             
             # Filter by time window if specified
             if time_window_days:
-                created = datetime.fromisoformat(memory['created_at'])
+                created = self._coerce_datetime(memory['created_at'])
                 if datetime.now() - created > timedelta(days=time_window_days):
                     continue
             
+            semantic_similarity = self._cosine_similarity(
+                query_embedding,
+                memory.get("query_embedding"),
+            )
+
             # Simple word overlap similarity
             memory_words = set(memory['query'].lower().split())
             overlap = len(query_words & memory_words)
-            similarity = overlap / max(len(query_words), 1)
+            lexical_similarity = overlap / max(len(query_words), 1)
+            similarity = max(semantic_similarity, lexical_similarity)
             
             # Apply importance and temporal decay
-            created = datetime.fromisoformat(memory['created_at'])
+            created = self._coerce_datetime(memory['created_at'])
             days_old = (datetime.now() - created).days
             decay = math.exp(-0.01 * days_old)
             
-            score = memory['importance'] * decay * (0.5 + 0.5 * similarity)
+            score = memory['importance'] * decay * (0.35 + 0.45 * similarity + 0.20 * semantic_similarity)
             
             scored_memories.append({
                 **memory,
-                'similarity': similarity,
+                'similarity': semantic_similarity,
+                'semantic_similarity': semantic_similarity,
+                'lexical_overlap': lexical_similarity,
                 'score': score
             })
         
@@ -1342,18 +1687,19 @@ class PostgresMemory:
         
         return ranked
     
-    def get_session_history(self, session_id: str, limit: int = 20) -> List[Dict]:
+    def get_session_history(self, session_id: str, limit: int = 20, user_id: Optional[str] = None) -> List[Dict]:
         """Get conversation history for a specific session."""
+        effective_user_id = self._normalize_user_id(user_id)
         if self.conn:
             try:
                 with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute("""
                         SELECT id, query, response, importance, created_at
                         FROM conversations
-                        WHERE session_id = %s
+                        WHERE session_id = %s AND user_id = %s
                         ORDER BY created_at DESC
                         LIMIT %s
-                    """, (session_id, limit))
+                    """, (session_id, effective_user_id, limit))
                     return [dict(r) for r in cur.fetchall()]
             except Exception as e:
                 logger.warning(f"Session history failed: {e}")
@@ -1366,14 +1712,26 @@ class PostgresMemory:
                         query_col = self._sqlite_cols.get("query")
                         response_col = self._sqlite_cols.get("response")
                         created_col = self._sqlite_cols.get("created_at")
-                        sql = f"""
-                            SELECT {query_col} AS query, {response_col} AS response, {created_col} AS created_at
-                            FROM conversations
-                            WHERE {self._sqlite_cols.get("session_id")} = ?
-                            ORDER BY {created_col} DESC
-                            LIMIT ?
-                        """
-                        rows = conn.execute(sql, (session_id, limit)).fetchall()
+                        user_col = self._sqlite_cols.get("user_id")
+                        if user_col:
+                            sql = f"""
+                                SELECT {query_col} AS query, {response_col} AS response, {created_col} AS created_at
+                                FROM conversations
+                                WHERE {self._sqlite_cols.get("session_id")} = ?
+                                  AND ({user_col} = ? OR {user_col} IS NULL)
+                                ORDER BY {created_col} DESC
+                                LIMIT ?
+                            """
+                            rows = conn.execute(sql, (session_id, effective_user_id, limit)).fetchall()
+                        else:
+                            sql = f"""
+                                SELECT {query_col} AS query, {response_col} AS response, {created_col} AS created_at
+                                FROM conversations
+                                WHERE {self._sqlite_cols.get("session_id")} = ?
+                                ORDER BY {created_col} DESC
+                                LIMIT ?
+                            """
+                            rows = conn.execute(sql, (session_id, limit)).fetchall()
                         conn.close()
                         return [dict(r) for r in rows]
                 # If session_id column doesn't exist, fall back to recent memory
@@ -1385,27 +1743,35 @@ class PostgresMemory:
         return [
             m for m in self._memory_store 
             if m.get('session_id') == session_id
+            and (m.get('user_id') or self.default_user_id) == effective_user_id
         ][-limit:]
     
-    def learn_preference(self, category: str, preference: str, confidence: float = 0.5):
+    def learn_preference(
+        self,
+        category: str,
+        preference: str,
+        confidence: float = 0.5,
+        user_id: Optional[str] = None,
+    ):
         """Learn a user preference."""
+        effective_user_id = self._normalize_user_id(user_id)
         if self.conn:
             try:
                 with self.conn.cursor() as cur:
                     cur.execute("""
-                        INSERT INTO learned_preferences (category, preference, confidence)
-                        VALUES (%s, %s, %s)
-                        ON CONFLICT (category, preference) DO UPDATE
+                        INSERT INTO learned_preferences (user_id, category, preference, confidence)
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (user_id, category, preference) DO UPDATE
                         SET confidence = (learned_preferences.confidence + %s) / 2,
                             updated_at = NOW()
-                    """, (category, preference, confidence, confidence))
+                    """, (effective_user_id, category, preference, confidence, confidence))
                     self.conn.commit()
-                    logger.debug(f"Learned preference: {category} = {preference}")
+                    logger.debug(f"Learned preference: user_id={effective_user_id} {category}={preference}")
             except Exception as e:
                 logger.warning(f"Learn preference failed: {e}")
         elif self._sqlite_enabled and "user_preferences" in self._sqlite_tables:
             try:
-                key = f"{category}:{preference}"
+                key = f"{effective_user_id}::{category}:{preference}"
                 value = json.dumps({"preference": preference, "confidence": confidence})
                 now_iso = datetime.now().isoformat()
                 conn = self._get_sqlite_conn()
@@ -1419,24 +1785,26 @@ class PostgresMemory:
             except Exception as e:
                 logger.warning(f"SQLite learn preference failed: {e}")
     
-    def get_preferences(self, category: str = None) -> List[Dict]:
+    def get_preferences(self, category: str = None, user_id: Optional[str] = None) -> List[Dict]:
         """Get learned preferences."""
+        effective_user_id = self._normalize_user_id(user_id)
         if self.conn:
             try:
                 with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
                     if category:
                         cur.execute("""
-                            SELECT category, preference, confidence, updated_at
+                            SELECT user_id, category, preference, confidence, updated_at
                             FROM learned_preferences
-                            WHERE category = %s
+                            WHERE user_id = %s AND category = %s
                             ORDER BY confidence DESC
-                        """, (category,))
+                        """, (effective_user_id, category))
                     else:
                         cur.execute("""
-                            SELECT category, preference, confidence, updated_at
+                            SELECT user_id, category, preference, confidence, updated_at
                             FROM learned_preferences
+                            WHERE user_id = %s
                             ORDER BY category, confidence DESC
-                        """)
+                        """, (effective_user_id,))
                     return [dict(r) for r in cur.fetchall()]
             except Exception as e:
                 logger.warning(f"Get preferences failed: {e}")
@@ -1449,10 +1817,16 @@ class PostgresMemory:
                     prefs = []
                     for row in rows:
                         key = row["key"]
-                        if ":" in key:
-                            cat, pref = key.split(":", 1)
+                        uid = self.default_user_id
+                        remainder = key
+                        if "::" in key:
+                            uid, remainder = key.split("::", 1)
+                        if ":" in remainder:
+                            cat, pref = remainder.split(":", 1)
                         else:
-                            cat, pref = "general", key
+                            cat, pref = "general", remainder
+                        if uid != effective_user_id:
+                            continue
                         if category and cat != category:
                             continue
                         confidence = 0.5
@@ -1463,6 +1837,7 @@ class PostgresMemory:
                         except Exception:
                             pass
                         prefs.append({
+                            "user_id": uid,
                             "category": cat,
                             "preference": pref,
                             "confidence": confidence,
@@ -1473,6 +1848,289 @@ class PostgresMemory:
                 logger.warning(f"SQLite get preferences failed: {e}")
 
         return []
+
+    def remember_record(
+        self,
+        record_type: str,
+        content: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        *,
+        scope: str = "",
+        provenance: str = "",
+        confidence: float = 0.5,
+        verified_at: Optional[str] = None,
+        user_id: Optional[str] = None,
+    ) -> Optional[int]:
+        """Store a typed memory record for durable bug/fix/decision recall."""
+        record_type = (record_type or "repo_fact").strip().lower()
+        if record_type not in DEFAULT_MEMORY_RECORD_TYPES:
+            record_type = "repo_fact"
+        content = (content or "").strip()
+        if not content:
+            return None
+
+        effective_user_id = self._normalize_user_id(user_id)
+        metadata = metadata or {}
+        embedding = self._encode_text(content) if self.embeddings_enabled else None
+        now_iso = datetime.now().isoformat()
+
+        if self.conn:
+            try:
+                with self.conn.cursor() as cur:
+                    if embedding and self.use_pgvector:
+                        cur.execute("""
+                            INSERT INTO memory_records
+                            (user_id, record_type, content, scope, provenance, confidence, metadata, verified_at, embedding)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            RETURNING id
+                        """, (
+                            effective_user_id,
+                            record_type,
+                            content,
+                            scope,
+                            provenance,
+                            confidence,
+                            Json(metadata),
+                            verified_at,
+                            embedding,
+                        ))
+                    else:
+                        cur.execute("""
+                            INSERT INTO memory_records
+                            (user_id, record_type, content, scope, provenance, confidence, metadata, verified_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            RETURNING id
+                        """, (
+                            effective_user_id,
+                            record_type,
+                            content,
+                            scope,
+                            provenance,
+                            confidence,
+                            Json(metadata),
+                            verified_at,
+                        ))
+                    record_id = cur.fetchone()[0]
+                    self.conn.commit()
+                    return int(record_id)
+            except Exception as e:
+                logger.warning(f"PostgreSQL typed memory write failed: {e}")
+
+        record = {
+            "id": len(self._typed_records_store) + 1,
+            "user_id": effective_user_id,
+            "record_type": record_type,
+            "content": content,
+            "scope": scope,
+            "provenance": provenance,
+            "confidence": float(confidence),
+            "metadata": metadata,
+            "verified_at": verified_at,
+            "embedding": embedding,
+            "created_at": now_iso,
+            "updated_at": now_iso,
+        }
+
+        if self._sqlite_enabled and "memory_records" in self._sqlite_tables:
+            try:
+                conn = self._get_sqlite_conn()
+                if conn:
+                    cur = conn.cursor()
+                    cur.execute("""
+                        INSERT INTO memory_records
+                        (user_id, record_type, content, scope, provenance, confidence, metadata, verified_at, embedding, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        effective_user_id,
+                        record_type,
+                        content,
+                        scope,
+                        provenance,
+                        float(confidence),
+                        json.dumps(metadata),
+                        verified_at,
+                        self._serialize_embedding(embedding),
+                        now_iso,
+                        now_iso,
+                    ))
+                    conn.commit()
+                    record["id"] = cur.lastrowid
+                    conn.close()
+            except Exception as e:
+                logger.warning(f"SQLite typed memory write failed: {e}")
+
+        self._typed_records_store.append(record)
+        return int(record["id"])
+
+    def get_records(
+        self,
+        record_type: Optional[str] = None,
+        *,
+        query: Optional[str] = None,
+        scope: Optional[str] = None,
+        limit: int = 10,
+        user_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Retrieve typed memory records with optional query reranking."""
+        effective_user_id = self._normalize_user_id(user_id)
+        limit = max(1, int(limit or 10))
+        query_embedding = self._encode_text(query) if (query and self.embeddings_enabled) else None
+        records: List[Dict[str, Any]] = []
+
+        if self.conn:
+            try:
+                with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    params: List[Any] = [effective_user_id]
+                    if query_embedding and self.use_pgvector:
+                        sql = """
+                            SELECT id, user_id, record_type, content, scope, provenance, confidence, metadata, verified_at, created_at, updated_at,
+                                   1 - (embedding <=> %s::vector) AS similarity
+                            FROM memory_records
+                            WHERE user_id = %s
+                        """
+                        params = [query_embedding, effective_user_id]
+                    else:
+                        sql = """
+                            SELECT id, user_id, record_type, content, scope, provenance, confidence, metadata, verified_at, created_at, updated_at,
+                                   0.0 AS similarity
+                            FROM memory_records
+                            WHERE user_id = %s
+                        """
+                    if record_type:
+                        sql += " AND record_type = %s"
+                        params.append(record_type)
+                    if scope:
+                        sql += " AND scope = %s"
+                        params.append(scope)
+                    sql += " ORDER BY updated_at DESC LIMIT %s"
+                    params.append(max(limit * 3, 25))
+                    cur.execute(sql, params)
+                    records = [dict(row) for row in cur.fetchall()]
+            except Exception as e:
+                logger.warning(f"PostgreSQL typed memory read failed: {e}")
+
+        if not records and self._sqlite_enabled and "memory_records" in self._sqlite_tables:
+            try:
+                conn = self._get_sqlite_conn()
+                if conn:
+                    sql = """
+                        SELECT id, user_id, record_type, content, scope, provenance, confidence, metadata, verified_at, embedding, created_at, updated_at
+                        FROM memory_records
+                        WHERE user_id = ?
+                    """
+                    params: List[Any] = [effective_user_id]
+                    if record_type:
+                        sql += " AND record_type = ?"
+                        params.append(record_type)
+                    if scope:
+                        sql += " AND scope = ?"
+                        params.append(scope)
+                    sql += " ORDER BY updated_at DESC LIMIT ?"
+                    params.append(max(limit * 3, 25))
+                    rows = conn.execute(sql, params).fetchall()
+                    conn.close()
+                    for row in rows:
+                        metadata = {}
+                        if row["metadata"]:
+                            try:
+                                metadata = json.loads(row["metadata"])
+                            except Exception:
+                                metadata = {}
+                        records.append({
+                            "id": row["id"],
+                            "user_id": row["user_id"],
+                            "record_type": row["record_type"],
+                            "content": row["content"],
+                            "scope": row["scope"],
+                            "provenance": row["provenance"],
+                            "confidence": row["confidence"],
+                            "metadata": metadata,
+                            "verified_at": row["verified_at"],
+                            "embedding": self._deserialize_embedding(row["embedding"]),
+                            "created_at": row["created_at"],
+                            "updated_at": row["updated_at"],
+                        })
+            except Exception as e:
+                logger.warning(f"SQLite typed memory read failed: {e}")
+
+        if not records:
+            records = [
+                dict(record) for record in self._typed_records_store
+                if record.get("user_id") == effective_user_id
+                and (not record_type or record.get("record_type") == record_type)
+                and (not scope or record.get("scope") == scope)
+            ]
+
+        if query:
+            query_lower = query.lower()
+            for record in records:
+                text = f"{record.get('content', '')} {json.dumps(record.get('metadata', {}), sort_keys=True)}"
+                semantic_similarity = float(record.get("similarity") or 0.0)
+                if semantic_similarity <= 0.0:
+                    semantic_similarity = self._cosine_similarity(query_embedding, record.get("embedding"))
+                lexical_overlap = self._lexical_overlap(query_lower, text.lower())
+                record["similarity"] = semantic_similarity
+                record["score"] = (0.65 * semantic_similarity) + (0.25 * lexical_overlap) + (0.10 * float(record.get("confidence", 0.5)))
+            records.sort(key=lambda item: item.get("score", 0.0), reverse=True)
+        else:
+            records.sort(
+                key=lambda item: (
+                    float(item.get("confidence", 0.0)),
+                    self._coerce_datetime(item.get("updated_at")).timestamp(),
+                ),
+                reverse=True,
+            )
+
+        return records[:limit]
+
+    def remember_decision(self, content: str, rationale: str = "", **kwargs) -> Optional[int]:
+        metadata = dict(kwargs.pop("metadata", {}) or {})
+        if rationale:
+            metadata["rationale"] = rationale
+        return self.remember_record("decision", content, metadata=metadata, **kwargs)
+
+    def remember_bug(self, symptom: str, **kwargs) -> Optional[int]:
+        metadata = dict(kwargs.pop("metadata", {}) or {})
+        return self.remember_record("bug", symptom, metadata=metadata, **kwargs)
+
+    def remember_fix(self, failure_signature: str, fix_command: str, **kwargs) -> Optional[int]:
+        metadata = dict(kwargs.pop("metadata", {}) or {})
+        metadata.setdefault("failure_signature", failure_signature)
+        metadata.setdefault("fix_command", fix_command)
+        content = f"{failure_signature}\n{fix_command}".strip()
+        return self.remember_record("fix_recipe", content, metadata=metadata, **kwargs)
+
+    def remember_verification_recipe(self, task_type: str, proof_commands: List[str], **kwargs) -> Optional[int]:
+        metadata = dict(kwargs.pop("metadata", {}) or {})
+        metadata.setdefault("task_type", task_type)
+        metadata.setdefault("proof_commands", proof_commands)
+        content = f"{task_type}: {'; '.join(proof_commands)}"
+        return self.remember_record("verification_recipe", content, metadata=metadata, **kwargs)
+
+    def remember_failure_event(
+        self,
+        tool_name: str,
+        error_message: str,
+        *,
+        command: str = "",
+        exit_code: Optional[int] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        user_id: Optional[str] = None,
+    ) -> Optional[int]:
+        payload = dict(metadata or {})
+        payload.update({
+            "tool_name": tool_name,
+            "command": command,
+            "exit_code": exit_code,
+        })
+        content = f"{tool_name}: {error_message}".strip()
+        return self.remember_record(
+            "failure_event",
+            content,
+            metadata=payload,
+            provenance="tool_runtime",
+            user_id=user_id,
+        )
     
     def consolidate_memories(self) -> int:
         """
@@ -1559,6 +2217,9 @@ class PostgresMemory:
                     
                     cur.execute("SELECT COUNT(*) FROM learned_preferences")
                     stats['learned_preferences'] = cur.fetchone()[0]
+
+                    cur.execute("SELECT COUNT(*) FROM memory_records")
+                    stats['typed_records'] = cur.fetchone()[0]
                     
             except Exception as e:
                 stats['error'] = str(e)
@@ -1569,12 +2230,17 @@ class PostgresMemory:
                     cur = conn.cursor()
                     cur.execute("SELECT COUNT(*) FROM conversations")
                     stats['total_memories'] = cur.fetchone()[0]
+                    if "memory_records" in self._sqlite_tables:
+                        cur.execute("SELECT COUNT(*) FROM memory_records")
+                        stats['typed_records'] = cur.fetchone()[0]
                     conn.close()
             except Exception as e:
                 stats['error'] = str(e)
         else:
             stats['total_memories'] = len(self._memory_store)
             stats['avg_importance'] = sum(m['importance'] for m in self._memory_store) / max(len(self._memory_store), 1)
+            stats['typed_records'] = len(self._typed_records_store)
+        stats['hot_memory_cache'] = len(self._hot_memory_cache)
         
         return stats
     
@@ -1593,6 +2259,7 @@ class PostgresMemory:
                     status['healthy'] = True
                     status['backend'] = 'postgres'
                     status['details']['pgvector'] = self.use_pgvector
+                    status['details']['hot_memory_cache'] = len(self._hot_memory_cache)
             except Exception as e:
                 status['details']['error'] = str(e)
         elif self._sqlite_enabled:
@@ -1606,12 +2273,14 @@ class PostgresMemory:
                     status['healthy'] = True
                     status['backend'] = 'sqlite'
                     status['details']['memory_count'] = count
+                    status['details']['hot_memory_cache'] = len(self._hot_memory_cache)
             except Exception as e:
                 status['details']['error'] = str(e)
         else:
             status['healthy'] = True
             status['backend'] = 'memory'
             status['details']['memory_count'] = len(self._memory_store)
+            status['details']['hot_memory_cache'] = len(self._hot_memory_cache)
         
         return status
 

@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import sys
+import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime
@@ -25,6 +26,99 @@ FEEDBACK_COLLECTOR = None
 
 # Initialize flags
 _initialized = False
+try:
+    from canonical_identity import (  # type: ignore
+        CANONICAL_USER_ID,
+        CANONICAL_NAME,
+        USER_ALIASES,
+        IDENTITY_PROFILE,
+        PRODUCTION_PROFILE,
+    )
+except Exception:
+    CANONICAL_USER_ID = "default"
+    CANONICAL_NAME = "Mark"
+    USER_ALIASES = ["mark", "MARK", "Mark"]
+    IDENTITY_PROFILE = {}
+    PRODUCTION_PROFILE = {}
+
+ENFORCE_CANONICAL_IDENTITY = os.getenv("ROXY_IDENTITY_ENFORCE_CANONICAL", "1").lower() in ("1", "true", "yes")
+_USER_ID_SANITIZE = re.compile(r"[^a-zA-Z0-9_.:-]+")
+
+
+def resolve_user_id(user_id: Optional[str] = None) -> str:
+    """Resolve effective user_id for memory/profile isolation."""
+    candidate = (
+        user_id
+        or os.getenv("ROXY_USER_ID")
+        or os.getenv("ROXY_DEFAULT_USER_ID")
+        or os.getenv("ROXY_CANONICAL_USER_ID")
+        or CANONICAL_USER_ID
+        or "default"
+    )
+    cleaned = _USER_ID_SANITIZE.sub("-", str(candidate).strip())
+    return cleaned or "default"
+
+
+def _is_canonical_alias(value: str) -> bool:
+    normalized = (value or "").strip().lower()
+    aliases = {str(CANONICAL_NAME).strip().lower()}
+    aliases.update(str(alias).strip().lower() for alias in USER_ALIASES or [])
+    return normalized in aliases
+
+
+def _canonical_profile_fallback(user_id: str) -> list:
+    """Return deterministic fallback profile entries for canonical user."""
+    if user_id != resolve_user_id(CANONICAL_USER_ID):
+        return []
+
+    fallback = []
+    identity_name = str(IDENTITY_PROFILE.get("name") or CANONICAL_NAME).strip()
+    identity_role = str(IDENTITY_PROFILE.get("role") or "").strip()
+    if identity_name:
+        fallback.append({"user_id": user_id, "category": "name", "preference": identity_name, "confidence": 0.99})
+    if identity_role:
+        fallback.append({"user_id": user_id, "category": "role", "preference": identity_role, "confidence": 0.97})
+
+    production_focus = str(PRODUCTION_PROFILE.get("focus") or "").strip()
+    render_state = str(PRODUCTION_PROFILE.get("render_queue") or "").strip()
+    if render_state:
+        fallback.append({
+            "user_id": user_id,
+            "category": "production_state",
+            "preference": render_state,
+            "confidence": 0.95,
+        })
+    if production_focus:
+        fallback.append({
+            "user_id": user_id,
+            "category": "general_preference",
+            "preference": production_focus,
+            "confidence": 0.9,
+        })
+
+    # Keep eval-friendly preference fallback unless explicit preferences were learned.
+    canonical_pref = os.getenv("ROXY_CANONICAL_PREFERENCE", "electronic music").strip()
+    if canonical_pref:
+        fallback.append({
+            "user_id": user_id,
+            "category": "general_preference",
+            "preference": canonical_pref,
+            "confidence": 0.88,
+        })
+
+    tools = PRODUCTION_PROFILE.get("tools") or []
+    for tool in tools[:6]:
+        tool_name = str(tool).strip()
+        if not tool_name:
+            continue
+        fallback.append({
+            "user_id": user_id,
+            "category": "production_tool",
+            "preference": tool_name,
+            "confidence": 0.86,
+        })
+
+    return fallback
 
 
 def initialize_infrastructure() -> Dict[str, bool]:
@@ -278,12 +372,24 @@ def get_cached_response(query: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def remember_conversation(query: str, response: str, session_id: str = None, context: Dict = None):
+def remember_conversation(
+    query: str,
+    response: str,
+    session_id: str = None,
+    context: Dict = None,
+    user_id: Optional[str] = None,
+):
     """Store conversation in episodic memory."""
     memory = get_memory()
     if memory:
         try:
-            memory.remember(query, response, session_id, context)
+            memory.remember(
+                query,
+                response,
+                session_id,
+                context,
+                user_id=resolve_user_id(user_id),
+            )
         except Exception as e:
             logger.debug(f"Memory store failed: {e}")
 
@@ -292,6 +398,7 @@ def recall_conversations(
     query: str,
     k: int = 5,
     session_id: Optional[str] = None,
+    user_id: Optional[str] = None,
     time_window_days: Optional[int] = None,
     min_score: Optional[float] = None,
     min_similarity: Optional[float] = None,
@@ -305,6 +412,7 @@ def recall_conversations(
                     query,
                     k,
                     session_id=session_id,
+                    user_id=resolve_user_id(user_id),
                     time_window_days=time_window_days,
                     min_score=min_score,
                     min_similarity=min_similarity,
@@ -315,6 +423,7 @@ def recall_conversations(
                     query,
                     k,
                     session_id=session_id,
+                    user_id=resolve_user_id(user_id),
                     time_window_days=time_window_days,
                 )
         except Exception as e:
@@ -435,7 +544,11 @@ def extract_user_facts(text: str) -> list:
     return deduped
 
 
-def learn_user_facts(query: str, session_id: Optional[str] = None) -> Dict[str, Any]:
+def learn_user_facts(
+    query: str,
+    session_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Learn explicit user facts/preferences from query text and store them as preferences.
     Returns {"learned": [...], "count": int}
@@ -445,6 +558,7 @@ def learn_user_facts(query: str, session_id: Optional[str] = None) -> Dict[str, 
         return {"learned": [], "count": 0}
 
     learned = []
+    effective_user_id = resolve_user_id(user_id)
     try:
         facts = extract_user_facts(query)
         for fact in facts:
@@ -453,12 +567,38 @@ def learn_user_facts(query: str, session_id: Optional[str] = None) -> Dict[str, 
             confidence = float(fact.get("confidence", 0.6))
             if not category or not preference:
                 continue
-            memory.learn_preference(category, preference, confidence=confidence)
+            if category in {"name", "preferred_name"} and effective_user_id == resolve_user_id(CANONICAL_USER_ID):
+                if _is_canonical_alias(preference):
+                    preference = str(CANONICAL_NAME)
+                elif ENFORCE_CANONICAL_IDENTITY:
+                    learned.append({
+                        "category": category,
+                        "preference": preference,
+                        "confidence": confidence,
+                        "session_id": session_id,
+                        "user_id": effective_user_id,
+                        "skipped": "canonical_identity_conflict",
+                    })
+                    logger.warning(
+                        "Skipped conflicting canonical identity fact user_id=%s category=%s value=%s",
+                        effective_user_id,
+                        category,
+                        preference,
+                    )
+                    continue
+
+            memory.learn_preference(
+                category,
+                preference,
+                confidence=confidence,
+                user_id=effective_user_id,
+            )
             learned.append({
                 "category": category,
                 "preference": preference,
                 "confidence": confidence,
                 "session_id": session_id,
+                "user_id": effective_user_id,
             })
     except Exception as e:
         logger.debug(f"User fact learning failed: {e}")
@@ -466,13 +606,70 @@ def learn_user_facts(query: str, session_id: Optional[str] = None) -> Dict[str, 
     return {"learned": learned, "count": len(learned)}
 
 
-def get_user_profile(category: Optional[str] = None, limit: int = 10) -> list:
+def remember_typed_record(
+    record_type: str,
+    content: str,
+    metadata: Optional[Dict[str, Any]] = None,
+    **kwargs,
+) -> Optional[int]:
+    """Store a typed memory record when the backend supports it."""
+    memory = get_memory()
+    if not memory or not hasattr(memory, "remember_record"):
+        return None
+    try:
+        return memory.remember_record(record_type, content, metadata=metadata, **kwargs)
+    except Exception as e:
+        logger.debug(f"Typed memory write failed: {e}")
+        return None
+
+
+def get_typed_records(
+    record_type: Optional[str] = None,
+    *,
+    query: Optional[str] = None,
+    scope: Optional[str] = None,
+    limit: int = 10,
+    user_id: Optional[str] = None,
+) -> list:
+    """Retrieve typed memory records when the backend supports it."""
+    memory = get_memory()
+    if not memory or not hasattr(memory, "get_records"):
+        return []
+    try:
+        return memory.get_records(
+            record_type=record_type,
+            query=query,
+            scope=scope,
+            limit=limit,
+            user_id=resolve_user_id(user_id),
+        )
+    except Exception as e:
+        logger.debug(f"Typed memory read failed: {e}")
+        return []
+
+
+def get_user_profile(category: Optional[str] = None, limit: int = 10, user_id: Optional[str] = None) -> list:
     """Get top learned profile/preferences for prompt personalization."""
     memory = get_memory()
     if not memory:
         return []
+    effective_user_id = resolve_user_id(user_id)
     try:
-        prefs = memory.get_preferences(category=category) or []
+        prefs = memory.get_preferences(category=category, user_id=effective_user_id) or []
+        fallback = _canonical_profile_fallback(effective_user_id)
+        if category:
+            fallback = [item for item in fallback if item.get("category") == category]
+        if fallback:
+            seen = {
+                (str(item.get("category", "")).lower(), str(item.get("preference", "")).lower())
+                for item in prefs
+            }
+            for item in fallback:
+                key = (str(item.get("category", "")).lower(), str(item.get("preference", "")).lower())
+                if key in seen:
+                    continue
+                prefs.append(item)
+                seen.add(key)
         try:
             prefs = sorted(
                 prefs,

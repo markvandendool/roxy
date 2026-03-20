@@ -785,78 +785,82 @@ def _build_memory_context_for_prompt(
         "memory_items": 0,
         "profile_items": 0,
         "typed_record_items": 0,
+        "repo_context_items": 0,
         "context_chars": 0,
         "query_rewritten": False,
         "user_id": _sanitize_user_id(user_id),
     }
-    if not INFRASTRUCTURE_AVAILABLE:
-        return "", meta
 
-    # Apply query rewriting for better retrieval
-    try:
-        from query_rewriting import rewrite_query_for_retrieval
-        rewritten_query, query_meta = rewrite_query_for_retrieval(query)
-        meta["query_rewritten"] = query_meta.get("rewritten") != query
-        meta["query_entities"] = query_meta.get("entities", [])
-        if meta["query_rewritten"]:
-            logger.debug(f"Query rewritten: '{query}' -> '{rewritten_query}'")
-            query = rewritten_query
-    except ImportError:
-        pass
-    except Exception as e:
-        logger.debug(f"Query rewriting failed: {e}")
+    memories = []
+    profile = []
+    typed_records = []
 
-    try:
-        memories = recall_conversations(
-            query,
-            k=MAX_MEMORY_RECALL_ITEMS,
-            session_id=session_id,
-            user_id=meta["user_id"],
-            min_score=MIN_MEMORY_RECALL_SCORE,
-            min_similarity=MIN_MEMORY_RECALL_SIMILARITY,
-        ) or []
+    if INFRASTRUCTURE_AVAILABLE:
+        # Apply query rewriting for better retrieval
+        try:
+            from query_rewriting import rewrite_query_for_retrieval
+            rewritten_query, query_meta = rewrite_query_for_retrieval(query)
+            meta["query_rewritten"] = query_meta.get("rewritten") != query
+            meta["query_entities"] = query_meta.get("entities", [])
+            if meta["query_rewritten"]:
+                logger.debug(f"Query rewritten: '{query}' -> '{rewritten_query}'")
+                query = rewritten_query
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"Query rewriting failed: {e}")
 
-        # If session-scoped recall is sparse, blend in global recall for cross-session continuity.
-        if len(memories) < 2:
-            global_memories = recall_conversations(
+        try:
+            memories = recall_conversations(
                 query,
                 k=MAX_MEMORY_RECALL_ITEMS,
+                session_id=session_id,
                 user_id=meta["user_id"],
-                min_score=max(MIN_MEMORY_RECALL_SCORE - 0.04, 0.0),
-                min_similarity=max(MIN_MEMORY_RECALL_SIMILARITY - 0.05, 0.0),
+                min_score=MIN_MEMORY_RECALL_SCORE,
+                min_similarity=MIN_MEMORY_RECALL_SIMILARITY,
             ) or []
-            seen = set()
-            merged = []
-            for m in memories + global_memories:
-                key = (
-                    m.get("id"),
-                    m.get("query"),
-                    m.get("created_at"),
-                )
-                if key in seen:
-                    continue
-                seen.add(key)
-                merged.append(m)
-            memories = merged[:MAX_MEMORY_RECALL_ITEMS]
-    except Exception as e:
-        logger.debug(f"Memory recall context build failed: {e}")
-        memories = []
 
-    try:
-        profile = get_user_profile(limit=MAX_PROFILE_ITEMS, user_id=meta["user_id"]) or []
-    except Exception as e:
-        logger.debug(f"Profile context build failed: {e}")
-        profile = []
+            # If session-scoped recall is sparse, blend in global recall for cross-session continuity.
+            if len(memories) < 2:
+                global_memories = recall_conversations(
+                    query,
+                    k=MAX_MEMORY_RECALL_ITEMS,
+                    user_id=meta["user_id"],
+                    min_score=max(MIN_MEMORY_RECALL_SCORE - 0.04, 0.0),
+                    min_similarity=max(MIN_MEMORY_RECALL_SIMILARITY - 0.05, 0.0),
+                ) or []
+                seen = set()
+                merged = []
+                for m in memories + global_memories:
+                    key = (
+                        m.get("id"),
+                        m.get("query"),
+                        m.get("created_at"),
+                    )
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    merged.append(m)
+                memories = merged[:MAX_MEMORY_RECALL_ITEMS]
+        except Exception as e:
+            logger.debug(f"Memory recall context build failed: {e}")
+            memories = []
 
-    try:
-        typed_records = get_typed_records(
-            query=query,
-            limit=4,
-            user_id=meta["user_id"],
-        ) or []
-    except Exception as e:
-        logger.debug(f"Typed memory context build failed: {e}")
-        typed_records = []
+        try:
+            profile = get_user_profile(limit=MAX_PROFILE_ITEMS, user_id=meta["user_id"]) or []
+        except Exception as e:
+            logger.debug(f"Profile context build failed: {e}")
+            profile = []
+
+        try:
+            typed_records = get_typed_records(
+                query=query,
+                limit=4,
+                user_id=meta["user_id"],
+            ) or []
+        except Exception as e:
+            logger.debug(f"Typed memory context build failed: {e}")
+            typed_records = []
 
     sections = []
     if memories:
@@ -936,6 +940,11 @@ def _build_memory_context_for_prompt(
             sections.append("Relevant typed operational memory:\n" + "\n".join(typed_lines))
             meta["typed_record_items"] = len(typed_lines)
 
+    repo_context, repo_meta = _build_repo_context_for_prompt(query)
+    if repo_context:
+        sections.append(repo_context)
+        meta["repo_context_items"] = int(repo_meta.get("repo_context_items", 0))
+
     if not sections:
         return "", meta
 
@@ -947,6 +956,227 @@ def _build_memory_context_for_prompt(
     meta["enabled"] = True
     meta["context_chars"] = len(context_block)
     return context_block, meta
+
+
+_REPO_FILE_CANDIDATE_RE = re.compile(
+    r"(?<![\w/])([A-Za-z0-9_./-]+\.(?:py|ts|tsx|js|jsx|mjs|cjs|json|md|sh|ya?ml|toml|css|scss|html|go|rs))(?![\w/])"
+)
+_REPO_SYMBOL_CANDIDATE_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]{2,})\b")
+_REPO_SYMBOL_STOPWORDS = {
+    "what", "when", "where", "which", "with", "from", "into", "have", "that",
+    "this", "there", "their", "about", "would", "could", "should", "please",
+    "need", "show", "file", "files", "class", "function", "method", "repo",
+    "code", "test", "tests", "edit", "fix", "line", "lines", "path", "paths",
+    "roxy", "mindsong", "juke", "hub", "write", "read", "does", "make", "work",
+}
+
+
+def _build_repo_context_for_prompt(query: str, max_items: int = 4) -> tuple[str, dict]:
+    """Build a compact RepoIntel context block from file/symbol mentions in the query."""
+    meta = {"repo_context_items": 0, "repo_file_items": 0, "repo_symbol_items": 0}
+    if not REPO_INTEL_AVAILABLE or not query:
+        return "", meta
+
+    lowered = query.lower()
+    query_looks_repo_related = any(
+        marker in lowered
+        for marker in ("file", "files", "class", "function", "method", "symbol", "repo", "code", "test", "import", "module")
+    )
+
+    file_candidates = []
+    for raw in _REPO_FILE_CANDIDATE_RE.findall(query):
+        candidate = raw.strip().strip("`'\"()[]{}:,")
+        if candidate and candidate not in file_candidates:
+            file_candidates.append(candidate)
+
+    try:
+        idx = get_repo_index()
+    except Exception as e:
+        logger.debug(f"RepoIntel index unavailable for prompt context: {e}")
+        return "", meta
+
+    symbol_candidates = []
+    if idx:
+        for raw in _REPO_SYMBOL_CANDIDATE_RE.findall(query):
+            token = raw.strip()
+            if not token or token.lower() in _REPO_SYMBOL_STOPWORDS:
+                continue
+            if token.lower() in getattr(idx, "symbol_index", {}):
+                symbol_candidates.append(token)
+                continue
+            # Prefer symbol-like names over generic prose.
+            if "_" in token or any(ch.isupper() for ch in token[1:]):
+                matches = query_symbol(token)
+                if matches:
+                    symbol_candidates.append(token)
+            if len(symbol_candidates) >= max_items:
+                break
+
+    if not query_looks_repo_related and not file_candidates and not symbol_candidates:
+        return "", meta
+
+    lines: List[str] = []
+    seen_files = set()
+    for candidate in file_candidates[:max_items]:
+        normalized = candidate.lstrip("./")
+        try:
+            repo_root = Path(getattr(idx, "root", REPO_INTEL_DEFAULT_REPO))
+            if Path(candidate).is_absolute():
+                normalized = str(Path(candidate).resolve().relative_to(repo_root))
+        except Exception:
+            pass
+        file_context = get_file_context(normalized)
+        if not file_context:
+            continue
+        path_key = file_context.get("path")
+        if not path_key or path_key in seen_files:
+            continue
+        seen_files.add(path_key)
+        symbol_names = ", ".join(sym.get("name", "") for sym in file_context.get("symbols", [])[:4] if sym.get("name"))
+        test_names = ", ".join(file_context.get("tests", [])[:2]) or "none"
+        summary = f"- file {path_key} [{file_context.get('language', 'unknown')}]"
+        if symbol_names:
+            summary += f", symbols: {symbol_names}"
+        summary += f", tests: {test_names}"
+        lines.append(summary)
+        meta["repo_file_items"] += 1
+        if len(lines) >= max_items:
+            break
+
+    seen_symbol_hits = set()
+    for symbol in symbol_candidates[:max_items]:
+        for hit in query_symbol(symbol)[:2]:
+            key = (hit.get("file"), hit.get("line"), hit.get("symbol"))
+            if key in seen_symbol_hits:
+                continue
+            seen_symbol_hits.add(key)
+            lines.append(
+                f"- symbol {hit.get('symbol')} ({hit.get('kind', 'symbol')}) -> "
+                f"{hit.get('file')}:{hit.get('line')}"
+            )
+            meta["repo_symbol_items"] += 1
+            if len(lines) >= max_items:
+                break
+        if len(lines) >= max_items:
+            break
+
+    if not lines:
+        return "", meta
+
+    meta["repo_context_items"] = len(lines)
+    return "Relevant repository context:\n" + "\n".join(lines), meta
+
+
+def _run_command_capture(cmd: List[str], cwd: Optional[Path] = None, timeout: float = 5.0) -> str:
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=str(cwd) if cwd else None,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+        if result.returncode == 0:
+            return (result.stdout or "").strip()
+        return ((result.stdout or "") + "\n" + (result.stderr or "")).strip()
+    except Exception:
+        return ""
+
+
+def _read_json_if_exists(path: Path) -> Optional[Dict[str, Any]]:
+    try:
+        if path.exists():
+            return json.loads(path.read_text())
+    except Exception:
+        return None
+    return None
+
+
+def _list_listening_ports(limit: int = 12) -> List[int]:
+    output = _run_command_capture(["ss", "-ltnH"], timeout=3.0)
+    ports: List[int] = []
+    for line in output.splitlines():
+        parts = line.split()
+        if len(parts) < 4:
+            continue
+        local = parts[3].strip()
+        port_text = local.rsplit(":", 1)[-1].strip("[]")
+        if port_text.isdigit():
+            port_value = int(port_text)
+            if port_value not in ports:
+                ports.append(port_value)
+        if len(ports) >= limit:
+            break
+    return ports
+
+
+def _get_runtime_state_snapshot() -> Dict[str, Any]:
+    """Collect a compact runtime/workspace snapshot for operators and prompts."""
+    repo_root = Path(os.getenv("ROXY_REPO_ROOT", str(REPO_INTEL_DEFAULT_REPO))).expanduser()
+    state: Dict[str, Any] = {
+        "timestamp": datetime.now().isoformat(),
+        "repo": {
+            "root": str(repo_root),
+            "exists": repo_root.exists(),
+        },
+        "scheduler": {
+            "heartbeat": _read_json_if_exists(ROXY_DIR / "data" / "scheduler_heartbeat.json"),
+            "lease": _read_json_if_exists(ROXY_DIR / "data" / "scheduler_lease.json"),
+        },
+        "missions": {},
+        "tool_retry": {},
+        "listeners": _list_listening_ports(),
+    }
+
+    if repo_root.exists():
+        branch = _run_command_capture(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=repo_root, timeout=5.0)
+        dirty = _run_command_capture(
+            ["git", "status", "--short", "--untracked-files=normal"],
+            cwd=repo_root,
+            timeout=8.0,
+        )
+        dirty_lines = [line for line in dirty.splitlines() if line.strip()]
+        state["repo"].update({
+            "branch": branch or None,
+            "dirty_files": len(dirty_lines),
+            "dirty_preview": dirty_lines[:20],
+        })
+
+    if REPO_INTEL_AVAILABLE:
+        try:
+            idx = get_repo_index(repo_root=repo_root)
+            state["repo_intel"] = {
+                "root": getattr(idx, "root", str(repo_root)),
+                "file_count": getattr(idx, "file_count", 0),
+                "symbol_count": len(getattr(idx, "symbol_index", {}) or {}),
+                "language_stats": getattr(idx, "language_stats", {}),
+                "built_at": datetime.fromtimestamp(getattr(idx, "built_at", time.time())).isoformat(),
+                "stale": bool(idx.is_stale()) if idx else True,
+            }
+        except Exception as e:
+            state["repo_intel"] = {"error": str(e)}
+    else:
+        state["repo_intel"] = {"error": "not_available"}
+
+    try:
+        from mission_supervisor import get_ledger
+        ledger = get_ledger()
+        active = ledger.get_active()
+        state["missions"] = {
+            "stats": ledger.get_stats(),
+            "active": active.to_dict() if active else None,
+        }
+    except Exception as e:
+        state["missions"] = {"error": str(e)}
+
+    try:
+        from tool_retry import get_retry_controller
+        state["tool_retry"] = get_retry_controller().get_stats()
+    except Exception as e:
+        state["tool_retry"] = {"error": str(e)}
+
+    return state
 
 
 def _normalize_text(text: str) -> str:
@@ -1282,6 +1512,28 @@ except ImportError as e:
     def remember_typed_record(*args, **kwargs): return None
 
     def get_typed_records(*args, **kwargs): return []
+
+# Repo intelligence integration
+try:
+    sys.path.insert(0, str(ROXY_DIR))
+    from repo_intel import (
+        DEFAULT_REPO as REPO_INTEL_DEFAULT_REPO,
+        get_repo_index,
+        get_file_context,
+        query_symbol,
+    )
+    REPO_INTEL_AVAILABLE = True
+except ImportError as e:
+    REPO_INTEL_AVAILABLE = False
+    logger.warning(f"⚠️ RepoIntel not available: {e}")
+
+    REPO_INTEL_DEFAULT_REPO = Path.home() / "work" / "mindsong_gh_https_1769765834"
+
+    def get_repo_index(*args, **kwargs): return None
+
+    def get_file_context(*args, **kwargs): return {}
+
+    def query_symbol(*args, **kwargs): return []
 
 # Load config
 if CONFIG_FILE.exists():
@@ -1953,12 +2205,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_debug_benchmarks()
         elif path == "/debug/failures" or path == "/v1/debug/failures":
             self._handle_debug_failures()
+        elif path == "/debug/runtime-state" or path == "/v1/debug/runtime-state":
+            self._handle_debug_runtime_state()
         elif path == "/missions" or path == "/v1/missions":
             self._handle_missions_list()
         elif path == "/missions/active" or path == "/v1/missions/active":
             self._handle_missions_active()
         elif path == "/missions/run" or path == "/v1/missions/run":
             self._handle_missions_run()
+        elif path == "/repo/intel" or path == "/v1/repo/intel":
+            self._handle_repo_intel()
         else:
             self.send_response(404)
             self.end_headers()
@@ -2676,13 +2932,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             session_id = self.headers.get('X-ROXY-Session', request_id)
             user_id = _resolve_request_user_id(self.headers)
             memory_context = ""
-            memory_context_meta = {"enabled": False, "memory_items": 0, "profile_items": 0, "context_chars": 0}
-            if INFRASTRUCTURE_AVAILABLE:
-                memory_context, memory_context_meta = _build_memory_context_for_prompt(
-                    command,
-                    session_id,
-                    user_id=user_id,
-                )
+            memory_context_meta = {
+                "enabled": False,
+                "memory_items": 0,
+                "profile_items": 0,
+                "typed_record_items": 0,
+                "repo_context_items": 0,
+                "context_chars": 0,
+            }
+            memory_context, memory_context_meta = _build_memory_context_for_prompt(
+                command,
+                session_id,
+                user_id=user_id,
+            )
 
             # Import streaming module
             sys.path.insert(0, str(ROXY_DIR))
@@ -2892,18 +3154,21 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 call_id = tool_call.get("call_id", str(uuid.uuid4())[:12])
                 command = str(tool_args.get("command") or "")
 
-                from tool_retry import get_retry_controller
+                from tool_retry import get_retry_controller, RootCauseClassifier
                 controller = get_retry_controller()
 
                 attempt = 0
                 max_attempts = 3
                 last_result: Optional[Dict[str, Any]] = None
-                original_tool_call = tool_call
+                original_command = command
+                original_tool_args = dict(tool_args)
+                original_error = ""
+                original_root_cause = "unknown"
 
                 while attempt < max_attempts:
                     if attempt > 0:
                         strategy = controller.get_next_strategy(
-                            tool_name, command, tool_args,
+                            tool_name, original_command, original_tool_args,
                             last_result.get("error", "") if last_result else "",
                             last_result.get("exit_code", -1) if last_result else -1,
                         )
@@ -2923,7 +3188,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
 
                         retry_tool_call = {
                             "name": tool_name,
-                            "arguments": {**tool_args, "command": new_command},
+                            "arguments": {**original_tool_args, "command": new_command},
                             "call_id": f"{call_id}-r{attempt}",
                         }
                         last_result = _execute_stream_tool_call(retry_tool_call)
@@ -2934,11 +3199,26 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     attempt += 1
 
                     if last_result.get("success"):
+                        append_audit({
+                            "event": "tool_execution",
+                            "request_id": request_id,
+                            "session_id": session_id,
+                            "user_id": user_id,
+                            "call_id": call_id,
+                            "tool_name": tool_name,
+                            "arguments": {**original_tool_args, "command": command},
+                            "success": True,
+                            "error": last_result.get("error"),
+                            "exit_code": last_result.get("exit_code"),
+                            "duration": last_result.get("duration", 0.0),
+                            "attempts": attempt,
+                            "timestamp": time.time(),
+                        })
                         if attempt > 1:
                             controller.record_success(
-                                tool_name, command, tool_args,
-                                last_result.get("error", "") if last_result else "",
-                                last_result.get("root_cause", "unknown"),
+                                tool_name, original_command, original_tool_args,
+                                original_error,
+                                original_root_cause,
                                 command,
                             )
                             emit_event("tool_retry_success", {
@@ -2947,6 +3227,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "attempts": attempt,
                             })
                         return last_result
+
+                    if attempt == 1:
+                        original_error = str(last_result.get("error", "") or "")
+                        original_root_cause = RootCauseClassifier.classify(
+                            original_command,
+                            original_error,
+                            int(last_result.get("exit_code", -1) or -1),
+                        )
 
                     if attempt >= max_attempts:
                         break
@@ -2965,7 +3253,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "user_id": user_id,
                     "call_id": call_id,
                     "tool_name": tool_name,
-                    "arguments": tool_args,
+                    "arguments": {**original_tool_args, "command": command},
                     "success": final_result.get("success", False),
                     "error": final_result.get("error"),
                     "exit_code": final_result.get("exit_code"),
@@ -2978,7 +3266,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     write_failure_memory({
                         "status": "failed",
                         "tool_name": tool_name,
-                        "arguments": tool_args,
+                        "arguments": {**original_tool_args, "command": command},
                         "error": final_result.get("error"),
                         "exit_code": final_result.get("exit_code"),
                         "request_id": request_id,
@@ -3202,6 +3490,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     routing_meta["memory_items"] = int(memory_context_meta.get("memory_items", 0))
                     routing_meta["profile_items"] = int(memory_context_meta.get("profile_items", 0))
                     routing_meta["typed_record_items"] = int(memory_context_meta.get("typed_record_items", 0))
+                    routing_meta["repo_context_items"] = int(memory_context_meta.get("repo_context_items", 0))
                     if not _emit_event("routing_meta", routing_meta):
                         return
 
@@ -4756,13 +5045,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             logger.info(f"Executing command: {command} mode={explicit_mode or 'auto'} pool={explicit_pool or 'auto'}")
 
             memory_context = ""
-            memory_context_meta = {"enabled": False, "memory_items": 0, "profile_items": 0, "context_chars": 0}
-            if INFRASTRUCTURE_AVAILABLE:
-                memory_context, memory_context_meta = _build_memory_context_for_prompt(
-                    command,
-                    session_id,
-                    user_id=user_id,
-                )
+            memory_context_meta = {
+                "enabled": False,
+                "memory_items": 0,
+                "profile_items": 0,
+                "typed_record_items": 0,
+                "repo_context_items": 0,
+                "context_chars": 0,
+            }
+            memory_context, memory_context_meta = _build_memory_context_for_prompt(
+                command,
+                session_id,
+                user_id=user_id,
+            )
 
             agentic_meta = {
                 "intent": "general",
@@ -4789,6 +5084,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "context_chars": int(memory_context_meta.get("context_chars", 0)),
                                 "memory_items": int(memory_context_meta.get("memory_items", 0)),
                                 "profile_items": int(memory_context_meta.get("profile_items", 0)),
+                                "typed_record_items": int(memory_context_meta.get("typed_record_items", 0)),
+                                "repo_context_items": int(memory_context_meta.get("repo_context_items", 0)),
                             },
                             "agentic": {
                                 "intent": agentic_meta.get("intent"),
@@ -5059,6 +5356,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             response["metadata"]["memory"]["context_chars"] = int(memory_context_meta.get("context_chars", 0))
             response["metadata"]["memory"]["memory_items"] = int(memory_context_meta.get("memory_items", 0))
             response["metadata"]["memory"]["profile_items"] = int(memory_context_meta.get("profile_items", 0))
+            response["metadata"]["memory"]["typed_record_items"] = int(memory_context_meta.get("typed_record_items", 0))
+            response["metadata"]["memory"]["repo_context_items"] = int(memory_context_meta.get("repo_context_items", 0))
             response["metadata"]["memory"]["facts_learned"] = len(learned_facts)
             response["metadata"]["memory"]["user_id"] = user_id
             response["metadata"]["memory"]["identity_conflict"] = bool(memory_context_meta.get("identity_conflict", False))
@@ -5313,7 +5612,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         effective_user_id = _sanitize_user_id(user_id)
         effective_memory_context = memory_context or ""
         effective_plan_steps = [step.strip() for step in (plan_steps or []) if str(step).strip()]
-        if not effective_memory_context and INFRASTRUCTURE_AVAILABLE:
+        if not effective_memory_context:
             try:
                 built_context, _ = _build_memory_context_for_prompt(
                     command,
@@ -6180,6 +6479,60 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(report, indent=2).encode())
         except Exception as e:
             logger.error(f"Debug failures failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_debug_runtime_state(self):
+        """GET /debug/runtime-state - Collect repo, scheduler, mission, and retry state."""
+        try:
+            snapshot = _get_runtime_state_snapshot()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(snapshot, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Debug runtime state failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_repo_intel(self):
+        """GET /repo/intel - RepoIntel summary plus optional file/symbol lookup."""
+        try:
+            params = self._parse_query_params()
+            file_path = str(params.get("file", "")).strip()
+            symbol = str(params.get("symbol", "")).strip()
+            force = str(params.get("force", "")).lower() in ("1", "true", "yes")
+
+            repo_root = Path(os.getenv("ROXY_REPO_ROOT", str(REPO_INTEL_DEFAULT_REPO))).expanduser()
+            idx = get_repo_index(repo_root=repo_root, force=force) if REPO_INTEL_AVAILABLE else None
+
+            payload: Dict[str, Any] = {
+                "repo_root": str(repo_root),
+                "available": bool(REPO_INTEL_AVAILABLE and idx),
+            }
+            if idx:
+                payload["summary"] = {
+                    "file_count": idx.file_count,
+                    "symbol_count": len(idx.symbol_index),
+                    "language_stats": idx.get_language_stats(),
+                    "built_at": datetime.fromtimestamp(idx.built_at).isoformat(),
+                    "stale": idx.is_stale(),
+                }
+            if file_path:
+                payload["file_context"] = get_file_context(file_path, repo_root=repo_root)
+            if symbol:
+                payload["symbol_matches"] = query_symbol(symbol, repo_root=repo_root)
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(payload, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Repo intel failed: {e}")
             self.send_response(500)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

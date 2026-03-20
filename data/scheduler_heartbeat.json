@@ -1,0 +1,14 @@
+{
+  "instance_id": "804def9c-c399-4d94-9e08-af22e82d1a52",
+  "status": "starting",
+  "timestamp": "2026-03-19T19:41:29.398823",
+  "lease_expires_at": "2026-03-19T19:46:29.398751",
+  "active_tasks": [
+    "memory_consolidation",
+    "story_selection_check",
+    "health_check",
+    "cleanup_old_logs",
+    "sync_skoreq_status",
+    "mission_execution"
+  ]
+}

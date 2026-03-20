@@ -16,13 +16,15 @@ import asyncio
 import json
 import logging
 import os
+import re
+import shlex
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger("roxy.mission_supervisor")
 
@@ -37,6 +39,12 @@ AUTH_TOKEN_FILE = ROXY_DIR / "secret.token"
 DEFAULT_MISSION_TIMEOUT = 600.0
 DEFAULT_LEASE_TTL = 300.0
 MAX_CONCURRENT_MISSIONS = 1
+LEASE_TOUCH_INTERVAL = 30.0
+VERIFICATION_COMMAND_PREFIXES = ("cmd:", "bash:", "shell:")
+VERIFICATION_COMMAND_STARTERS = (
+    "bun ", "npm ", "pnpm ", "pytest ", "python ", "python3 ", "node ",
+    "npx ", "tsx ", "vitest ", "playwright ", "./", "bash ", "git ",
+)
 
 
 class MissionStatus(str, Enum):
@@ -108,6 +116,7 @@ class Mission:
             "evidence_bundle": self.evidence_bundle,
             "error": self.error,
             "files_modified": self.files_modified,
+            "files_in_scope": self.files_in_scope,
             "constraints": self.constraints,
             "required_evidence": self.required_evidence,
             "tool_budget": self.tool_budget,
@@ -135,6 +144,7 @@ class Mission:
             evidence_bundle=data.get("evidence_bundle", {}),
             error=data.get("error", ""),
             files_modified=data.get("files_modified", []),
+            files_in_scope=data.get("files_in_scope", []),
             constraints=data.get("constraints", []),
             required_evidence=data.get("required_evidence", []),
             tool_budget=data.get("tool_budget", 10),
@@ -179,6 +189,15 @@ class MissionLedger:
         except Exception as e:
             logger.warning(f"Failed to save mission ledger: {e}")
 
+    def _write_evidence_artifact(self, mission: Mission, payload: Dict[str, Any]) -> str:
+        artifact_path = EVIDENCE_DIR / f"{mission.mission_id}.json"
+        try:
+            with open(artifact_path, "w") as f:
+                json.dump(payload, f, indent=2)
+        except Exception as e:
+            logger.warning(f"Failed to write mission evidence artifact {artifact_path}: {e}")
+        return str(artifact_path)
+
     def create_mission(self, envelope: MissionEnvelope) -> Mission:
         mission = Mission(
             mission_id=envelope.mission_id,
@@ -217,7 +236,15 @@ class MissionLedger:
             m = self.missions[mission_id]
             m.status = MissionStatus.COMPLETE
             m.completed_at = time.time()
-            m.evidence_bundle = evidence_bundle
+            artifact_path = self._write_evidence_artifact(
+                m,
+                {
+                    "mission": m.to_dict(),
+                    "evidence_bundle": evidence_bundle,
+                    "written_at": datetime.now().isoformat(),
+                },
+            )
+            m.evidence_bundle = {**evidence_bundle, "artifact_path": artifact_path}
             self._active = None
             self._save()
 
@@ -229,6 +256,15 @@ class MissionLedger:
                 m.status = MissionStatus.FAILED
                 m.error = error
                 m.completed_at = time.time()
+                artifact_path = self._write_evidence_artifact(
+                    m,
+                    {
+                        "mission": m.to_dict(),
+                        "error": error,
+                        "written_at": datetime.now().isoformat(),
+                    },
+                )
+                m.evidence_bundle = {**m.evidence_bundle, "artifact_path": artifact_path}
                 self._active = None
             else:
                 m.status = MissionStatus.ACQUIRED
@@ -240,7 +276,22 @@ class MissionLedger:
             m = self.missions[mission_id]
             m.status = MissionStatus.EXPIRED
             m.completed_at = time.time()
+            artifact_path = self._write_evidence_artifact(
+                m,
+                {
+                    "mission": m.to_dict(),
+                    "reason": "lease_expired",
+                    "written_at": datetime.now().isoformat(),
+                },
+            )
+            m.evidence_bundle = {**m.evidence_bundle, "artifact_path": artifact_path}
             self._active = None
+            self._save()
+
+    def touch_lease(self, mission_id: str, ttl_seconds: float = DEFAULT_LEASE_TTL):
+        if mission_id in self.missions:
+            mission = self.missions[mission_id]
+            mission.lease_expires_at = time.time() + max(ttl_seconds, DEFAULT_LEASE_TTL)
             self._save()
 
     def is_lease_valid(self, mission_id: str) -> bool:
@@ -279,6 +330,244 @@ class MissionExecutor:
 
     def __init__(self):
         self._auth_token = self._load_auth_token()
+        self._package_json_cache: Dict[str, Dict[str, Any]] = {}
+
+    @staticmethod
+    def _extract_file_targets(tool_name: str, arguments: Dict[str, Any]) -> List[str]:
+        file_keys = ("file_path", "path", "target_path", "source_path", "destination", "output")
+        files = []
+        for key in file_keys:
+            value = arguments.get(key)
+            if isinstance(value, str) and value.strip():
+                files.append(value.strip())
+        if tool_name == "bash":
+            command = str(arguments.get("command", "") or "")
+            for match in re.findall(r"([A-Za-z0-9_./-]+\.(?:py|ts|tsx|js|jsx|json|md|sh|ya?ml|toml|css|scss|html|go|rs))", command):
+                if match not in files:
+                    files.append(match)
+        return files[:8]
+
+    @staticmethod
+    def _normalize_repo_relative_path(path_value: str, repo_root: Path) -> Optional[str]:
+        if not path_value:
+            return None
+        candidate = Path(str(path_value).strip()).expanduser()
+        try:
+            if candidate.is_absolute():
+                return str(candidate.resolve().relative_to(repo_root))
+            return str(candidate).lstrip("./")
+        except Exception:
+            return str(candidate).lstrip("./")
+
+    def _load_package_json(self, package_root: Path) -> Dict[str, Any]:
+        cache_key = str(package_root.resolve())
+        if cache_key in self._package_json_cache:
+            return self._package_json_cache[cache_key]
+        package_json_path = package_root / "package.json"
+        try:
+            data = json.loads(package_json_path.read_text())
+        except Exception:
+            data = {}
+        self._package_json_cache[cache_key] = data
+        return data
+
+    def _find_package_root(self, file_path: str, repo_root: Path) -> Optional[Path]:
+        candidate = (repo_root / file_path).resolve()
+        search_root = candidate.parent if candidate.suffix else candidate
+        for directory in [search_root, *search_root.parents]:
+            if directory == directory.parent and directory != repo_root:
+                break
+            if (directory / "package.json").exists():
+                return directory
+            if directory == repo_root:
+                break
+        if (repo_root / "package.json").exists():
+            return repo_root
+        return None
+
+    @staticmethod
+    def _looks_like_command(step: str) -> bool:
+        lowered = step.strip().lower()
+        if any(lowered.startswith(prefix) for prefix in VERIFICATION_COMMAND_PREFIXES):
+            return True
+        return any(lowered.startswith(starter) for starter in VERIFICATION_COMMAND_STARTERS)
+
+    def _extract_explicit_verification_commands(self, mission: Mission) -> List[Dict[str, Any]]:
+        commands: List[Dict[str, Any]] = []
+        for step in mission.verification_plan:
+            raw_step = str(step or "").strip()
+            if not raw_step:
+                continue
+            lowered = raw_step.lower()
+            command = ""
+            for prefix in VERIFICATION_COMMAND_PREFIXES:
+                if lowered.startswith(prefix):
+                    command = raw_step[len(prefix):].strip()
+                    break
+            if not command and self._looks_like_command(raw_step):
+                command = raw_step
+            if command:
+                commands.append({
+                    "source": "verification_plan",
+                    "label": raw_step,
+                    "command": command,
+                })
+        return commands
+
+    def _derive_auto_verification_commands(self, mission: Mission, files_modified: List[str]) -> List[Dict[str, Any]]:
+        repo_root = Path(os.getenv("ROXY_REPO_ROOT", "/home/mark/work/mindsong_gh_https_1769765834")).expanduser()
+        if not repo_root.exists():
+            return []
+
+        try:
+            from repo_intel import get_file_context
+        except Exception:
+            return []
+
+        candidate_files = []
+        seen_files = set()
+        for path_value in [*files_modified, *mission.files_in_scope]:
+            normalized = self._normalize_repo_relative_path(path_value, repo_root)
+            if normalized and normalized not in seen_files:
+                seen_files.add(normalized)
+                candidate_files.append(normalized)
+
+        python_tests = []
+        package_tests: Dict[str, Dict[str, Any]] = {}
+        package_typechecks: Dict[str, Dict[str, Any]] = {}
+
+        for file_path in candidate_files:
+            context = get_file_context(file_path, repo_root=repo_root) or {}
+            tests = context.get("tests", []) or []
+            package_root = self._find_package_root(file_path, repo_root)
+            package_json = self._load_package_json(package_root) if package_root else {}
+            scripts = package_json.get("scripts", {}) if isinstance(package_json, dict) else {}
+
+            if package_root and any(file_path.endswith(ext) for ext in (".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs")):
+                package_key = str(package_root)
+                rel_file_path = str(Path(file_path))
+                if "typecheck" in scripts:
+                    package_typechecks[package_key] = {
+                        "source": "repo_intel",
+                        "label": f"typecheck:{package_root.name or 'repo'}",
+                        "command": "bun run typecheck",
+                        "cwd": str(package_root),
+                    }
+
+                for test_path in tests:
+                    rel_test_path = self._normalize_repo_relative_path(test_path, repo_root)
+                    if not rel_test_path:
+                        continue
+                    entry = package_tests.setdefault(package_key, {
+                        "package_root": package_root,
+                        "tests": [],
+                        "scripts": scripts,
+                    })
+                    if rel_test_path not in entry["tests"]:
+                        entry["tests"].append(rel_test_path)
+            elif any(test.endswith(".py") for test in tests):
+                for test_path in tests:
+                    rel_test_path = self._normalize_repo_relative_path(test_path, repo_root)
+                    if rel_test_path and rel_test_path not in python_tests:
+                        python_tests.append(rel_test_path)
+
+        commands: List[Dict[str, Any]] = list(package_typechecks.values())
+
+        for package_key, entry in package_tests.items():
+            package_root = entry["package_root"]
+            tests = entry["tests"]
+            scripts = entry["scripts"]
+            if not tests:
+                continue
+            quoted_tests = " ".join(shlex.quote(test) for test in tests[:8])
+            if "test:unit" in scripts:
+                command = f"bun run test:unit -- {quoted_tests}"
+            elif "test" in scripts:
+                command = f"bun run test -- {quoted_tests}"
+            else:
+                command = f"bun test {quoted_tests}"
+            commands.append({
+                "source": "repo_intel",
+                "label": f"tests:{package_root.name or 'repo'}",
+                "command": command,
+                "cwd": str(package_root),
+            })
+
+        if python_tests:
+            commands.append({
+                "source": "repo_intel",
+                "label": "pytest:auto",
+                "command": "pytest -q " + " ".join(shlex.quote(test) for test in python_tests[:8]),
+                "cwd": str(repo_root),
+            })
+
+        deduped = []
+        seen = set()
+        for item in commands:
+            key = (item.get("cwd"), item.get("command"))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(item)
+        return deduped
+
+    async def _run_verification_command(
+        self,
+        command: str,
+        cwd: str,
+        label: str,
+        source: str,
+    ) -> Dict[str, Any]:
+        started = time.time()
+        process = await asyncio.create_subprocess_shell(
+            command,
+            cwd=cwd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await process.communicate()
+        return {
+            "label": label,
+            "source": source,
+            "command": command,
+            "cwd": cwd,
+            "success": process.returncode == 0,
+            "exit_code": process.returncode,
+            "duration": round(time.time() - started, 3),
+            "stdout": (stdout or b"").decode("utf-8", errors="replace")[:4000],
+            "stderr": (stderr or b"").decode("utf-8", errors="replace")[:4000],
+        }
+
+    async def execute_verification(self, mission: Mission, files_modified: List[str]) -> List[Dict[str, Any]]:
+        commands = self._extract_explicit_verification_commands(mission)
+        commands.extend(self._derive_auto_verification_commands(mission, files_modified))
+        if not commands:
+            return [{
+                "label": "verification:none",
+                "source": "none",
+                "command": "",
+                "cwd": "",
+                "success": True,
+                "exit_code": 0,
+                "duration": 0.0,
+                "stdout": "",
+                "stderr": "",
+                "skipped": "no_executable_verification_commands",
+            }]
+
+        results = []
+        for step in commands:
+            cwd = step.get("cwd") or str(Path(os.getenv("ROXY_REPO_ROOT", "/home/mark/work/mindsong_gh_https_1769765834")).expanduser())
+            result = await self._run_verification_command(
+                step["command"],
+                cwd=cwd,
+                label=step.get("label", step["command"]),
+                source=step.get("source", "verification"),
+            )
+            results.append(result)
+            if not result["success"]:
+                break
+        return results
 
     def _load_auth_token(self) -> Optional[str]:
         try:
@@ -288,7 +577,11 @@ class MissionExecutor:
             pass
         return None
 
-    async def execute(self, mission: Mission) -> Dict[str, Any]:
+    async def execute(
+        self,
+        mission: Mission,
+        lease_touch: Optional[Callable[[float], None]] = None,
+    ) -> Dict[str, Any]:
         """
         Execute a mission by calling the ROXY streaming API.
 
@@ -305,6 +598,8 @@ class MissionExecutor:
 
         tool_calls = []
         files_modified = set()
+        output = ""
+        last_touch = time.time()
 
         try:
             response = requests.post(
@@ -328,13 +623,28 @@ class MissionExecutor:
                 if not line:
                     continue
                 try:
+                    if lease_touch and (time.time() - last_touch) >= LEASE_TOUCH_INTERVAL:
+                        lease_touch(max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL))
+                        last_touch = time.time()
                     if line.startswith(b"data: "):
                         data = json.loads(line[6:])
                     else:
                         continue
 
                     event_type = data.get("event", "")
-                    if event_type == "tool_execution_started":
+                    if event_type == "tool_call_detected":
+                        tool_name = data.get("tool_name")
+                        arguments = data.get("arguments", {}) or {}
+                        tool_calls.append({
+                            "type": "detected",
+                            "tool": tool_name,
+                            "arguments": arguments,
+                            "call_id": data.get("call_id"),
+                            "timestamp": time.time(),
+                        })
+                        for target in self._extract_file_targets(str(tool_name or ""), arguments):
+                            files_modified.add(target)
+                    elif event_type == "tool_execution_started":
                         tool_calls.append({
                             "type": "started",
                             "tool": data.get("tool_name"),
@@ -370,9 +680,19 @@ class MissionExecutor:
                             "attempt": data.get("attempt"),
                             "timestamp": time.time(),
                         })
+                    elif event_type == "tool_retry_exhausted":
+                        tool_calls.append({
+                            "type": "retry_exhausted",
+                            "tool": data.get("tool_name"),
+                            "error": data.get("error", ""),
+                            "timestamp": time.time(),
+                        })
 
                     if event_type == "complete":
                         output = data.get("data", {}).get("response", "")
+                    if lease_touch:
+                        lease_touch(max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL))
+                        last_touch = time.time()
 
                 except Exception:
                     continue
@@ -486,20 +806,54 @@ async def run_mission_task() -> str:
 
         mission.status = MissionStatus.RUNNING
         mission.started_at = time.time()
+        mission.lease_expires_at = time.time() + max(DEFAULT_MISSION_TIMEOUT + 60, DEFAULT_LEASE_TTL)
         ledger._save()
 
-        result = await executor.execute(mission)
+        result = await executor.execute(
+            mission,
+            lease_touch=lambda ttl: ledger.touch_lease(mission.mission_id, ttl_seconds=ttl),
+        )
 
         if result["success"]:
+            mission.status = MissionStatus.VERIFYING
+            mission.tool_calls = result["tool_calls"]
+            mission.files_modified = result["files_modified"]
+            ledger.touch_lease(mission.mission_id, ttl_seconds=120)
+            ledger._save()
+
+            verification_results = await executor.execute_verification(
+                mission,
+                result["files_modified"],
+            )
+            mission.verification_results = verification_results
+            verification_failed = any(not step.get("success", False) for step in verification_results)
+            if verification_failed:
+                failure_summary = next(
+                    (
+                        f"{step.get('label')}: {step.get('stderr') or step.get('stdout') or 'verification failed'}"
+                        for step in verification_results
+                        if not step.get("success", False)
+                    ),
+                    "verification_failed",
+                )
+                ledger.fail(mission.mission_id, failure_summary[:500])
+                logger.warning(f"[Mission] Verification failed: {mission.story_id} - {failure_summary[:200]}")
+                return f"Mission {mission.story_id} verification failed: {failure_summary[:200]}"
+
+            completed_at = time.time()
             evidence_bundle = {
                 "mission_id": mission.mission_id,
                 "story_id": mission.story_id,
-                "completed_at": time.time(),
-                "duration": mission.completed_at - mission.started_at if mission.completed_at else 0,
+                "story_title": mission.story_title,
+                "completed_at": completed_at,
+                "duration": max(0.0, completed_at - (mission.started_at or completed_at)),
                 "tool_calls": result["tool_calls"],
                 "files_modified": result["files_modified"],
+                "files_in_scope": mission.files_in_scope,
                 "output": result.get("output", "")[:1000],
                 "verification_results": mission.verification_results,
+                "verification_plan": mission.verification_plan,
+                "required_evidence": mission.required_evidence,
             }
 
             ledger.complete(mission.mission_id, evidence_bundle)

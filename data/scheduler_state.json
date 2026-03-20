@@ -1,0 +1,41 @@
+{
+  "tasks": {
+    "memory_consolidation": {
+      "last_run": 1773969395.8307302,
+      "next_run": 1773972995.830733,
+      "error_count": 0,
+      "enabled": true
+    },
+    "story_selection_check": {
+      "last_run": 1773970664.357263,
+      "next_run": 1773970964.3572657,
+      "error_count": 0,
+      "enabled": true
+    },
+    "health_check": {
+      "last_run": 1773970664.3903596,
+      "next_run": 1773970964.3903623,
+      "error_count": 0,
+      "enabled": true
+    },
+    "cleanup_old_logs": {
+      "last_run": 1773965776.7889419,
+      "next_run": 1774052176.7889435,
+      "error_count": 1,
+      "enabled": true
+    },
+    "sync_skoreq_status": {
+      "last_run": 1773970424.0033998,
+      "next_run": 1773971024.0034027,
+      "error_count": 0,
+      "enabled": true
+    },
+    "mission_execution": {
+      "last_run": 1773970784.5487201,
+      "next_run": 1773971684.5487227,
+      "error_count": 0,
+      "enabled": true
+    }
+  },
+  "saved_at": "2026-03-19T19:41:30.555197"
+}

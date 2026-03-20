@@ -10,6 +10,7 @@ import sys
 import time
 import json
 import logging
+import re
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
@@ -19,14 +20,24 @@ logger = logging.getLogger("roxy.eval")
 # Configuration
 ROXY_BASE_URL = os.getenv("ROXY_BASE_URL", "http://127.0.0.1:8766")
 ROXY_TOKEN_FILE = os.getenv("ROXY_TOKEN_FILE", "/home/mark/.roxy/secret.token")
-PASS_THRESHOLD = 0.85  # 85% pass rate required
+PASS_THRESHOLD = float(os.getenv("ROXY_EVAL_PASS_THRESHOLD", "0.95"))
+SKIP_MCP_GATE = os.getenv("ROXY_EVAL_SKIP_MCP_GATE", "0").lower() in ("1", "true", "yes")
+CRITICAL_MCP_SERVERS = [
+    item.strip()
+    for item in os.getenv(
+        "ROXY_EVAL_CRITICAL_MCP_SERVERS",
+        "roxy-content,roxy-desktop,github,filesystem",
+    ).split(",")
+    if item.strip()
+]
 
 # Load canonical identity
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
-    from canonical_identity import CANONICAL_NAME, CANONICAL_ROLE, USER_ALIASES
+    from canonical_identity import CANONICAL_USER_ID, CANONICAL_NAME, CANONICAL_ROLE, USER_ALIASES
 except ImportError:
     # Fallback defaults
+    CANONICAL_USER_ID = "mark-roxy-canonical"
     CANONICAL_NAME = "Mark"
     CANONICAL_ROLE = "CEO of MindSong Studios"
     USER_ALIASES = ["mark", "Mark", "CEO"]
@@ -48,15 +59,17 @@ class ROXYEvaluator:
             logger.error(f"Failed to load token: {e}")
             self.token = ""
     
-    def _query(self, command: str, session: str = "eval") -> Dict:
+    def _query(self, command: str, session: str = "eval", user_id: Optional[str] = None) -> Dict:
         """Execute ROXY query and return response."""
         import requests
+        effective_user_id = user_id or CANONICAL_USER_ID
         try:
             resp = requests.post(
                 f"{ROXY_BASE_URL}/run",
                 headers={
                     "X-ROXY-Token": self.token,
                     "X-ROXY-Session": session,
+                    "X-ROXY-User-Id": str(effective_user_id),
                     "Content-Type": "application/json"
                 },
                 json={"command": command, "stream": False},
@@ -66,6 +79,44 @@ class ROXYEvaluator:
         except Exception as e:
             logger.error(f"Query failed: {e}")
             return {"status": "error", "message": str(e)}
+
+    def _evaluate_identity_assertion(self, test_name: str, query: str) -> Dict:
+        """Enforce canonical identity assertion: user name + role."""
+        result = self._query(query, session=f"eval-memory-{test_name}", user_id=CANONICAL_USER_ID)
+        if result.get("status") != "success":
+            return {"test": test_name, "category": "memory", "passed": False, "error": "Query failed"}
+
+        response_text = result.get("result", "")
+        lower = response_text.lower()
+        memory_meta = result.get("metadata", {}).get("memory", {})
+        memory_injected = memory_meta.get("context_injected", False)
+        memory_items = int(memory_meta.get("memory_items", 0))
+        profile_items = int(memory_meta.get("profile_items", 0))
+
+        aliases = {str(CANONICAL_NAME).strip().lower()}
+        aliases.update(str(alias).strip().lower() for alias in USER_ALIASES or [])
+        name_match = any(alias and alias in lower for alias in aliases)
+
+        role_tokens = [
+            token.lower()
+            for token in re.findall(r"[a-zA-Z0-9]+", str(CANONICAL_ROLE))
+            if len(token) > 2
+        ]
+        role_match = any(token in lower for token in role_tokens)
+
+        passed = memory_injected and (memory_items + profile_items) > 0 and name_match and role_match
+        return {
+            "test": test_name,
+            "category": "memory",
+            "passed": passed,
+            "memory_items": memory_items,
+            "profile_items": profile_items,
+            "memory_injected": memory_injected,
+            "name_match": name_match,
+            "role_match": role_match,
+            "canonical_user_id": CANONICAL_USER_ID,
+            "response_preview": response_text[:240],
+        }
     
     def _evaluate_memory_recall(self, test_name: str, query: str, expected_facts: List[str]) -> Dict:
         """Test memory recall capability."""
@@ -80,12 +131,14 @@ class ROXYEvaluator:
         # Check memory was injected
         memory_injected = memory_meta.get("context_injected", False)
         memory_items = memory_meta.get("memory_items", 0)
+        profile_items = memory_meta.get("profile_items", 0)
+        memory_context_items = int(memory_items) + int(profile_items)
         
         # Check expected facts are mentioned
         facts_found = sum(1 for fact in expected_facts if fact.lower() in response_text.lower())
         fact_score = facts_found / len(expected_facts) if expected_facts else 0
         
-        passed = memory_injected and memory_items > 0 and fact_score >= 0.5
+        passed = memory_injected and memory_context_items > 0 and fact_score >= 0.5
         
         return {
             "test": test_name,
@@ -93,6 +146,7 @@ class ROXYEvaluator:
             "passed": passed,
             "score": fact_score,
             "memory_items": memory_items,
+            "profile_items": profile_items,
             "response_preview": response_text[:200]
         }
     
@@ -145,17 +199,65 @@ class ROXYEvaluator:
             "response_length": len(response_text),
             "response_time": response_time
         }
+
+    def _evaluate_critical_mcp_availability(self) -> Dict:
+        """Fail qualification if any critical MCP server is unreachable or empty."""
+        if SKIP_MCP_GATE:
+            return {
+                "test": "mcp_gate",
+                "category": "runtime",
+                "passed": True,
+                "skipped": True,
+                "details": {"reason": "ROXY_EVAL_SKIP_MCP_GATE=1"},
+            }
+        try:
+            from mcp_client import MCPClient
+            import asyncio
+
+            async def _run_check():
+                client = MCPClient()
+                await client.initialize()
+                details = {}
+                passed = True
+                try:
+                    for server_id in CRITICAL_MCP_SERVERS:
+                        health = await client.health_check(server_id)
+                        tools = await client.list_tools(server_id)
+                        details[server_id] = {
+                            "connected": bool(health.get("connected")),
+                            "tool_count": len(tools),
+                        }
+                        if not health.get("connected") or len(tools) == 0:
+                            passed = False
+                finally:
+                    await client.disconnect_all()
+                return passed, details
+
+            passed, details = asyncio.run(_run_check())
+            return {
+                "test": "mcp_gate",
+                "category": "runtime",
+                "passed": passed,
+                "details": details,
+            }
+        except Exception as e:
+            return {
+                "test": "mcp_gate",
+                "category": "runtime",
+                "passed": False,
+                "error": str(e),
+            }
     
     def run_evaluation_suite(self) -> Dict:
         """Run full evaluation suite."""
         logger.info("Starting ROXY evaluation suite...")
+        self.results.append(self._evaluate_critical_mcp_availability())
         
         tests = [
-            # Memory tests - use canonical identity config
-            # Identity test: check for name OR role (more flexible)
-            ("memory_identity", "Who am I?", [CANONICAL_NAME.lower(), CANONICAL_ROLE.split()[0].lower()]),
-            ("memory_production", "What is my production state?", ["mindsong", "skybeam", "render"]),
-            ("memory_preferences", "What are my preferences?", ["mindsong", "electronic", "music"]),
+            # Memory tests - canonical identity requires both name and role grounding
+            ("memory_identity", "Who am I?", []),
+            ("memory_production", "What is my SkyBeam render queue status?", ["skybeam", "render"]),
+            ("memory_preferences", "What are my preferences?", ["electronic", "music"]),
             
             # Confidence tests
             ("confidence_known", "What is my name?", []),
@@ -169,7 +271,9 @@ class ROXYEvaluator:
         for test_name, query, extra in tests:
             logger.info(f"Running test: {test_name}")
             
-            if test_name.startswith("memory_"):
+            if test_name == "memory_identity":
+                result = self._evaluate_identity_assertion(test_name, query)
+            elif test_name.startswith("memory_"):
                 result = self._evaluate_memory_recall(test_name, query, extra)
             elif test_name.startswith("confidence_"):
                 result = self._evaluate_confidence_calibration(test_name, query)

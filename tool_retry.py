@@ -86,7 +86,8 @@ class StrategyState:
         return strategy_name in self.attempts
 
     def record(self, strategy_name: str, error: str, exit_code: int, root_cause: str):
-        self.attempts.append(strategy_name)
+        if strategy_name and strategy_name not in self.attempts:
+            self.attempts.append(strategy_name)
         self.last_error = error
         self.last_exit_code = exit_code
         self.last_root_cause = root_cause
@@ -285,7 +286,11 @@ class ToolRetryController:
                     if content and len(content) > 5:
                         self._fix_recipe_cache[sig] = {
                             "content": content,
-                            "command": metadata.get("command", command),
+                            "command": (
+                                metadata.get("command")
+                                or metadata.get("successful_command")
+                                or command
+                            ),
                             "recipe_id": rec.get("id"),
                         }
                         logger.info(f"[RetryController] Found fix_recipe for '{command}': {content[:80]}")
@@ -361,6 +366,7 @@ class ToolRetryController:
                 metadata={
                     "tool_name": tool_name,
                     "original_command": command,
+                    "command": successful_command,
                     "command_sig": sig,
                     "error": error[:200],
                     "root_cause": root_cause,
@@ -377,18 +383,15 @@ class ToolRetryController:
         """Determine if this tool call should be retried."""
         state = self._get_state(tool_name, command, args)
         root_cause = RootCauseClassifier.classify(command, error, exit_code)
-
-        if state.attempts and "default" not in state.attempts:
-            return False
-
-        total_attempts = len(state.attempts)
+        total_attempts = len(state.attempts) or 1
         if total_attempts >= MAX_RETRIES_PER_TOOL:
             return False
 
         if root_cause == "syntax":
             return False
 
-        if root_cause == "unknown" and total_attempts >= 1:
+        non_default_attempts = [name for name in state.attempts if name != "default"]
+        if root_cause == "unknown" and len(non_default_attempts) >= 1:
             return False
 
         return True
@@ -404,28 +407,42 @@ class ToolRetryController:
         """
         state = self._get_state(tool_name, command, args)
         root_cause = RootCauseClassifier.classify(command, error, exit_code)
-        state.record("initial", error, exit_code, root_cause)
+
+        # get_next_strategy() is called after the initial/default attempt failed,
+        # so mark the default attempt as consumed before choosing the next strategy.
+        if not state.already_tried("default"):
+            state.record("default", error, exit_code, root_cause)
+        else:
+            state.last_error = error
+            state.last_exit_code = exit_code
+            state.last_root_cause = root_cause
+            state.last_attempted = time.time()
 
         if len(state.attempts) >= MAX_RETRIES_PER_TOOL:
             self._write_failure_event(tool_name, command, args, error, exit_code, root_cause)
             return None
 
         fix_recipe = self._query_fix_recipe(tool_name, command)
-        if fix_recipe and "default" not in state.attempts:
+        recipe_strategy = f"fix_recipe:{fix_recipe.get('recipe_id', 'unknown')}" if fix_recipe else ""
+        if fix_recipe and not state.already_tried(recipe_strategy):
             recipe_cmd = fix_recipe.get("command", command)
+            state.record(recipe_strategy, error, exit_code, root_cause)
             return {
                 "command": recipe_cmd,
                 "args": args,
-                "strategy_name": f"fix_recipe:{fix_recipe.get('recipe_id', 'unknown')}",
+                "strategy_name": recipe_strategy,
                 "is_fix_recipe": True,
             }
 
         strategies = self._strategy_registry.get_strategies(root_cause)
         for strategy in strategies:
+            if strategy.name == "default":
+                continue
             if state.already_tried(strategy.name):
                 continue
 
             transform = strategy.transform(command, args)
+            state.record(strategy.name, error, exit_code, root_cause)
             if transform is None:
                 return {
                     "command": command,

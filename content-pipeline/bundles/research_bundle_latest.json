@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260319_141226_345c9760",
-  "timestamp": "2026-03-19T20:12:26.242365+00:00",
+  "bundle_id": "BUNDLE_20260319_191216_b3b2c13f",
+  "timestamp": "2026-03-20T01:12:16.224953+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260319_140020_241d507e",
+      "snapshot_id": "TREND_20260319_190014_2b00b2da",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260319_140516_b9866ee1",
+      "brief_id": "BRIEF_20260319_190515_9048779d",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260319_141026_109618ef",
+      "analysis_id": "COMP_20260319_191017_394f6047",
       "status": "healthy",
       "count": 5
     }

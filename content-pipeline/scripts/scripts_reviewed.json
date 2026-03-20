@@ -1,16 +1,16 @@
 {
-  "review_id": "REVIEW_20260319_141808_43b4a484",
-  "timestamp": "2026-03-19T20:18:08.486522+00:00",
+  "review_id": "REVIEW_20260319_191807_1f0762c2",
+  "timestamp": "2026-03-20T01:18:07.733724+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260319_141618_68966c16",
+  "source_scripts": "SCRIPT_20260319_191611_a6805a7d",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_0ae0fee3d3ff",
+      "script_id": "SCR_4d67851d60b6",
       "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 7,
+        "hook_strength": 8,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
@@ -29,12 +29,12 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_a2e355ba7f05",
-      "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+      "script_id": "SCR_f760ff11caa3",
+      "trend_title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 6,
+        "hook_strength": 4,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,
@@ -55,12 +55,12 @@
       "production_ready": true
     },
     {
-      "script_id": "SCR_8e93f5e2bf9a",
-      "trend_title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
+      "script_id": "SCR_abc9f86e1f44",
+      "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 6,
+        "hook_strength": 4,
         "content_depth": 10,
         "structure_flow": 10,
         "differentiation": 9,

@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -405,61 +406,77 @@ class AgentEvalHarness:
     async def test_mission_supervisor(self):
         """Test mission supervisor: ledger, envelope building, story selector integration."""
         try:
+            import mission_supervisor
             from mission_supervisor import (
                 MissionStatus, MissionEnvelope, MissionLedger,
-                get_ledger, MissionExecutor,
+                MissionExecutor,
             )
-            ledger = get_ledger()
-            self.add_result(
-                "mission_ledger_init",
-                ledger is not None,
-                "Ledger initialized"
-            )
+            with tempfile.TemporaryDirectory(prefix="roxy-agent-eval-") as temp_dir:
+                temp_root = Path(temp_dir)
+                original_ledger = mission_supervisor.MISSION_LEDGER
+                original_evidence = mission_supervisor.EVIDENCE_DIR
+                original_cached_ledger = mission_supervisor._ledger
+                try:
+                    mission_supervisor.MISSION_LEDGER = temp_root / "mission_ledger.json"
+                    mission_supervisor.EVIDENCE_DIR = temp_root / "evidence"
+                    mission_supervisor.EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+                    mission_supervisor._ledger = None
 
-            envelope = MissionEnvelope(
-                mission_id="test-mission-1",
-                story_id="TEST-001",
-                story_title="Test Mission",
-                goal="Test goal",
-                constraints=["must work"],
-                required_evidence=["evidence 1"],
-                tool_budget=5,
-                verification_plan=["verify step 1"],
-                rollback_command="git checkout HEAD",
-                files_in_scope=["test.py"],
-            )
-            mission = ledger.create_mission(envelope)
-            self.add_result(
-                "mission_create",
-                mission.mission_id == "test-mission-1",
-                f"Created: {mission.mission_id}"
-            )
-            self.add_result(
-                "mission_status",
-                mission.status == MissionStatus.ACQUIRED,
-                f"Status: {mission.status.value}"
-            )
+                    ledger = MissionLedger()
+                    self.add_result(
+                        "mission_ledger_init",
+                        ledger is not None,
+                        "Ledger initialized"
+                    )
 
-            active = ledger.get_active()
-            self.add_result(
-                "mission_get_active",
-                active is not None and active.mission_id == "test-mission-1",
-                f"Active: {active.mission_id if active else 'none'}"
-            )
+                    envelope = MissionEnvelope(
+                        mission_id="test-mission-1",
+                        story_id="TEST-001",
+                        story_title="Test Mission",
+                        goal="Test goal",
+                        constraints=["must work"],
+                        required_evidence=["evidence 1"],
+                        tool_budget=5,
+                        verification_plan=["verify step 1"],
+                        rollback_command="git checkout HEAD",
+                        files_in_scope=["test.py"],
+                    )
+                    mission = ledger.create_mission(envelope)
+                    self.add_result(
+                        "mission_create",
+                        mission.mission_id == "test-mission-1",
+                        f"Created: {mission.mission_id}"
+                    )
+                    self.add_result(
+                        "mission_status",
+                        mission.status == MissionStatus.ACQUIRED,
+                        f"Status: {mission.status.value}"
+                    )
 
-            executor = MissionExecutor()
-            self.add_result(
-                "mission_executor_init",
-                executor is not None,
-                "Executor initialized"
-            )
+                    active = ledger.get_active()
+                    self.add_result(
+                        "mission_get_active",
+                        active is not None and active.mission_id == "test-mission-1",
+                        f"Active: {active.mission_id if active else 'none'}"
+                    )
 
-            stats = ledger.get_stats()
-            self.add_result(
-                "mission_stats",
-                stats.get("total_missions", 0) > 0,
-                f"Stats: {stats.get('total_missions')} total"
-            )
+                    executor = MissionExecutor()
+                    self.add_result(
+                        "mission_executor_init",
+                        executor is not None,
+                        "Executor initialized"
+                    )
+
+                    stats = ledger.get_stats()
+                    self.add_result(
+                        "mission_stats",
+                        stats.get("total_missions", 0) > 0,
+                        f"Stats: {stats.get('total_missions')} total"
+                    )
+                finally:
+                    mission_supervisor.MISSION_LEDGER = original_ledger
+                    mission_supervisor.EVIDENCE_DIR = original_evidence
+                    mission_supervisor._ledger = original_cached_ledger
 
         except ImportError as e:
             for name in ["mission_ledger_init", "mission_create", "mission_status",

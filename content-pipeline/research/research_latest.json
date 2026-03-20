@@ -1,8 +1,8 @@
 {
-  "brief_id": "BRIEF_20260319_140516_b9866ee1",
-  "timestamp": "2026-03-19T20:05:16.641768+00:00",
+  "brief_id": "BRIEF_20260319_190515_9048779d",
+  "timestamp": "2026-03-20T01:05:15.154889+00:00",
   "status": "healthy",
-  "source_snapshot": "TREND_20260319_140020_241d507e",
+  "source_snapshot": "TREND_20260319_190014_2b00b2da",
   "briefs": [
     {
       "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
@@ -13,6 +13,27 @@
       "claims": [
         "This trend focuses on: TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
         "Key insight: Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27",
+        "Source: TechCrunch AI (category: ai)",
+        "This relates to commercial AI applications and industry developments",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "link": "https://techcrunch.com/2026/03/19/jeff-bezos-reportedly-wants-100-billion-to-buy-and-transform-old-manufacturing-firms-with-ai/",
+      "summary": "The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology.",
+      "claims": [
+        "This trend focuses on: Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+        "Key insight: The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"
@@ -76,27 +97,6 @@
       "claims": [
         "This trend focuses on: Multiverse Computing pushes its compressed AI models into the mainstream",
         "Key insight: After compressing models from major AI labs, including OpenAI, Meta, DeepSeek, and Mistral AI, Multiverse Computing has launched both an app that show",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "Meta is having trouble with rogue AI agents",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents/",
-      "summary": "A rogue AI agent inadvertently exposed Meta company and user data to engineers who didn't have permission to see it.",
-      "claims": [
-        "This trend focuses on: Meta is having trouble with rogue AI agents",
-        "Key insight: A rogue AI agent inadvertently exposed Meta company and user data to engineers who didn't have permission to see it",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"

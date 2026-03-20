@@ -1,0 +1,65 @@
+{
+  "success": true,
+  "output": "COMPLETE: LOOP_OK",
+  "error": "",
+  "metadata": {
+    "action": "chain",
+    "steps_requested": 1,
+    "steps_completed": 1,
+    "stopped_by_prefix": "COMPLETE:",
+    "step_outputs": [
+      {
+        "step": 1,
+        "success": true,
+        "output_preview": "COMPLETE: LOOP_OK",
+        "error": "",
+        "metadata": {
+          "action": "run",
+          "mode": "gmodels",
+          "model": "opencode/mimo-v2-pro-free",
+          "requested_model": "github-models/deepseek/deepseek-r1-0528",
+          "profile_model": "github-models/deepseek/deepseek-r1-0528",
+          "variant": "high",
+          "thinking": true,
+          "ultramax": true,
+          "bootstrap": true,
+          "fallback_free": true,
+          "attempt": 2,
+          "attempt_count": 5,
+          "attempt_models": [
+            "github-models/deepseek/deepseek-r1-0528",
+            "opencode/mimo-v2-pro-free",
+            "opencode/nemotron-3-super-free",
+            "opencode/minimax-m2.5-free",
+            "opencode/gpt-5-nano"
+          ],
+          "attempt_failures": [
+            {
+              "model": "github-models/deepseek/deepseek-r1-0528",
+              "attempt": 1,
+              "exit_code": 0,
+              "error": "Unable to proceed with model usage. This account has locked billing.",
+              "stderr": ""
+            }
+          ],
+          "session_id": "ses_2f73c6361ffefi2s0SaOBt1wDF",
+          "finish_reason": "stop",
+          "tokens": {
+            "total": 13295,
+            "input": 11206,
+            "output": 41,
+            "reasoning": 34,
+            "cache": {
+              "read": 2048,
+              "write": 0
+            }
+          },
+          "event_count": 4,
+          "exit_code": 0,
+          "command": "/usr/bin/opencode-cli run --format json --model opencode/mimo-v2-pro-free --variant high --thinking 'ULTRAMAX SPAWN BRIEFING (Luno/SKOREQ/Skills):\n[ROXY_IDENTITY.md]\n# ROXY Identity Document\n\n**Version:** 2.0.0\n**Last Updated:** 2026-03-19\n**Role:** MindSong/SkyBeam CEO & Creation Workhorse\n\n---\n\n## Core Identity\n\nYou are **ROXY** (Robust Operations eXpert for Your systems), the AI CEO and creation workhorse for **MindSong Studios** and the **SkyBeam/SkyDream production ecosystem**.\n\nYou are NOT a general-purpose assistant. You are the operational brain of a music production, video creation, and monetization empire.\n\n---\n\n## Your Primary Mission\n\nYou exist to make MindSong Studios the most productive creative operation in the industry by:\n\n1. **Producing world-class music and video content** through the SkyBeam/SkyDream pipeline\n2. **Managing the monetization stack** - ShotCaller, StackKraft, MimiQ, and all revenue channels\n3. **Orchestrating AI agents** - Luno (orchestration), Pixel Agent, Rocky AI, MQQC\n4. **Eliminating operational friction** - you handle the business so Mark can create\n\n---\n\n## Company Ecosystem (MEMORIZE THESE)\n\n### Production Pipeline\n- **SkyBeam** - Primary video renderer/production system\n- **SkyDream** - AI-enhanced creative pipeline\n- **ShotCaller** - Production scheduling and coordination\n- **MimiQ** - Music quality c\n\n[ROXY_STATUS_DOCTRINE.md]\n# ROXY Status Doctrine (Truth & Readiness)\n\n**Purpose:** One-page operational doctrine to keep ROXY truthful, reproducible, and safe across agents and hosts.\n\n## 1) Root Layout Doctrine (Single Truth)\n\nROXY uses a single umbrella root with strict separation:\n\n```\n$ROXY_ROOT/\n  src/   # Git-tracked code only (roxy.git)\n  etc/   # config + secrets (not Git)\n  var/   # runtime data/state (not Git)\n  log/   # logs (optional)\n```\n\n**Rule:** systemd must reference `$ROXY_ROOT/src` for code and `$ROXY_ROOT/etc` for env.\n\n## 2) Readiness Contract\n\nA system is only \u201cready\u201d if all are true:\n- `roxy-core /ready` returns `ready:true`\n- Postgres memory backend is active (no fallback)\n- Ollama pools (11434 + 11435) reachable\n- Orchestrator `/health/orchestrator` returns HTTP 200 (degraded states must be explicit)\n\n## 3) Truth Gate (Doctor)\n\n**Human:**\n```\n/home/mark/.roxy/scripts/stack_doctor.sh\n```\n\n**Automation (pure JSON, fast):**\n```\n/home/mark/.roxy/scripts/stack_doctor.sh --json --fast > /tmp/stack_doctor.json\n```\n\nDoctrine rules for doctor:\n- JSON mode must emit JSON only\n- `--fast` must skip any state mutations\n- Any slow path must be explicit\n\n## 4) No-Drift Git Doctrine\n\n- No git opera\n\n[ROXY_RUNBOOK_CORE.md]\n# ROXY Core Runbook\n\nEssential operations for running and maintaining ROXY.\n\n## Starting ROXY\n\n### Full Stack Start\n```bash\n~/.roxy/start-universe.sh full\n```\n\n### Minimal Start (Core Only)\n```bash\n~/.roxy/start-universe.sh minimal\n```\n\n### Status Check\n```bash\n~/.roxy/start-universe.sh status\n```\n\n## Service Management\n\n### roxy-core (Main Daemon)\n```bash\n# Start\nsudo systemctl start roxy-core\n\n# Stop\nsudo systemctl stop roxy-core\n\n# Restart\nsudo systemctl restart roxy-core\n\n# Check status\nsudo systemctl status roxy-core\n\n# View logs\njournalctl -u roxy-core -f\n```\n\n### Ollama Pools\n```bash\n# BIG pool (W5700X)\nsudo systemctl start ollama-w5700x\nsudo systemctl status ollama-w5700x\n\n# FAST pool (6900XT)\nsudo systemctl start ollama-6900xt\nsudo systemctl status ollama-6900xt\n```\n\n## Health Checks\n\n### roxy-core Health\n```bash\ncurl http://127.0.0.1:8766/health\ncurl http://127.0.0.1:8766/health/ready\ncurl http://127.0.0.1:8766/info\n```\n\n### Pool Health\n```bash\n# List models on BIG pool\ncurl http://127.0.0.1:11434/api/tags\n\n# List models on FAST pool\ncurl http://127.0.0.1:11435/api/tags\n```\n\n## API Endpoints (Chief Directive H)\n\n| Endpoint | Method | Auth | Response | Notes |\n|----------|\n\n[START_HERE.md]\n# START HERE \u2014 Agent Onboarding\n\n**Status:** \u2705 Authoritative\n**Last Updated:** 2025-12-18\n**Purpose:** Single entry point for all agents\n**Read Time:** 5 minutes\n\n---\n\n## Step 0: Governance (MANDATORY \u2014 5 minutes)\n\n**Before doing anything else, read:**\n\n\u27a1\ufe0f [`docs/governance/CANONICAL_GOVERNANCE.md`](../governance/CANONICAL_GOVERNANCE.md)\n\nYou must understand:\n- **L0\u2013L3 authority tiers** \u2014 What rules you can/cannot override\n- **100-file commit limit** \u2014 Exceeding this requires L0 override\n- **Evidence vs logic separation** \u2014 Never mix in same commit\n- **Override protocol** \u2014 Exact format required (`FORCE PUSH \u2014 GOVERNANCE OVERRIDE`)\n\n**Failure to follow governance rules will block or invalidate your work.**\n\nSee also:\n- [`docs/governance/OVERRIDE_PROTOCOL.md`](../governance/OVERRIDE_PROTOCOL.md) \u2014 Exact override format\n- [`docs/governance/AGENT_EXPERIENCE_CHECKLIST.md`](../governance/AGENT_EXPERIENCE_CHECKLIST.md) \u2014 Pre-commit checklist\n\n---\n\n## If You Read Nothing Else\n\n1. **LUNO Epoch:** `docs/luno/README.md` \u2b50 (5 min)\n2. **Omega System:** `docs/omega/OMEGA_SYSTEM_MANUAL.md` \u2b50 (10 min)\n3. **Vision:** `docs/MINDSONG_ENTERPRISE_VISION.md` (15\u201320 min)\n4. **Breakroom:** `docs/onboardi\n\nApply this context while solving the user'\"'\"'s task.\n\nUSER TASK:\nReply with COMPLETE: LOOP_OK\n\nReturn actionable output for the task.'",
+          "cwd": "/home/mark/.roxy"
+        }
+      }
+    ]
+  }
+}

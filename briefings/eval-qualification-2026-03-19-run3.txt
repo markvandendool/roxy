@@ -1,0 +1,25 @@
+
+======================================================================
+ROXY EVALUATION REPORT
+======================================================================
+Timestamp: 2026-03-19T15:37:34.203076
+Total Tests: 7
+Passed: 7
+Failed: 0
+Pass Rate: 100.0%
+Meets Threshold (95%): ✅ YES
+
+By Category:
+  memory: 100% (3/3)
+  confidence: 100% (2/2)
+  quality: 100% (2/2)
+
+Detailed Results:
+  ✅ [memory] memory_identity
+  ✅ [memory] memory_production
+  ✅ [memory] memory_preferences
+  ✅ [confidence] confidence_known
+  ✅ [confidence] confidence_unknown
+  ✅ [quality] quality_technical
+  ✅ [quality] quality_production
+======================================================================

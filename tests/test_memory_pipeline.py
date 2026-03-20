@@ -72,6 +72,46 @@ def test_memory_rerank_prefers_lexical_overlap():
     assert any(m.get("lexical_overlap", 0) > 0 for m in ranked)
 
 
+def test_memory_recall_isolated_by_user_id():
+    memory = object.__new__(memory_postgres.PostgresMemory)
+    memory.recall_min_score = 0.0
+    memory.recall_min_similarity = 0.0
+    memory.recall_min_lexical = 0.0
+    memory.default_user_id = "default"
+
+    now = datetime.now().isoformat()
+    memory._memory_store = [
+        {
+            "id": 1,
+            "session_id": "s1",
+            "user_id": "mark-roxy-canonical",
+            "query": "my name is mark",
+            "response": "noted",
+            "importance": 0.8,
+            "created_at": now,
+        },
+        {
+            "id": 2,
+            "session_id": "s2",
+            "user_id": "sarah-test-user",
+            "query": "my name is sarah",
+            "response": "noted",
+            "importance": 0.8,
+            "created_at": now,
+        },
+    ]
+
+    recalled = memory._recall_memory(
+        query="what is my name",
+        k=5,
+        session_id=None,
+        user_id="mark-roxy-canonical",
+        time_window_days=None,
+    )
+    assert recalled
+    assert all(item.get("user_id") == "mark-roxy-canonical" for item in recalled)
+
+
 def test_agentic_analysis_detects_ambiguity_and_plan():
     ambiguous = roxy_core._analyze_agentic_request("fix it please")
     assert ambiguous["needs_clarification"] is True
@@ -130,6 +170,7 @@ def test_execute_command_passes_memory_context_env(monkeypatch):
         "hello there",
         request_id="rid-123",
         session_id="sess-xyz",
+        user_id="mark-roxy-canonical",
         memory_context="EPISODIC MEMORY CONTEXT (cross-session):\n- name: Mark",
         plan_steps=["Inspect health", "Apply fix"],
     )
@@ -137,8 +178,30 @@ def test_execute_command_passes_memory_context_env(monkeypatch):
     assert "ok" in result
     assert captured_env["ROXY_REQUEST_ID"] == "rid-123"
     assert captured_env["ROXY_SESSION_ID"] == "sess-xyz"
+    assert captured_env["ROXY_USER_ID"] == "mark-roxy-canonical"
     assert "EPISODIC MEMORY CONTEXT" in captured_env["ROXY_MEMORY_CONTEXT"]
     assert "1. Inspect health" in captured_env["ROXY_PLAN_CONTEXT"]
+
+
+def test_canonical_identity_conflict_is_skipped(monkeypatch):
+    recorded = []
+
+    class DummyMemory:
+        def learn_preference(self, category, preference, confidence=0.5, user_id=None):
+            recorded.append((category, preference, confidence, user_id))
+
+    monkeypatch.setattr(infrastructure, "ENFORCE_CANONICAL_IDENTITY", True)
+    monkeypatch.setattr(infrastructure, "get_memory", lambda: DummyMemory())
+
+    result = infrastructure.learn_user_facts(
+        "My name is Sarah and I like coffee",
+        session_id="sess-1",
+        user_id=infrastructure.CANONICAL_USER_ID,
+    )
+
+    # Canonical identity conflict should be skipped, preference should still be learned.
+    assert any(item.get("skipped") == "canonical_identity_conflict" for item in result["learned"])
+    assert all(entry[0] != "name" for entry in recorded)
 
 
 def test_reflection_verifier_detects_hallucination():
@@ -270,3 +333,75 @@ def test_regenerate_with_memory_first():
     assert result == ""
     assert meta.get("error") == "no_memory_context"
     assert meta.get("regenerated") == True
+
+
+def test_memory_fallback_uses_embeddings_for_semantic_recall():
+    memory = object.__new__(memory_postgres.PostgresMemory)
+    memory.recall_min_score = 0.0
+    memory.recall_min_similarity = 0.0
+    memory.recall_min_lexical = 0.0
+    memory.default_user_id = "default"
+    memory.embeddings_enabled = True
+    memory._hot_memory_cache = []
+    memory._memory_store = [
+        {
+            "id": 1,
+            "session_id": "s1",
+            "user_id": "default",
+            "query": "deploy orchestration changes",
+            "response": "done",
+            "importance": 0.6,
+            "query_embedding": [1.0, 0.0],
+            "created_at": datetime.now().isoformat(),
+            "access_count": 0,
+        },
+        {
+            "id": 2,
+            "session_id": "s2",
+            "user_id": "default",
+            "query": "what is the weather today",
+            "response": "sunny",
+            "importance": 0.6,
+            "query_embedding": [0.0, 1.0],
+            "created_at": datetime.now().isoformat(),
+            "access_count": 0,
+        },
+    ]
+    memory._encode_text = lambda text: [1.0, 0.0]
+
+    recalled = memory._recall_memory(
+        query="ship the release",
+        k=2,
+        session_id=None,
+        user_id="default",
+        time_window_days=None,
+    )
+
+    assert recalled
+    assert recalled[0]["id"] == 1
+    assert recalled[0]["similarity"] > recalled[1]["similarity"]
+
+
+def test_typed_record_roundtrip_in_memory_store():
+    memory = object.__new__(memory_postgres.PostgresMemory)
+    memory.conn = None
+    memory._sqlite_enabled = False
+    memory._sqlite_tables = set()
+    memory._typed_records_store = []
+    memory.embeddings_enabled = False
+    memory.default_user_id = "default"
+    memory.use_pgvector = False
+
+    record_id = memory.remember_fix(
+        "missing package import",
+        "pip install fastmcp",
+        metadata={"tool_name": "bash"},
+        user_id="default",
+    )
+
+    records = memory.get_records(record_type="fix_recipe", query="package import failed", user_id="default")
+
+    assert record_id == 1
+    assert records
+    assert records[0]["record_type"] == "fix_recipe"
+    assert "fastmcp" in records[0]["content"]

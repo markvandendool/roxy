@@ -49,6 +49,7 @@ class FileSymbol:
     name: str
     kind: str  # class, function, const, type, method, property
     line: int
+    file_path: str = ""
     signature: str = ""
     doc: str = ""
 
@@ -116,7 +117,13 @@ class RepoIndex:
                     "modified": v.modified,
                     "language": v.language,
                     "symbols": [
-                        {"name": s.name, "kind": s.kind, "line": s.line, "signature": s.signature}
+                        {
+                            "name": s.name,
+                            "kind": s.kind,
+                            "line": s.line,
+                            "file_path": s.file_path,
+                            "signature": s.signature,
+                        }
                         for s in v.symbols
                     ],
                     "imports": v.imports,
@@ -126,7 +133,13 @@ class RepoIndex:
                 for k, v in self.files.items()
             },
             "symbol_index": {
-                k: [{"name": s.name, "kind": s.kind, "line": s.line, "signature": s.signature}
+                k: [{
+                    "name": s.name,
+                    "kind": s.kind,
+                    "line": s.line,
+                    "file_path": s.file_path,
+                    "signature": s.signature,
+                }
                     for s in v]
                 for k, v in self.symbol_index.items()
             },
@@ -334,7 +347,7 @@ class RepoIndexer:
                     sig_key = name.lower()
                     if sig_key not in symbol_index:
                         symbol_index[sig_key] = []
-                    sym = FileSymbol(name=name, kind=kind, line=ln)
+                    sym = FileSymbol(name=name, kind=kind, line=ln, file_path=rel_path)
                     symbol_index[sig_key].append(sym)
                     if rel_path in files:
                         files[rel_path].symbols.append(sym)
@@ -399,6 +412,7 @@ class RepoIndexer:
         for k, v in data.get("files", {}).items():
             symbols = [FileSymbol(
                 name=s["name"], kind=s["kind"], line=s["line"],
+                file_path=s.get("file_path", v["rel_path"]),
                 signature=s.get("signature", ""), doc=s.get("doc", ""))
                        for s in v.get("symbols", [])]
             files[k] = FileIndex(
@@ -416,6 +430,7 @@ class RepoIndexer:
         for k, v in data.get("symbol_index", {}).items():
             symbol_index[k] = [FileSymbol(
                 name=s["name"], kind=s["kind"], line=s["line"],
+                file_path=s.get("file_path", ""),
                 signature=s.get("signature", ""))
                                for s in v]
 
@@ -453,14 +468,26 @@ def query_symbol(symbol_name: str, repo_root: Optional[Path] = None) -> List[Dic
     idx = get_repo_index(repo_root)
     results = []
     for sym in idx.find_file_with_symbol(symbol_name):
-        file_info = idx.find_file(sym.name.lower())
+        file_info = idx.find_file(sym.file_path) if sym.file_path else None
+        if not file_info:
+            # Backward-compatible fallback for older cache files that did not
+            # persist file_path inside symbol_index entries.
+            for candidate in idx.files.values():
+                for candidate_sym in candidate.symbols:
+                    if candidate_sym.name == sym.name and candidate_sym.line == sym.line:
+                        file_info = candidate
+                        sym = candidate_sym
+                        break
+                if file_info:
+                    break
         if file_info:
             results.append({
                 "symbol": sym.name,
                 "kind": sym.kind,
-                "file": sym.name,
+                "file": file_info.rel_path,
                 "line": sym.line,
                 "signature": sym.signature,
+                "language": file_info.language,
             })
     return results
 

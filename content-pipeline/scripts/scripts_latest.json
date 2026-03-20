@@ -1,18 +1,18 @@
 {
-  "script_id": "SCRIPT_20260319_141618_68966c16",
-  "timestamp": "2026-03-19T20:16:18.162313+00:00",
+  "script_id": "SCRIPT_20260319_191611_a6805a7d",
+  "timestamp": "2026-03-20T01:16:11.471207+00:00",
   "status": "healthy",
-  "source_bundle": "BUNDLE_20260319_141226_345c9760",
-  "source_templates": "TMPL_20260319_141413_1b83c2c9",
+  "source_bundle": "BUNDLE_20260319_191216_b3b2c13f",
+  "source_templates": "TMPL_20260319_191409_6cb46c2b",
   "scripts": [
     {
-      "id": "SCR_0ae0fee3d3ff",
+      "id": "SCR_4d67851d60b6",
       "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "Here's why TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open changes everything",
+      "hook": "What TechCrunch AI's announcement really means",
       "sections": [
         {
           "section": "hook",
@@ -65,17 +65,76 @@
       ]
     },
     {
-      "id": "SCR_a2e355ba7f05",
+      "id": "SCR_f760ff11caa3",
+      "trend_title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "template_id": "news-standard",
+      "template_name": "AI News Coverage",
+      "format": "standard",
+      "estimated_duration": 150,
+      "hook": "The AI world is buzzing about Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "sections": [
+        {
+          "section": "hook",
+          "content": "[HOOK] What TechCrunch AI's announcement really means",
+          "duration_seconds": 15,
+          "notes": "Why you should care about this"
+        },
+        {
+          "section": "context",
+          "content": "[CONTEXT] Background on this development...",
+          "duration_seconds": 22,
+          "notes": "Background and context"
+        },
+        {
+          "section": "details",
+          "content": "[DETAILS] The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology....",
+          "duration_seconds": 52,
+          "notes": "Core story details"
+        },
+        {
+          "section": "analysis",
+          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
+          "duration_seconds": 37,
+          "notes": "What this means for the industry"
+        },
+        {
+          "section": "takeaway",
+          "content": "[TAKEAWAY] The key point to remember...",
+          "duration_seconds": 15,
+          "notes": "Key takeaway for viewers"
+        },
+        {
+          "section": "cta",
+          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
+          "duration_seconds": 7,
+          "notes": "Subscribe/follow prompt"
+        }
+      ],
+      "variables": {
+        "headline": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+        "source": "TechCrunch AI",
+        "summary": "The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology.",
+        "category": "ai"
+      },
+      "differentiation": [
+        "Code-first implementation walkthrough",
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
+    {
+      "id": "SCR_abc9f86e1f44",
       "trend_title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "Here's why Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors changes everything",
+      "hook": "The AI world is buzzing about Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] The AI world is buzzing about Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
+          "content": "[HOOK] Here's why Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -114,65 +173,6 @@
         "headline": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
         "source": "TechCrunch AI",
         "summary": "Meta believes these AI systems can detect more violations with greater accuracy, better prevent scams, respond more quickly to real-world events, and reduce over-enforcement.",
-        "category": "ai"
-      },
-      "differentiation": [
-        "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "id": "SCR_8e93f5e2bf9a",
-      "trend_title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
-      "template_id": "news-standard",
-      "template_name": "AI News Coverage",
-      "format": "standard",
-      "estimated_duration": 150,
-      "hook": "Here's why DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI changes everything",
-      "sections": [
-        {
-          "section": "hook",
-          "content": "[HOOK] What TechCrunch AI's announcement really means",
-          "duration_seconds": 15,
-          "notes": "Why you should care about this"
-        },
-        {
-          "section": "context",
-          "content": "[CONTEXT] Background on this development...",
-          "duration_seconds": 22,
-          "notes": "Background and context"
-        },
-        {
-          "section": "details",
-          "content": "[DETAILS] Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language....",
-          "duration_seconds": 52,
-          "notes": "Core story details"
-        },
-        {
-          "section": "analysis",
-          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
-          "duration_seconds": 37,
-          "notes": "What this means for the industry"
-        },
-        {
-          "section": "takeaway",
-          "content": "[TAKEAWAY] The key point to remember...",
-          "duration_seconds": 15,
-          "notes": "Key takeaway for viewers"
-        },
-        {
-          "section": "cta",
-          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
-          "duration_seconds": 7,
-          "notes": "Subscribe/follow prompt"
-        }
-      ],
-      "variables": {
-        "headline": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
-        "source": "TechCrunch AI",
-        "summary": "Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language.",
         "category": "ai"
       },
       "differentiation": [

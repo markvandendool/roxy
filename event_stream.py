@@ -484,17 +484,29 @@ class EventStreamSync:
     def _get_loop(self):
         if self._loop is None or self._loop.is_closed():
             try:
-                self._loop = asyncio.get_event_loop()
+                self._loop = asyncio.get_running_loop()
             except RuntimeError:
                 self._loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(self._loop)
         return self._loop
     
     def connect(self) -> bool:
+        try:
+            running_loop = asyncio.get_running_loop()
+            loop_running = running_loop.is_running()
+        except RuntimeError:
+            loop_running = False
+
+        if loop_running:
+            logger.warning(
+                "EventStreamSync.connect called inside a running event loop; "
+                "leaving event stream disconnected to avoid orphaned NATS tasks"
+            )
+            self._connected = False
+            return self._connected
+
         loop = self._get_loop()
-        self._connected = loop.run_until_complete(
-            self._async_processor.connect()
-        )
+        self._connected = loop.run_until_complete(self._async_processor.connect())
         return self._connected
     
     def publish(self, event_type: str, data: Dict[str, Any], **kwargs):

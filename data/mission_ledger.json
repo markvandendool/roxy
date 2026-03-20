@@ -1,0 +1,42 @@
+{
+  "missions": {
+    "mission-AIL-010-1773969883": {
+      "mission_id": "mission-AIL-010-1773969883",
+      "story_id": "AIL-010",
+      "story_title": "Create ColliderRegistry singleton",
+      "status": "expired",
+      "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
+      "created_at": 1773969883.2190273,
+      "started_at": 1773969883.2194867,
+      "completed_at": 1773970784.5475569,
+      "lease_expires_at": 1773970183.2224152,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1773969883.json"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/ColliderRegistry.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Singleton pattern enforced with getInstance()",
+        "Map<uuid, ColliderHitTarget> implemented",
+        "get(uuid) returns target or null (never default)"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "Verify: Singleton pattern enforced with getInstance()",
+        "Verify: Map<uuid, ColliderHitTarget> implemented",
+        "Verify: get(uuid) returns target or null (never default)"
+      ],
+      "rollback_command": ""
+    }
+  },
+  "active_mission_id": null,
+  "saved_at": 1773970784.5483694
+}

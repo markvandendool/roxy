@@ -12,6 +12,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 import signal
 import subprocess
 import time
@@ -60,6 +61,8 @@ class MCPSession:
     is_connected: bool = False
     io_lock: threading.Lock = field(default_factory=threading.Lock)
     stderr_thread: Optional[threading.Thread] = None
+    stdio_mode: str = "auto"  # auto | line | content-length
+    read_buffer: bytes = b""
 
 
 @dataclass
@@ -79,27 +82,89 @@ class MCPClient:
     
     def __init__(self, config_path: Optional[str] = None):
         self.sessions: Dict[str, MCPSession] = {}
-        if config_path:
-            self.config_path = config_path
-        else:
-            candidates = [
-                os.path.expanduser("~/.config/claude/mcp.json"),
-                os.path.expanduser("~/.mcp.json"),
-                os.path.expanduser("~/.config/claude-code/mcp.json"),
-            ]
-            mindsong = os.path.join(os.environ.get("HOME", "/home/mark"), "work", "mindsong_gh_https_1769765834", ".mcp.json.linux")
-            if Path(mindsong).exists():
-                candidates.insert(0, mindsong)
-            for candidate in candidates:
-                if Path(candidate).exists():
-                    self.config_path = candidate
-                    break
-            else:
-                self.config_path = os.path.expanduser("~/.mcp.json")
+        self.config_paths = self._resolve_config_paths(config_path)
+        self.config_path = self.config_paths[0] if self.config_paths else os.path.expanduser("~/.mcp.json")
         self._health_check_interval = 30.0
         self._reconnect_delay = 5.0
         self._max_reconnect_attempts = 3
         self._config_cache: Dict[str, MCPServerConfig] = {}
+
+    def _resolve_config_paths(self, explicit_config_path: Optional[str]) -> List[str]:
+        """Resolve candidate MCP config paths in precedence order."""
+        candidates: List[str] = []
+
+        if explicit_config_path:
+            candidates.append(os.path.expanduser(explicit_config_path))
+        else:
+            env_config = os.getenv("ROXY_MCP_CONFIG", "").strip()
+            if env_config:
+                for item in re.split(r"[,:]", env_config):
+                    value = item.strip()
+                    if value:
+                        candidates.append(os.path.expanduser(value))
+
+            # Prefer host-level Claude config first for ROXY runtime compatibility.
+            candidates.extend(
+                [
+                    os.path.expanduser("~/.config/claude/mcp.json"),
+                    os.path.expanduser("~/.mcp.json"),
+                    os.path.expanduser("~/.config/claude-code/mcp.json"),
+                    os.path.join(
+                        os.environ.get("HOME", "/home/mark"),
+                        "work",
+                        "mindsong_gh_https_1769765834",
+                        ".mcp.json.linux",
+                    ),
+                ]
+            )
+
+        ordered: List[str] = []
+        seen = set()
+        for path in candidates:
+            if not path:
+                continue
+            normalized = str(Path(path).expanduser())
+            if normalized in seen:
+                continue
+            seen.add(normalized)
+            ordered.append(normalized)
+        return ordered
+
+    @staticmethod
+    def _expand_env_template(value: str) -> str:
+        """Expand ${VAR} and ${VAR:-default} placeholders."""
+        pattern = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-(.*?))?\}")
+
+        def _replace(match: re.Match[str]) -> str:
+            key = match.group(1)
+            default = match.group(2)
+            env_value = os.environ.get(key)
+            if env_value is not None and env_value != "":
+                return env_value
+            return default or ""
+
+        rendered = pattern.sub(_replace, value)
+        return os.path.expandvars(rendered)
+
+    @staticmethod
+    def _normalize_command(command: str) -> str:
+        """
+        Normalize command paths for stable MCP startup.
+        Prefer ROXY venv python for python-based servers when available.
+        """
+        raw = command.strip()
+        if raw not in {"python", "python3"}:
+            return raw
+
+        prefer_venv = os.getenv("ROXY_MCP_USE_VENV_PYTHON", "1").lower() in {"1", "true", "yes"}
+        if not prefer_venv:
+            return raw
+
+        repo_root = Path(__file__).resolve().parent
+        venv_python = repo_root / "venv" / "bin" / "python"
+        if venv_python.exists():
+            return str(venv_python)
+        return raw
     
     async def initialize(self):
         """Load server configs and connect to all servers."""
@@ -109,41 +174,61 @@ class MCPClient:
             await self.connect(config)
     
     def _load_configs(self) -> List[MCPServerConfig]:
-        """Load MCP server configurations from config file."""
-        if not Path(self.config_path).exists():
-            logger.warning(f"MCP config not found: {self.config_path}")
+        """Load MCP server configurations from one or more config files."""
+        existing_paths = [path for path in self.config_paths if Path(path).exists()]
+        if not existing_paths:
+            logger.warning(f"MCP config not found in candidates: {self.config_paths}")
             return []
-        
-        try:
-            data = json.loads(Path(self.config_path).read_text())
-            servers = data.get("mcpServers", {})
-            
-            configs = []
-            for name, config in servers.items():
-                if isinstance(config, dict):
-                    transport = str(config.get("transport") or config.get("type") or "stdio").strip().lower()
-                    if transport in {"http", "streamablehttp", "streamable_http"}:
-                        transport = "streamable-http"
 
-                    command = str(config.get("command", "")).strip()
-                    args = [str(arg) for arg in config.get("args", [])]
-                    env = {
-                        str(k): os.path.expandvars(str(v))
-                        for k, v in (config.get("env", {}) or {}).items()
-                    }
-                    configs.append(MCPServerConfig(
-                        name=name,
-                        command=command,
-                        args=args,
-                        env=env,
-                        transport=transport,
-                        url=config.get("url")
-                    ))
-            self._config_cache = {cfg.name: cfg for cfg in configs}
-            return configs
-        except Exception as e:
-            logger.error(f"Failed to load MCP config: {e}")
-            return []
+        merged_servers: Dict[str, Dict[str, Any]] = {}
+        for config_path in existing_paths:
+            try:
+                data = json.loads(Path(config_path).read_text())
+                servers = data.get("mcpServers", {})
+                if not isinstance(servers, dict):
+                    continue
+                for name, config in servers.items():
+                    if not isinstance(config, dict):
+                        continue
+                    # First match wins based on precedence order.
+                    if name not in merged_servers:
+                        merged_servers[name] = config
+            except Exception as exc:
+                logger.warning(f"Skipping invalid MCP config {config_path}: {exc}")
+
+        configs: List[MCPServerConfig] = []
+        for name, config in merged_servers.items():
+            transport = str(config.get("transport") or config.get("type") or "stdio").strip().lower()
+            if transport in {"http", "streamablehttp", "streamable_http"}:
+                transport = "streamable-http"
+
+            command = self._normalize_command(
+                self._expand_env_template(str(config.get("command", "")).strip())
+            )
+            raw_args = config.get("args", [])
+            if not isinstance(raw_args, list):
+                raw_args = [raw_args]
+            args = [self._expand_env_template(str(arg)) for arg in raw_args]
+            env = {
+                str(k): self._expand_env_template(str(v))
+                for k, v in (config.get("env", {}) or {}).items()
+            }
+            url_raw = config.get("url")
+            url = self._expand_env_template(str(url_raw)) if url_raw else None
+
+            configs.append(
+                MCPServerConfig(
+                    name=name,
+                    command=command,
+                    args=args,
+                    env=env,
+                    transport=transport,
+                    url=url,
+                )
+            )
+
+        self._config_cache = {cfg.name: cfg for cfg in configs}
+        return configs
     
     async def connect(self, config: MCPServerConfig) -> bool:
         """
@@ -167,7 +252,11 @@ class MCPClient:
             
             if success:
                 self.sessions[config.name] = session
-                await self._initialize_session(session)
+                initialized = await self._initialize_session(session)
+                if not initialized:
+                    logger.error(f"Failed to initialize MCP server: {config.name}")
+                    await self.disconnect(config.name)
+                    return False
                 logger.info(f"Connected to MCP server: {config.name}")
                 return True
             return False
@@ -196,8 +285,8 @@ class MCPClient:
                 stderr=subprocess.PIPE,
                 env=env,
                 preexec_fn=os.setsid,
-                text=True,
-                bufsize=1
+                text=False,
+                bufsize=0
             )
 
             session.process = process
@@ -206,7 +295,7 @@ class MCPClient:
                 try:
                     assert process.stderr is not None
                     for line in process.stderr:
-                        line = (line or "").strip()
+                        line = (line or b"").decode("utf-8", errors="replace").strip()
                         if line:
                             logger.debug(f"[MCP:{session.server_id}] stderr: {line}")
                 except Exception:
@@ -231,29 +320,38 @@ class MCPClient:
         session.is_connected = True
         return True
     
-    async def _initialize_session(self, session: MCPSession):
+    async def _initialize_session(self, session: MCPSession) -> bool:
         """Send initialize request and cache tools."""
         try:
+            init_timeout = float(os.getenv("ROXY_MCP_INIT_TIMEOUT_SEC", "60"))
             response = await self._send_request(
                 session,
                 "initialize",
                 {
                     "protocolVersion": MCP_PROTOCOL_VERSION,
+                    "capabilities": {},
                     "clientInfo": {
                         "name": "roxy-mcp-client",
                         "version": "1.0.0"
                     }
-                }
+                },
+                timeout=init_timeout,
             )
 
-            if response and "result" in response:
-                # Notify initialized capability (non-fatal if not supported)
-                await self._send_request(session, "notifications/initialized", {})
-                await self._refresh_tools_list(session.server_id)
-                logger.info(f"Server {session.server_id} has {len(session.tools_cache)} tools")
+            if not response or "result" not in response:
+                session.is_connected = False
+                return False
+
+            # Notify initialized capability (non-fatal if not supported)
+            await self._send_notification(session, "notifications/initialized", {})
+            await self._refresh_tools_list(session.server_id)
+            logger.info(f"Server {session.server_id} has {len(session.tools_cache)} tools")
+            return True
 
         except Exception as e:
             logger.error(f"Session init error: {e}")
+            session.is_connected = False
+            return False
     
     def _parse_tools(self, tools_data: List[Dict]) -> List[MCPTool]:
         """Parse tool list from MCP response."""
@@ -271,7 +369,8 @@ class MCPClient:
         self,
         session: MCPSession,
         method: str,
-        params: Optional[Dict] = None
+        params: Optional[Dict] = None,
+        timeout: float = 30.0,
     ) -> Optional[Dict]:
         """Send JSON-RPC request to MCP server."""
         session.request_id += 1
@@ -287,9 +386,9 @@ class MCPClient:
         
         try:
             if session.transport == "stdio" and session.process:
-                return await asyncio.to_thread(self._send_request_stdio_blocking, session, request, 30.0)
+                return await asyncio.to_thread(self._send_request_stdio_blocking, session, request, timeout)
             if session.transport == "streamable-http":
-                return await asyncio.to_thread(self._send_request_http_blocking, session, request, 30.0)
+                return await asyncio.to_thread(self._send_request_http_blocking, session, request, timeout)
             else:
                 return None
 
@@ -300,6 +399,143 @@ class MCPClient:
             logger.error(f"Request error: {e}")
             return None
 
+    async def _send_notification(
+        self,
+        session: MCPSession,
+        method: str,
+        params: Optional[Dict] = None,
+    ) -> None:
+        """Send JSON-RPC notification without waiting for a response."""
+        notification: Dict[str, Any] = {
+            "jsonrpc": "2.0",
+            "method": method,
+        }
+        if params:
+            notification["params"] = params
+
+        try:
+            if session.transport == "stdio" and session.process:
+                await asyncio.to_thread(self._send_notification_stdio_blocking, session, notification)
+            elif session.transport == "streamable-http":
+                await asyncio.to_thread(self._send_notification_http_blocking, session, notification, 10.0)
+        except Exception as exc:
+            logger.debug(f"MCP notification failed ({session.server_id} {method}): {exc}")
+
+    @staticmethod
+    def _encode_stdio_framed_message(payload: Dict[str, Any]) -> bytes:
+        body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        header = f"Content-Length: {len(body)}\r\n\r\n".encode("ascii")
+        return header + body
+
+    @staticmethod
+    def _encode_stdio_line_message(payload: Dict[str, Any]) -> bytes:
+        line = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        return (line + "\n").encode("utf-8")
+
+    @staticmethod
+    def _try_parse_buffered_message(buffer: bytes, server_id: str) -> tuple[Optional[Dict[str, Any]], bytes]:
+        """
+        Parse one JSON-RPC message from buffer.
+        Supports MCP Content-Length framing and newline-delimited JSON fallback.
+        """
+        if not buffer:
+            return None, buffer
+
+        # Drop leading CRLF noise.
+        while buffer.startswith((b"\r", b"\n")):
+            buffer = buffer[1:]
+
+        if not buffer:
+            return None, buffer
+
+        # Primary parser: Content-Length framing.
+        header_end = buffer.find(b"\r\n\r\n")
+        if header_end == -1:
+            header_end = buffer.find(b"\n\n")
+        if header_end != -1:
+            header_blob = buffer[:header_end].decode("utf-8", errors="replace")
+            content_length = None
+            for line in header_blob.splitlines():
+                if ":" not in line:
+                    continue
+                key, value = line.split(":", 1)
+                if key.strip().lower() == "content-length":
+                    try:
+                        content_length = int(value.strip())
+                    except ValueError:
+                        content_length = None
+                    break
+            if content_length is not None and content_length >= 0:
+                body_start = header_end + (4 if buffer[header_end:header_end + 4] == b"\r\n\r\n" else 2)
+                body_end = body_start + content_length
+                if len(buffer) < body_end:
+                    return None, buffer
+                body = buffer[body_start:body_end]
+                rest = buffer[body_end:]
+                try:
+                    payload = json.loads(body.decode("utf-8", errors="replace"))
+                    if isinstance(payload, dict):
+                        return payload, rest
+                except Exception:
+                    logger.debug(f"[MCP:{server_id}] failed to parse framed payload")
+                return None, rest
+
+        # Fallback parser: newline-delimited JSON.
+        newline = buffer.find(b"\n")
+        if newline != -1:
+            raw_line = buffer[:newline].strip()
+            rest = buffer[newline + 1:]
+            if not raw_line:
+                return None, rest
+            try:
+                payload = json.loads(raw_line.decode("utf-8", errors="replace"))
+                if isinstance(payload, dict):
+                    return payload, rest
+            except Exception:
+                logger.debug(f"[MCP:{server_id}] non-json line: {raw_line[:160]!r}")
+            return None, rest
+
+        return None, buffer
+
+    def _send_notification_stdio_blocking(
+        self,
+        session: MCPSession,
+        notification: Dict[str, Any],
+    ) -> None:
+        proc = session.process
+        if not proc or not proc.stdin:
+            return
+        if proc.poll() is not None:
+            session.is_connected = False
+            return
+        if session.stdio_mode == "content-length":
+            payload = self._encode_stdio_framed_message(notification)
+        else:
+            payload = self._encode_stdio_line_message(notification)
+        with session.io_lock:
+            proc.stdin.write(payload)
+            proc.stdin.flush()
+
+    def _send_notification_http_blocking(
+        self,
+        session: MCPSession,
+        notification: Dict[str, Any],
+        timeout: float,
+    ) -> None:
+        if not session.server_config.url:
+            return
+        try:
+            import requests
+
+            requests.post(
+                session.server_config.url,
+                json=notification,
+                timeout=timeout,
+                headers={"Content-Type": "application/json"},
+            )
+        except Exception:
+            return
+
     def _send_request_stdio_blocking(
         self,
         session: MCPSession,
@@ -307,6 +543,45 @@ class MCPClient:
         timeout: float,
     ) -> Optional[Dict[str, Any]]:
         """Blocking stdio JSON-RPC request/response transaction."""
+        if session.stdio_mode in {"line", "content-length"}:
+            primary_mode = session.stdio_mode
+            primary = self._send_request_stdio_once(session, request, timeout, primary_mode)
+            if primary is not None:
+                return primary
+            if not session.is_connected:
+                return None
+
+            # Auto-heal framing mismatches (some servers are noisy at startup).
+            fallback_mode = "content-length" if primary_mode == "line" else "line"
+            fallback_timeout = min(timeout, 10.0)
+            fallback = self._send_request_stdio_once(session, request, fallback_timeout, fallback_mode)
+            if fallback is not None:
+                session.stdio_mode = fallback_mode
+                return fallback
+            return None
+
+        # Auto-detect transport framing on first successful request.
+        modes = ("line", "content-length")
+        per_mode_timeout = timeout if request.get("method") == "initialize" else max(4.0, timeout / len(modes))
+        for mode in modes:
+            response = self._send_request_stdio_once(session, request, per_mode_timeout, mode)
+            if response is not None:
+                session.stdio_mode = mode
+                return response
+            if not session.is_connected:
+                return None
+
+        logger.error(f"MCP stdio timeout {session.server_id} method={request.get('method')}")
+        return None
+
+    def _send_request_stdio_once(
+        self,
+        session: MCPSession,
+        request: Dict[str, Any],
+        timeout: float,
+        mode: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Send one stdio request using a specific framing mode."""
         proc = session.process
         if not proc or not proc.stdin or not proc.stdout:
             return None
@@ -315,11 +590,15 @@ class MCPClient:
             return None
 
         request_id = request.get("id")
-        request_json = json.dumps(request, ensure_ascii=True) + "\n"
+        if mode == "content-length":
+            request_payload = self._encode_stdio_framed_message(request)
+        else:
+            request_payload = self._encode_stdio_line_message(request)
+        read_buffer = session.read_buffer
 
         with session.io_lock:
             try:
-                proc.stdin.write(request_json)
+                proc.stdin.write(request_payload)
                 proc.stdin.flush()
             except Exception as exc:
                 logger.error(f"MCP write failed ({session.server_id}): {exc}")
@@ -335,26 +614,33 @@ class MCPClient:
                     remaining = max(0.05, deadline - time.time())
                     events = selector.select(timeout=min(0.2, remaining))
                     if not events:
+                        if proc.poll() is not None:
+                            session.is_connected = False
+                            return None
                         continue
 
-                    line = proc.stdout.readline()
-                    if line is None:
-                        continue
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    try:
-                        payload = json.loads(line)
-                    except Exception:
-                        logger.debug(f"[MCP:{session.server_id}] non-json stdout: {line[:160]}")
+                    chunk = os.read(proc.stdout.fileno(), 4096)
+                    if not chunk:
+                        if proc.poll() is not None:
+                            session.is_connected = False
+                            session.read_buffer = read_buffer
+                            return None
                         continue
 
-                    if isinstance(payload, dict) and payload.get("id") == request_id:
-                        return payload
-
-                    # Ignore notifications/other request ids.
-                logger.error(f"MCP stdio timeout {session.server_id} method={request.get('method')}")
+                    read_buffer += chunk
+                    while True:
+                        before = read_buffer
+                        payload, read_buffer = self._try_parse_buffered_message(read_buffer, session.server_id)
+                        if payload is None:
+                            # Continue draining current chunk if parser consumed noise lines.
+                            if read_buffer != before:
+                                continue
+                            break
+                        if payload.get("id") == request_id:
+                            session.read_buffer = read_buffer
+                            return payload
+                        # Ignore notifications/other request ids.
+                session.read_buffer = read_buffer
                 return None
             finally:
                 try:
@@ -455,7 +741,8 @@ class MCPClient:
                     {
                         "name": tool_name,
                         "arguments": arguments
-                    }
+                    },
+                    timeout=timeout,
                 ),
                 timeout=timeout
             )
@@ -554,10 +841,17 @@ class MCPClient:
         try:
             if session.process:
                 try:
-                    os.killpg(os.getpgid(session.process.pid), signal.SIGTERM)
-                    session.process.wait(timeout=5)
-                except:
-                    os.killpg(os.getpgid(session.process.pid), signal.SIGKILL)
+                    if session.process.poll() is None:
+                        os.killpg(os.getpgid(session.process.pid), signal.SIGTERM)
+                        session.process.wait(timeout=5)
+                except ProcessLookupError:
+                    pass
+                except Exception:
+                    try:
+                        if session.process.poll() is None:
+                            os.killpg(os.getpgid(session.process.pid), signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
             
             if session.writer:
                 session.writer.close()

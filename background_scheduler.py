@@ -424,6 +424,23 @@ def create_story_check_task():
     return run
 
 
+def create_skoreq_sync_task():
+    """Task: Force-refresh SKOREQ index and summarize live status."""
+    def run():
+        try:
+            from story_selector import StorySelector
+            selector = StorySelector()
+            selector._load_index(force=True)
+            summary = selector.get_status_summary()
+            return (
+                f"SKOREQ synced: {summary.get('total_stories', 0)} stories, "
+                f"{summary.get('todo', 0)} todo, {summary.get('eligible_now', 0)} eligible"
+            )
+        except Exception as e:
+            return f"Failed: {e}"
+    return run
+
+
 def create_health_check_task():
     """Task: System health check."""
     async def run():
@@ -465,6 +482,13 @@ def setup_scheduler(scheduler: BackgroundScheduler):
     """Setup handlers for default tasks."""
     scheduler.set_handler("memory_consolidation", create_memory_consolidation_task())
     scheduler.set_handler("story_selection_check", create_story_check_task())
+    scheduler.set_handler("sync_skoreq_status", create_skoreq_sync_task())
+    if "sync_skoreq_status" in scheduler.tasks:
+        sync_task = scheduler.tasks["sync_skoreq_status"]
+        sync_task.enabled = True
+        sync_task.error_count = 0
+        if sync_task.next_run is None or sync_task.next_run < time.time():
+            sync_task.next_run = time.time() + 5
     scheduler.set_handler("health_check", create_health_check_task())
     scheduler.set_handler("cleanup_old_logs", create_cleanup_logs_task())
 

@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260319_150013_674de435",
-  "timestamp": "2026-03-19T21:00:13.557250+00:00",
+  "snapshot_id": "TREND_20260319_190014_2b00b2da",
+  "timestamp": "2026-03-20T01:00:14.950761+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -33,6 +33,14 @@
       "category": "ai",
       "score": 85,
       "summary": "Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access."
+    },
+    {
+      "title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
+      "link": "https://techcrunch.com/2026/03/19/jeff-bezos-reportedly-wants-100-billion-to-buy-and-transform-old-manufacturing-firms-with-ai/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 75,
+      "summary": "The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology."
     },
     {
       "title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
@@ -137,14 +145,6 @@
       "category": "ai",
       "score": 65,
       "summary": "Altman expresses gratitude for people who knew how to write their code from scratch. The internet replies with salty jokes."
-    },
-    {
-      "title": "Nvidia is quietly building a multibillion-dollar behemoth to rival its chips business",
-      "link": "https://techcrunch.com/2026/03/18/nvidia-networking-division-building-a-multibillion-dollar-behemoth-to-rival-its-chips-business/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 65,
-      "summary": "Nvidia's networking business raked in $11 billion last quarter despite getting significantly less fanfare than chips and gaming."
     },
     {
       "title": "A better method for identifying overconfident large language models",
