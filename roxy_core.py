@@ -506,187 +506,6 @@ def _write_tool_failure_memory(record: Dict[str, Any]) -> None:
         logger.debug(f"Tool failure memory write failed (non-critical): {exc}")
 
 
-def _execute_tool_with_retry(
-    tool_call: Dict[str, Any],
-    request_id: str,
-    session_id: str,
-    user_id: Optional[str],
-    _emit_event: Callable,
-    _append_tool_audit: Callable,
-    _write_tool_failure_memory: Callable,
-    _truncate_tool_text: Callable,
-    _pre_tool_use_policy: Callable,
-) -> Dict[str, Any]:
-    """
-    Execute a tool call with bounded retry and strategy rotation.
-
-    Integrates with ToolRetryController to:
-    - Query fix_recipes from typed memory on failure
-    - Rotate strategies based on root cause classification
-    - Never repeat the same strategy twice
-    - Write failure_event + bug to typed memory on exhaustion
-    - Emit retry events as SSE so the model sees retry attempts
-    """
-    from tool_retry import get_retry_controller
-
-    controller = get_retry_controller()
-    tool_name = tool_call.get("name", "bash")
-    call_id = tool_call.get("call_id", "")
-
-    original_command = ""
-    original_args = tool_call.get("arguments", {}) or {}
-    if tool_name == "bash":
-        original_command = str(original_args.get("command", ""))
-
-    current_command = original_command
-    current_args = original_args.copy()
-    current_tool_call = tool_call.copy()
-
-    attempt = 0
-    max_total_attempts = 5
-
-    while attempt < max_total_attempts:
-        attempt += 1
-
-        result = _execute_stream_tool_call(current_tool_call)
-
-        duration = result.get("duration", 0.0)
-        error_msg = result.get("error", "")
-        exit_code = result.get("exit_code", 0)
-        output = result.get("output", "")
-
-        if result.get("success"):
-            if attempt > 1:
-                try:
-                    from tool_retry import RootCauseClassifier
-                    root_cause = RootCauseClassifier.classify(
-                        original_command, error_msg, exit_code
-                    )
-                    controller.record_success(
-                        tool_name, original_command, original_args,
-                        error_msg, root_cause, current_command
-                    )
-                except Exception:
-                    pass
-
-                _emit_event(
-                    "tool_retry_success",
-                    {
-                        "call_id": call_id,
-                        "tool_name": tool_name,
-                        "attempt": attempt,
-                        "strategy": "recovery",
-                        "duration": duration,
-                        "output": _truncate_tool_text(output, 600),
-                    },
-                )
-
-            audit_record = {
-                "timestamp": datetime.now().isoformat(),
-                "request_id": request_id,
-                "session_id": session_id,
-                "user_id": user_id,
-                "call_id": call_id,
-                "tool_name": tool_name,
-                "arguments": current_args,
-                "status": "success",
-                "reason": "allowed",
-                "safety_level": "retry_recovered" if attempt > 1 else "safe",
-                "duration": duration,
-                "exit_code": exit_code,
-                "retry_attempts": attempt - 1,
-            }
-            _append_tool_audit(audit_record)
-            return result
-
-        if attempt == 1:
-            audit_record = {
-                "timestamp": datetime.now().isoformat(),
-                "request_id": request_id,
-                "session_id": session_id,
-                "user_id": user_id,
-                "call_id": call_id,
-                "tool_name": tool_name,
-                "arguments": current_args,
-                "status": "failed",
-                "reason": "tool_failed",
-                "safety_level": "safe",
-                "duration": duration,
-                "exit_code": exit_code,
-                "error": _truncate_tool_text(error_msg, 600),
-            }
-            _append_tool_audit(audit_record)
-            _write_tool_failure_memory(audit_record)
-
-        if attempt >= max_total_attempts:
-            break
-
-        next_strategy = controller.get_next_strategy(
-            tool_name, original_command, original_args, error_msg, exit_code
-        )
-
-        if next_strategy is None:
-            break
-
-        new_command = next_strategy.get("command", current_command)
-        new_args = next_strategy.get("args", current_args)
-        strategy_name = next_strategy.get("strategy_name", "unknown")
-        description = next_strategy.get("description", "")
-        is_fix_recipe = next_strategy.get("is_fix_recipe", False)
-
-        current_command = new_command
-        current_args = new_args.copy()
-        current_tool_call = {
-            "name": tool_name,
-            "arguments": current_args,
-            "call_id": call_id,
-        }
-
-        _emit_event(
-            "tool_retry_attempt",
-            {
-                "call_id": call_id,
-                "tool_name": tool_name,
-                "attempt": attempt,
-                "strategy": strategy_name,
-                "description": description,
-                "is_fix_recipe": is_fix_recipe,
-                "original_command": original_command[:200] if original_command else "",
-                "new_command": new_command[:200] if new_command != original_command else "",
-                "error": _truncate_tool_text(error_msg, 200),
-            },
-        )
-
-        if tool_name == "bash":
-            current_tool_call["arguments"]["command"] = new_command
-
-    _emit_event(
-        "tool_retry_exhausted",
-        {
-            "call_id": call_id,
-            "tool_name": tool_name,
-            "total_attempts": attempt,
-            "final_error": _truncate_tool_text(error_msg, 300),
-            "exit_code": exit_code,
-        },
-    )
-
-    return {
-        "call_id": call_id,
-        "tool_name": tool_name,
-        "success": False,
-        "exit_code": exit_code,
-        "duration": duration,
-        "output": _truncate_tool_text(output, MAX_STREAM_TOOL_RESULT_CHARS),
-        "error": _truncate_tool_text(error_msg, MAX_STREAM_TOOL_RESULT_CHARS),
-        "retry_attempts": attempt - 1,
-        "metadata": {"exhausted": True},
-    }
-
-
-
-
-
 MAX_MEMORY_CONTEXT_CHARS = int(os.getenv("ROXY_MEMORY_CONTEXT_MAX_CHARS", "2200"))
 MAX_MEMORY_SNIPPET_CHARS = int(os.getenv("ROXY_MEMORY_SNIPPET_CHARS", "220"))
 MAX_MEMORY_RECALL_ITEMS = int(os.getenv("ROXY_MEMORY_RECALL_ITEMS", "5"))
@@ -2134,6 +1953,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_debug_benchmarks()
         elif path == "/debug/failures" or path == "/v1/debug/failures":
             self._handle_debug_failures()
+        elif path == "/missions" or path == "/v1/missions":
+            self._handle_missions_list()
+        elif path == "/missions/active" or path == "/v1/missions/active":
+            self._handle_missions_active()
+        elif path == "/missions/run" or path == "/v1/missions/run":
+            self._handle_missions_run()
         else:
             self.send_response(404)
             self.end_headers()
@@ -3050,6 +2875,125 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
 
                 result_payload["duration"] = float(time.time() - started)
                 return result_payload
+
+            def _execute_tool_with_retry(
+                tool_call: Dict[str, Any],
+                request_id: str,
+                session_id: str,
+                user_id: str,
+                emit_event: Callable[[str, Dict[str, Any]], bool],
+                append_audit: Callable[[Dict[str, Any]], None],
+                write_failure_memory: Callable[[Dict[str, Any]], None],
+                truncate_text: Callable[[str, int], str],
+                pre_policy_fn: Callable[[str, Dict, str, str], Dict],
+            ) -> Dict[str, Any]:
+                tool_name = tool_call.get("name", "")
+                tool_args = tool_call.get("arguments", {}) or {}
+                call_id = tool_call.get("call_id", str(uuid.uuid4())[:12])
+                command = str(tool_args.get("command") or "")
+
+                from tool_retry import get_retry_controller
+                controller = get_retry_controller()
+
+                attempt = 0
+                max_attempts = 3
+                last_result: Optional[Dict[str, Any]] = None
+                original_tool_call = tool_call
+
+                while attempt < max_attempts:
+                    if attempt > 0:
+                        strategy = controller.get_next_strategy(
+                            tool_name, command, tool_args,
+                            last_result.get("error", "") if last_result else "",
+                            last_result.get("exit_code", -1) if last_result else -1,
+                        )
+                        if strategy is None:
+                            break
+
+                        new_command = strategy.get("command", command)
+                        strategy_name = strategy.get("strategy_name", "unknown")
+
+                        emit_event("tool_retry_attempt", {
+                            "call_id": call_id,
+                            "tool_name": tool_name,
+                            "attempt": attempt,
+                            "strategy": strategy_name,
+                            "description": strategy.get("description", ""),
+                        })
+
+                        retry_tool_call = {
+                            "name": tool_name,
+                            "arguments": {**tool_args, "command": new_command},
+                            "call_id": f"{call_id}-r{attempt}",
+                        }
+                        last_result = _execute_stream_tool_call(retry_tool_call)
+                        command = new_command
+                    else:
+                        last_result = _execute_stream_tool_call(tool_call)
+
+                    attempt += 1
+
+                    if last_result.get("success"):
+                        if attempt > 1:
+                            controller.record_success(
+                                tool_name, command, tool_args,
+                                last_result.get("error", "") if last_result else "",
+                                last_result.get("root_cause", "unknown"),
+                                command,
+                            )
+                            emit_event("tool_retry_success", {
+                                "call_id": call_id,
+                                "tool_name": tool_name,
+                                "attempts": attempt,
+                            })
+                        return last_result
+
+                    if attempt >= max_attempts:
+                        break
+
+                final_result = last_result or {
+                    "call_id": call_id,
+                    "tool_name": tool_name,
+                    "success": False,
+                    "error": "retry_exhausted",
+                }
+
+                append_audit({
+                    "event": "tool_execution",
+                    "request_id": request_id,
+                    "session_id": session_id,
+                    "user_id": user_id,
+                    "call_id": call_id,
+                    "tool_name": tool_name,
+                    "arguments": tool_args,
+                    "success": final_result.get("success", False),
+                    "error": final_result.get("error"),
+                    "exit_code": final_result.get("exit_code"),
+                    "duration": final_result.get("duration", 0.0),
+                    "attempts": attempt,
+                    "timestamp": time.time(),
+                })
+
+                if not final_result.get("success"):
+                    write_failure_memory({
+                        "status": "failed",
+                        "tool_name": tool_name,
+                        "arguments": tool_args,
+                        "error": final_result.get("error"),
+                        "exit_code": final_result.get("exit_code"),
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "call_id": call_id,
+                        "duration": final_result.get("duration", 0.0),
+                    })
+                    emit_event("tool_retry_exhausted", {
+                        "call_id": call_id,
+                        "tool_name": tool_name,
+                        "attempts": attempt,
+                        "error": final_result.get("error", "unknown"),
+                    })
+
+                return final_result
 
             if debug_echo:
                 debug_payload = json.dumps({"request_echo": request_echo, "request_id": request_id})
@@ -6236,6 +6180,63 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(report, indent=2).encode())
         except Exception as e:
             logger.error(f"Debug failures failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_missions_list(self):
+        """GET /missions - List all missions from the ledger"""
+        try:
+            from mission_supervisor import get_ledger
+            ledger = get_ledger()
+            stats = ledger.get_stats()
+            missions = [m.to_dict() for m in ledger.missions.values()]
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"stats": stats, "missions": missions}, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Missions list failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_missions_active(self):
+        """GET /missions/active - Get current active mission"""
+        try:
+            from mission_supervisor import get_ledger
+            ledger = get_ledger()
+            active = ledger.get_active()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            if active:
+                self.wfile.write(json.dumps(active.to_dict(), indent=2).encode())
+            else:
+                self.wfile.write(json.dumps({"active": None}, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Missions active failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_missions_run(self):
+        """POST /missions/run - Trigger immediate mission execution"""
+        try:
+            import asyncio
+            from mission_supervisor import run_mission_task
+            loop = asyncio.new_event_loop()
+            result = loop.run_until_complete(run_mission_task())
+            loop.close()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"result": result}, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Missions run failed: {e}")
             self.send_response(500)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

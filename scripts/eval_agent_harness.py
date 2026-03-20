@@ -61,6 +61,7 @@ class AgentEvalHarness:
         await self.test_benchmark_suite()
         await self.test_tool_retry()
         await self.test_repo_intel()
+        await self.test_mission_supervisor()
         
         duration = time.time() - start
         
@@ -400,7 +401,75 @@ class AgentEvalHarness:
             self.add_result("repo_intel_loads", False, str(e))
             self.add_result("repo_intel_symbols", False, str(e))
             self.add_result("repo_intel_lookup", False, str(e))
-    
+
+    async def test_mission_supervisor(self):
+        """Test mission supervisor: ledger, envelope building, story selector integration."""
+        try:
+            from mission_supervisor import (
+                MissionStatus, MissionEnvelope, MissionLedger,
+                get_ledger, MissionExecutor,
+            )
+            ledger = get_ledger()
+            self.add_result(
+                "mission_ledger_init",
+                ledger is not None,
+                "Ledger initialized"
+            )
+
+            envelope = MissionEnvelope(
+                mission_id="test-mission-1",
+                story_id="TEST-001",
+                story_title="Test Mission",
+                goal="Test goal",
+                constraints=["must work"],
+                required_evidence=["evidence 1"],
+                tool_budget=5,
+                verification_plan=["verify step 1"],
+                rollback_command="git checkout HEAD",
+                files_in_scope=["test.py"],
+            )
+            mission = ledger.create_mission(envelope)
+            self.add_result(
+                "mission_create",
+                mission.mission_id == "test-mission-1",
+                f"Created: {mission.mission_id}"
+            )
+            self.add_result(
+                "mission_status",
+                mission.status == MissionStatus.ACQUIRED,
+                f"Status: {mission.status.value}"
+            )
+
+            active = ledger.get_active()
+            self.add_result(
+                "mission_get_active",
+                active is not None and active.mission_id == "test-mission-1",
+                f"Active: {active.mission_id if active else 'none'}"
+            )
+
+            executor = MissionExecutor()
+            self.add_result(
+                "mission_executor_init",
+                executor is not None,
+                "Executor initialized"
+            )
+
+            stats = ledger.get_stats()
+            self.add_result(
+                "mission_stats",
+                stats.get("total_missions", 0) > 0,
+                f"Stats: {stats.get('total_missions')} total"
+            )
+
+        except ImportError as e:
+            for name in ["mission_ledger_init", "mission_create", "mission_status",
+                         "mission_get_active", "mission_executor_init", "mission_stats"]:
+                self.add_result(name, False, f"Import error: {e}")
+        except Exception as e:
+            for name in ["mission_ledger_init", "mission_create", "mission_status",
+                         "mission_get_active", "mission_executor_init", "mission_stats"]:
+                self.add_result(name, False, str(e))
+
     def print_report(self):
         """Print evaluation report."""
         passed = sum(1 for r in self.results if r.passed)
