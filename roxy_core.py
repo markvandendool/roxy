@@ -24,7 +24,7 @@ from socketserver import ThreadingMixIn
 from urllib.parse import parse_qs, urlparse
 import json
 from threading import Thread, Lock
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Optional, Tuple, List, Dict, Any, Callable
 from collections import defaultdict, deque
 
 # =============================================================================
@@ -239,7 +239,7 @@ MAX_STREAM_TOOL_RESULT_CHARS = max(256, int(os.getenv("ROXY_MAX_STREAM_TOOL_RESU
 STREAM_TOOL_AUDIT_FILE = ROXY_DIR / "data" / "tool_audit.jsonl"
 STREAM_TOOL_AUDIT_LOCK = Lock()
 
-STREAM_TOOL_ALLOWED = {"bash", "read", "write", "edit", "glob", "grep"}
+STREAM_TOOL_ALLOWED = {"bash", "read", "write", "edit", "glob", "grep", "opencode"}
 STREAM_TOOL_ALIASES = {
     "execute_command": "bash",
     "read_file": "read",
@@ -247,6 +247,8 @@ STREAM_TOOL_ALIASES = {
     "edit_file": "edit",
     "search_code": "grep",
     "list_files": "glob",
+    "opencode_run": "opencode",
+    "opencode_chain": "opencode",
 }
 
 STREAM_TOOL_DANGEROUS_BASH_PATTERNS = [
@@ -261,7 +263,7 @@ STREAM_TOOL_DANGEROUS_BASH_PATTERNS = [
 STREAM_TOOL_JSON_FENCE = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.DOTALL | re.IGNORECASE)
 STREAM_TOOL_INLINE_JSON = re.compile(r"<<tool_call>>\s*(\{.*?\})", re.DOTALL | re.IGNORECASE)
 STREAM_TOOL_TAG_PATTERN = re.compile(
-    r"<<(bash|read|write|edit|glob|grep)>>\s*(.*?)\s*<</\1>>",
+    r"<<(bash|read|write|edit|glob|grep|opencode)>>\s*(.*?)\s*<</\1>>",
     re.DOTALL | re.IGNORECASE,
 )
 
@@ -341,6 +343,8 @@ def _extract_stream_tool_calls(text: str) -> List[Dict[str, Any]]:
             payload["arguments"] = {"pattern": content}
         elif tool_name == "grep":
             payload["arguments"] = {"pattern": content}
+        elif tool_name == "opencode":
+            payload["arguments"] = {"prompt": content}
         _add_candidate(_normalize_stream_tool_call(payload))
 
     # 1b) MCP tool blocks: <<mcp_<server>_<tool>>>...<</mcp_<server>_<tool>>>
@@ -427,6 +431,18 @@ def _pre_tool_use_policy(tool_name: str, arguments: Dict[str, Any]) -> Dict[str,
         except Exception:
             return {"allow": False, "reason": "path_resolution_failed", "safety_level": "guarded"}
 
+    if tool_name == "opencode":
+        safety_level = "guarded"
+        action = str(arguments.get("action", "run")).strip().lower()
+        if action in {"models", "providers", "provider", "providers_list"}:
+            return {"allow": True, "reason": "allowed", "safety_level": safety_level}
+        prompt = str(arguments.get("prompt", "")).strip()
+        if not prompt:
+            return {"allow": False, "reason": "missing_prompt", "safety_level": "guarded"}
+        # Keep OpenCode prompts bounded to reduce runaway remote token spend.
+        if len(prompt) > 8000:
+            return {"allow": False, "reason": "prompt_too_large", "safety_level": "guarded"}
+
     if tool_name.startswith("mcp_"):
         safety_level = "guarded"
         parts = tool_name.split("_", 2)
@@ -448,6 +464,227 @@ def _append_tool_audit(record: Dict[str, Any]) -> None:
                 handle.write(json.dumps(payload, ensure_ascii=True) + "\n")
     except Exception as exc:
         logger.debug(f"Tool audit append failed (non-critical): {exc}")
+
+
+def _write_tool_failure_memory(record: Dict[str, Any]) -> None:
+    """Persist failed tool executions as typed memory for future repair loops."""
+    if not INFRASTRUCTURE_AVAILABLE or not record or record.get("status") != "failed":
+        return
+    try:
+        tool_name = str(record.get("tool_name") or "unknown")
+        error_message = str(record.get("error") or record.get("reason") or "tool_failed")
+        arguments = record.get("arguments", {}) or {}
+        command = str(arguments.get("command") or "")
+        metadata = {
+            "request_id": record.get("request_id"),
+            "session_id": record.get("session_id"),
+            "call_id": record.get("call_id"),
+            "safety_level": record.get("safety_level"),
+            "reason": record.get("reason"),
+            "duration": record.get("duration"),
+            "exit_code": record.get("exit_code"),
+            "arguments": arguments,
+        }
+        remember_typed_record(
+            "failure_event",
+            f"{tool_name}: {error_message}",
+            metadata=metadata,
+            provenance="tool_runtime",
+            user_id=record.get("user_id"),
+            scope=tool_name,
+        )
+        if tool_name == "bash" and command:
+            remember_typed_record(
+                "bug",
+                f"Bash tool failure: {command}\n{error_message}",
+                metadata=metadata,
+                provenance="tool_runtime",
+                user_id=record.get("user_id"),
+                scope=tool_name,
+            )
+    except Exception as exc:
+        logger.debug(f"Tool failure memory write failed (non-critical): {exc}")
+
+
+def _execute_tool_with_retry(
+    tool_call: Dict[str, Any],
+    request_id: str,
+    session_id: str,
+    user_id: Optional[str],
+    _emit_event: Callable,
+    _append_tool_audit: Callable,
+    _write_tool_failure_memory: Callable,
+    _truncate_tool_text: Callable,
+    _pre_tool_use_policy: Callable,
+) -> Dict[str, Any]:
+    """
+    Execute a tool call with bounded retry and strategy rotation.
+
+    Integrates with ToolRetryController to:
+    - Query fix_recipes from typed memory on failure
+    - Rotate strategies based on root cause classification
+    - Never repeat the same strategy twice
+    - Write failure_event + bug to typed memory on exhaustion
+    - Emit retry events as SSE so the model sees retry attempts
+    """
+    from tool_retry import get_retry_controller
+
+    controller = get_retry_controller()
+    tool_name = tool_call.get("name", "bash")
+    call_id = tool_call.get("call_id", "")
+
+    original_command = ""
+    original_args = tool_call.get("arguments", {}) or {}
+    if tool_name == "bash":
+        original_command = str(original_args.get("command", ""))
+
+    current_command = original_command
+    current_args = original_args.copy()
+    current_tool_call = tool_call.copy()
+
+    attempt = 0
+    max_total_attempts = 5
+
+    while attempt < max_total_attempts:
+        attempt += 1
+
+        result = _execute_stream_tool_call(current_tool_call)
+
+        duration = result.get("duration", 0.0)
+        error_msg = result.get("error", "")
+        exit_code = result.get("exit_code", 0)
+        output = result.get("output", "")
+
+        if result.get("success"):
+            if attempt > 1:
+                try:
+                    from tool_retry import RootCauseClassifier
+                    root_cause = RootCauseClassifier.classify(
+                        original_command, error_msg, exit_code
+                    )
+                    controller.record_success(
+                        tool_name, original_command, original_args,
+                        error_msg, root_cause, current_command
+                    )
+                except Exception:
+                    pass
+
+                _emit_event(
+                    "tool_retry_success",
+                    {
+                        "call_id": call_id,
+                        "tool_name": tool_name,
+                        "attempt": attempt,
+                        "strategy": "recovery",
+                        "duration": duration,
+                        "output": _truncate_tool_text(output, 600),
+                    },
+                )
+
+            audit_record = {
+                "timestamp": datetime.now().isoformat(),
+                "request_id": request_id,
+                "session_id": session_id,
+                "user_id": user_id,
+                "call_id": call_id,
+                "tool_name": tool_name,
+                "arguments": current_args,
+                "status": "success",
+                "reason": "allowed",
+                "safety_level": "retry_recovered" if attempt > 1 else "safe",
+                "duration": duration,
+                "exit_code": exit_code,
+                "retry_attempts": attempt - 1,
+            }
+            _append_tool_audit(audit_record)
+            return result
+
+        if attempt == 1:
+            audit_record = {
+                "timestamp": datetime.now().isoformat(),
+                "request_id": request_id,
+                "session_id": session_id,
+                "user_id": user_id,
+                "call_id": call_id,
+                "tool_name": tool_name,
+                "arguments": current_args,
+                "status": "failed",
+                "reason": "tool_failed",
+                "safety_level": "safe",
+                "duration": duration,
+                "exit_code": exit_code,
+                "error": _truncate_tool_text(error_msg, 600),
+            }
+            _append_tool_audit(audit_record)
+            _write_tool_failure_memory(audit_record)
+
+        if attempt >= max_total_attempts:
+            break
+
+        next_strategy = controller.get_next_strategy(
+            tool_name, original_command, original_args, error_msg, exit_code
+        )
+
+        if next_strategy is None:
+            break
+
+        new_command = next_strategy.get("command", current_command)
+        new_args = next_strategy.get("args", current_args)
+        strategy_name = next_strategy.get("strategy_name", "unknown")
+        description = next_strategy.get("description", "")
+        is_fix_recipe = next_strategy.get("is_fix_recipe", False)
+
+        current_command = new_command
+        current_args = new_args.copy()
+        current_tool_call = {
+            "name": tool_name,
+            "arguments": current_args,
+            "call_id": call_id,
+        }
+
+        _emit_event(
+            "tool_retry_attempt",
+            {
+                "call_id": call_id,
+                "tool_name": tool_name,
+                "attempt": attempt,
+                "strategy": strategy_name,
+                "description": description,
+                "is_fix_recipe": is_fix_recipe,
+                "original_command": original_command[:200] if original_command else "",
+                "new_command": new_command[:200] if new_command != original_command else "",
+                "error": _truncate_tool_text(error_msg, 200),
+            },
+        )
+
+        if tool_name == "bash":
+            current_tool_call["arguments"]["command"] = new_command
+
+    _emit_event(
+        "tool_retry_exhausted",
+        {
+            "call_id": call_id,
+            "tool_name": tool_name,
+            "total_attempts": attempt,
+            "final_error": _truncate_tool_text(error_msg, 300),
+            "exit_code": exit_code,
+        },
+    )
+
+    return {
+        "call_id": call_id,
+        "tool_name": tool_name,
+        "success": False,
+        "exit_code": exit_code,
+        "duration": duration,
+        "output": _truncate_tool_text(output, MAX_STREAM_TOOL_RESULT_CHARS),
+        "error": _truncate_tool_text(error_msg, MAX_STREAM_TOOL_RESULT_CHARS),
+        "retry_attempts": attempt - 1,
+        "metadata": {"exhausted": True},
+    }
+
+
+
 
 
 MAX_MEMORY_CONTEXT_CHARS = int(os.getenv("ROXY_MEMORY_CONTEXT_MAX_CHARS", "2200"))
@@ -728,6 +965,7 @@ def _build_memory_context_for_prompt(
         "enabled": False,
         "memory_items": 0,
         "profile_items": 0,
+        "typed_record_items": 0,
         "context_chars": 0,
         "query_rewritten": False,
         "user_id": _sanitize_user_id(user_id),
@@ -790,6 +1028,16 @@ def _build_memory_context_for_prompt(
     except Exception as e:
         logger.debug(f"Profile context build failed: {e}")
         profile = []
+
+    try:
+        typed_records = get_typed_records(
+            query=query,
+            limit=4,
+            user_id=meta["user_id"],
+        ) or []
+    except Exception as e:
+        logger.debug(f"Typed memory context build failed: {e}")
+        typed_records = []
 
     sections = []
     if memories:
@@ -858,6 +1106,16 @@ def _build_memory_context_for_prompt(
         elif unique_identity_values:
             meta["identity_conflict"] = False
             meta["identity_candidates"] = unique_identity_values
+
+    if typed_records:
+        typed_lines = []
+        for idx, record in enumerate(typed_records[:4], start=1):
+            record_type = record.get("record_type", "record")
+            content = _trim_text(record.get("content", ""), max_len=MAX_MEMORY_SNIPPET_CHARS)
+            typed_lines.append(f"{idx}. [{record_type}] {content}")
+        if typed_lines:
+            sections.append("Relevant typed operational memory:\n" + "\n".join(typed_lines))
+            meta["typed_record_items"] = len(typed_lines)
 
     if not sections:
         return "", meta
@@ -1144,6 +1402,7 @@ try:
         cache_query, get_cached_response,
         remember_conversation, recall_conversations,
         learn_user_facts, get_user_profile,
+        remember_typed_record, get_typed_records,
         route_query, classify_query,
         publish_event, publish_query_event, publish_response_event,
         record_feedback, get_feedback_stats, get_all_stats
@@ -1200,6 +1459,10 @@ except ImportError as e:
     def get_feedback_stats(): return {}
 
     def get_all_stats(): return {}
+
+    def remember_typed_record(*args, **kwargs): return None
+
+    def get_typed_records(*args, **kwargs): return []
 
 # Load config
 if CONFIG_FILE.exists():
@@ -2994,6 +3257,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     routing_meta["memory_context_len"] = int(memory_context_meta.get("context_chars", 0))
                     routing_meta["memory_items"] = int(memory_context_meta.get("memory_items", 0))
                     routing_meta["profile_items"] = int(memory_context_meta.get("profile_items", 0))
+                    routing_meta["typed_record_items"] = int(memory_context_meta.get("typed_record_items", 0))
                     if not _emit_event("routing_meta", routing_meta):
                         return
 
@@ -3069,6 +3333,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                     "safety_level": pre_policy.get("safety_level", "guarded"),
                                 }
                                 _append_tool_audit(denial_record)
+                                _write_tool_failure_memory({
+                                    **denial_record,
+                                    "status": "failed",
+                                    "error": pre_policy.get("reason", "policy_denied"),
+                                })
                                 if not _emit_event(
                                     "tool_execution_failed",
                                     {
@@ -3092,27 +3361,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             ):
                                 return
 
-                            tool_result = _execute_stream_tool_call(
-                                {"name": tool_name, "arguments": tool_args, "call_id": call_id}
+                            tool_result = _execute_tool_with_retry(
+                                {"name": tool_name, "arguments": tool_args, "call_id": call_id},
+                                request_id,
+                                session_id,
+                                user_id,
+                                _emit_event,
+                                _append_tool_audit,
+                                _write_tool_failure_memory,
+                                _truncate_tool_text,
+                                _pre_tool_use_policy,
                             )
                             executed_count += 1
-
-                            audit_record = {
-                                "timestamp": datetime.now().isoformat(),
-                                "request_id": request_id,
-                                "session_id": session_id,
-                                "user_id": user_id,
-                                "call_id": call_id,
-                                "tool_name": tool_name,
-                                "arguments": tool_args,
-                                "status": "success" if tool_result.get("success") else "failed",
-                                "reason": pre_policy.get("reason", "allowed"),
-                                "safety_level": pre_policy.get("safety_level", "safe"),
-                                "duration": tool_result.get("duration", 0.0),
-                                "exit_code": tool_result.get("exit_code"),
-                                "error": _truncate_tool_text(tool_result.get("error", ""), 600),
-                            }
-                            _append_tool_audit(audit_record)
 
                             if not tool_result.get("success"):
                                 if not _emit_event(
@@ -5895,7 +6155,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     def _handle_scheduler_status(self):
         """GET /scheduler/status - Get background scheduler status"""
         try:
-            core = getattr(self, "_core", None)
+            core = getattr(self, "_core", None) or getattr(getattr(self, "server", None), "roxy_core", None)
             if not core or not hasattr(core, "background_scheduler"):
                 self.send_response(503)
                 self.send_header("Content-Type", "application/json")
@@ -5990,6 +6250,9 @@ class RoxyCore:
         self.server_thread = None
         self.running = True
         self.advanced_services = {}
+        self.background_scheduler = None
+        self.background_scheduler_thread = None
+        self.background_scheduler_loop = None
         
         logger.info("=" * 60)
         logger.info("ROXY CORE INITIALIZING")
@@ -6033,6 +6296,7 @@ class RoxyCore:
 
         try:
             self.server = ThreadingHTTPServer((IPC_HOST, IPC_PORT), RoxyCoreHandler)
+            self.server.roxy_core = self
             logger.info(f"✓ HTTP IPC server listening on {IPC_HOST}:{IPC_PORT}")
             
             # Run server in background thread
@@ -6068,6 +6332,25 @@ class RoxyCore:
         """Graceful shutdown"""
         logger.info("Stopping ROXY core...")
         self.running = False
+
+        if self.background_scheduler:
+            try:
+                self.background_scheduler.stop()
+            except Exception as e:
+                logger.debug(f"Scheduler stop failed: {e}")
+
+        if self.background_scheduler_loop:
+            try:
+                self.background_scheduler_loop.call_soon_threadsafe(self.background_scheduler_loop.stop)
+            except Exception as e:
+                logger.debug(f"Scheduler loop stop failed: {e}")
+            self.background_scheduler_loop = None
+        if self.background_scheduler_thread:
+            try:
+                self.background_scheduler_thread.join(timeout=5)
+            except Exception:
+                pass
+            self.background_scheduler_thread = None
         
         if self.server:
             self.server.shutdown()
@@ -6095,6 +6378,7 @@ class RoxyCore:
             self.background_scheduler = BackgroundScheduler()
             setup_scheduler(self.background_scheduler)
             logger.info(f"✓ Background scheduler ready ({len(self.background_scheduler.tasks)} tasks)")
+            self._start_background_scheduler()
         except Exception as e:
             logger.warning(f"Background scheduler unavailable: {e}")
         
@@ -6109,6 +6393,38 @@ class RoxyCore:
                 logger.debug(f"Observability initialization failed: {e}")
         
         logger.info("Background tasks: ready")
+
+    def _start_background_scheduler(self):
+        """Run the async scheduler in its own daemon thread."""
+        if not self.background_scheduler or self.background_scheduler_thread:
+            return
+
+        def _runner():
+            loop = asyncio.new_event_loop()
+            self.background_scheduler_loop = loop
+            asyncio.set_event_loop(loop)
+            scheduler_task = loop.create_task(self.background_scheduler.start())
+            scheduler_task.add_done_callback(lambda _task: loop.call_soon_threadsafe(loop.stop))
+            try:
+                loop.run_forever()
+            except Exception as exc:
+                logger.error(f"Background scheduler crashed: {exc}")
+            finally:
+                if not scheduler_task.done():
+                    scheduler_task.cancel()
+                pending = asyncio.all_tasks(loop)
+                for task in pending:
+                    task.cancel()
+                if pending:
+                    try:
+                        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    except Exception:
+                        pass
+                loop.close()
+
+        self.background_scheduler_thread = Thread(target=_runner, daemon=True)
+        self.background_scheduler_thread.start()
+        logger.info("✓ Background scheduler started")
 
 
 def main():

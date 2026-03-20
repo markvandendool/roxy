@@ -59,6 +59,8 @@ class AgentEvalHarness:
         await self.test_claude_md_injector()
         await self.test_mcp_client()
         await self.test_benchmark_suite()
+        await self.test_tool_retry()
+        await self.test_repo_intel()
         
         duration = time.time() - start
         
@@ -313,6 +315,91 @@ class AgentEvalHarness:
         except Exception as e:
             self.add_result("benchmark_suite_run", False, str(e))
             self.add_result("failure_cluster_analysis", False, str(e))
+    
+    async def test_tool_retry(self):
+        """Test tool retry controller with strategy rotation."""
+        try:
+            from tool_retry import (
+                ToolRetryController, RootCauseClassifier,
+            )
+            
+            ctrl = ToolRetryController()
+            
+            cause = RootCauseClassifier.classify("ls /nonexistent", "No such file or directory", 1)
+            self.add_result(
+                "retry_root_cause_classifier",
+                cause == "not_found",
+                f"Classified as: {cause}"
+            )
+            
+            strategy = ctrl.get_next_strategy("bash", "ls /nonexistent", {},
+                                             "No such file", 1)
+            self.add_result(
+                "retry_gets_strategy",
+                strategy is not None,
+                f"Strategy: {strategy.get('strategy_name') if strategy else 'None'}"
+            )
+            
+            should_retry = ctrl.should_retry("bash", "ls /foo", {},
+                                              "No such file", 1)
+            self.add_result(
+                "retry_should_retry",
+                should_retry is True,
+                f"Should retry: {should_retry}"
+            )
+            
+            ctrl.record_success("bash", "ls /foo", {}, "No such file", "not_found", "sudo ls /foo")
+            stats = ctrl.get_stats()
+            self.add_result(
+                "retry_stats_tracking",
+                "tracked_commands" in stats,
+                f"Tracked: {stats.get('tracked_commands', 0)}"
+            )
+            
+        except ImportError as e:
+            self.add_result("retry_root_cause_classifier", False, f"Import error: {e}")
+            self.add_result("retry_gets_strategy", False, f"Import error: {e}")
+            self.add_result("retry_should_retry", False, f"Import error: {e}")
+            self.add_result("retry_stats_tracking", False, f"Import error: {e}")
+        except Exception as e:
+            self.add_result("retry_root_cause_classifier", False, str(e))
+            self.add_result("retry_gets_strategy", False, str(e))
+            self.add_result("retry_should_retry", False, str(e))
+            self.add_result("retry_stats_tracking", False, str(e))
+    
+    async def test_repo_intel(self):
+        """Test RepoIntel index."""
+        try:
+            from repo_intel import get_repo_index
+            
+            idx = get_repo_index()
+            self.add_result(
+                "repo_intel_loads",
+                idx.file_count > 0,
+                f"Files: {idx.file_count}, Symbols: {len(idx.symbol_index)}"
+            )
+            
+            self.add_result(
+                "repo_intel_symbols",
+                len(idx.symbol_index) > 0,
+                f"Symbols: {len(idx.symbol_index)}"
+            )
+            
+            syms = idx.find_file_with_symbol("load_mpc_core")
+            self.add_result(
+                "repo_intel_lookup",
+                len(syms) > 0,
+                f"Symbol 'load_mpc_core': {len(syms)} results"
+            )
+            
+        except ImportError as e:
+            self.add_result("repo_intel_loads", False, f"Import error: {e}")
+            self.add_result("repo_intel_symbols", False, f"Import error: {e}")
+            self.add_result("repo_intel_lookup", False, f"Import error: {e}")
+        except Exception as e:
+            self.add_result("repo_intel_loads", False, str(e))
+            self.add_result("repo_intel_symbols", False, str(e))
+            self.add_result("repo_intel_lookup", False, str(e))
     
     def print_report(self):
         """Print evaluation report."""
