@@ -378,7 +378,37 @@ You have discussed similar topics before with the user. Here are relevant memori
 
 Respond to the user's query. If using reference material, synthesize it but remember:
 the TRUTH PACKET is AUTHORITATIVE for current date/time and system state.
-If episodic memory is provided, use it to maintain continuity with past conversations."""
+If episodic memory is provided, use it to maintain continuity with past conversations.
+
+TOOL USE (IMPORTANT):
+When you need to perform file operations, run commands, or search code, emit a tool call using this format:
+
+<<bash>>
+YOUR_COMMAND_HERE
+<</bash>>
+
+<<read>>
+/path/to/file.txt
+<</read>>
+
+<<glob>>
+src/**/*.ts
+<</glob>>
+
+<<grep>>
+search_term
+<</grep>>
+
+<<tool_call>>
+{"name": "write", "arguments": {"file_path": "/path/to/file.txt", "content": "File content here"}}
+<</tool_call>>
+
+<<tool_call>>
+{"name": "tool_name", "arguments": {"arg1": "value1"}}
+<</tool_call>>
+
+Only emit ONE tool call per response. Wait for the result before continuing.
+Do NOT emit tool calls for greetings, opinions, or purely conversational responses."""
 
         logger.debug(f"[RAG] Built prompt for requestId={request_tag}, context_len={len(context) if context else 0}")
 

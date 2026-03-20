@@ -19,7 +19,7 @@ W5700X_DISABLED = os.getenv("ROXY_W5700X_DISABLED", "0").lower() in ("1", "true"
 
 # Pool configuration
 # NOTE: Default model should be the best 14B Qwen available.
-DEFAULT_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+DEFAULT_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b")
 # W5700X disabled, all traffic routes to 6900XT
 POOL_CONFIG = {
     "big": {
