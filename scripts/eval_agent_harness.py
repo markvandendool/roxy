@@ -63,6 +63,7 @@ class AgentEvalHarness:
         await self.test_tool_retry()
         await self.test_repo_intel()
         await self.test_mission_supervisor()
+        await self.test_verification_plan_generation()
         
         duration = time.time() - start
         
@@ -485,6 +486,88 @@ class AgentEvalHarness:
         except Exception as e:
             for name in ["mission_ledger_init", "mission_create", "mission_status",
                          "mission_get_active", "mission_executor_init", "mission_stats"]:
+                self.add_result(name, False, str(e))
+
+    async def test_verification_plan_generation(self):
+        """Test story_selector.build_envelope emits executable verification commands."""
+        try:
+            from story_selector import Story, StorySelector
+
+            selector = StorySelector()
+
+            ac_with_cmd = "AC-003: grep -RIn \"from 'three'\" returns only three-exports.ts"
+            story_cmd = Story(
+                id="TEST-VERIFY-001",
+                title="Test verification command extraction",
+                description="Test story with embedded shell command in AC",
+                acceptance_criteria=[ac_with_cmd],
+                files_in_scope=[],
+            )
+            env = selector.build_envelope(story_cmd)
+            plan = env.verification_plan
+            self.add_result(
+                "verify_cmd_prefix_extraction",
+                any(c.startswith("cmd: grep") for c in plan),
+                f"Extracted cmd: {plan[0] if plan else 'empty'}"
+            )
+
+            story_ts = Story(
+                id="TEST-VERIFY-002",
+                title="TypeScript file verification",
+                description="Test auto-derivation of TypeScript verification",
+                acceptance_criteria=["AC-001: Panel renders without errors"],
+                files_in_scope=["src/components/olympus/ApolloSovereignPanel.tsx"],
+            )
+            env_ts = selector.build_envelope(story_ts)
+            plan_ts = env_ts.verification_plan
+            has_typecheck = any("typecheck" in c.lower() for c in plan_ts)
+            self.add_result(
+                "verify_ts_auto_typecheck",
+                has_typecheck,
+                f"Auto-derived typecheck: {plan_ts}"
+            )
+
+            story_prose = Story(
+                id="TEST-VERIFY-003",
+                title="Prose-only story",
+                description="Story with no executable ACs",
+                acceptance_criteria=[
+                    "The button click handler updates the counter",
+                    "Counter display reflects the new value",
+                ],
+                files_in_scope=[],
+            )
+            env_prose = selector.build_envelope(story_prose)
+            plan_prose = env_prose.verification_plan
+            all_verify_prefix = all(c.startswith("Verify:") for c in plan_prose)
+            self.add_result(
+                "verify_prose_fallback",
+                all_verify_prefix and len(plan_prose) == 2,
+                f"Prose fallback: {plan_prose}"
+            )
+
+            story_prefixed = Story(
+                id="TEST-VERIFY-004",
+                title="Prefixed command story",
+                description="Story with cmd: prefix in AC",
+                acceptance_criteria=["cmd: bun test tests/unit/foo.test.ts"],
+                files_in_scope=[],
+            )
+            env_pfx = selector.build_envelope(story_prefixed)
+            plan_pfx = env_pfx.verification_plan
+            self.add_result(
+                "verify_cmd_prefix_direct",
+                any(c.startswith("cmd: bun test") for c in plan_pfx),
+                f"Direct cmd: prefix: {plan_pfx}"
+            )
+
+        except ImportError as e:
+            for name in ["verify_cmd_prefix_extraction", "verify_ts_auto_typecheck",
+                         "verify_prose_fallback", "verify_cmd_prefix_direct"]:
+                self.add_result(name, False, f"Import error: {e}")
+        except Exception as e:
+            for name in ["verify_cmd_prefix_extraction", "verify_ts_auto_typecheck",
+                         "verify_prose_fallback", "verify_cmd_prefix_direct"]:
                 self.add_result(name, False, str(e))
 
     def print_report(self):

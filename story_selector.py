@@ -294,9 +294,7 @@ class StorySelector:
 
         tool_budget = max(5, (story.points or 3) * 3)
 
-        verification_plan = []
-        for ac in story.acceptance_criteria:
-            verification_plan.append(f"Verify: {ac}")
+        verification_plan = self._derive_verification_plan(story)
 
         rollback_command = ""
         if story.commit:
@@ -316,6 +314,210 @@ class StorySelector:
             max_retries=2,
         )
         return envelope
+
+    CMD_PREFIXES = ("cmd:", "bash:", "shell:")
+
+    SHELL_COMMAND_PATTERNS = (
+        "grep", "find", "ls", "cat", "git ", "diff ", "stat ",
+        "bun ", "pnpm ", "node ", "npm ", "tsx ", "tsc",
+        "vitest", "playwright", "eslint", "npx ", "bunx ",
+        "python", "pip3", "pytest", "cargo ", "rustc ",
+        "bash ", "sh ", "curl ", "wget ",
+    )
+
+    SHELL_COMMAND_STARTERS = (
+        "grep ", "find ", "ls ", "cat ", "git ", "diff ", "stat ",
+        "bun ", "pnpm ", "node ", "npm ", "tsx ", "tsc",
+        "vitest", "playwright", "eslint", "npx ", "bunx ",
+        "python", "pip3", "pytest", "cargo ", "rustc ",
+        "bash ", "sh ", "curl ", "wget ",
+        "pnpm test", "bun test", "npm test",
+    )
+
+    def _looks_like_command(self, text: str) -> bool:
+        t = text.strip().lower()
+        return any(t.startswith(s) for s in self.SHELL_COMMAND_STARTERS)
+
+    def _strip_cmd_prefix(self, step: str) -> str:
+        lowered = step.lower().strip()
+        for prefix in self.CMD_PREFIXES:
+            if lowered.startswith(prefix):
+                return step[len(prefix):].strip()
+        return step.strip()
+
+    def _extract_embedded_command(self, text: str) -> Optional[str]:
+        """Extract a shell command embedded in acceptance criteria text."""
+        t = text.strip()
+        t_lower = t.lower()
+
+        if any(t_lower.startswith(p) for p in self.SHELL_COMMAND_STARTERS):
+            return self._strip_cmd_prefix(t)
+
+        cmd_patterns = [
+            r"grep\s+-[A-Za-z]+\s+['\"].*?['\"]",
+            r"find\s+[^\n]+(?:\s+-name|\s+-type|\s+-exec|\s+-o|\s+-a|\s+\|)",
+            r"(?:bun|pnpm|node|npm|tsx|tsc|vitest|playwright|eslint)\s+[^\n]+",
+            r"git\s+(?:status|diff|log|show|checkout|branch)\s+[^\n]+",
+            r"python3?\s+[^\n]+",
+            r"bash\s+[^\n]+",
+            r"[A-Za-z0-9_./-]+\.(?:sh|bash|mjs|ts)\b[^\n]*",
+        ]
+        for pattern in cmd_patterns:
+            import re
+            m = re.search(pattern, t, re.IGNORECASE)
+            if m:
+                cmd = m.group(0).rstrip(".,;:) ").strip()
+                if len(cmd) > 4 and (" " in cmd or "/" in cmd):
+                    return cmd
+        return None
+
+    def _derive_verification_plan(self, story: Story) -> List[str]:
+        """
+        Build a verification_plan with executable commands.
+
+        Strategy:
+        1. Extract explicit cmd:/bash:/shell: prefixed steps from ACs
+        2. Extract embedded shell commands from AC text (grep, bun, pnpm, etc.)
+        3. Auto-derive commands from files_in_scope using RepoIntel
+        4. Fall back to prose "Verify: ..." for prose-only ACs
+        """
+        plan: List[str] = []
+        seen_cmds: Set[str] = set()
+
+        for ac in story.acceptance_criteria:
+            ac_stripped = ac.strip()
+            ac_lower = ac_stripped.lower()
+
+            if any(ac_lower.startswith(p) for p in ("cmd:", "bash:", "shell:")):
+                plan.append(ac_stripped)
+                continue
+
+            cmd = self._extract_embedded_command(ac_stripped)
+            if cmd:
+                normalized = cmd.strip()
+                if normalized not in seen_cmds:
+                    seen_cmds.add(normalized)
+                    plan.append(f"cmd: {normalized}")
+
+        if story.files_in_scope:
+            auto_cmds = self._derive_commands_from_files(story)
+            for cmd in auto_cmds:
+                if cmd not in seen_cmds:
+                    seen_cmds.add(cmd)
+                    plan.append(f"cmd: {cmd}")
+
+        if not plan:
+            for ac in story.acceptance_criteria:
+                plan.append(f"Verify: {ac}")
+
+        return plan
+
+    def _derive_commands_from_files(self, story: Story) -> List[str]:
+        """Auto-derive verification commands from files_in_scope using RepoIntel."""
+        cmds: List[str] = []
+        seen: Set[str] = set()
+
+        try:
+            from repo_intel import get_file_context
+        except Exception:
+            return self._derive_commands_fallback(story)
+
+        repo_root = self.skoreq_root.parent
+        ts_files: List[str] = []
+        test_files: List[str] = []
+        shell_files: List[str] = []
+        py_files: List[str] = []
+        has_typecheck = False
+        has_test = False
+
+        for path in story.files_in_scope:
+            normalized = path
+            if path.startswith("/"):
+                try:
+                    normalized = str(Path(path).relative_to(repo_root))
+                except ValueError:
+                    normalized = path
+
+            ext = Path(normalized).suffix.lower()
+            if ext in (".ts", ".tsx"):
+                ts_files.append(normalized)
+                ctx = get_file_context(normalized, repo_root=repo_root) or {}
+                for test in (ctx.get("tests") or []):
+                    if test not in test_files:
+                        test_files.append(test)
+            elif ext in (".sh", ".bash"):
+                shell_files.append(normalized)
+            elif ext == ".py":
+                py_files.append(normalized)
+
+        if ts_files:
+            test_patterns = [
+                ("vitest unit", f"vitest run --reporter=basic {' '.join(ts_files[:3])}" if len(ts_files) <= 3 else "vitest run tests/unit --reporter=basic"),
+            ]
+            for label, cmd in test_patterns:
+                if cmd not in seen:
+                    seen.add(cmd)
+                    cmds.append(cmd)
+
+            typecheck = "pnpm typecheck"
+            if typecheck not in seen:
+                seen.add(typecheck)
+                cmds.append(typecheck)
+
+            lint_cmd = f"pnpm lint --max-warnings=0 {' '.join(ts_files[:5])}" if ts_files else None
+            if lint_cmd and lint_cmd not in seen:
+                seen.add(lint_cmd)
+                cmds.append(lint_cmd)
+
+        if test_files:
+            test_cmd = f"bun test {' '.join(test_files[:3])}"
+            if test_cmd not in seen:
+                seen.add(test_cmd)
+                cmds.append(test_cmd)
+            has_test = True
+
+        if shell_files:
+            for sf in shell_files[:2]:
+                check_cmd = f"bash -n {sf}"
+                if check_cmd not in seen:
+                    seen.add(check_cmd)
+                    cmds.append(check_cmd)
+
+        if py_files:
+            test_patterns = [
+                f"python3 -m py_compile {' '.join(py_files[:3])}",
+                "python3 -m pytest tests/unit -x -q --tb=short" if not has_test else "",
+            ]
+            for cmd in test_patterns:
+                if cmd and cmd not in seen:
+                    seen.add(cmd)
+                    cmds.append(cmd)
+
+        return cmds
+
+    def _derive_commands_fallback(self, story: Story) -> List[str]:
+        """Fallback command derivation without RepoIntel."""
+        cmds: List[str] = []
+        seen: Set[str] = set()
+
+        for path in story.files_in_scope:
+            ext = Path(path).suffix.lower()
+            if ext in (".ts", ".tsx"):
+                if "pnpm typecheck" not in seen:
+                    seen.add("pnpm typecheck")
+                    cmds.append("pnpm typecheck")
+            elif ext in (".sh", ".bash"):
+                cmd = f"bash -n {path}"
+                if cmd not in seen:
+                    seen.add(cmd)
+                    cmds.append(cmd)
+            elif ext == ".py":
+                cmd = f"python3 -m py_compile {path}"
+                if cmd not in seen:
+                    seen.add(cmd)
+                    cmds.append(cmd)
+
+        return cmds
 
     def mark_complete(self, story_id: str) -> bool:
         """Mark a story as done in the SKOREQ index."""
