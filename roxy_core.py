@@ -18,7 +18,7 @@ import uuid
 import hashlib
 import re
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, UTC
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from urllib.parse import parse_qs, urlparse
@@ -80,7 +80,7 @@ CONFIG_FILE = ROXY_DIR / "config.json"
 TOKEN_FILE = ROXY_DIR / "secret.token"
 
 # Default model selection (max-strength Qwen 14B unless explicitly overridden)
-DEFAULT_QWEN_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+DEFAULT_QWEN_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b")
 _MODEL_CACHE = {"selected": {}, "models": [], "ts": 0.0}
 _MODEL_CACHE_TTL = 60.0
 
@@ -504,6 +504,175 @@ def _write_tool_failure_memory(record: Dict[str, Any]) -> None:
             )
     except Exception as exc:
         logger.debug(f"Tool failure memory write failed (non-critical): {exc}")
+
+    try:
+        from learning_loop import record_failure as learning_record_failure
+
+        arguments = record.get("arguments", {}) or {}
+        command_hint = str(arguments.get("command") or "")[:120]
+        learning_record_failure(
+            tool_name=str(record.get("tool_name") or "unknown"),
+            error_type=str(record.get("reason") or "tool_failed"),
+            error_message=str(record.get("error") or ""),
+            command_hint=command_hint,
+        )
+    except Exception as exc:
+        logger.debug(f"Learning loop record failed (non-critical): {exc}")
+
+
+ENABLE_SECRET_SCAN_PREFLIGHT = os.getenv("ROXY_ENABLE_SECRET_SCAN_PREFLIGHT", "1").lower() in ("1", "true", "yes")
+SECRET_SCAN_DRY_RUN = os.getenv("ROXY_SECRET_SCAN_DRY_RUN", "1").lower() in ("1", "true", "yes")
+SECRET_SCAN_INTERVAL_SEC = max(10, int(os.getenv("ROXY_SECRET_SCAN_INTERVAL_SEC", "300")))
+SECRET_SCAN_ROOT = Path(os.getenv("ROXY_SECRET_SCAN_ROOT", str(ROXY_DIR))).expanduser()
+SECRET_SCAN_MIN_SEVERITY = os.getenv("ROXY_SECRET_SCAN_MIN_SEVERITY", "high").lower()
+SECRET_SCAN_BACKGROUND = os.getenv("ROXY_SECRET_SCAN_BACKGROUND", "1").lower() in ("1", "true", "yes")
+SECRET_SCAN_FORCE_TIMEOUT_SEC = max(0.2, float(os.getenv("ROXY_SECRET_SCAN_FORCE_TIMEOUT_SEC", "1.5")))
+ENABLE_MISSION_PREFLIGHT_GATE = os.getenv("ROXY_ENABLE_MISSION_PREFLIGHT_GATE", "1").lower() in ("1", "true", "yes")
+MISSION_BLOCK_ON_DEGRADED = os.getenv("ROXY_MISSION_BLOCK_ON_DEGRADED", "0").lower() in ("1", "true", "yes")
+
+_SECRET_SCAN_CACHE: Dict[str, Any] = {"ts": 0.0, "result": {}}
+_SECRET_SCAN_LOCK = Lock()
+_SECRET_SCAN_THREAD: Optional[Thread] = None
+_SECRET_SCAN_RUNNING = False
+
+
+def _secret_scan_pending_payload(reason: str = "pending") -> Dict[str, Any]:
+    return {
+        "enabled": True,
+        "passed": True,
+        "blocked": False,
+        "dry_run": SECRET_SCAN_DRY_RUN,
+        "root": str(SECRET_SCAN_ROOT),
+        "violations": 0,
+        "critical": 0,
+        "high": 0,
+        "error": "",
+        "pending": True,
+        "pending_reason": reason,
+    }
+
+
+def _execute_secret_scan() -> Dict[str, Any]:
+    payload: Dict[str, Any] = {
+        "enabled": True,
+        "passed": True,
+        "blocked": False,
+        "dry_run": SECRET_SCAN_DRY_RUN,
+        "root": str(SECRET_SCAN_ROOT),
+        "violations": 0,
+        "critical": 0,
+        "high": 0,
+        "error": "",
+        "pending": False,
+    }
+    try:
+        from secret_scanner import SecretScanner, Severity
+
+        severity_map = {
+            "critical": Severity.CRITICAL,
+            "high": Severity.HIGH,
+            "medium": Severity.MEDIUM,
+            "low": Severity.LOW,
+        }
+        scanner = SecretScanner(
+            dry_run=SECRET_SCAN_DRY_RUN,
+            min_severity=severity_map.get(SECRET_SCAN_MIN_SEVERITY, Severity.HIGH),
+        )
+        result = scanner.scan_workspace(str(SECRET_SCAN_ROOT))
+        payload.update(
+            {
+                "passed": bool(result.passed),
+                "blocked": bool(result.blocked),
+                "violations": len(result.violations),
+                "critical": sum(
+                    1
+                    for v in result.violations
+                    if str(getattr(getattr(v, "severity", None), "value", "")).lower() == "critical"
+                ),
+                "high": sum(
+                    1
+                    for v in result.violations
+                    if str(getattr(getattr(v, "severity", None), "value", "")).lower() == "high"
+                ),
+                "duration_ms": round(float(result.scan_duration_ms), 1),
+            }
+        )
+        if result.error_message:
+            payload["error"] = str(result.error_message)
+    except Exception as exc:
+        payload["passed"] = False
+        payload["blocked"] = False
+        payload["error"] = f"secret_scan_unavailable: {exc}"
+    return payload
+
+
+def _secret_scan_worker():
+    global _SECRET_SCAN_RUNNING
+    try:
+        payload = _execute_secret_scan()
+        with _SECRET_SCAN_LOCK:
+            _SECRET_SCAN_CACHE["ts"] = time.time()
+            _SECRET_SCAN_CACHE["result"] = payload
+    finally:
+        with _SECRET_SCAN_LOCK:
+            _SECRET_SCAN_RUNNING = False
+
+
+def _run_secret_scan_preflight(force: bool = False) -> Dict[str, Any]:
+    """
+    Run cached secret scan preflight and return structured status.
+
+    Default behavior is non-blocking on the request path:
+    - If cache is fresh, return cache
+    - If stale and background mode enabled, trigger background scan and return
+      cached result (or pending payload if no cache yet)
+    - Force mode performs a bounded synchronous scan and degrades to pending if timeout
+    """
+    global _SECRET_SCAN_THREAD, _SECRET_SCAN_RUNNING
+    now = time.time()
+
+    with _SECRET_SCAN_LOCK:
+        cached = _SECRET_SCAN_CACHE.get("result") or {}
+        cache_age = now - float(_SECRET_SCAN_CACHE.get("ts", 0.0))
+        if not force and cached and cache_age < SECRET_SCAN_INTERVAL_SEC:
+            return cached
+
+    # /missions/run can request force=True; keep bounded to avoid hanging API threads.
+    if force:
+        done = {"payload": None}
+
+        def _target():
+            done["payload"] = _execute_secret_scan()
+
+        worker = Thread(target=_target, daemon=True)
+        worker.start()
+        worker.join(timeout=SECRET_SCAN_FORCE_TIMEOUT_SEC)
+        if worker.is_alive():
+            with _SECRET_SCAN_LOCK:
+                cached = _SECRET_SCAN_CACHE.get("result") or {}
+            return cached or _secret_scan_pending_payload("force_timeout")
+
+        payload = done.get("payload") or _secret_scan_pending_payload("force_no_result")
+        with _SECRET_SCAN_LOCK:
+            _SECRET_SCAN_CACHE["ts"] = time.time()
+            _SECRET_SCAN_CACHE["result"] = payload
+        return payload
+
+    if SECRET_SCAN_BACKGROUND:
+        with _SECRET_SCAN_LOCK:
+            running = _SECRET_SCAN_RUNNING
+            if not running:
+                _SECRET_SCAN_RUNNING = True
+                _SECRET_SCAN_THREAD = Thread(target=_secret_scan_worker, daemon=True)
+                _SECRET_SCAN_THREAD.start()
+            cached = _SECRET_SCAN_CACHE.get("result") or {}
+        return cached or _secret_scan_pending_payload("background_warmup")
+
+    payload = _execute_secret_scan()
+    with _SECRET_SCAN_LOCK:
+        _SECRET_SCAN_CACHE["ts"] = time.time()
+        _SECRET_SCAN_CACHE["result"] = payload
+    return payload
 
 
 MAX_MEMORY_CONTEXT_CHARS = int(os.getenv("ROXY_MEMORY_CONTEXT_MAX_CHARS", "2200"))
@@ -2213,6 +2382,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_missions_active()
         elif path == "/missions/run" or path == "/v1/missions/run":
             self._handle_missions_run()
+        elif path == "/preflight/status" or path == "/v1/preflight/status":
+            self._handle_preflight_status()
+        elif path == "/qualification/status" or path == "/v1/qualification/status":
+            self._handle_qualification_status()
         elif path == "/repo/intel" or path == "/v1/repo/intel":
             self._handle_repo_intel()
         else:
@@ -2222,7 +2395,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     def _handle_health_check(self):
         """Health check with dependency verification"""
         health_status = {
-            "status": "ok",
+            "status": "healthy",
             "service": "roxy-core",
             "timestamp": datetime.now().isoformat(),
             "checks": {}
@@ -3775,6 +3948,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_expert_route()
         elif path == "/warmup" or path == "/v1/warmup":
             self._handle_warmup()
+        elif path == "/missions/run" or path == "/v1/missions/run":
+            self._handle_missions_run()
+        elif path == "/qualification/run" or path == "/v1/qualification/run":
+            self._handle_qualification_run()
         elif path == "/github/status" or path == "/v1/github/status":
             # POST deprecated: use GET for read-only status
             self.send_response(405)
@@ -5042,7 +5219,62 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            logger.info(f"Executing command: {command} mode={explicit_mode or 'auto'} pool={explicit_pool or 'auto'}")
+            secret_scan_meta: Dict[str, Any] = {"enabled": False}
+            if ENABLE_SECRET_SCAN_PREFLIGHT:
+                secret_scan_meta = _run_secret_scan_preflight(force=False)
+                if secret_scan_meta.get("blocked") and not SECRET_SCAN_DRY_RUN:
+                    self.send_response(423)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    payload = {
+                        "status": "error",
+                        "message": "Secret preflight blocked execution",
+                        "request_id": request_id,
+                        "metadata": {"secret_scan": secret_scan_meta},
+                    }
+                    self._safe_write(json.dumps(payload), request_id)
+                    return
+
+            if _is_pure_greeting(command):
+                response_time = time.time() - start_time
+                result = "Hi! I'm ROXY, your resident AI assistant. How can I help you today?"
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                response = {
+                    "status": "success",
+                    "command": command,
+                    "result": result,
+                    "response_time": round(response_time, 3),
+                    "metadata": {
+                        "trace_id": request_id,
+                        "mode": explicit_mode.lower() if explicit_mode else "auto",
+                        "route": "greeting_fastpath",
+                        "pool": explicit_pool.lower() if explicit_pool else "auto",
+                        "memory": {
+                            "enabled": False,
+                            "context_injected": False,
+                            "context_chars": 0,
+                            "memory_items": 0,
+                            "profile_items": 0,
+                            "typed_record_items": 0,
+                            "repo_context_items": 0,
+                            "facts_learned": 0,
+                            "user_id": user_id,
+                        },
+                        "secret_scan": secret_scan_meta,
+                    },
+                }
+                self.wfile.write(json.dumps(response).encode())
+                if METRICS_AVAILABLE and metrics_ctx:
+                    metrics_ctx.set_status("success")
+                    metrics_ctx.__exit__(None, None, None)
+                return
+
+            logger.info(
+                f"Executing command: {command} mode={explicit_mode or 'auto'} "
+                f"pool={explicit_pool or 'auto'} request_id={request_id}"
+            )
 
             memory_context = ""
             memory_context_meta = {
@@ -5321,6 +5553,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "mode": exec_meta.get("mode", "auto"),
                     "model_used": exec_meta.get("model_used"),
                     "selected_model": exec_meta.get("selected_model") or exec_meta.get("model_used"),
+                    "trace_id": request_id,
                     "route": exec_meta.get("route", "unknown"),
                     "pool": exec_meta.get("pool", "auto"),
                     "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
@@ -5380,6 +5613,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "needs_reflection": verification.get("needs_reflection", False),
                 "unverified_claims": verification.get("unverified_claims", []),
             }
+            response["metadata"]["secret_scan"] = secret_scan_meta
             self.wfile.write(json.dumps(response).encode())
             
             # Mark metrics as successful and close context
@@ -5635,10 +5869,34 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "plan_steps": effective_plan_steps,
         }
         
-        # GREETING FASTPATH - only when explicitly allowed
-        allow_greeting = self.headers.get("X-ROXY-Allow-Greeting", "").lower() in ("1", "true", "yes")
-        if _is_pure_greeting(command) and allow_greeting:
+        # GREETING FASTPATH - keep health/smoke interactions off the heavy execution path.
+        disable_greeting_fastpath = os.getenv("ROXY_DISABLE_GREETING_FASTPATH", "0").lower() in ("1", "true", "yes")
+        allow_greeting_header = self.headers.get("X-ROXY-Allow-Greeting", "").lower() in ("1", "true", "yes")
+        greeting_fastpath_enabled = (not disable_greeting_fastpath) or allow_greeting_header
+        if _is_pure_greeting(command) and greeting_fastpath_enabled:
             return "Hi! I'm ROXY, your resident AI assistant. How can I help you today?"
+
+        normalized_command = (command or "").strip().lower()
+        if normalized_command == "git status":
+            try:
+                git_result = subprocess.run(
+                    ["git", "-C", str(ROXY_DIR), "status", "--short", "--branch"],
+                    capture_output=True,
+                    text=True,
+                    timeout=8,
+                )
+                git_output = (git_result.stdout or git_result.stderr or "").strip()
+                self._last_execution_metadata.update(
+                    {
+                        "route": "local_fastpath_git_status",
+                        "mode": "exec",
+                        "model_used": None,
+                        "tools_executed": [],
+                    }
+                )
+                return git_output or "No changes"
+            except Exception as exc:
+                logger.debug(f"git status fastpath failed, falling back: {exc}")
         
         # CONVERSATIONAL BYPASS - Detect casual chat (for Truth Gate)
         casual_chat_patterns = [
@@ -6579,6 +6837,51 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     def _handle_missions_run(self):
         """POST /missions/run - Trigger immediate mission execution"""
         try:
+            preflight_meta: Dict[str, Any] = {"enabled": False}
+            if ENABLE_MISSION_PREFLIGHT_GATE:
+                from preflight_bridge import PreflightBridge, Readiness
+
+                preflight = PreflightBridge()
+                report = preflight.check_readiness()
+                preflight_meta = report.to_dict()
+                preflight_meta["enabled"] = True
+                if report.overall_ready == Readiness.BLOCKED or (
+                    MISSION_BLOCK_ON_DEGRADED and report.overall_ready == Readiness.DEGRADED
+                ):
+                    self.send_response(503)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(
+                        json.dumps(
+                            {
+                                "status": "error",
+                                "message": "Mission preflight failed",
+                                "preflight": preflight_meta,
+                            },
+                            indent=2,
+                        ).encode()
+                    )
+                    return
+
+            secret_scan_meta: Dict[str, Any] = {"enabled": False}
+            if ENABLE_SECRET_SCAN_PREFLIGHT:
+                secret_scan_meta = _run_secret_scan_preflight(force=True)
+                if secret_scan_meta.get("blocked") and not SECRET_SCAN_DRY_RUN:
+                    self.send_response(423)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(
+                        json.dumps(
+                            {
+                                "status": "error",
+                                "message": "Mission blocked by secret preflight",
+                                "secret_scan": secret_scan_meta,
+                            },
+                            indent=2,
+                        ).encode()
+                    )
+                    return
+
             import asyncio
             from mission_supervisor import run_mission_task
             loop = asyncio.new_event_loop()
@@ -6587,9 +6890,80 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({"result": result}, indent=2).encode())
+            self.wfile.write(
+                json.dumps(
+                    {
+                        "result": result,
+                        "preflight": preflight_meta,
+                        "secret_scan": secret_scan_meta,
+                    },
+                    indent=2,
+                ).encode()
+            )
         except Exception as e:
             logger.error(f"Missions run failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_preflight_status(self):
+        """GET /preflight/status - report orchestration preflight readiness."""
+        try:
+            from preflight_bridge import PreflightBridge
+
+            report = PreflightBridge().check_readiness()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(report.to_dict(), indent=2).encode())
+        except Exception as e:
+            logger.error(f"Preflight status failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_qualification_status(self):
+        """GET /qualification/status - return latest qualification artifact if present."""
+        try:
+            briefings = sorted(
+                (ROXY_DIR / "briefings").glob("qualification-*.json"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            if not briefings:
+                self.wfile.write(json.dumps({"status": "none", "artifact": None}, indent=2).encode())
+                return
+            payload = json.loads(briefings[0].read_text(encoding="utf-8", errors="ignore"))
+            self.wfile.write(json.dumps({"status": "ok", "artifact": briefings[0].name, "result": payload}, indent=2).encode())
+        except Exception as e:
+            logger.error(f"Qualification status failed: {e}")
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def _handle_qualification_run(self):
+        """POST /qualification/run - execute qualification pipeline and return result."""
+        try:
+            from qualification_pipeline import QualificationPipeline
+
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b"{}"
+            params = json.loads(body.decode("utf-8")) if body else {}
+            min_score = float(params.get("min_score", 0.8))
+            pipeline = QualificationPipeline(min_score=min_score)
+            result = pipeline.run()
+            self.send_response(200 if result.qualified else 409)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result.to_dict(), indent=2).encode())
+        except Exception as e:
+            logger.error(f"Qualification run failed: {e}")
             self.send_response(500)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
@@ -6714,6 +7088,9 @@ class RoxyCore:
     
     def _signal_handler(self, signum, frame):
         """Handle termination signals"""
+        if signum == signal.SIGTERM and os.getenv("ROXY_IGNORE_SIGTERM", "0").lower() in ("1", "true", "yes"):
+            logger.warning("Ignoring SIGTERM (ROXY_IGNORE_SIGTERM=1)")
+            return
         logger.info(f"Received signal {signum}")
         self.stop()
         sys.exit(0)
@@ -6727,14 +7104,18 @@ class RoxyCore:
         except Exception as e:
             logger.warning(f"Story selector unavailable: {e}")
         
-        try:
-            from background_scheduler import BackgroundScheduler, setup_scheduler
-            self.background_scheduler = BackgroundScheduler()
-            setup_scheduler(self.background_scheduler)
-            logger.info(f"✓ Background scheduler ready ({len(self.background_scheduler.tasks)} tasks)")
-            self._start_background_scheduler()
-        except Exception as e:
-            logger.warning(f"Background scheduler unavailable: {e}")
+        scheduler_enabled = os.getenv("ROXY_ENABLE_BACKGROUND_SCHEDULER", "1").lower() in ("1", "true", "yes")
+        if scheduler_enabled:
+            try:
+                from background_scheduler import BackgroundScheduler, setup_scheduler
+                self.background_scheduler = BackgroundScheduler()
+                setup_scheduler(self.background_scheduler)
+                logger.info(f"✓ Background scheduler ready ({len(self.background_scheduler.tasks)} tasks)")
+                self._start_background_scheduler()
+            except Exception as e:
+                logger.warning(f"Background scheduler unavailable: {e}")
+        else:
+            logger.info("Background scheduler disabled via ROXY_ENABLE_BACKGROUND_SCHEDULER=0")
         
         if SERVICE_BRIDGE_AVAILABLE:
             try:
