@@ -45,11 +45,11 @@
       "error_message": "StreamingTools.glob() got an unexpected keyword argument 'command'",
       "tool_name": "glob",
       "command_hint": "echo 'validating...' && ",
-      "occurrences": 2,
+      "occurrences": 3,
       "successful_fixes": 0,
       "recipes": [],
       "first_seen": "2026-03-20T07:14:50.836953",
-      "last_seen": "2026-03-20T12:04:32.511827",
+      "last_seen": "2026-03-20T17:39:26.928315",
       "success_rate": 0.0
     },
     "cb8b09a94240": {
@@ -90,8 +90,21 @@
       "first_seen": "2026-03-20T12:37:46.340072",
       "last_seen": "2026-03-20T12:37:46.340072",
       "success_rate": 0.0
+    },
+    "0240a4571e01": {
+      "pattern_id": "0240a4571e01",
+      "error_type": "tool_failed",
+      "error_message": "Standard input is not a terminal\n",
+      "tool_name": "bash",
+      "command_hint": "echo 'validating...' && nano ~/.roxy/scripts/index_docs_to_rag.py",
+      "occurrences": 1,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-03-21T17:07:01.445322",
+      "last_seen": "2026-03-21T17:07:01.445322",
+      "success_rate": 0.0
     }
   },
   "recipes": {},
-  "last_updated": "2026-03-20T12:37:46.340103"
+  "last_updated": "2026-03-21T17:07:01.445381"
 }

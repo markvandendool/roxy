@@ -1,20 +1,20 @@
 {
-  "bundle_id": "BUNDLE_20260320_111213_03de7d00",
-  "timestamp": "2026-03-20T17:12:13.568744+00:00",
+  "bundle_id": "BUNDLE_20260329_211213_0bb51150",
+  "timestamp": "2026-03-30T03:12:13.523903+00:00",
   "status": "healthy",
   "components": {
     "trends": {
-      "snapshot_id": "TREND_20260320_110022_d55b6918",
+      "snapshot_id": "TREND_20260329_210019_f7ef011a",
       "status": "healthy",
       "count": 20
     },
     "research": {
-      "brief_id": "BRIEF_20260320_110519_53f12e40",
+      "brief_id": "BRIEF_20260329_210507_3225134c",
       "status": "healthy",
       "count": 5
     },
     "competitors": {
-      "analysis_id": "COMP_20260320_111006_df570ef3",
+      "analysis_id": "COMP_20260329_211002_648e3b6c",
       "status": "healthy",
       "count": 5
     }
@@ -24,17 +24,17 @@
     "brief_count": 5,
     "analysis_count": 5,
     "top_trend": {
-      "title": "The best AI investment might be in energy tech",
-      "source": "TechCrunch AI",
+      "title": "AI system learns to keep warehouse robot traffic running smoothly",
+      "source": "MIT News AI",
       "score": 85
     },
     "top_competitors": [
       {
-        "name": "AI Explained",
+        "name": "Fireship",
         "likelihood": "high"
       },
       {
-        "name": "Matt Wolfe",
+        "name": "AI Explained",
         "likelihood": "high"
       },
       {

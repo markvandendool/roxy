@@ -1,14 +1,14 @@
 {
-  "brief_id": "BRIEF_20260320_112007_79977c14",
-  "timestamp": "2026-03-20T17:20:07.480529+00:00",
+  "brief_id": "BRIEF_20260329_212005_325c740b",
+  "timestamp": "2026-03-30T03:20:05.514605+00:00",
   "status": "healthy",
-  "source_review": "REVIEW_20260320_111815_652f1104",
+  "source_review": "REVIEW_20260329_211812_270606bf",
   "briefs": [
     {
-      "script_id": "SCR_74ac4c746b97",
-      "title": "The best AI investment might be in energy tech",
+      "script_id": "SCR_66e17c93a613",
+      "title": "AI system learns to keep warehouse robot traffic running smoothly",
       "format": "standard",
-      "duration_target": 150,
+      "duration_target": 240,
       "visual_style": {
         "primary_color": "#6366F1",
         "secondary_color": "#0F0F23",
@@ -52,52 +52,70 @@
         {
           "scene_id": "SCENE_01",
           "t_start": 0.0,
-          "t_end": 15.0,
+          "t_end": 19.0,
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why The best AI investment might be in energy tech changes everything"
+          "vo_summary": "[HOOK] Here's how to {outcome} with smoothly"
         },
         {
           "scene_id": "SCENE_02",
-          "t_start": 15.0,
-          "t_end": 37.0,
-          "section": "context",
-          "on_screen_text": "CONTEXT: Context",
-          "broll_intent": "Historical footage, timeline graphics",
+          "t_start": 19.0,
+          "t_end": 47.0,
+          "section": "intro",
+          "on_screen_text": "CONTEXT: Intro",
+          "broll_intent": "Professional tech environment, screens with code",
           "vo_summary": "[CONTEXT] Background on this development..."
         },
         {
           "scene_id": "SCENE_03",
-          "t_start": 37.0,
-          "t_end": 89.0,
-          "section": "details",
-          "on_screen_text": "DETAILS: Details",
-          "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's"
+          "t_start": 47.0,
+          "t_end": 95.0,
+          "section": "step_1",
+          "on_screen_text": "STEP_1: Step 1",
+          "broll_intent": "Tutorial-style screen capture, step indicators",
+          "vo_summary": "[STEP_1] Walk through this step..."
         },
         {
           "scene_id": "SCENE_04",
-          "t_start": 89.0,
-          "t_end": 126.0,
-          "section": "analysis",
-          "on_screen_text": "ANALYSIS: Analysis",
-          "broll_intent": "Charts, graphs, expert-style talking head frame",
-          "vo_summary": "[ANALYSIS] Here's why this matters: What this means for the industry"
+          "t_start": 95.0,
+          "t_end": 143.0,
+          "section": "step_2",
+          "on_screen_text": "STEP_2: Step 2",
+          "broll_intent": "Tutorial-style screen capture, step indicators",
+          "vo_summary": "[STEP_2] Walk through this step..."
         },
         {
           "scene_id": "SCENE_05",
-          "t_start": 126.0,
-          "t_end": 141.0,
-          "section": "takeaway",
-          "on_screen_text": "TAKEAWAY: Takeaway",
-          "broll_intent": "Key point graphics, summary card",
-          "vo_summary": "[TAKEAWAY] The key point to remember..."
+          "t_start": 143.0,
+          "t_end": 191.0,
+          "section": "step_3",
+          "on_screen_text": "STEP_3: Step 3",
+          "broll_intent": "Tutorial-style screen capture, step indicators",
+          "vo_summary": "[STEP_3] Walk through this step..."
         },
         {
           "scene_id": "SCENE_06",
-          "t_start": 141.0,
-          "t_end": 148.0,
+          "t_start": 191.0,
+          "t_end": 219.0,
+          "section": "demo",
+          "on_screen_text": "DEMO: Demo",
+          "broll_intent": "Screen recording, hands-on footage",
+          "vo_summary": "[DEMO] Let me show you how this works..."
+        },
+        {
+          "scene_id": "SCENE_07",
+          "t_start": 219.0,
+          "t_end": 231.0,
+          "section": "tips",
+          "on_screen_text": "TIPS: Tips",
+          "broll_intent": "General tech visuals, abstract backgrounds",
+          "vo_summary": "[TIPS] Pro tips to get the most out of this..."
+        },
+        {
+          "scene_id": "SCENE_08",
+          "t_start": 231.0,
+          "t_end": 238.0,
           "section": "cta",
           "on_screen_text": "CTA: Cta",
           "broll_intent": "Subscribe button animation, social handles",
@@ -115,8 +133,8 @@
       }
     },
     {
-      "script_id": "SCR_a8bc4e18f00d",
-      "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
+      "script_id": "SCR_886edf2f2019",
+      "title": "Sora\u2019s shutdown could be a reality check moment for AI video",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -184,7 +202,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May "
+          "vo_summary": "[DETAILS] Is this just normal corporate strategy, or are we about to see a broader pullback on AI-ge"
         },
         {
           "scene_id": "SCENE_04",
@@ -225,8 +243,8 @@
       }
     },
     {
-      "script_id": "SCR_6bea7c64fbea",
-      "title": "WordPress.com now lets AI agents write and publish posts, and more",
+      "script_id": "SCR_54d7b48d50d7",
+      "title": "Bluesky leans into AI with Attie, an app for building custom feeds",
       "format": "standard",
       "duration_target": 150,
       "visual_style": {
@@ -276,7 +294,7 @@
           "section": "hook",
           "on_screen_text": "HOOK: Hook",
           "broll_intent": "Attention-grabbing tech visuals, glitch effects",
-          "vo_summary": "[HOOK] Here's why WordPress.com now lets AI agents write and publish posts, and more changes everyth"
+          "vo_summary": "[HOOK] What TechCrunch AI's announcement really means"
         },
         {
           "scene_id": "SCENE_02",
@@ -294,7 +312,7 @@
           "section": "details",
           "on_screen_text": "DETAILS: Details",
           "broll_intent": "Product shots, UI demos, data visualizations",
-          "vo_summary": "[DETAILS] New AI agents on WordPress.com could lower barriers to publishing while increasing machine"
+          "vo_summary": "[DETAILS] Bluesky\u2019s new app Attie uses AI to help people build custom feeds the open social networki"
         },
         {
           "scene_id": "SCENE_04",

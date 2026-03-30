@@ -1,0 +1,413 @@
+{"ts": 1774112808.7133937, "iso": "2026-03-21T11:06:48.713394", "mission_id": "mission-RLBR-001-1774112808", "event": "mission_created", "story_id": "RLBR-001", "story_title": "Add roxy_legacy collection support to the docs indexer", "files_in_scope": ["~/.roxy/scripts/index_docs_to_rag.py"], "verification_plan": ["cmd: python3 ~/.roxy/scripts/index_docs_to_rag.py --dry-run --collection roxy_legacy", "cmd: python3 -m py_compile ~/.roxy/scripts/index_docs_to_rag.py", "cmd: python3 -m pytest tests/unit -x -q --tb=short"]}
+{"ts": 1774112808.7153034, "iso": "2026-03-21T11:06:48.715304", "mission_id": "mission-RLBR-001-1774112808", "event": "mission_started", "story_id": "RLBR-001", "story_title": "Add roxy_legacy collection support to the docs indexer"}
+{"ts": 1774112808.7223885, "iso": "2026-03-21T11:06:48.722389", "mission_id": "mission-RLBR-001-1774112808", "event": "execute_started", "story_id": "RLBR-001", "goal_len": 600, "goal_preview": "/deep Add roxy_legacy collection support to the docs indexer\n\nExtend ~/.roxy/scripts/index_docs_to_rag.py so it supports a dedicated roxy_legacy collection rooted at ~/.roxy/brain/06_legacy, while preserving the current behavior for the fou", "files_in_scope": ["~/.roxy/scripts/index_docs_to_rag.py"]}
+{"ts": 1774112808.7230244, "iso": "2026-03-21T11:06:48.723025", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_request_started", "method": "GET", "url": "http://127.0.0.1:8766/stream", "timeout": 600.0}
+{"ts": 1774112808.7314794, "iso": "2026-03-21T11:06:48.731480", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_response_received", "status_code": 200, "content_type": "text/event-stream"}
+{"ts": 1774112817.9248679, "iso": "2026-03-21T11:06:57.924870", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: routing_meta"}
+{"ts": 1774112817.9253895, "iso": "2026-03-21T11:06:57.925390", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112817.9294512, "iso": "2026-03-21T11:06:57.929453", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.174313, "iso": "2026-03-21T11:06:58.174315", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.1747847, "iso": "2026-03-21T11:06:58.174786", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.1778398, "iso": "2026-03-21T11:06:58.177842", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.1782048, "iso": "2026-03-21T11:06:58.178205", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.1784875, "iso": "2026-03-21T11:06:58.178488", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.1863177, "iso": "2026-03-21T11:06:58.186319", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.186654, "iso": "2026-03-21T11:06:58.186655", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.1869335, "iso": "2026-03-21T11:06:58.186934", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.1897733, "iso": "2026-03-21T11:06:58.189775", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.1901135, "iso": "2026-03-21T11:06:58.190114", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.1903958, "iso": "2026-03-21T11:06:58.190397", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.1933012, "iso": "2026-03-21T11:06:58.193303", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.1936214, "iso": "2026-03-21T11:06:58.193622", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.193897, "iso": "2026-03-21T11:06:58.193897", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.1969845, "iso": "2026-03-21T11:06:58.196986", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.197216, "iso": "2026-03-21T11:06:58.197216", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.1973908, "iso": "2026-03-21T11:06:58.197391", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.199207, "iso": "2026-03-21T11:06:58.199208", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.1994138, "iso": "2026-03-21T11:06:58.199414", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.1995838, "iso": "2026-03-21T11:06:58.199584", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.201587, "iso": "2026-03-21T11:06:58.201588", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.201787, "iso": "2026-03-21T11:06:58.201787", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.2019594, "iso": "2026-03-21T11:06:58.201960", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.2037172, "iso": "2026-03-21T11:06:58.203718", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.2039056, "iso": "2026-03-21T11:06:58.203906", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.204083, "iso": "2026-03-21T11:06:58.204083", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.2057853, "iso": "2026-03-21T11:06:58.205786", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.2059748, "iso": "2026-03-21T11:06:58.205975", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.4475722, "iso": "2026-03-21T11:06:58.447574", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.450667, "iso": "2026-03-21T11:06:58.450669", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4510014, "iso": "2026-03-21T11:06:58.451002", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.451308, "iso": "2026-03-21T11:06:58.451309", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4597363, "iso": "2026-03-21T11:06:58.459739", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4601197, "iso": "2026-03-21T11:06:58.460121", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.4604096, "iso": "2026-03-21T11:06:58.460410", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4633553, "iso": "2026-03-21T11:06:58.463358", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4636812, "iso": "2026-03-21T11:06:58.463682", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.4639592, "iso": "2026-03-21T11:06:58.463960", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.466824, "iso": "2026-03-21T11:06:58.466826", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4671602, "iso": "2026-03-21T11:06:58.467161", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.46743, "iso": "2026-03-21T11:06:58.467431", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4702, "iso": "2026-03-21T11:06:58.470202", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.470502, "iso": "2026-03-21T11:06:58.470502", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.4707632, "iso": "2026-03-21T11:06:58.470764", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4733872, "iso": "2026-03-21T11:06:58.473388", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4735804, "iso": "2026-03-21T11:06:58.473581", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.4737437, "iso": "2026-03-21T11:06:58.473744", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4757512, "iso": "2026-03-21T11:06:58.475752", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4759479, "iso": "2026-03-21T11:06:58.475948", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.476129, "iso": "2026-03-21T11:06:58.476129", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4778647, "iso": "2026-03-21T11:06:58.477866", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.478077, "iso": "2026-03-21T11:06:58.478077", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.4785073, "iso": "2026-03-21T11:06:58.478507", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4802644, "iso": "2026-03-21T11:06:58.480265", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4804573, "iso": "2026-03-21T11:06:58.480457", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.480628, "iso": "2026-03-21T11:06:58.480628", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.4823318, "iso": "2026-03-21T11:06:58.482333", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.4825177, "iso": "2026-03-21T11:06:58.482518", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.7203546, "iso": "2026-03-21T11:06:58.720358", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.7257993, "iso": "2026-03-21T11:06:58.725803", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7269373, "iso": "2026-03-21T11:06:58.726940", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.727405, "iso": "2026-03-21T11:06:58.727407", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.731414, "iso": "2026-03-21T11:06:58.731416", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7318, "iso": "2026-03-21T11:06:58.731801", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.7320297, "iso": "2026-03-21T11:06:58.732030", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.733843, "iso": "2026-03-21T11:06:58.733844", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7340643, "iso": "2026-03-21T11:06:58.734065", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.734237, "iso": "2026-03-21T11:06:58.734237", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.7360055, "iso": "2026-03-21T11:06:58.736006", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7362154, "iso": "2026-03-21T11:06:58.736215", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.736384, "iso": "2026-03-21T11:06:58.736384", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.7384048, "iso": "2026-03-21T11:06:58.738406", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7385995, "iso": "2026-03-21T11:06:58.738600", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.7387676, "iso": "2026-03-21T11:06:58.738768", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.740492, "iso": "2026-03-21T11:06:58.740493", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.74068, "iso": "2026-03-21T11:06:58.740680", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.740843, "iso": "2026-03-21T11:06:58.740843", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.742486, "iso": "2026-03-21T11:06:58.742486", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7426233, "iso": "2026-03-21T11:06:58.742623", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.742736, "iso": "2026-03-21T11:06:58.742736", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.7438738, "iso": "2026-03-21T11:06:58.743874", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7440095, "iso": "2026-03-21T11:06:58.744009", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.7441308, "iso": "2026-03-21T11:06:58.744131", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.74527, "iso": "2026-03-21T11:06:58.745270", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.745402, "iso": "2026-03-21T11:06:58.745402", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.7455096, "iso": "2026-03-21T11:06:58.745510", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.7468698, "iso": "2026-03-21T11:06:58.746870", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.7470694, "iso": "2026-03-21T11:06:58.747070", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.9699228, "iso": "2026-03-21T11:06:58.969925", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.9729924, "iso": "2026-03-21T11:06:58.972996", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.9733493, "iso": "2026-03-21T11:06:58.973350", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.974351, "iso": "2026-03-21T11:06:58.974352", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.9800286, "iso": "2026-03-21T11:06:58.980030", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.980183, "iso": "2026-03-21T11:06:58.980183", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.980281, "iso": "2026-03-21T11:06:58.980281", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.981192, "iso": "2026-03-21T11:06:58.981193", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.981295, "iso": "2026-03-21T11:06:58.981295", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.9813788, "iso": "2026-03-21T11:06:58.981379", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.982247, "iso": "2026-03-21T11:06:58.982247", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.9823499, "iso": "2026-03-21T11:06:58.982350", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.9824333, "iso": "2026-03-21T11:06:58.982433", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.983315, "iso": "2026-03-21T11:06:58.983315", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.983414, "iso": "2026-03-21T11:06:58.983414", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.9834967, "iso": "2026-03-21T11:06:58.983496", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.9843633, "iso": "2026-03-21T11:06:58.984364", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.984462, "iso": "2026-03-21T11:06:58.984462", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.9845452, "iso": "2026-03-21T11:06:58.984545", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.9854398, "iso": "2026-03-21T11:06:58.985440", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.985545, "iso": "2026-03-21T11:06:58.985545", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.9856296, "iso": "2026-03-21T11:06:58.985629", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.9866347, "iso": "2026-03-21T11:06:58.986635", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.986737, "iso": "2026-03-21T11:06:58.986737", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112818.986819, "iso": "2026-03-21T11:06:58.986819", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112818.987678, "iso": "2026-03-21T11:06:58.987678", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112818.987776, "iso": "2026-03-21T11:06:58.987776", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2449803, "iso": "2026-03-21T11:06:59.244996", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2507598, "iso": "2026-03-21T11:06:59.250763", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2511716, "iso": "2026-03-21T11:06:59.251172", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2514882, "iso": "2026-03-21T11:06:59.251489", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2543676, "iso": "2026-03-21T11:06:59.254370", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.254707, "iso": "2026-03-21T11:06:59.254708", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.255003, "iso": "2026-03-21T11:06:59.255004", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.257483, "iso": "2026-03-21T11:06:59.257484", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2576876, "iso": "2026-03-21T11:06:59.257688", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2578633, "iso": "2026-03-21T11:06:59.257863", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2598164, "iso": "2026-03-21T11:06:59.259818", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2600355, "iso": "2026-03-21T11:06:59.260036", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2602298, "iso": "2026-03-21T11:06:59.260230", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.262778, "iso": "2026-03-21T11:06:59.262780", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2631927, "iso": "2026-03-21T11:06:59.263193", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2640975, "iso": "2026-03-21T11:06:59.264099", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2669249, "iso": "2026-03-21T11:06:59.266926", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2672448, "iso": "2026-03-21T11:06:59.267246", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2675133, "iso": "2026-03-21T11:06:59.267514", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2702556, "iso": "2026-03-21T11:06:59.270257", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2705534, "iso": "2026-03-21T11:06:59.270554", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2708116, "iso": "2026-03-21T11:06:59.270812", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2738135, "iso": "2026-03-21T11:06:59.273815", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2741659, "iso": "2026-03-21T11:06:59.274166", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.2744534, "iso": "2026-03-21T11:06:59.274454", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.2771182, "iso": "2026-03-21T11:06:59.277119", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.27733, "iso": "2026-03-21T11:06:59.277330", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.277507, "iso": "2026-03-21T11:06:59.277507", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.279357, "iso": "2026-03-21T11:06:59.279358", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.2795575, "iso": "2026-03-21T11:06:59.279557", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5192418, "iso": "2026-03-21T11:06:59.519244", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.522272, "iso": "2026-03-21T11:06:59.522274", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5226026, "iso": "2026-03-21T11:06:59.522603", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5233073, "iso": "2026-03-21T11:06:59.523308", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5307674, "iso": "2026-03-21T11:06:59.530769", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5311015, "iso": "2026-03-21T11:06:59.531102", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5313885, "iso": "2026-03-21T11:06:59.531389", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5341578, "iso": "2026-03-21T11:06:59.534159", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.534453, "iso": "2026-03-21T11:06:59.534454", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5347133, "iso": "2026-03-21T11:06:59.534714", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5374339, "iso": "2026-03-21T11:06:59.537435", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5377216, "iso": "2026-03-21T11:06:59.537722", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5379336, "iso": "2026-03-21T11:06:59.537934", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5401862, "iso": "2026-03-21T11:06:59.540187", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5404298, "iso": "2026-03-21T11:06:59.540430", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5406418, "iso": "2026-03-21T11:06:59.540642", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5428903, "iso": "2026-03-21T11:06:59.542891", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5431461, "iso": "2026-03-21T11:06:59.543147", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.543363, "iso": "2026-03-21T11:06:59.543363", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5459325, "iso": "2026-03-21T11:06:59.545933", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5462162, "iso": "2026-03-21T11:06:59.546217", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5464368, "iso": "2026-03-21T11:06:59.546437", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5485306, "iso": "2026-03-21T11:06:59.548531", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5487108, "iso": "2026-03-21T11:06:59.548711", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5488615, "iso": "2026-03-21T11:06:59.548861", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5503771, "iso": "2026-03-21T11:06:59.550378", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.5505433, "iso": "2026-03-21T11:06:59.550544", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.5506895, "iso": "2026-03-21T11:06:59.550689", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.5521994, "iso": "2026-03-21T11:06:59.552200", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.759166, "iso": "2026-03-21T11:06:59.759168", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.759647, "iso": "2026-03-21T11:06:59.759648", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.762673, "iso": "2026-03-21T11:06:59.762674", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.763011, "iso": "2026-03-21T11:06:59.763012", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7633133, "iso": "2026-03-21T11:06:59.763314", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.7667177, "iso": "2026-03-21T11:06:59.766720", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7671003, "iso": "2026-03-21T11:06:59.767101", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.767397, "iso": "2026-03-21T11:06:59.767397", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.7701983, "iso": "2026-03-21T11:06:59.770200", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7705183, "iso": "2026-03-21T11:06:59.770519", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7708035, "iso": "2026-03-21T11:06:59.770804", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.7735093, "iso": "2026-03-21T11:06:59.773511", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7738166, "iso": "2026-03-21T11:06:59.773817", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7743714, "iso": "2026-03-21T11:06:59.774372", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.776525, "iso": "2026-03-21T11:06:59.776526", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7767575, "iso": "2026-03-21T11:06:59.776758", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7769582, "iso": "2026-03-21T11:06:59.776958", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.779134, "iso": "2026-03-21T11:06:59.779135", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7793667, "iso": "2026-03-21T11:06:59.779367", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7795656, "iso": "2026-03-21T11:06:59.779566", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.781676, "iso": "2026-03-21T11:06:59.781677", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7819078, "iso": "2026-03-21T11:06:59.781908", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7821198, "iso": "2026-03-21T11:06:59.782120", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.784839, "iso": "2026-03-21T11:06:59.784839", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7850058, "iso": "2026-03-21T11:06:59.785006", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112819.7851646, "iso": "2026-03-21T11:06:59.785165", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112819.7878685, "iso": "2026-03-21T11:06:59.787869", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112819.7880511, "iso": "2026-03-21T11:06:59.788051", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.02965, "iso": "2026-03-21T11:07:00.029651", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0307713, "iso": "2026-03-21T11:07:00.030772", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0308936, "iso": "2026-03-21T11:07:00.030894", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0309849, "iso": "2026-03-21T11:07:00.030985", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0397863, "iso": "2026-03-21T11:07:00.039788", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0401633, "iso": "2026-03-21T11:07:00.040164", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0404778, "iso": "2026-03-21T11:07:00.040478", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.043329, "iso": "2026-03-21T11:07:00.043330", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0436335, "iso": "2026-03-21T11:07:00.043634", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0438974, "iso": "2026-03-21T11:07:00.043898", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0468266, "iso": "2026-03-21T11:07:00.046828", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0471559, "iso": "2026-03-21T11:07:00.047156", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0474377, "iso": "2026-03-21T11:07:00.047438", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0501873, "iso": "2026-03-21T11:07:00.050189", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0505068, "iso": "2026-03-21T11:07:00.050508", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0507796, "iso": "2026-03-21T11:07:00.050781", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0527918, "iso": "2026-03-21T11:07:00.052793", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.052979, "iso": "2026-03-21T11:07:00.052979", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0531552, "iso": "2026-03-21T11:07:00.053155", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0548468, "iso": "2026-03-21T11:07:00.054847", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0550547, "iso": "2026-03-21T11:07:00.055055", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.0552773, "iso": "2026-03-21T11:07:00.055278", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0582368, "iso": "2026-03-21T11:07:00.058238", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.0594711, "iso": "2026-03-21T11:07:00.059472", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.061333, "iso": "2026-03-21T11:07:00.061333", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0871778, "iso": "2026-03-21T11:07:00.087180", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.092542, "iso": "2026-03-21T11:07:00.092544", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.093196, "iso": "2026-03-21T11:07:00.093197", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.0970573, "iso": "2026-03-21T11:07:00.097060", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.276129, "iso": "2026-03-21T11:07:00.276132", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.2767167, "iso": "2026-03-21T11:07:00.276718", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.2806427, "iso": "2026-03-21T11:07:00.280645", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.2809746, "iso": "2026-03-21T11:07:00.280975", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.2812948, "iso": "2026-03-21T11:07:00.281296", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.2891839, "iso": "2026-03-21T11:07:00.289186", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.2895157, "iso": "2026-03-21T11:07:00.289516", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.2897847, "iso": "2026-03-21T11:07:00.289785", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.2925923, "iso": "2026-03-21T11:07:00.292594", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.2928915, "iso": "2026-03-21T11:07:00.292892", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.293171, "iso": "2026-03-21T11:07:00.293172", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.2960718, "iso": "2026-03-21T11:07:00.296073", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.2963827, "iso": "2026-03-21T11:07:00.296383", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.2966442, "iso": "2026-03-21T11:07:00.296645", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.2989364, "iso": "2026-03-21T11:07:00.298938", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.2991443, "iso": "2026-03-21T11:07:00.299144", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.2993114, "iso": "2026-03-21T11:07:00.299311", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.3010857, "iso": "2026-03-21T11:07:00.301086", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.3012812, "iso": "2026-03-21T11:07:00.301282", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.3014495, "iso": "2026-03-21T11:07:00.301450", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.3036776, "iso": "2026-03-21T11:07:00.303679", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.3038836, "iso": "2026-03-21T11:07:00.303884", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.3040683, "iso": "2026-03-21T11:07:00.304069", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.3059685, "iso": "2026-03-21T11:07:00.305970", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.3061812, "iso": "2026-03-21T11:07:00.306182", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.3063464, "iso": "2026-03-21T11:07:00.306347", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.3080652, "iso": "2026-03-21T11:07:00.308066", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.3082542, "iso": "2026-03-21T11:07:00.308254", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5559604, "iso": "2026-03-21T11:07:00.555962", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5590575, "iso": "2026-03-21T11:07:00.559059", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5593963, "iso": "2026-03-21T11:07:00.559397", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5596666, "iso": "2026-03-21T11:07:00.559667", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5675542, "iso": "2026-03-21T11:07:00.567556", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5678802, "iso": "2026-03-21T11:07:00.567881", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5682786, "iso": "2026-03-21T11:07:00.568280", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.571116, "iso": "2026-03-21T11:07:00.571118", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5714142, "iso": "2026-03-21T11:07:00.571415", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5716808, "iso": "2026-03-21T11:07:00.571682", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5744824, "iso": "2026-03-21T11:07:00.574484", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5748007, "iso": "2026-03-21T11:07:00.574801", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5753336, "iso": "2026-03-21T11:07:00.575334", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5775032, "iso": "2026-03-21T11:07:00.577505", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.57775, "iso": "2026-03-21T11:07:00.577751", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5779533, "iso": "2026-03-21T11:07:00.577953", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.580135, "iso": "2026-03-21T11:07:00.580136", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5803883, "iso": "2026-03-21T11:07:00.580389", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.580592, "iso": "2026-03-21T11:07:00.580592", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5829682, "iso": "2026-03-21T11:07:00.582970", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5832458, "iso": "2026-03-21T11:07:00.583246", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.583458, "iso": "2026-03-21T11:07:00.583458", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5854306, "iso": "2026-03-21T11:07:00.585431", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5856059, "iso": "2026-03-21T11:07:00.585606", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.585747, "iso": "2026-03-21T11:07:00.585747", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.5872064, "iso": "2026-03-21T11:07:00.587207", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.5873852, "iso": "2026-03-21T11:07:00.587385", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.5875251, "iso": "2026-03-21T11:07:00.587525", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.589109, "iso": "2026-03-21T11:07:00.589110", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.7978954, "iso": "2026-03-21T11:07:00.797900", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.7983441, "iso": "2026-03-21T11:07:00.798345", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8020148, "iso": "2026-03-21T11:07:00.802017", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.8024118, "iso": "2026-03-21T11:07:00.802413", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8027265, "iso": "2026-03-21T11:07:00.802727", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8106337, "iso": "2026-03-21T11:07:00.810636", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.8109922, "iso": "2026-03-21T11:07:00.810993", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8112998, "iso": "2026-03-21T11:07:00.811300", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8155425, "iso": "2026-03-21T11:07:00.815545", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.8158984, "iso": "2026-03-21T11:07:00.815899", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8162353, "iso": "2026-03-21T11:07:00.816236", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8190973, "iso": "2026-03-21T11:07:00.819099", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.8194306, "iso": "2026-03-21T11:07:00.819431", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8197362, "iso": "2026-03-21T11:07:00.819737", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.821594, "iso": "2026-03-21T11:07:00.821595", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.821823, "iso": "2026-03-21T11:07:00.821823", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8220065, "iso": "2026-03-21T11:07:00.822007", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8237715, "iso": "2026-03-21T11:07:00.823772", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.824952, "iso": "2026-03-21T11:07:00.824952", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8251674, "iso": "2026-03-21T11:07:00.825168", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8275206, "iso": "2026-03-21T11:07:00.827522", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.8278823, "iso": "2026-03-21T11:07:00.827883", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8281963, "iso": "2026-03-21T11:07:00.828197", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8310306, "iso": "2026-03-21T11:07:00.831032", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.831361, "iso": "2026-03-21T11:07:00.831362", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.8316302, "iso": "2026-03-21T11:07:00.831631", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8358746, "iso": "2026-03-21T11:07:00.835877", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.8362353, "iso": "2026-03-21T11:07:00.836236", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.836516, "iso": "2026-03-21T11:07:00.836516", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.8392684, "iso": "2026-03-21T11:07:00.839269", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.9046142, "iso": "2026-03-21T11:07:00.904616", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.9090078, "iso": "2026-03-21T11:07:00.909008", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.9859412, "iso": "2026-03-21T11:07:00.985959", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.9873297, "iso": "2026-03-21T11:07:00.987332", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112820.9878232, "iso": "2026-03-21T11:07:00.987824", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112820.9908676, "iso": "2026-03-21T11:07:00.990868", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112820.9909956, "iso": "2026-03-21T11:07:00.990996", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: token"}
+{"ts": 1774112821.0712633, "iso": "2026-03-21T11:07:01.071265", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112821.0738542, "iso": "2026-03-21T11:07:01.073855", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.0742097, "iso": "2026-03-21T11:07:01.074210", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_call_detected"}
+{"ts": 1774112821.0744421, "iso": "2026-03-21T11:07:01.074442", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.0758767, "iso": "2026-03-21T11:07:01.075877", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.0764027, "iso": "2026-03-21T11:07:01.076403", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_execution_started"}
+{"ts": 1774112821.0773773, "iso": "2026-03-21T11:07:01.077377", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.0801609, "iso": "2026-03-21T11:07:01.080161", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.0807655, "iso": "2026-03-21T11:07:01.080766", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.1632276, "iso": "2026-03-21T11:07:01.163236", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.1663783, "iso": "2026-03-21T11:07:01.166379", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.1665554, "iso": "2026-03-21T11:07:01.166556", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.166689, "iso": "2026-03-21T11:07:01.166689", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.1678877, "iso": "2026-03-21T11:07:01.167888", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.1680214, "iso": "2026-03-21T11:07:01.168022", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.1681747, "iso": "2026-03-21T11:07:01.168175", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.1698332, "iso": "2026-03-21T11:07:01.169834", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.1699688, "iso": "2026-03-21T11:07:01.169969", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.2304246, "iso": "2026-03-21T11:07:01.230427", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.2347255, "iso": "2026-03-21T11:07:01.234728", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.2362301, "iso": "2026-03-21T11:07:01.236231", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3049421, "iso": "2026-03-21T11:07:01.304949", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.3095124, "iso": "2026-03-21T11:07:01.309515", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3098974, "iso": "2026-03-21T11:07:01.309898", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_retry_attempt"}
+{"ts": 1774112821.310224, "iso": "2026-03-21T11:07:01.310225", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.3131614, "iso": "2026-03-21T11:07:01.313163", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3135197, "iso": "2026-03-21T11:07:01.313520", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3138092, "iso": "2026-03-21T11:07:01.313810", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r1"}
+{"ts": 1774112821.3166363, "iso": "2026-03-21T11:07:01.316638", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3173668, "iso": "2026-03-21T11:07:01.317368", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.317688, "iso": "2026-03-21T11:07:01.317689", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r1"}
+{"ts": 1774112821.3204913, "iso": "2026-03-21T11:07:01.320493", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.320732, "iso": "2026-03-21T11:07:01.320733", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3209488, "iso": "2026-03-21T11:07:01.320949", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r1"}
+{"ts": 1774112821.3234177, "iso": "2026-03-21T11:07:01.323418", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3236322, "iso": "2026-03-21T11:07:01.323632", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3238823, "iso": "2026-03-21T11:07:01.323883", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r1"}
+{"ts": 1774112821.325738, "iso": "2026-03-21T11:07:01.325739", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3259366, "iso": "2026-03-21T11:07:01.325937", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3261294, "iso": "2026-03-21T11:07:01.326130", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r1"}
+{"ts": 1774112821.3279638, "iso": "2026-03-21T11:07:01.327965", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3281844, "iso": "2026-03-21T11:07:01.328185", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3283646, "iso": "2026-03-21T11:07:01.328365", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r1"}
+{"ts": 1774112821.3302221, "iso": "2026-03-21T11:07:01.330223", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3304389, "iso": "2026-03-21T11:07:01.330439", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_retry_attempt"}
+{"ts": 1774112821.3755023, "iso": "2026-03-21T11:07:01.375505", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.3792999, "iso": "2026-03-21T11:07:01.379302", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.3796773, "iso": "2026-03-21T11:07:01.379678", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3811808, "iso": "2026-03-21T11:07:01.381182", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.38736, "iso": "2026-03-21T11:07:01.387362", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.387928, "iso": "2026-03-21T11:07:01.387929", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3884609, "iso": "2026-03-21T11:07:01.388462", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.392285, "iso": "2026-03-21T11:07:01.392287", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.392962, "iso": "2026-03-21T11:07:01.392963", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.3939633, "iso": "2026-03-21T11:07:01.393964", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.3975234, "iso": "2026-03-21T11:07:01.397525", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.398093, "iso": "2026-03-21T11:07:01.398094", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.4006164, "iso": "2026-03-21T11:07:01.400618", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.4040763, "iso": "2026-03-21T11:07:01.404078", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.404387, "iso": "2026-03-21T11:07:01.404388", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.404951, "iso": "2026-03-21T11:07:01.404951", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.4076953, "iso": "2026-03-21T11:07:01.407696", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.4081242, "iso": "2026-03-21T11:07:01.408125", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.4087849, "iso": "2026-03-21T11:07:01.408786", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.4124691, "iso": "2026-03-21T11:07:01.412471", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.4128442, "iso": "2026-03-21T11:07:01.412845", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_output_delta"}
+{"ts": 1774112821.4471056, "iso": "2026-03-21T11:07:01.447107", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2-r2"}
+{"ts": 1774112821.4500728, "iso": "2026-03-21T11:07:01.450074", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.4504588, "iso": "2026-03-21T11:07:01.450459", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_retry_exhausted"}
+{"ts": 1774112821.4507918, "iso": "2026-03-21T11:07:01.450792", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.4541533, "iso": "2026-03-21T11:07:01.454154", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.4545407, "iso": "2026-03-21T11:07:01.454541", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_execution_failed"}
+{"ts": 1774112821.4548597, "iso": "2026-03-21T11:07:01.454860", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": "bash", "call_id": "d4c834dc-bd2"}
+{"ts": 1774112821.4568079, "iso": "2026-03-21T11:07:01.456809", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774112821.4570503, "iso": "2026-03-21T11:07:01.457051", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_line_skipped", "line_preview": "event: tool_execution_summary"}
+{"ts": 1774112821.4573195, "iso": "2026-03-21T11:07:01.457320", "mission_id": "mission-RLBR-001-1774112808", "event": "stream_event", "event_type": "", "tool_name": null, "call_id": null}
+{"ts": 1774112821.4595578, "iso": "2026-03-21T11:07:01.459559", "mission_id": "mission-RLBR-001-1774112808", "event": "lease_touched", "source": "event_processed", "ttl": 660.0, "event_type": ""}
+{"ts": 1774113421.5593414, "iso": "2026-03-21T11:17:01.559343", "mission_id": "mission-RLBR-001-1774112808", "event": "execute_exception", "error": "HTTPConnectionPool(host='127.0.0.1', port=8766): Read timed out."}
+{"ts": 1774113421.5599089, "iso": "2026-03-21T11:17:01.559910", "mission_id": "mission-RLBR-001-1774112808", "event": "mission_retry_scheduled", "story_id": "RLBR-001", "attempts": 1, "error": "HTTPConnectionPool(host='127.0.0.1', port=8766): Read timed out.", "next_lease_expires_at": 1774113721.5598893}
+{"ts": 1774113421.5619562, "iso": "2026-03-21T11:17:01.561957", "mission_id": "mission-RLBR-001-1774112808", "event": "mission_failed_before_verification", "story_id": "RLBR-001", "error": "HTTPConnectionPool(host='127.0.0.1', port=8766): Read timed out.", "trace_path": "/home/mark/.roxy/data/mission_traces/mission-RLBR-001-1774112808.jsonl"}

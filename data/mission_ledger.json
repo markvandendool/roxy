@@ -508,17 +508,20 @@
       "mission_id": "mission-AIL-010-1774008959",
       "story_id": "AIL-010",
       "story_title": "Create ColliderRegistry singleton",
-      "status": "running",
+      "status": "expired",
       "goal": "Create ColliderRegistry singleton\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create ColliderRegistry singleton with typed Map<uuid, ColliderHitTarget> for O(1) hit lookup.",
       "created_at": 1774008959.5417836,
       "started_at": 1774008959.5477061,
-      "completed_at": null,
+      "completed_at": 1774028238.1348238,
       "lease_expires_at": 1774009650.722266,
       "attempts": 0,
       "max_retries": 2,
       "tool_calls": [],
       "verification_results": [],
-      "evidence_bundle": {},
+      "evidence_bundle": {
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-010-1774008959.json",
+        "trace_path": "/home/mark/.roxy/data/mission_traces/mission-AIL-010-1774008959.jsonl"
+      },
       "error": "",
       "files_modified": [],
       "files_in_scope": [
@@ -537,8 +540,82 @@
         "cmd: pnpm lint --max-warnings=0 src/services/interaction/ColliderRegistry.ts"
       ],
       "rollback_command": ""
+    },
+    "mission-AIL-011-1774028238": {
+      "mission_id": "mission-AIL-011-1774028238",
+      "story_id": "AIL-011",
+      "story_title": "Create piano collider generator (88 keys)",
+      "status": "failed",
+      "goal": "Create piano collider generator (88 keys)\n\nObserved: consolidated from EPIC-AAA-INTERACTION-LAYER. Create createPianoColliders(pianoGroup, offset) generator producing 88 invisible box colliders with MIDI numbers.",
+      "created_at": 1774028238.948879,
+      "started_at": 1774028238.9512095,
+      "completed_at": 1774112688.3302958,
+      "lease_expires_at": 1774112748.2270896,
+      "attempts": 2,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "trace_path": "/home/mark/.roxy/data/mission_traces/mission-AIL-011-1774028238.jsonl",
+        "artifact_path": "/home/mark/.roxy/evidence/missions/mission-AIL-011-1774028238.json"
+      },
+      "error": "HTTPConnectionPool(host='127.0.0.1', port=8766): Read timed out.",
+      "files_modified": [],
+      "files_in_scope": [
+        "src/services/interaction/colliders/PianoColliders.ts"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "88 BoxGeometry colliders created (MIDI 21-108)",
+        "Each collider has userData.midi property",
+        "Each collider registered in ColliderRegistry"
+      ],
+      "tool_budget": 15,
+      "verification_plan": [
+        "cmd: vitest run --reporter=basic src/services/interaction/colliders/PianoColliders.ts",
+        "cmd: pnpm typecheck",
+        "cmd: pnpm lint --max-warnings=0 src/services/interaction/colliders/PianoColliders.ts"
+      ],
+      "rollback_command": ""
+    },
+    "mission-RLBR-001-1774112808": {
+      "mission_id": "mission-RLBR-001-1774112808",
+      "story_id": "RLBR-001",
+      "story_title": "Add roxy_legacy collection support to the docs indexer",
+      "status": "acquired",
+      "goal": "Add roxy_legacy collection support to the docs indexer\n\nExtend ~/.roxy/scripts/index_docs_to_rag.py so it supports a dedicated roxy_legacy collection rooted at ~/.roxy/brain/06_legacy, while preserving the current behavior for the four existing docs collections.",
+      "created_at": 1774112808.7133698,
+      "started_at": 1774112808.7154422,
+      "completed_at": null,
+      "lease_expires_at": 1774113721.5598893,
+      "attempts": 1,
+      "max_retries": 2,
+      "tool_calls": [],
+      "verification_results": [],
+      "evidence_bundle": {
+        "trace_path": "/home/mark/.roxy/data/mission_traces/mission-RLBR-001-1774112808.jsonl"
+      },
+      "error": "",
+      "files_modified": [],
+      "files_in_scope": [
+        "~/.roxy/scripts/index_docs_to_rag.py"
+      ],
+      "constraints": [],
+      "required_evidence": [
+        "Indexer defines `roxy_legacy` collection rooted at `~/.roxy/brain/06_legacy` with collection metadata.",
+        "Markdown discovery for `roxy_legacy` only scans legacy markdown files and leaves existing documentation collections unchanged.",
+        "Summary JSON includes `roxy_legacy` file and chunk counts when selected directly.",
+        "cmd: python3 ~/.roxy/scripts/index_docs_to_rag.py --dry-run --collection roxy_legacy"
+      ],
+      "tool_budget": 9,
+      "verification_plan": [
+        "cmd: python3 ~/.roxy/scripts/index_docs_to_rag.py --dry-run --collection roxy_legacy",
+        "cmd: python3 -m py_compile ~/.roxy/scripts/index_docs_to_rag.py",
+        "cmd: python3 -m pytest tests/unit -x -q --tb=short"
+      ],
+      "rollback_command": ""
     }
   },
-  "active_mission_id": "mission-AIL-010-1774008959",
-  "saved_at": 1774008990.7231169
+  "active_mission_id": "mission-RLBR-001-1774112808",
+  "saved_at": 1774113421.5603695
 }

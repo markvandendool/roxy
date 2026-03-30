@@ -1,17 +1,17 @@
 {
-  "review_id": "REVIEW_20260320_111815_652f1104",
-  "timestamp": "2026-03-20T17:18:15.984847+00:00",
+  "review_id": "REVIEW_20260329_211812_270606bf",
+  "timestamp": "2026-03-30T03:18:12.774001+00:00",
   "status": "healthy",
-  "source_scripts": "SCRIPT_20260320_111615_5edd1e0a",
+  "source_scripts": "SCRIPT_20260329_211619_4b4d93c6",
   "reviewed_scripts": [
     {
-      "script_id": "SCR_74ac4c746b97",
-      "trend_title": "The best AI investment might be in energy tech",
-      "template_id": "news-standard",
+      "script_id": "SCR_66e17c93a613",
+      "trend_title": "AI system learns to keep warehouse robot traffic running smoothly",
+      "template_id": "tutorial-standard",
       "review_status": "approved",
       "scores": {
-        "hook_strength": 7,
-        "content_depth": 10,
+        "hook_strength": 8,
+        "content_depth": 9,
         "structure_flow": 10,
         "differentiation": 9,
         "overall": 9
@@ -19,42 +19,20 @@
       "recommendations": [],
       "approved_sections": [
         "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
+        "intro",
+        "step_1",
+        "step_2",
+        "step_3",
+        "demo",
+        "tips",
         "cta"
       ],
       "revision_needed": [],
       "production_ready": true
     },
     {
-      "script_id": "SCR_a8bc4e18f00d",
-      "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
-      "template_id": "news-standard",
-      "review_status": "approved",
-      "scores": {
-        "hook_strength": 7,
-        "content_depth": 10,
-        "structure_flow": 10,
-        "differentiation": 9,
-        "overall": 9
-      },
-      "recommendations": [],
-      "approved_sections": [
-        "hook",
-        "context",
-        "details",
-        "analysis",
-        "takeaway",
-        "cta"
-      ],
-      "revision_needed": [],
-      "production_ready": true
-    },
-    {
-      "script_id": "SCR_6bea7c64fbea",
-      "trend_title": "WordPress.com now lets AI agents write and publish posts, and more",
+      "script_id": "SCR_886edf2f2019",
+      "trend_title": "Sora\u2019s shutdown could be a reality check moment for AI video",
       "template_id": "news-standard",
       "review_status": "approved",
       "scores": {
@@ -63,6 +41,30 @@
         "structure_flow": 10,
         "differentiation": 9,
         "overall": 8
+      },
+      "recommendations": [],
+      "approved_sections": [
+        "hook",
+        "context",
+        "details",
+        "analysis",
+        "takeaway",
+        "cta"
+      ],
+      "revision_needed": [],
+      "production_ready": true
+    },
+    {
+      "script_id": "SCR_54d7b48d50d7",
+      "trend_title": "Bluesky leans into AI with Attie, an app for building custom feeds",
+      "template_id": "news-standard",
+      "review_status": "approved",
+      "scores": {
+        "hook_strength": 8,
+        "content_depth": 10,
+        "structure_flow": 10,
+        "differentiation": 9,
+        "overall": 9
       },
       "recommendations": [],
       "approved_sections": [
