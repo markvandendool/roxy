@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ROXY proxy v2 - forwards requests to local ROXY core, injects X-ROXY-Token, and maps API paths."""
+"""ROXY proxy v3 - forwards to ROXY core + canonical run gateway."""
 import http.server
 import socketserver
 import urllib.request
@@ -19,8 +19,9 @@ if not os.path.exists(TOKEN_PATH):
     sys.exit(1)
 TOKEN = open(TOKEN_PATH).read().strip()
 
-PORT = 9136
-TARGET_BASE = 'http://127.0.0.1:8766'
+PORT = int(os.getenv('ROXY_PROXY_PORT', '9136'))
+TARGET_BASE = os.getenv('ROXY_CORE_BASE', 'http://127.0.0.1:8766')
+GATEWAY_BASE = os.getenv('ROXY_RUN_GATEWAY_BASE', 'http://127.0.0.1:4899')
 LOG_DIR = os.path.join(HOME, '.roxy', 'logs')
 
 # Map incoming proxy paths to ROXY core paths
@@ -28,7 +29,6 @@ PATH_MAP = {
     '/api/status': '/health',
     '/api/roxy/status': '/health',
     '/api/roxy/run': '/run',
-    '/api/roxy/command': '/run',
     '/api/run': '/run',
     '/api/roxy/feedback': '/feedback',
     '/api/roxy/feedback/stats': '/feedback/stats',
@@ -109,26 +109,45 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _mapped_path(self, path):
         # split path from query
         if '?' in path:
-            p,q = path.split('?',1)
+            p, q = path.split('?', 1)
             q = '?' + q
         else:
-            p,q = path, ''
+            p, q = path, ''
         mapped = PATH_MAP.get(p, p)
         return mapped + q
 
     def _proxy(self):
-        mapped_path = self._mapped_path(self.path)
-        url = TARGET_BASE + mapped_path
+        parsed = urlparse(self.path)
+        route_path = parsed.path
+
+        # Canonical run ingress + operational command ingress route to run gateway.
+        # All other ROXY reads/writes continue to route to roxy-core.
+        use_run_gateway = route_path.startswith('/api/runs') or route_path == '/api/roxy/command'
+
+        if use_run_gateway:
+            mapped_path = self.path
+            url = GATEWAY_BASE + mapped_path
+        else:
+            mapped_path = self._mapped_path(self.path)
+            url = TARGET_BASE + mapped_path
+
         method = self.command
         length = int(self.headers.get('Content-Length', 0))
         data = self.rfile.read(length) if length else None
+
         headers = dict(self.headers)
-        headers['X-ROXY-Token'] = TOKEN
+        headers.pop('Host', None)
+        if use_run_gateway:
+            headers.pop('X-ROXY-Token', None)
+            headers['Authorization'] = f'Bearer {TOKEN}'
+        else:
+            headers['X-ROXY-Token'] = TOKEN
+
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 self.send_response(resp.getcode())
-                for k,v in resp.getheaders():
+                for k, v in resp.getheaders():
                     if k.lower() == 'transfer-encoding':
                         continue
                     self.send_header(k, v)
@@ -137,21 +156,23 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(resp.read())
         except urllib.error.HTTPError as e:
             self.send_response(e.code)
-            for k,v in e.headers.items():
+            for k, v in e.headers.items():
                 self.send_header(k, v)
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(e.read())
         except Exception as e:
             self.send_response(502)
-            self.send_header('Content-Type', 'text/plain')
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            self.wfile.write(str(e).encode())
+            self.wfile.write(json.dumps({"status": "error", "message": f"Proxy error: {e}"}).encode())
 
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin','*')
-        self.send_header('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS')
-        self.send_header('Access-Control-Allow-Headers','Content-Type, Authorization, X-ROXY-Token')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-ROXY-Token')
         self.end_headers()
 
     def do_GET(self):
@@ -177,14 +198,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json({"logs": logs, "count": len(logs)})
             return
         self._proxy()
+
     def do_POST(self):
         self._proxy()
+
     def do_PUT(self):
         self._proxy()
+
     def do_DELETE(self):
         self._proxy()
 
 if __name__ == '__main__':
     with socketserver.ThreadingTCPServer(('0.0.0.0', PORT), Handler) as httpd:
-        print(f'ROXY proxy listening on 0.0.0.0:{PORT}')
+        print(f'ROXY proxy listening on 0.0.0.0:{PORT} -> core={TARGET_BASE}, runs={GATEWAY_BASE}')
         httpd.serve_forever()
