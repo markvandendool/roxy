@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import os
+import select
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -12,6 +14,7 @@ from urllib.request import Request, urlopen
 
 
 GITNEXUS_URL = os.getenv("ROXY_GITNEXUS_URL", "http://127.0.0.1:4747").rstrip("/")
+GITNEXUS_CLI = os.getenv("ROXY_GITNEXUS_CLI", str(Path.home() / ".local" / "bin" / "gitnexus"))
 CANONICAL_ROOT = Path(
     os.getenv(
         "ROXY_MINDSONG_CANONICAL_ROOT",
@@ -32,6 +35,7 @@ STATUS_PATH = Path(
 ).expanduser()
 POLL_SECONDS = float(os.getenv("ROXY_GITNEXUS_ANALYZE_POLL_SECONDS", "5"))
 MAX_WAIT_SECONDS = float(os.getenv("ROXY_GITNEXUS_ANALYZE_MAX_WAIT_SECONDS", "14400"))
+HEARTBEAT_SECONDS = float(os.getenv("ROXY_GITNEXUS_ANALYZE_HEARTBEAT_SECONDS", "10"))
 
 
 def _request_json(url: str, payload: dict | None = None, method: str = "GET") -> dict:
@@ -75,8 +79,6 @@ def _safe_git_head(repo_root: Path) -> str | None:
     if not git_dir.exists():
         return None
     try:
-        import subprocess
-
         completed = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=repo_root,
@@ -89,6 +91,62 @@ def _safe_git_head(repo_root: Path) -> str | None:
         return head or None
     except Exception:
         return None
+
+
+def _run_cli(command: list[str], *, state: str, job_id: str, phase: str) -> tuple[int, str]:
+    env = os.environ.copy()
+    env["PATH"] = f"{Path.home() / '.local' / 'bin'}:/usr/local/bin:/usr/bin:/bin:" + env.get("PATH", "")
+    env.setdefault("NODE_OPTIONS", "--max-old-space-size=12288")
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+        env=env,
+    )
+    last_line = ""
+    try:
+        assert process.stdout is not None
+        stdout_fd = process.stdout.fileno()
+        while True:
+            ready, _, _ = select.select([stdout_fd], [], [], HEARTBEAT_SECONDS)
+            if ready:
+                raw_line = process.stdout.readline()
+                if raw_line == "":
+                    if process.poll() is not None:
+                        break
+                    continue
+                line = raw_line.strip()
+                if not line:
+                    continue
+                last_line = line
+                print(f"[gitnexus-analyze] {line}", flush=True)
+                _write_status(
+                    _status_payload(
+                        state=state,
+                        job_id=job_id,
+                        progress={"phase": phase, "message": line},
+                    )
+                )
+                continue
+            if process.poll() is not None:
+                break
+            heartbeat_message = last_line or f"{phase} running"
+            _write_status(
+                _status_payload(
+                    state=state,
+                    job_id=job_id,
+                    progress={
+                        "phase": phase,
+                        "message": heartbeat_message,
+                        "heartbeat": True,
+                    },
+                )
+            )
+    finally:
+        return_code = process.wait()
+    return return_code, last_line
 
 
 def _write_status(payload: dict) -> None:
@@ -118,6 +176,8 @@ def _status_payload(
         "canonical_head": _safe_git_head(CANONICAL_ROOT),
         "mirror_head": _safe_git_head(MIRROR_ROOT),
         "source_head": source_meta.get("source_head"),
+        "indexed_source_head": source_meta.get("source_head") if state == "complete" else None,
+        "mode": source_meta.get("mode"),
         "synced_at": source_meta.get("synced_at"),
         "progress": progress or {},
         "registered": registered,
@@ -132,101 +192,90 @@ def main() -> int:
         print(f"[gitnexus-analyze] mirror root missing: {MIRROR_ROOT}", file=sys.stderr)
         return 1
 
-    _write_status(_status_payload(state="starting"))
+    job_id = f"cli-{int(time.time())}"
+    _write_status(_status_payload(state="starting", job_id=job_id))
 
-    job = _request_json(
-        f"{GITNEXUS_URL}/api/analyze",
-        payload={"path": str(MIRROR_ROOT), "force": True},
-        method="POST",
-    )
-    job_id = job.get("jobId")
-    if not job_id:
-        print(f"[gitnexus-analyze] missing job id: {job}", file=sys.stderr)
-        _write_status(
-            _status_payload(
-                state="failed",
-                error=f"missing job id: {job}",
-            )
+    analyze_cmd = [
+        GITNEXUS_CLI,
+        "analyze",
+        "--force",
+        "--skip-git",
+        "--skip-agents-md",
+        "--no-stats",
+        str(MIRROR_ROOT),
+    ]
+    print(f"[gitnexus-analyze] starting CLI analyze for {MIRROR_ROOT}", flush=True)
+    _write_status(
+        _status_payload(
+            state="indexing",
+            job_id=job_id,
+            progress={"phase": "cli_analyze", "message": "Starting CLI analyze"},
         )
+    )
+    analyze_rc, analyze_tail = _run_cli(analyze_cmd, state="indexing", job_id=job_id, phase="cli_analyze")
+    if analyze_rc != 0:
+        error = f"gitnexus analyze exited {analyze_rc}: {analyze_tail}".strip()
+        _write_status(_status_payload(state="failed", job_id=job_id, error=error))
+        print(f"[gitnexus-analyze] failed: {error}", file=sys.stderr, flush=True)
         return 1
 
-    _write_status(_status_payload(state="submitted", job_id=job_id))
-    print(f"[gitnexus-analyze] started job {job_id} for {MIRROR_ROOT}", flush=True)
-    last_line = ""
-    deadline = time.time() + MAX_WAIT_SECONDS
-
-    while time.time() < deadline:
-        payload = _request_json(f"{GITNEXUS_URL}/api/analyze/{job_id}")
-        status = str(payload.get("status") or "").lower()
-        line = _status_line(payload)
-        _write_status(
-            _status_payload(
-                state="indexing" if status not in {"complete", "failed"} else status,
-                job_id=job_id,
-                progress=payload.get("progress") or {},
-            )
+    index_cmd = [GITNEXUS_CLI, "index", "--allow-non-git", str(MIRROR_ROOT)]
+    _write_status(
+        _status_payload(
+            state="indexing",
+            job_id=job_id,
+            progress={"phase": "cli_index", "message": "Registering GitNexus repo"},
         )
-        if line and line != last_line:
-            print(f"[gitnexus-analyze] {line}", flush=True)
-            last_line = line
-
-        if status == "complete":
-            repos = _request_json(f"{GITNEXUS_URL}/api/repos")
-            matched = next(
-                (
-                    entry
-                    for entry in repos
-                    if isinstance(entry, dict)
-                    and str(entry.get("path") or "") == str(MIRROR_ROOT)
-                ),
-                None,
-            )
-            _write_status(
-                _status_payload(
-                    state="complete",
-                    job_id=job_id,
-                    progress=payload.get("progress") or {},
-                    registered=bool(matched),
-                    repo_name=matched.get("name") if matched else None,
-                )
-            )
-            print(
-                "[gitnexus-analyze] complete",
-                json.dumps(
-                    {
-                        "job_id": job_id,
-                        "mirror_root": str(MIRROR_ROOT),
-                        "registered": bool(matched),
-                        "repo_name": matched.get("name") if matched else None,
-                    }
-                ),
-                flush=True,
-            )
-            return 0
-        if status == "failed":
-            error = str(payload.get("error") or payload)
-            _write_status(
-                _status_payload(
-                    state="failed",
-                    job_id=job_id,
-                    progress=payload.get("progress") or {},
-                    error=error,
-                )
-            )
-            print(f"[gitnexus-analyze] failed: {error}", file=sys.stderr, flush=True)
-            return 1
-
-        time.sleep(POLL_SECONDS)
+    )
+    index_rc, index_tail = _run_cli(index_cmd, state="indexing", job_id=job_id, phase="cli_index")
+    if index_rc != 0:
+        error = f"gitnexus index exited {index_rc}: {index_tail}".strip()
+        _write_status(_status_payload(state="failed", job_id=job_id, error=error))
+        print(f"[gitnexus-analyze] failed: {error}", file=sys.stderr, flush=True)
+        return 1
 
     _write_status(
         _status_payload(
-            state="failed",
+            state="reloading",
             job_id=job_id,
-            error=f"timed out waiting for {job_id}",
+            progress={"phase": "service_reload", "message": "Restarting gitnexus.service"},
         )
     )
-    print(f"[gitnexus-analyze] timed out waiting for {job_id}", file=sys.stderr, flush=True)
-    return 1
+    subprocess.run(["systemctl", "--user", "restart", "gitnexus.service"], check=True)
+    time.sleep(max(POLL_SECONDS, 2))
+
+    repos = _request_json(f"{GITNEXUS_URL}/api/repos")
+    matched = next(
+        (
+            entry
+            for entry in repos
+            if isinstance(entry, dict)
+            and str(entry.get("path") or "") == str(MIRROR_ROOT)
+        ),
+        None,
+    )
+    _write_status(
+        _status_payload(
+            state="complete",
+            job_id=job_id,
+            progress={"phase": "done", "percent": 100, "message": "Done"},
+            registered=bool(matched),
+            repo_name=matched.get("name") if matched else None,
+        )
+    )
+    print(
+        "[gitnexus-analyze] complete",
+        json.dumps(
+            {
+                "job_id": job_id,
+                "mirror_root": str(MIRROR_ROOT),
+                "registered": bool(matched),
+                "repo_name": matched.get("name") if matched else None,
+            }
+        ),
+        flush=True,
+    )
+    return 0
 
 
 if __name__ == "__main__":

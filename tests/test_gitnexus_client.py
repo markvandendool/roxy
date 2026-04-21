@@ -131,6 +131,111 @@ def test_get_repo_status_exposes_separate_canonical_and_index_path_hints(monkeyp
     assert status["fresh"] is False
 
 
+def test_get_repo_status_marks_canonical_ahead_as_stale(monkeypatch):
+    monkeypatch.setitem(gitnexus_client.REPO_PATH_HINTS, "mindsong-juke-hub", "/canonical/mindsong-juke-hub")
+    monkeypatch.setitem(
+        gitnexus_client.REPO_INDEX_PATH_HINTS,
+        "mindsong-juke-hub",
+        "/local/gitnexus-mirrors/mindsong-juke-hub",
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "get_server_info",
+        lambda **_kwargs: {"available": True, "version": "1.6.2", "launch_context": "global"},
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "_read_local_index_state",
+        lambda _repo: {
+            "indexed_at_local": "2026-04-21T19:04:36.853Z",
+            "indexed_commit": "mirror123",
+            "current_commit": "mirror123",
+            "fresh": True,
+            "meta_repo_path": "/local/gitnexus-mirrors/mindsong-juke-hub",
+            "repo_path_match": True,
+            "staleness_reason": None,
+        },
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "_read_runtime_status",
+        lambda _repo: {
+            "state": "complete",
+            "canonical_head": "canon999",
+            "mirror_head": "mirror123",
+        },
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "_request_json",
+        lambda *args, **kwargs: {
+            "indexedAt": "2026-04-21T19:04:36.853Z",
+            "stats": {"files": 10, "nodes": 20, "processes": 2},
+        }
+        if args and args[0] == "/api/repo"
+        else {},
+    )
+
+    status = gitnexus_client.get_repo_status("mindsong-juke-hub")
+
+    assert status["fresh"] is False
+    assert status["staleness_reason"] == "canonical_head_mismatch"
+    assert status["canonical_current_commit"] == "canon999"
+
+
+def test_get_repo_status_uses_runtime_indexed_source_head_for_snapshot_exports(monkeypatch):
+    monkeypatch.setitem(gitnexus_client.REPO_PATH_HINTS, "mindsong-juke-hub", "/canonical/mindsong-juke-hub")
+    monkeypatch.setitem(
+        gitnexus_client.REPO_INDEX_PATH_HINTS,
+        "mindsong-juke-hub",
+        "/local/gitnexus-mirrors/mindsong-juke-hub",
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "get_server_info",
+        lambda **_kwargs: {"available": True, "version": "1.6.2", "launch_context": "global"},
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "_read_local_index_state",
+        lambda _repo: {
+            "indexed_at_local": "2026-04-21T19:04:36.853Z",
+            "indexed_commit": None,
+            "current_commit": None,
+            "fresh": None,
+            "meta_repo_path": "/local/gitnexus-mirrors/mindsong-juke-hub",
+            "repo_path_match": True,
+            "staleness_reason": None,
+        },
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "_read_runtime_status",
+        lambda _repo: {
+            "state": "complete",
+            "source_head": "snap123",
+            "indexed_source_head": "snap123",
+            "canonical_head": "snap123",
+        },
+    )
+    monkeypatch.setattr(
+        gitnexus_client,
+        "_request_json",
+        lambda *args, **kwargs: {
+            "indexedAt": "2026-04-21T19:04:36.853Z",
+            "stats": {"files": 10, "nodes": 20, "processes": 2},
+        }
+        if args and args[0] == "/api/repo"
+        else {},
+    )
+
+    status = gitnexus_client.get_repo_status("mindsong-juke-hub")
+
+    assert status["indexed_commit"] == "snap123"
+    assert status["current_commit"] == "snap123"
+    assert status["fresh"] is True
+
+
 def test_local_index_state_ignores_unborn_head(monkeypatch, tmp_path):
     repo = tmp_path / "mindsong-juke-hub"
     repo.mkdir()

@@ -65,6 +65,43 @@ def test_repo_intel_query_symbol_returns_real_file_path(tmp_path):
     assert matches[0]["line"] == 1
 
 
+def test_repo_intel_reads_legacy_cache_when_primary_cache_is_empty(tmp_path, monkeypatch):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+
+    primary_cache_dir = tmp_path / "cache-primary"
+    legacy_cache_dir = tmp_path / "cache-legacy"
+    primary_cache_dir.mkdir()
+    legacy_cache_dir.mkdir()
+
+    monkeypatch.setattr(repo_intel, "CACHE_DIR", primary_cache_dir)
+    monkeypatch.setattr(repo_intel, "LEGACY_CACHE_DIR", legacy_cache_dir)
+    monkeypatch.setattr(repo_intel, "_repo_index", None)
+    monkeypatch.setattr(repo_intel, "_repo_index_root", None)
+
+    indexer = RepoIndexer(repo_root)
+    legacy_payload = repo_intel.RepoIndex(
+        root=str(repo_root),
+        root_hash=indexer.root_hash,
+        built_at=time.time(),
+        file_count=1,
+        language_stats={"python": 1},
+        files={},
+        symbol_index={},
+        dependency_map={},
+        test_map={},
+        reverse_test_map={},
+    ).to_dict()
+    legacy_cache_file = legacy_cache_dir / f"{indexer.root_hash}.json"
+    legacy_cache_file.write_text(json.dumps(legacy_payload), encoding="utf-8")
+
+    cached = repo_intel.get_cached_repo_index(repo_root=repo_root)
+
+    assert cached is not None
+    assert cached.file_count == 1
+    assert cached.root == str(repo_root)
+
+
 def test_runtime_state_snapshot_uses_cached_repo_index_without_rebuild(monkeypatch, tmp_path):
     repo_root = tmp_path / "repo"
     repo_root.mkdir()

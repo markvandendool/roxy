@@ -226,6 +226,28 @@ def _read_runtime_status(repo_name: Optional[str]) -> Dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _safe_git_head(path_hint: Optional[str]) -> Optional[str]:
+    if not path_hint:
+        return None
+    repo_root = Path(path_hint).expanduser()
+    git_dir = repo_root / ".git"
+    if not git_dir.exists():
+        return None
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        head = (completed.stdout or "").strip()
+        return head or None
+    except Exception:
+        return None
+
+
 def _read_local_index_state(repo_name: Optional[str]) -> Dict[str, Any]:
     repo_path = _resolve_repo_fs_path(repo_name)
     registry_entry = _read_registry_entry(repo_name, repo_path)
@@ -349,14 +371,27 @@ def get_repo_status(
 
     def _status_base() -> Dict[str, Any]:
         bootstrap_progress = runtime_state.get("progress") or {}
+        canonical_current_commit = runtime_state.get("canonical_head") or _safe_git_head(canonical_path_hint)
+        indexed_commit = local_state.get("indexed_commit") or runtime_state.get("indexed_source_head")
+        current_commit = local_state.get("current_commit") or runtime_state.get("source_head")
+        fresh = local_state.get("fresh")
+        staleness_reason = local_state.get("staleness_reason")
+
+        if indexed_commit and canonical_current_commit and indexed_commit != canonical_current_commit:
+            fresh = False
+            staleness_reason = "canonical_head_mismatch"
+        elif indexed_commit and canonical_current_commit and fresh is None and indexed_commit == canonical_current_commit:
+            fresh = True
+
         return {
             "truth_source": "gitnexus",
-            "indexed_commit": local_state.get("indexed_commit"),
-            "current_commit": local_state.get("current_commit"),
-            "fresh": local_state.get("fresh"),
+            "indexed_commit": indexed_commit,
+            "current_commit": current_commit,
+            "canonical_current_commit": canonical_current_commit,
+            "fresh": fresh,
             "meta_repo_path": local_state.get("meta_repo_path"),
             "repo_path_match": local_state.get("repo_path_match"),
-            "staleness_reason": local_state.get("staleness_reason"),
+            "staleness_reason": staleness_reason,
             "bootstrap_state": runtime_state.get("state"),
             "bootstrap_job_id": runtime_state.get("job_id"),
             "bootstrap_progress": bootstrap_progress,
@@ -415,7 +450,7 @@ def get_repo_status(
         status_base = _status_base()
         if (
             is_indexed_repo(payload)
-            and status_base.get("bootstrap_state") in {"starting", "submitted", "indexing"}
+            and status_base.get("bootstrap_state") in {"starting", "submitted", "indexing", "reloading"}
             and status_base.get("fresh") is True
             and status_base.get("indexed_commit")
             and status_base.get("indexed_commit") == status_base.get("current_commit")

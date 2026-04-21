@@ -46,6 +46,29 @@ def test_extract_user_facts_benchmark_codename():
     assert by_category.get("benchmark_codename") == "AZURE-EMBER-914"
 
 
+def test_get_infrastructure_status_handles_health_check_exceptions(monkeypatch):
+    class HealthyComponent:
+        def health_check(self):
+            return {"healthy": True, "backend": "stub"}
+
+    class BrokenComponent:
+        def health_check(self):
+            raise RuntimeError("event loop is already running")
+
+    monkeypatch.setattr(infrastructure, "REDIS_CACHE", HealthyComponent())
+    monkeypatch.setattr(infrastructure, "POSTGRES_MEMORY", HealthyComponent())
+    monkeypatch.setattr(infrastructure, "EXPERT_ROUTER", BrokenComponent())
+    monkeypatch.setattr(infrastructure, "EVENT_STREAM", None)
+    monkeypatch.setattr(infrastructure, "FEEDBACK_COLLECTOR", None)
+
+    status = infrastructure.get_infrastructure_status()
+
+    assert status["components"]["redis_cache"]["healthy"] is True
+    assert status["components"]["expert_router"]["healthy"] is False
+    assert status["components"]["expert_router"]["exception_type"] == "RuntimeError"
+    assert "event loop is already running" in status["components"]["expert_router"]["error"]
+
+
 def test_memory_rerank_prefers_lexical_overlap():
     memory = object.__new__(memory_postgres.PostgresMemory)
     memory.recall_min_score = 0.18

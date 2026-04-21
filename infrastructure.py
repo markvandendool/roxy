@@ -199,26 +199,30 @@ def get_infrastructure_status() -> Dict[str, Any]:
         'initialized': _initialized,
         'components': {}
     }
+
+    def _safe_health_check(name: str, component: Any) -> Dict[str, Any]:
+        if not component:
+            return {'healthy': False, 'error': 'Not initialized'}
+        try:
+            result = component.health_check()
+        except Exception as exc:
+            logger.warning("Infrastructure health check failed for %s: %s", name, exc)
+            return {
+                'healthy': False,
+                'error': f'health_check_failed: {exc}',
+                'exception_type': type(exc).__name__,
+            }
+        if isinstance(result, dict):
+            return result
+        return {
+            'healthy': False,
+            'error': f'Invalid health check response type: {type(result).__name__}',
+        }
     
-    if REDIS_CACHE:
-        status['components']['redis_cache'] = REDIS_CACHE.health_check()
-    else:
-        status['components']['redis_cache'] = {'healthy': False, 'error': 'Not initialized'}
-    
-    if POSTGRES_MEMORY:
-        status['components']['postgres_memory'] = POSTGRES_MEMORY.health_check()
-    else:
-        status['components']['postgres_memory'] = {'healthy': False, 'error': 'Not initialized'}
-    
-    if EXPERT_ROUTER:
-        status['components']['expert_router'] = EXPERT_ROUTER.health_check()
-    else:
-        status['components']['expert_router'] = {'healthy': False, 'error': 'Not initialized'}
-    
-    if EVENT_STREAM:
-        status['components']['event_stream'] = EVENT_STREAM.health_check()
-    else:
-        status['components']['event_stream'] = {'healthy': False, 'error': 'Not initialized'}
+    status['components']['redis_cache'] = _safe_health_check('redis_cache', REDIS_CACHE)
+    status['components']['postgres_memory'] = _safe_health_check('postgres_memory', POSTGRES_MEMORY)
+    status['components']['expert_router'] = _safe_health_check('expert_router', EXPERT_ROUTER)
+    status['components']['event_stream'] = _safe_health_check('event_stream', EVENT_STREAM)
     
     if FEEDBACK_COLLECTOR:
         status['components']['feedback'] = {

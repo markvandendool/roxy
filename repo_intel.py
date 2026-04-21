@@ -9,7 +9,8 @@ Builds a RAM-resident index from the mindsong repo:
   - File ownership: dir -> last modified by ROXY
   - Language stats: extensions -> file counts
 
-Cached at ~/.roxy/repo-intel/{repo_hash}.json
+Runtime cache lives under ~/.cache/roxy/repo-intel/{repo_hash}.json by default.
+Legacy caches under ~/.roxy/repo-intel/ remain readable for compatibility.
 Refresh on: file change, explicit rebuild, or >1hr stale.
 """
 import hashlib
@@ -26,8 +27,32 @@ from typing import Any, Dict, List, Optional, Set
 logger = logging.getLogger("roxy.repo_intel")
 
 ROXY_DIR = Path.home() / ".roxy"
-CACHE_DIR = ROXY_DIR / "repo-intel"
+LEGACY_CACHE_DIR = ROXY_DIR / "repo-intel"
+
+
+def _detect_cache_dir() -> Path:
+    explicit = os.getenv("ROXY_REPO_INTEL_CACHE_DIR")
+    if explicit:
+        return Path(explicit).expanduser()
+    xdg_cache_root = Path(os.getenv("XDG_CACHE_HOME", str(Path.home() / ".cache"))).expanduser()
+    return xdg_cache_root / "roxy" / "repo-intel"
+
+
+CACHE_DIR = _detect_cache_dir()
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _primary_cache_file(root_hash: str) -> Path:
+    return CACHE_DIR / f"{root_hash}.json"
+
+
+def _cache_candidates(root_hash: str) -> List[Path]:
+    primary = _primary_cache_file(root_hash)
+    candidates = [primary]
+    legacy = LEGACY_CACHE_DIR / f"{root_hash}.json"
+    if legacy != primary:
+        candidates.append(legacy)
+    return candidates
 
 def _detect_default_repo() -> Path:
     home = Path.home()
@@ -269,18 +294,21 @@ class RepoIndexer:
         Uses ripgrep --files for fast file discovery (no Python walk).
         Then extracts symbols/imports in targeted ripgrep passes.
         """
-        cache_file = CACHE_DIR / f"{self.root_hash}.json"
+        cache_file = _primary_cache_file(self.root_hash)
 
-        if not force and cache_file.exists():
-            try:
-                with open(cache_file) as f:
-                    data = json.load(f)
-                idx = self._dict_to_index(data)
-                if not idx.is_stale(7200):
-                    logger.info(f"RepoIntel cache hit: {self.repo_root} ({idx.file_count} files)")
-                    return idx
-            except Exception as e:
-                logger.warning(f"Failed to load RepoIntel cache: {e}")
+        if not force:
+            for candidate in _cache_candidates(self.root_hash):
+                if not candidate.exists():
+                    continue
+                try:
+                    with open(candidate) as f:
+                        data = json.load(f)
+                    idx = self._dict_to_index(data)
+                    if not idx.is_stale(7200):
+                        logger.info(f"RepoIntel cache hit: {self.repo_root} ({idx.file_count} files)")
+                        return idx
+                except Exception as e:
+                    logger.warning(f"Failed to load RepoIntel cache from {candidate}: {e}")
 
         logger.info(f"Building RepoIntel index for: {self.repo_root}")
         start = time.time()
@@ -486,16 +514,18 @@ def get_cached_repo_index(repo_root: Optional[Path] = None) -> Optional[RepoInde
         return _repo_index
 
     indexer = RepoIndexer(root_path)
-    cache_file = CACHE_DIR / f"{indexer.root_hash}.json"
-    if not cache_file.exists():
-        return None
-
-    try:
-        with open(cache_file) as f:
-            data = json.load(f)
-        idx = indexer._dict_to_index(data)
-    except Exception as e:
-        logger.warning(f"Failed to load cached RepoIntel index: {e}")
+    idx = None
+    for cache_file in _cache_candidates(indexer.root_hash):
+        if not cache_file.exists():
+            continue
+        try:
+            with open(cache_file) as f:
+                data = json.load(f)
+            idx = indexer._dict_to_index(data)
+            break
+        except Exception as e:
+            logger.warning(f"Failed to load cached RepoIntel index from {cache_file}: {e}")
+    if idx is None:
         return None
 
     _repo_index = idx
@@ -561,4 +591,4 @@ if __name__ == "__main__":
     print(f"Indexed {idx.file_count} files in {idx.root}")
     print(f"Languages: {idx.language_stats}")
     print(f"Symbols: {len(idx.symbol_index)} unique")
-    print(f"Cache: {CACHE_DIR / f'{idx.root_hash}.json'}")
+    print(f"Cache: {_primary_cache_file(idx.root_hash)}")

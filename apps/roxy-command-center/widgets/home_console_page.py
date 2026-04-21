@@ -1053,7 +1053,10 @@ class TalkColumn(Gtk.Box):
             summary_parts.append(f"ctx:{memory_backend}")
 
         if gitnexus.get("available"):
-            if gitnexus.get("indexed") and gitnexus.get("fresh") is False:
+            bootstrap_state = str(gitnexus.get("bootstrap_state") or "")
+            if bootstrap_state == "failed" and gitnexus.get("fresh") is not True:
+                summary_parts.append("nexus:failed")
+            elif gitnexus.get("indexed") and gitnexus.get("fresh") is False:
                 summary_parts.append("nexus:stale")
             elif gitnexus.get("indexed"):
                 summary_parts.append("nexus:fresh")
@@ -1150,6 +1153,8 @@ class TalkColumn(Gtk.Box):
                         else ""
                     )
                 )
+            if gitnexus.get("bootstrap_error"):
+                lines.append("GitNexus Bootstrap Error: " + str(gitnexus.get("bootstrap_error")))
             if gitnexus.get("indexed_commit") or gitnexus.get("current_commit"):
                 lines.append(
                     "GitNexus Commits: indexed="
@@ -1157,6 +1162,8 @@ class TalkColumn(Gtk.Box):
                     + " index_head="
                     + str(gitnexus.get("current_commit") or "--")
                 )
+            if gitnexus.get("canonical_current_commit"):
+                lines.append("GitNexus Canonical HEAD: " + str(gitnexus.get("canonical_current_commit")))
 
         if atlas:
             lines.append(
@@ -1380,9 +1387,11 @@ class TalkColumn(Gtk.Box):
             if gitnexus.get("available"):
                 bootstrap_state = str(gitnexus.get("bootstrap_state") or "")
                 bootstrap_progress = gitnexus.get("bootstrap_progress") or {}
-                if bootstrap_state in {"starting", "submitted", "indexing"} and gitnexus.get("indexed"):
+                if bootstrap_state == "failed" and gitnexus.get("fresh") is not True:
+                    status = "failed"
+                elif bootstrap_state in {"starting", "submitted", "indexing", "reloading"} and gitnexus.get("indexed"):
                     status = "syncing"
-                elif bootstrap_state in {"starting", "submitted", "indexing"} and not gitnexus.get("indexed"):
+                elif bootstrap_state in {"starting", "submitted", "indexing", "reloading"} and not gitnexus.get("indexed"):
                     status = "indexing"
                 elif gitnexus.get("indexed") and gitnexus.get("fresh") is False:
                     status = "stale"
@@ -1405,16 +1414,20 @@ class TalkColumn(Gtk.Box):
                             f"Indexed At: {gitnexus.get('indexed_at') or '--'}",
                             f"Indexed Commit: {gitnexus.get('indexed_commit') or '--'}",
                             f"Index HEAD: {gitnexus.get('current_commit') or '--'}",
+                            f"Canonical Truth HEAD: {gitnexus.get('canonical_current_commit') or '--'}",
                             f"Canonical HEAD: {gitnexus.get('bootstrap_canonical_head') or '--'}",
                             f"Mirror HEAD: {gitnexus.get('bootstrap_mirror_head') or '--'}",
                             f"Meta Repo Path: {gitnexus.get('meta_repo_path') or '--'}",
                             f"Files: {stats.get('files', 0)} Nodes: {stats.get('nodes', 0)} Processes: {stats.get('processes', 0)}",
                             f"Staleness: {gitnexus.get('staleness_reason') or '--'}",
                             f"Error: {gitnexus.get('error') or '--'}",
+                            f"Bootstrap Error: {gitnexus.get('bootstrap_error') or '--'}",
                         ]
                     )
                 )
-                if bootstrap_state in {"starting", "submitted", "indexing"}:
+                if bootstrap_state == "failed" and gitnexus.get("fresh") is not True:
+                    self._gitnexus_chip.add_css_class("error")
+                elif bootstrap_state in {"starting", "submitted", "indexing", "reloading"}:
                     self._gitnexus_chip.remove_css_class("error")
                 elif gitnexus.get("indexed") and gitnexus.get("fresh") is not False:
                     self._gitnexus_chip.remove_css_class("error")

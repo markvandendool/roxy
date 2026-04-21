@@ -786,6 +786,9 @@ def answer_git_query(query: str) -> str:
                 if not gitnexus_meta.get("indexed"):
                     truth_sources["degraded"] = True
                     truth_sources["degraded_reason"] = "gitnexus_not_indexed"
+                elif str(gitnexus_meta.get("bootstrap_state") or "") == "failed":
+                    truth_sources["degraded"] = True
+                    truth_sources["degraded_reason"] = "gitnexus_bootstrap_failed"
                 elif gitnexus_meta.get("fresh") is False:
                     truth_sources["degraded"] = True
                     truth_sources["degraded_reason"] = "gitnexus_stale"
