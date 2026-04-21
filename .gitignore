@@ -89,6 +89,8 @@ content-pipeline/jobs/
 content-pipeline/publish/
 content-pipeline/production/
 data/feedback/
+data/agent_traces/
+data/brain_atlas/
 forensics/
 obs-portable/
 obs-acceptance/

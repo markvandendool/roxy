@@ -80,6 +80,85 @@ class TestGitCommandParsing:
             "apps/roxy-command-center/main.py"
         ]
 
+    def test_answer_git_query_records_truth_sources_and_gitnexus(self, monkeypatch, tmp_path):
+        """git_query metadata should carry raw-git primary truth plus GitNexus status when available."""
+        repo_path = tmp_path / "mindsong-juke-hub"
+        repo_path.mkdir()
+        (repo_path / ".git").mkdir()
+
+        monkeypatch.setattr(
+            roxy_commands,
+            "_run_git_status_snapshot",
+            lambda _repo: (
+                "## main...origin/main",
+                [(" M", "src/components/theater8k/hooks/useDualCanvasThreeScene.ts")],
+            ),
+        )
+        monkeypatch.setattr(roxy_commands, "_mount_type_for", lambda _repo: "ext4")
+
+        fake_gitnexus = types.ModuleType("gitnexus_client")
+        fake_gitnexus.resolve_repo_name = lambda _repo: "mindsong-juke-hub"
+        fake_gitnexus.get_repo_status = lambda _repo: {
+            "available": True,
+            "repo_name": "mindsong-juke-hub",
+            "indexed": True,
+            "indexed_at": "2026-04-21T00:00:00Z",
+            "fresh": True,
+            "stats": {"files": 10, "nodes": 20, "processes": 2},
+            "error": None,
+            "truth_source": "gitnexus",
+        }
+        monkeypatch.setitem(sys.modules, "gitnexus_client", fake_gitnexus)
+
+        roxy_commands._reset_last_command_metadata()
+        roxy_commands.answer_git_query(f"In {repo_path}, what branch am I on and what changed?")
+
+        assert roxy_commands.LAST_COMMAND_METADATA["truth_sources"]["primary"] == "raw_git"
+        assert "gitnexus" in roxy_commands.LAST_COMMAND_METADATA["truth_sources"]["sources"]
+        assert roxy_commands.LAST_COMMAND_METADATA["gitnexus"]["indexed"] is True
+
+    def test_answer_git_query_marks_stale_gitnexus_as_degraded(self, monkeypatch, tmp_path):
+        """Stale GitNexus indexes must downgrade truth confidence instead of reading as fresh."""
+        repo_path = tmp_path / "mindsong-juke-hub"
+        repo_path.mkdir()
+        (repo_path / ".git").mkdir()
+
+        monkeypatch.setattr(
+            roxy_commands,
+            "_run_git_status_snapshot",
+            lambda _repo: (
+                "## main...origin/main",
+                [(" M", "src/components/theater8k/hooks/useDualCanvasThreeScene.ts")],
+            ),
+        )
+        monkeypatch.setattr(roxy_commands, "_mount_type_for", lambda _repo: "ext4")
+
+        fake_gitnexus = types.ModuleType("gitnexus_client")
+        fake_gitnexus.resolve_repo_name = lambda _repo: "mindsong-juke-hub"
+        fake_gitnexus.get_repo_status = lambda _repo: {
+            "available": True,
+            "repo_name": "mindsong-juke-hub",
+            "indexed": True,
+            "indexed_at": "2026-04-21T00:00:00Z",
+            "fresh": False,
+            "indexed_commit": "abc123",
+            "current_commit": "def456",
+            "staleness_reason": "head_mismatch",
+            "stats": {"files": 10, "nodes": 20, "processes": 2},
+            "error": None,
+            "truth_source": "gitnexus",
+        }
+        monkeypatch.setitem(sys.modules, "gitnexus_client", fake_gitnexus)
+
+        roxy_commands._reset_last_command_metadata()
+        roxy_commands.answer_git_query(f"In {repo_path}, what branch am I on and what changed?")
+
+        truth_sources = roxy_commands.LAST_COMMAND_METADATA["truth_sources"]
+        assert truth_sources["primary"] == "raw_git"
+        assert truth_sources["degraded"] is True
+        assert truth_sources["degraded_reason"] == "gitnexus_stale"
+        assert roxy_commands.LAST_COMMAND_METADATA["gitnexus"]["fresh"] is False
+
 
 class TestOBSCommandParsing:
     """Test OBS command parsing"""

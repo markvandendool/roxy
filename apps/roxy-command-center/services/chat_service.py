@@ -379,6 +379,7 @@ class ChatService:
         # Set headers
         headers = message.get_request_headers()
         headers.append("Content-Type", "application/json")
+        headers.append("X-ROXY-Operator-Surface", "command_center")
         if self._auth_token:
             headers.append("X-ROXY-Token", self._auth_token)
         
@@ -387,7 +388,8 @@ class ChatService:
             "command": text,
             "identity": self._session.identity.value if self._session else "mindsong",
             "chat_mode": self._session.mode.value if self._session else "draft",  # Draft/Send
-            "session_id": self._session.id if self._session else None
+            "session_id": self._session.id if self._session else None,
+            "operator_surface": "command_center",
         }
         
         # Add explicit operator controls (Chief's Truth Panel)

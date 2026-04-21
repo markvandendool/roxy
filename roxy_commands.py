@@ -760,10 +760,52 @@ def answer_git_query(query: str) -> str:
     filtered_paths = _filter_git_paths_for_query(changed_paths, query)
     strict = _is_strict_output_request(query)
     lower = (query or "").lower()
+    truth_sources = {
+        "primary": "raw_git",
+        "sources": ["raw_git"],
+        "degraded": False,
+    }
+    gitnexus_meta: Dict[str, Any] = {
+        "available": False,
+        "repo_name": None,
+        "indexed": False,
+        "indexed_at": None,
+        "stats": {},
+        "error": None,
+        "truth_source": "gitnexus",
+    }
+    try:
+        from gitnexus_client import get_repo_status, resolve_repo_name
+
+        repo_name = resolve_repo_name(str(repo_path))
+        if repo_name:
+            gitnexus_meta = get_repo_status(repo_name)
+            gitnexus_meta["repo_name"] = repo_name
+            if gitnexus_meta.get("available"):
+                truth_sources["sources"].append("gitnexus")
+                if not gitnexus_meta.get("indexed"):
+                    truth_sources["degraded"] = True
+                    truth_sources["degraded_reason"] = "gitnexus_not_indexed"
+                elif gitnexus_meta.get("fresh") is False:
+                    truth_sources["degraded"] = True
+                    truth_sources["degraded_reason"] = "gitnexus_stale"
+    except Exception as exc:
+        gitnexus_meta = {
+            "available": False,
+            "repo_name": repo_path.name,
+            "indexed": False,
+            "indexed_at": None,
+            "stats": {},
+            "error": str(exc),
+            "truth_source": "gitnexus",
+            "fresh": None,
+        }
     _update_last_command_metadata(
         route="git_query",
         repo_path=str(repo_path),
         repo_snapshot=snapshot,
+        truth_sources=truth_sources,
+        gitnexus=gitnexus_meta,
         routing_meta={
             "query_type": "git_query",
             "routed_mode": "git_query",
@@ -773,6 +815,7 @@ def answer_git_query(query: str) -> str:
             "repo_path": str(repo_path),
             "changed_count": snapshot["changed_count"],
             "is_dirty": snapshot["is_dirty"],
+            "truth_primary": truth_sources["primary"],
         },
     )
 
@@ -2253,7 +2296,7 @@ def main():
         "routing_meta": routing_meta,
         "flags": flags,
     }
-    for key in ("route", "repo_path", "repo_snapshot", "memory_receipt"):
+    for key in ("route", "repo_path", "repo_snapshot", "memory_receipt", "truth_sources", "gitnexus", "atlas"):
         if key in extra_metadata:
             metadata[key] = extra_metadata[key]
     

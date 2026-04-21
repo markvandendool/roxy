@@ -48,6 +48,7 @@ class ROXYEvaluator:
     
     def __init__(self):
         self.results: List[Dict] = []
+        self._last_query_payload: Dict = {}
         self._load_token()
     
     def _load_token(self):
@@ -75,10 +76,26 @@ class ROXYEvaluator:
                 json={"command": command, "stream": False},
                 timeout=60
             )
-            return resp.json()
+            payload = resp.json()
+            self._last_query_payload = payload if isinstance(payload, dict) else {}
+            return payload
         except Exception as e:
             logger.error(f"Query failed: {e}")
-            return {"status": "error", "message": str(e)}
+            payload = {"status": "error", "message": str(e)}
+            self._last_query_payload = payload
+            return payload
+
+    def _record_eval_trace(self, test_name: str, query: str, verdict: Dict) -> None:
+        try:
+            from trace_spine import get_trace_spine
+
+            trace_id = (
+                (self._last_query_payload.get("metadata") or {}).get("trace_id")
+                or f"eval-{test_name}-{int(time.time() * 1000)}"
+            )
+            get_trace_spine().record_eval_trace(trace_id, query, self._last_query_payload, verdict)
+        except Exception as exc:
+            logger.debug(f"Eval trace emission failed (non-critical): {exc}")
 
     def _evaluate_identity_assertion(self, test_name: str, query: str) -> Dict:
         """Enforce canonical identity assertion: user name + role."""
@@ -283,6 +300,7 @@ class ROXYEvaluator:
                 continue
             
             self.results.append(result)
+            self._record_eval_trace(test_name, query, result)
             status = "✅ PASS" if result["passed"] else "❌ FAIL"
             logger.info(f"  {status}: {test_name}")
         

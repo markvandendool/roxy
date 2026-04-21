@@ -798,6 +798,24 @@ class TalkColumn(Gtk.Box):
         self._github_chip.set_width_chars(10)  # Fixed width to prevent layout thrash
         truth_box.append(self._github_chip)
 
+        # GitNexus status chip
+        self._gitnexus_chip = Gtk.Label(label="🧬 --")
+        self._gitnexus_chip.add_css_class("dim-label")
+        self._gitnexus_chip.add_css_class("caption")
+        self._gitnexus_chip.set_tooltip_text("GitNexus code-truth status")
+        self._gitnexus_chip.set_xalign(0)
+        self._gitnexus_chip.set_width_chars(18)
+        truth_box.append(self._gitnexus_chip)
+
+        # Brain Atlas status chip
+        self._atlas_chip = Gtk.Label(label="🗺️ --")
+        self._atlas_chip.add_css_class("dim-label")
+        self._atlas_chip.add_css_class("caption")
+        self._atlas_chip.set_tooltip_text("Brain Atlas system graph status")
+        self._atlas_chip.set_xalign(0)
+        self._atlas_chip.set_width_chars(18)
+        truth_box.append(self._atlas_chip)
+
         status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         status_box.set_margin_bottom(4)
         header.append(status_box)
@@ -996,6 +1014,9 @@ class TalkColumn(Gtk.Box):
         total_ms_text = f"{int(round(float(total_ms)))}ms" if total_ms is not None else ""
         repo = meta.get("repo") or {}
         memory = meta.get("memory") or {}
+        truth_sources = meta.get("truth_sources") or {}
+        gitnexus = meta.get("gitnexus") or {}
+        atlas = meta.get("atlas") or {}
 
         summary_parts = []
 
@@ -1031,6 +1052,19 @@ class TalkColumn(Gtk.Box):
         elif memory_backend and memory.get("context_injected"):
             summary_parts.append(f"ctx:{memory_backend}")
 
+        if gitnexus.get("available"):
+            if gitnexus.get("indexed") and gitnexus.get("fresh") is False:
+                summary_parts.append("nexus:stale")
+            elif gitnexus.get("indexed"):
+                summary_parts.append("nexus:fresh")
+            else:
+                summary_parts.append("nexus:live")
+
+        if atlas.get("available"):
+            node_count = atlas.get("node_count")
+            if isinstance(node_count, int):
+                summary_parts.append(f"atlas:{node_count}n")
+
         if model:
             summary_parts.append(f"model:{model}")
 
@@ -1044,10 +1078,17 @@ class TalkColumn(Gtk.Box):
         lines = [
             "Last Execution",
             f"Trace: {meta.get('trace_id', '--')}",
+            f"Surface: {meta.get('operator_surface', '--')}",
             f"Mode: {mode}",
             f"Pool: {pool}",
             f"Route: {route}",
         ]
+        primary_truth = truth_sources.get("primary")
+        if primary_truth:
+            lines.append(f"Truth: {primary_truth}")
+        sources = truth_sources.get("sources") or []
+        if sources:
+            lines.append("Sources: " + ", ".join(str(source) for source in sources))
         if model:
             lines.append(f"Model: {model}")
         if total_ms_text:
@@ -1088,6 +1129,27 @@ class TalkColumn(Gtk.Box):
                     else:
                         preview.append(str(item))
                 lines.append("Learned: " + ", ".join(preview))
+
+        if gitnexus:
+            lines.append(
+                "GitNexus: repo="
+                + str(gitnexus.get("repo_name") or "--")
+                + f", live={gitnexus.get('available')}, indexed={gitnexus.get('indexed')}, fresh={gitnexus.get('fresh')}, indexed_at={gitnexus.get('indexed_at') or '--'}"
+            )
+            if gitnexus.get("indexed_commit") or gitnexus.get("current_commit"):
+                lines.append(
+                    "GitNexus Commits: indexed="
+                    + str(gitnexus.get("indexed_commit") or "--")
+                    + " current="
+                    + str(gitnexus.get("current_commit") or "--")
+                )
+
+        if atlas:
+            lines.append(
+                "Atlas: built_at="
+                + str(atlas.get("built_at") or "--")
+                + f", nodes={atlas.get('node_count', 0)}, edges={atlas.get('edge_count', 0)}"
+            )
 
         return text, "\n".join(lines)
 
@@ -1298,6 +1360,72 @@ class TalkColumn(Gtk.Box):
                 self._github_chip.set_label("🐙 unset")
                 self._github_chip.set_tooltip_text("GitHub token not configured")
                 self._github_chip.add_css_class("error")
+
+        if self._gitnexus_chip:
+            gitnexus = data.get("gitnexus", {})
+            if gitnexus.get("available"):
+                if gitnexus.get("indexed") and gitnexus.get("fresh") is False:
+                    status = "stale"
+                elif gitnexus.get("indexed"):
+                    status = "fresh"
+                else:
+                    status = "live"
+                self._gitnexus_chip.set_label(f"🧬 {status}")
+                stats = gitnexus.get("stats") or {}
+                self._gitnexus_chip.set_tooltip_text(
+                    "\n".join(
+                        [
+                            f"Repo: {gitnexus.get('repo_name', '--')}",
+                            f"Indexed: {gitnexus.get('indexed')}",
+                            f"Fresh: {gitnexus.get('fresh')}",
+                            f"Indexed At: {gitnexus.get('indexed_at') or '--'}",
+                            f"Indexed Commit: {gitnexus.get('indexed_commit') or '--'}",
+                            f"Current Commit: {gitnexus.get('current_commit') or '--'}",
+                            f"Meta Repo Path: {gitnexus.get('meta_repo_path') or '--'}",
+                            f"Files: {stats.get('files', 0)} Nodes: {stats.get('nodes', 0)} Processes: {stats.get('processes', 0)}",
+                            f"Staleness: {gitnexus.get('staleness_reason') or '--'}",
+                            f"Error: {gitnexus.get('error') or '--'}",
+                        ]
+                    )
+                )
+                if gitnexus.get("indexed") and gitnexus.get("fresh") is not False:
+                    self._gitnexus_chip.remove_css_class("error")
+                else:
+                    self._gitnexus_chip.add_css_class("error")
+            else:
+                self._gitnexus_chip.set_label("🧬 off")
+                self._gitnexus_chip.set_tooltip_text(f"GitNexus unavailable: {gitnexus.get('error') or '--'}")
+                self._gitnexus_chip.add_css_class("error")
+
+        if self._atlas_chip:
+            atlas = data.get("atlas", {})
+            if atlas.get("available"):
+                node_count = int(atlas.get("node_count") or 0)
+                edge_count = int(atlas.get("edge_count") or 0)
+                self._atlas_chip.set_label(f"🗺️ {node_count}/{edge_count}")
+                tooltip_lines = [
+                    f"Built At: {atlas.get('built_at') or '--'}",
+                    f"Nodes: {node_count}",
+                    f"Edges: {edge_count}",
+                ]
+                warnings = atlas.get("warnings") or []
+                if warnings:
+                    tooltip_lines.append("Warnings: " + ", ".join(str(item) for item in warnings[:3]))
+                neo4j = atlas.get("neo4j") or {}
+                if neo4j:
+                    tooltip_lines.append(
+                        f"Neo4j: reachable={neo4j.get('reachable')} upserted={neo4j.get('upserted')} error={neo4j.get('error') or '--'}"
+                    )
+                self._atlas_chip.set_tooltip_text("\n".join(tooltip_lines))
+                if warnings:
+                    self._atlas_chip.add_css_class("error")
+                else:
+                    self._atlas_chip.remove_css_class("error")
+            else:
+                self._atlas_chip.set_label("🗺️ off")
+                warnings = atlas.get("warnings") or []
+                self._atlas_chip.set_tooltip_text("Atlas unavailable: " + ", ".join(str(item) for item in warnings[:3]))
+                self._atlas_chip.add_css_class("error")
     
     def _update_truth_panel_error(self, error: str):
         """Handle /info fetch error."""
@@ -1313,6 +1441,12 @@ class TalkColumn(Gtk.Box):
         if self._github_chip:
             self._github_chip.set_label("🐙 --")
             self._github_chip.set_tooltip_text(f"roxy-core unreachable: {error}")
+        if self._gitnexus_chip:
+            self._gitnexus_chip.set_label("🧬 --")
+            self._gitnexus_chip.set_tooltip_text(f"roxy-core unreachable: {error}")
+        if self._atlas_chip:
+            self._atlas_chip.set_label("🗺️ --")
+            self._atlas_chip.set_tooltip_text(f"roxy-core unreachable: {error}")
 
     def _on_connect_click(self, button):
         """Manual reconnect."""

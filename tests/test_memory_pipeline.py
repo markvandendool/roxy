@@ -238,6 +238,52 @@ def test_execute_command_preserves_repo_snapshot_metadata(monkeypatch):
     assert handler._last_execution_metadata["routing_meta"]["reason"] == "deterministic:git_query:repo_override"
 
 
+def test_execute_command_preserves_truth_metadata(monkeypatch):
+    handler = object.__new__(roxy_core.RoxyCoreHandler)
+    handler.headers = {"X-ROXY-Session": "sess-truth"}
+    handler._last_execution_metadata = {}
+
+    monkeypatch.setattr(
+        roxy_core,
+        "_resolve_ollama_pools",
+        lambda: {
+            "default": "http://127.0.0.1:11435",
+            "w5700x": {"url": "http://127.0.0.1:11434", "configured": True},
+            "6900xt": {"url": "http://127.0.0.1:11435", "configured": True},
+            "misconfigured": False,
+        },
+    )
+    monkeypatch.setattr(
+        roxy_core,
+        "_check_ollama_reachability",
+        lambda _url: {"reachable": True, "error": None},
+    )
+    monkeypatch.setattr(roxy_core, "_get_default_model", lambda *args, **kwargs: "qwen2.5-coder:14b-instruct")
+
+    def fake_run(_cmd, capture_output, text, timeout, cwd, env):
+        structured = (
+            "repo summary\n__STRUCTURED_RESPONSE__\n"
+            '{"mode":"git_query","tools_executed":[],"metadata":{"route":"git_query","repo_path":"/tmp/repo","repo_snapshot":{"repo_path":"/tmp/repo","branch":"main","upstream":"origin/main","is_dirty":true,"changed_count":1,"modified_paths":["apps/roxy-command-center/main.py"],"untracked_paths":[],"status_lines":[" M apps/roxy-command-center/main.py"]},"truth_sources":{"primary":"raw_git","sources":["raw_git","gitnexus"]},"gitnexus":{"available":true,"repo_name":"mindsong-juke-hub","indexed":true,"indexed_at":"2026-04-21T00:00:00Z","stats":{"files":10,"nodes":20,"processes":2}},"routing_meta":{"selected_pool":"none","model_used":"none","reason":"deterministic:git_query:repo_override"}}}'
+        )
+        return types.SimpleNamespace(stdout=structured, stderr="")
+
+    monkeypatch.setattr(roxy_core.subprocess, "run", fake_run)
+
+    result = handler._execute_command(
+        "In /tmp/repo, what branch am I on and which files are modified?",
+        request_id="rid-truth",
+        session_id="sess-truth",
+        user_id="mark-roxy-canonical",
+        operator_surface="command_center",
+    )
+
+    assert "repo summary" in result
+    assert handler._last_execution_metadata["truth_sources"]["primary"] == "raw_git"
+    assert "gitnexus" in handler._last_execution_metadata["truth_sources"]["sources"]
+    assert handler._last_execution_metadata["gitnexus"]["indexed"] is True
+    assert handler._last_execution_metadata["operator_surface"] == "command_center"
+
+
 def test_canonical_identity_conflict_is_skipped(monkeypatch):
     recorded = []
 

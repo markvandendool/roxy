@@ -29,7 +29,21 @@ ROXY_DIR = Path.home() / ".roxy"
 CACHE_DIR = ROXY_DIR / "repo-intel"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_REPO = Path.home() / "work" / "mindsong_gh_https_1769765834"
+def _detect_default_repo() -> Path:
+    home = Path.home()
+    candidates = [
+        home / "mindsong-juke-hub",
+        home / "work" / "mindsong-juke-hub",
+        home / "work" / "mindsong_runtime_main",
+        home / "work" / "mindsong_gh_https_1769765834",
+    ]
+    for candidate in candidates:
+        if (candidate / ".git").exists():
+            return candidate
+    return candidates[0]
+
+
+DEFAULT_REPO = _detect_default_repo()
 
 SKIP_DIRS = {
     ".git", ".next", "node_modules", "dist", "build", "__pycache__",

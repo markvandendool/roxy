@@ -318,6 +318,8 @@ def _collect_info_payload() -> Dict[str, Any]:
         "hostname": socket.gethostname(),
         "roxy_core_pid": os.getpid(),
         "git": {},
+        "gitnexus": {},
+        "atlas": {},
         "ollama": {},
         "routing_policy": config.get("routing_policy", "auto"),
     }
@@ -440,10 +442,167 @@ def _collect_info_payload() -> Dict[str, Any]:
         "error": github_reach["error"],
         "rate_limit": github_reach["rate_limit"],
     }
+    try:
+        from gitnexus_client import DEFAULT_REPO as GITNEXUS_DEFAULT_REPO
+        from gitnexus_client import get_repo_status
+
+        info["gitnexus"] = get_repo_status(GITNEXUS_DEFAULT_REPO)
+    except Exception as exc:
+        info["gitnexus"] = {
+            "available": False,
+            "repo_name": "mindsong-juke-hub",
+            "indexed": False,
+            "indexed_at": None,
+            "stats": {},
+            "error": str(exc),
+            "truth_source": "gitnexus",
+        }
+
+    try:
+        from brain_atlas import get_atlas_status
+
+        info["atlas"] = get_atlas_status()
+    except Exception as exc:
+        info["atlas"] = {
+            "available": False,
+            "built_at": None,
+            "node_count": 0,
+            "edge_count": 0,
+            "warnings": [str(exc)],
+            "truth_source": "brain_atlas",
+        }
+
+    info["truth_contract"] = {
+        "worktree": "raw_git",
+        "code_structure": "gitnexus",
+        "system_graph": "brain_atlas",
+    }
     with _UI_SNAPSHOT_LOCK:
         _UI_INFO_CACHE["ts"] = time.time()
         _UI_INFO_CACHE["payload"] = _copy_jsonish(info)
     return info
+
+
+def _build_execution_truth_metadata(command: str, exec_meta: Dict[str, Any], operator_surface: str) -> Dict[str, Any]:
+    """Assemble provenance metadata for the current execution."""
+    repo_snapshot = exec_meta.get("repo_snapshot") or {}
+    repo_path = exec_meta.get("repo_path") or repo_snapshot.get("repo_path")
+    truth_sources = dict(exec_meta.get("truth_sources") or {})
+    truth_sources.setdefault("primary", "raw_git" if repo_path else "response")
+    source_list = list(truth_sources.get("sources") or [truth_sources["primary"]])
+    if truth_sources["primary"] not in source_list:
+        source_list.insert(0, truth_sources["primary"])
+    truth_sources["sources"] = source_list
+    truth_sources["operator_surface"] = operator_surface
+
+    gitnexus_meta = exec_meta.get("gitnexus") or {}
+    if repo_path:
+        try:
+            from gitnexus_client import get_repo_status, resolve_repo_name
+
+            repo_name = resolve_repo_name(str(repo_path))
+            if repo_name and not gitnexus_meta:
+                gitnexus_meta = get_repo_status(repo_name)
+        except Exception as exc:
+            gitnexus_meta = {
+                "available": False,
+                "repo_name": Path(str(repo_path)).name,
+                "indexed": False,
+                "indexed_at": None,
+                "stats": {},
+                "error": str(exc),
+                "truth_source": "gitnexus",
+                "fresh": None,
+            }
+    if gitnexus_meta.get("available") and "gitnexus" not in truth_sources["sources"]:
+        truth_sources["sources"].append("gitnexus")
+    if gitnexus_meta.get("available"):
+        if not gitnexus_meta.get("indexed"):
+            truth_sources["degraded"] = True
+            truth_sources["degraded_reason"] = "gitnexus_not_indexed"
+        elif gitnexus_meta.get("fresh") is False:
+            truth_sources["degraded"] = True
+            truth_sources["degraded_reason"] = "gitnexus_stale"
+
+    atlas_meta: Dict[str, Any] = {}
+    try:
+        from brain_atlas import atlas_repo_truth, get_atlas_status
+
+        atlas_meta = get_atlas_status()
+        if repo_path:
+            repo_truth = atlas_repo_truth(repo_path=str(repo_path))
+            atlas_meta["repo_truth"] = repo_truth
+        if atlas_meta.get("available") and "brain_atlas" not in truth_sources["sources"]:
+            truth_sources["sources"].append("brain_atlas")
+    except Exception as exc:
+        atlas_meta = {
+            "available": False,
+            "built_at": None,
+            "node_count": 0,
+            "edge_count": 0,
+            "warnings": [str(exc)],
+            "truth_source": "brain_atlas",
+        }
+
+    return {
+        "truth_sources": truth_sources,
+        "gitnexus": gitnexus_meta,
+        "atlas": atlas_meta,
+        "operator_surface": operator_surface,
+        "command_preview": str(command)[:200],
+    }
+
+
+def _build_trace_spans(exec_meta: Dict[str, Any], truth_meta: Dict[str, Any]) -> List[Dict[str, Any]]:
+    route = exec_meta.get("route", "unknown")
+    spans: List[Dict[str, Any]] = [
+        {
+            "name": "roxy.route",
+            "attributes": {
+                "route": route,
+                "mode": exec_meta.get("mode", "auto"),
+                "pool": exec_meta.get("pool", "auto"),
+            },
+        }
+    ]
+    repo = exec_meta.get("repo_snapshot") or {}
+    if repo:
+        spans.append(
+            {
+                "name": "raw_git.snapshot",
+                "attributes": {
+                    "repo_path": repo.get("repo_path"),
+                    "branch": repo.get("branch"),
+                    "is_dirty": repo.get("is_dirty"),
+                    "changed_count": repo.get("changed_count"),
+                },
+            }
+        )
+    gitnexus = truth_meta.get("gitnexus") or {}
+    if gitnexus:
+        spans.append(
+            {
+                "name": "gitnexus.lookup",
+                "attributes": {
+                    "repo_name": gitnexus.get("repo_name"),
+                    "available": gitnexus.get("available"),
+                    "indexed": gitnexus.get("indexed"),
+                },
+            }
+        )
+    atlas = truth_meta.get("atlas") or {}
+    if atlas:
+        spans.append(
+            {
+                "name": "brain_atlas.lookup",
+                "attributes": {
+                    "available": atlas.get("available"),
+                    "node_count": atlas.get("node_count"),
+                    "edge_count": atlas.get("edge_count"),
+                },
+            }
+        )
+    return spans
 
 
 def _fetch_ui_panel_snapshot(
@@ -2819,6 +2978,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_feedback_stats()
         elif path == "/info" or path == "/v1/info":
             self._handle_info()
+        elif path == "/gitnexus/status" or path == "/v1/gitnexus/status":
+            self._handle_gitnexus_status()
+        elif path == "/gitnexus/focus" or path == "/v1/gitnexus/focus":
+            self._handle_gitnexus_focus()
+        elif path == "/atlas/status" or path == "/v1/atlas/status":
+            self._handle_atlas_status()
+        elif path == "/atlas/repo" or path == "/v1/atlas/repo":
+            self._handle_atlas_repo()
+        elif path == "/atlas/service" or path == "/v1/atlas/service":
+            self._handle_atlas_service()
         elif path == "/ui/snapshot" or path == "/v1/ui/snapshot":
             self._handle_ui_snapshot()
         elif path == "/auth/status" or path == "/v1/auth/status":
@@ -3253,6 +3422,65 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(info, indent=2).encode())
+
+    def _handle_gitnexus_status(self):
+        params = self._parse_query_params()
+        repo = params.get("repo", "mindsong-juke-hub")
+        from gitnexus_client import get_repo_status
+
+        payload = get_repo_status(str(repo))
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_gitnexus_focus(self):
+        params = self._parse_query_params()
+        repo = params.get("repo", "mindsong-juke-hub")
+        label = params.get("label", "")
+        file_path = params.get("file_path", "")
+        from gitnexus_client import resolve_focus
+
+        payload = resolve_focus(str(repo), label=str(label), file_path=str(file_path))
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_atlas_status(self):
+        from brain_atlas import get_atlas_status
+
+        payload = get_atlas_status()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_atlas_repo(self):
+        params = self._parse_query_params()
+        repo_name = params.get("name")
+        repo_path = params.get("path")
+        from brain_atlas import atlas_repo_truth
+
+        payload = atlas_repo_truth(
+            name=str(repo_name) if repo_name is not None else None,
+            repo_path=str(repo_path) if repo_path is not None else None,
+        )
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_atlas_service(self):
+        params = self._parse_query_params()
+        service_name = str(params.get("name", "")).strip()
+        from brain_atlas import atlas_service_truth
+
+        payload = atlas_service_truth(service_name)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
 
     def _handle_ui_snapshot(self):
         """GET /ui/snapshot - Unified native Command Center snapshot."""
@@ -5619,6 +5847,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             model_override = data.get('model', '')  # Optional model override
             session_id = data.get('session_id') or self.headers.get('X-ROXY-Session') or request_id
             user_id = _resolve_request_user_id(self.headers, data.get("user_id"))
+            operator_surface = (
+                data.get("operator_surface")
+                or self.headers.get("X-ROXY-Operator-Surface")
+                or "api"
+            )
             
             # Security: Sanitize input - CRITICAL SECURITY FEATURE
             try:
@@ -5689,9 +5922,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "response_time": round(response_time, 3),
                     "metadata": {
                         "trace_id": request_id,
+                        "operator_surface": operator_surface,
                         "mode": explicit_mode.lower() if explicit_mode else "auto",
                         "route": "greeting_fastpath",
                         "pool": explicit_pool.lower() if explicit_pool else "auto",
+                        "truth_sources": {
+                            "primary": "response",
+                            "sources": ["response"],
+                            "operator_surface": operator_surface,
+                        },
                         "memory": {
                             "enabled": False,
                             "context_injected": False,
@@ -5785,6 +6024,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 user_id=user_id,
                 memory_context=memory_context,
                 plan_steps=agentic_meta.get("plan_steps", []),
+                operator_surface=operator_surface,
             )
             memory_rescue_attempted = False
             memory_rescue_applied = False
@@ -5805,6 +6045,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     user_id=user_id,
                     memory_context=memory_context,
                     plan_steps=[],
+                    operator_surface=operator_surface,
                 )
                 if (
                     rescue_result
@@ -5847,9 +6088,16 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "error": error_msg,
                     "command": command,
                     "metadata": {
+                        "trace_id": request_id,
+                        "operator_surface": operator_surface,
                         "mode": exec_meta.get("mode", explicit_mode.lower() or "auto"),
                         "pool": exec_meta.get("pool", explicit_pool.lower() or "auto"),
-                        "pool_error": True
+                        "pool_error": True,
+                        "truth_sources": {
+                            "primary": "response",
+                            "sources": ["response"],
+                            "operator_surface": operator_surface,
+                        },
                     }
                 }
                 self.wfile.write(json.dumps(response).encode())
@@ -5885,10 +6133,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             sys.path.insert(0, str(ROXY_DIR))
             from observability import get_observability
             obs = get_observability()
-            obs.log_request(command, result, response_time, 
-                           metadata={"request_id": request_id},
-                           request_id=request_id,
-                           endpoint="/run")
+            obs.log_request(
+                command,
+                result,
+                response_time,
+                metadata={
+                    "request_id": request_id,
+                    "route": getattr(self, "_last_execution_metadata", {}).get("route", "unknown"),
+                    "operator_surface": operator_surface,
+                },
+                request_id=request_id,
+                endpoint="/run",
+            )
             
             # Evaluation metrics - Non-critical, allow graceful degradation
             try:
@@ -6005,6 +6261,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "model_used": exec_meta.get("model_used"),
                     "selected_model": exec_meta.get("selected_model") or exec_meta.get("model_used"),
                     "trace_id": request_id,
+                    "operator_surface": operator_surface,
                     "route": exec_meta.get("route", "unknown"),
                     "pool": exec_meta.get("pool", "auto"),
                     "base_url_used": exec_meta.get("base_url_used", _get_ollama_base_url()),
@@ -6103,6 +6360,25 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "unverified_claims": verification.get("unverified_claims", []),
             }
             response["metadata"]["secret_scan"] = secret_scan_meta
+            truth_meta = _build_execution_truth_metadata(command, exec_meta, operator_surface)
+            response["metadata"]["truth_sources"] = truth_meta.get("truth_sources", {})
+            response["metadata"]["gitnexus"] = truth_meta.get("gitnexus", {})
+            response["metadata"]["atlas"] = truth_meta.get("atlas", {})
+            trace_spans = _build_trace_spans(exec_meta, truth_meta)
+            try:
+                from trace_spine import get_trace_spine
+
+                trace_spine = get_trace_spine()
+                trace_spine.record_run_trace(
+                    request_id,
+                    command,
+                    result,
+                    response["metadata"],
+                    spans=trace_spans,
+                    status="success",
+                )
+            except Exception as trace_exc:
+                logger.debug(f"Trace spine logging failed (non-critical): {trace_exc}")
             self.wfile.write(json.dumps(response).encode())
             
             # Mark metrics as successful and close context
@@ -6126,6 +6402,28 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 obs = get_observability()
                 obs.log_error(command if 'command' in locals() else "", str(e))
             except:
+                pass
+            try:
+                from trace_spine import get_trace_spine
+
+                trace_spine = get_trace_spine()
+                trace_spine.record_run_trace(
+                    request_id if 'request_id' in locals() else "error",
+                    command if 'command' in locals() else "",
+                    str(e),
+                    {
+                        "route": "error",
+                        "operator_surface": locals().get("operator_surface", "api"),
+                        "truth_sources": {
+                            "primary": "response",
+                            "sources": ["response"],
+                            "operator_surface": locals().get("operator_surface", "api"),
+                        },
+                    },
+                    spans=[{"name": "roxy.error", "attributes": {"message": str(e)}}],
+                    status="error",
+                )
+            except Exception:
                 pass
             
             self.send_response(500)
@@ -6304,6 +6602,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         user_id: Optional[str] = None,
         memory_context: str = "",
         plan_steps: Optional[List[str]] = None,
+        operator_surface: str = "api",
     ) -> str:
         """Execute command via roxy_commands.py with caching and validation
 
@@ -6343,6 +6642,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "tools_executed": [],
             "memory_context_chars": len(effective_memory_context),
             "plan_steps": effective_plan_steps,
+            "operator_surface": operator_surface,
         }
         
         # GREETING FASTPATH - keep health/smoke interactions off the heavy execution path.
@@ -6617,10 +6917,14 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "flags": flags,
                                 "memory_context_chars": existing_meta.get("memory_context_chars", len(effective_memory_context)),
                                 "plan_steps": existing_meta.get("plan_steps", effective_plan_steps),
+                                "operator_surface": existing_meta.get("operator_surface", operator_surface),
                                 "routing_meta": routing_meta,
                                 "repo_path": metadata.get("repo_path"),
                                 "repo_snapshot": metadata.get("repo_snapshot"),
                                 "memory_receipt": metadata.get("memory_receipt"),
+                                "truth_sources": metadata.get("truth_sources"),
+                                "gitnexus": metadata.get("gitnexus"),
+                                "atlas": metadata.get("atlas"),
                             }
                             # Preserve base_url_used from our earlier decision
                             self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
