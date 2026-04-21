@@ -1,0 +1,15 @@
+Generated: 2026-04-04T07:00:39.799704
+
+Good morning, Mark! I've got your daily briefing ready.
+
+First off, let's get to the good stuff - our MRR is looking strong at $12,500, with an impressive 8.5% growth from last month. That's a great indicator of our momentum.
+
+Now, let's take a look at our active students. We're currently at 156, and I've flagged eight as being at-risk. We'll want to keep an eye on those students and make sure they're getting the support they need.
+
+Moving on to content, we've got 14 clips ready to go, with 21 more scheduled for release in the coming weeks. That's a lot of engaging material for our learners!
+
+On the product side, we have three open PRs that I'll be tracking closely. Our next release is looking like v0.4.0, and I've got all the details right here.
+
+Looking at your calendar, you've got two meetings today - our team sync at 10:00 AM being the first one. Make sure to clear your schedule for that one.
+
+That's a quick rundown of what's happening in our world. What would you like to focus on first?

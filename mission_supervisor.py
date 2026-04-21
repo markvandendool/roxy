@@ -192,6 +192,16 @@ class MissionLedger:
         self._active: Optional[str] = None
         self._load()
 
+    def _normalize_active(self) -> bool:
+        if self._active and self._active not in self.missions:
+            logger.warning(
+                "Clearing stale active mission pointer %s missing from mission map",
+                self._active,
+            )
+            self._active = None
+            return True
+        return False
+
     def _load(self):
         if MISSION_LEDGER.exists():
             try:
@@ -201,11 +211,14 @@ class MissionLedger:
                     k: Mission.from_dict(v) for k, v in data.get("missions", {}).items()
                 }
                 self._active = data.get("active_mission_id")
+                if self._normalize_active():
+                    self._save()
             except Exception as e:
                 logger.warning(f"Failed to load mission ledger: {e}")
 
     def _save(self):
         try:
+            self._normalize_active()
             MISSION_LEDGER.parent.mkdir(parents=True, exist_ok=True)
             with open(MISSION_LEDGER, "w") as f:
                 json.dump({
@@ -257,6 +270,8 @@ class MissionLedger:
         return mission
 
     def get_active(self) -> Optional[Mission]:
+        if self._normalize_active():
+            self._save()
         if self._active and self._active in self.missions:
             return self.missions[self._active]
         return None
@@ -380,6 +395,8 @@ class MissionLedger:
         return time.time() < m.lease_expires_at
 
     def get_stats(self) -> Dict[str, Any]:
+        if self._normalize_active():
+            self._save()
         total = len(self.missions)
         by_status = {}
         for m in self.missions.values():

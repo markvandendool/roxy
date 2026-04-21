@@ -90,8 +90,21 @@
       "first_seen": "2026-03-20T12:37:46.340072",
       "last_seen": "2026-03-20T12:37:46.340072",
       "success_rate": 0.0
+    },
+    "7c8da61831c1": {
+      "pattern_id": "7c8da61831c1",
+      "error_type": "tool_failed",
+      "error_message": "/bin/sh: 1: vim: not found\n",
+      "tool_name": "bash",
+      "command_hint": "vim ~/.roxy/scripts/index_docs_to_rag.py",
+      "occurrences": 1,
+      "successful_fixes": 0,
+      "recipes": [],
+      "first_seen": "2026-04-14T04:15:55.023172",
+      "last_seen": "2026-04-14T04:15:55.023172",
+      "success_rate": 0.0
     }
   },
   "recipes": {},
-  "last_updated": "2026-03-20T12:37:46.340103"
+  "last_updated": "2026-04-14T04:15:55.023197"
 }

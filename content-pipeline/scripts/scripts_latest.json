@@ -1,22 +1,92 @@
 {
-  "script_id": "SCRIPT_20260320_111615_5edd1e0a",
-  "timestamp": "2026-03-20T17:16:15.984359+00:00",
+  "script_id": "SCRIPT_20260402_091615_67323619",
+  "timestamp": "2026-04-02T15:16:15.770433+00:00",
   "status": "healthy",
-  "source_bundle": "BUNDLE_20260320_111213_03de7d00",
-  "source_templates": "TMPL_20260320_111415_81e0f9cd",
+  "source_bundle": "BUNDLE_20260402_091224_515831e6",
+  "source_templates": "TMPL_20260402_091424_b5c91d77",
   "scripts": [
     {
-      "id": "SCR_74ac4c746b97",
-      "trend_title": "The best AI investment might be in energy tech",
+      "id": "SCR_b15ee7594d0b",
+      "trend_title": "AI system learns to keep warehouse robot traffic running smoothly",
+      "template_id": "tutorial-standard",
+      "template_name": "AI Tool Tutorial",
+      "format": "standard",
+      "estimated_duration": 240,
+      "hook": "The fastest way to get started with smoothly",
+      "sections": [
+        {
+          "section": "hook",
+          "content": "[HOOK] The fastest way to get started with smoothly",
+          "duration_seconds": 19,
+          "notes": "What you'll learn/build"
+        },
+        {
+          "section": "intro",
+          "content": "[CONTEXT] Background on this development...",
+          "duration_seconds": 28,
+          "notes": "Tool overview and prerequisites"
+        },
+        {
+          "section": "step_1",
+          "content": "[STEP_1] Walk through this step...",
+          "duration_seconds": 48,
+          "notes": "First major step"
+        },
+        {
+          "section": "step_2",
+          "content": "[STEP_2] Walk through this step...",
+          "duration_seconds": 48,
+          "notes": "Second major step"
+        },
+        {
+          "section": "step_3",
+          "content": "[STEP_3] Walk through this step...",
+          "duration_seconds": 48,
+          "notes": "Third major step"
+        },
+        {
+          "section": "demo",
+          "content": "[DEMO] Let me show you how this works...",
+          "duration_seconds": 28,
+          "notes": "Show the final result"
+        },
+        {
+          "section": "tips",
+          "content": "[TIPS] Pro tips to get the most out of this...",
+          "duration_seconds": 12,
+          "notes": "Pro tips and gotchas"
+        },
+        {
+          "section": "cta",
+          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
+          "duration_seconds": 7,
+          "notes": "Subscribe for more tutorials"
+        }
+      ],
+      "variables": {
+        "headline": "AI system learns to keep warehouse robot traffic running smoothly",
+        "source": "MIT News AI",
+        "summary": "This new approach adapts to decide which robots should get the right of way at every moment, avoiding congestion and increasing throughput.",
+        "category": "ai_research"
+      },
+      "differentiation": [
+        "Multi-modal presentation combining code, visuals, and narration",
+        "Unique perspective from AI-powered content pipeline",
+        "Real-time data integration and live demonstrations"
+      ]
+    },
+    {
+      "id": "SCR_06fb702c5ee7",
+      "trend_title": "Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "The AI world is buzzing about The best AI investment might be in energy tech",
+      "hook": "The AI world is buzzing about Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] Here's why The best AI investment might be in energy tech changes everything",
+          "content": "[HOOK] The AI world is buzzing about Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -28,7 +98,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's creating an opening for investors....",
+          "content": "[DETAILS] The firm says it can reduce the cost of chip development by more than 75% and cut the timeline by more than half....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -52,9 +122,9 @@
         }
       ],
       "variables": {
-        "headline": "The best AI investment might be in energy tech",
+        "headline": "Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
         "source": "TechCrunch AI",
-        "summary": "Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's creating an opening for investors.",
+        "summary": "The firm says it can reduce the cost of chip development by more than 75% and cut the timeline by more than half.",
         "category": "ai"
       },
       "differentiation": [
@@ -65,17 +135,17 @@
       ]
     },
     {
-      "id": "SCR_a8bc4e18f00d",
-      "trend_title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
+      "id": "SCR_8b63cb8f51f5",
+      "trend_title": "Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project",
       "template_id": "news-standard",
       "template_name": "AI News Coverage",
       "format": "standard",
       "estimated_duration": 150,
-      "hook": "Here's why TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open changes everything",
+      "hook": "Here's why Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project changes everything",
       "sections": [
         {
           "section": "hook",
-          "content": "[HOOK] What TechCrunch AI's announcement really means",
+          "content": "[HOOK] Here's why Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project changes everything",
           "duration_seconds": 15,
           "notes": "Why you should care about this"
         },
@@ -87,7 +157,7 @@
         },
         {
           "section": "details",
-          "content": "[DETAILS] Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access....",
+          "content": "[DETAILS] The AI recruiting startup confirmed a security incident after an extortion hacking crew took credit for stealing data from the company's systems....",
           "duration_seconds": 52,
           "notes": "Core story details"
         },
@@ -111,68 +181,9 @@
         }
       ],
       "variables": {
-        "headline": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
+        "headline": "Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project",
         "source": "TechCrunch AI",
-        "summary": "Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access.",
-        "category": "ai"
-      },
-      "differentiation": [
-        "Code-first implementation walkthrough",
-        "Multi-modal presentation combining code, visuals, and narration",
-        "Unique perspective from AI-powered content pipeline",
-        "Real-time data integration and live demonstrations"
-      ]
-    },
-    {
-      "id": "SCR_6bea7c64fbea",
-      "trend_title": "WordPress.com now lets AI agents write and publish posts, and more",
-      "template_id": "news-standard",
-      "template_name": "AI News Coverage",
-      "format": "standard",
-      "estimated_duration": 150,
-      "hook": "The AI world is buzzing about WordPress.com now lets AI agents write and publish posts, and more",
-      "sections": [
-        {
-          "section": "hook",
-          "content": "[HOOK] Here's why WordPress.com now lets AI agents write and publish posts, and more changes everything",
-          "duration_seconds": 15,
-          "notes": "Why you should care about this"
-        },
-        {
-          "section": "context",
-          "content": "[CONTEXT] Background on this development...",
-          "duration_seconds": 22,
-          "notes": "Background and context"
-        },
-        {
-          "section": "details",
-          "content": "[DETAILS] New AI agents on WordPress.com could lower barriers to publishing while increasing machine-generated content across the web....",
-          "duration_seconds": 52,
-          "notes": "Core story details"
-        },
-        {
-          "section": "analysis",
-          "content": "[ANALYSIS] Here's why this matters: What this means for the industry",
-          "duration_seconds": 37,
-          "notes": "What this means for the industry"
-        },
-        {
-          "section": "takeaway",
-          "content": "[TAKEAWAY] The key point to remember...",
-          "duration_seconds": 15,
-          "notes": "Key takeaway for viewers"
-        },
-        {
-          "section": "cta",
-          "content": "[CTA] Subscribe for more AI insights. Drop a comment with your thoughts.",
-          "duration_seconds": 7,
-          "notes": "Subscribe/follow prompt"
-        }
-      ],
-      "variables": {
-        "headline": "WordPress.com now lets AI agents write and publish posts, and more",
-        "source": "TechCrunch AI",
-        "summary": "New AI agents on WordPress.com could lower barriers to publishing while increasing machine-generated content across the web.",
+        "summary": "The AI recruiting startup confirmed a security incident after an extortion hacking crew took credit for stealing data from the company's systems.",
         "category": "ai"
       },
       "differentiation": [
@@ -189,7 +200,8 @@
     "story_id": "SKYBEAM-STORY-010",
     "script_count": 3,
     "templates_used": [
-      "news-standard"
+      "news-standard",
+      "tutorial-standard"
     ],
     "degraded": false
   }

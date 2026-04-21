@@ -1,0 +1,15 @@
+Generated: 2026-04-14T07:00:35.848050
+
+"Good morning, Mark! I've got your morning briefing ready.
+
+First off, our MRR is looking strong, up 8.5% from last month. That's a great indicator of the growth we're experiencing.
+
+On the student front, we have 156 active learners, with 8 who are at-risk and might need some extra attention. I've got their info ready for you to review.
+
+In terms of content, we're on track with 14 clips already ready to go, and another 21 scheduled in the pipeline. That's a lot of great material to work with.
+
+From a product perspective, we have three open PRs that need your attention, and our next release is looking like it'll be v0.4.0.
+
+Finally, take a look at your calendar for today - you've got two meetings scheduled, starting with the team sync at 10:00 AM.
+
+That's the latest from Roxy. What would you like to focus on first?"

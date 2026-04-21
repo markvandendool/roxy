@@ -1,0 +1,95 @@
+version: '3.8'
+
+# vLLM Deployment for AMD ROCm GPUs (6900XT + W5700X)
+# Production-grade inference with tensor parallelism
+
+services:
+  # Primary vLLM instance - 6900XT (main compute)
+  vllm-6900xt:
+    image: rocm/vllm:main
+    container_name: vllm-6900xt
+    privileged: true  # Required for GPU access
+    devices:
+      - /dev/kfd:/dev/kfd  # ROCm kernel driver
+      - /dev/dri:/dev/dri  # Direct rendering
+    environment:
+      - HIP_VISIBLE_DEVICES=0  # 6900XT
+      - PYTORCH_HIP_ALLOC_CONF=expandable_segments:True
+      - VLLM_ALLOW_DEPRECATED_ARCH=1
+      - VLLM_USE_TRITON_FLASH_ATTENTION=0  # ROCm compatibility
+    volumes:
+      - /home/mark/models:/models:ro
+      - vllm-cache:/root/.cache/vllm
+    ports:
+      - "11435:8000"  # Match current Ollama port
+    command: >
+      --model /models/qwen2.5-coder-14b-awq
+      --quantization awq
+      --tensor-parallel-size 1
+      --gpu-memory-utilization 0.95
+      --max-model-len 32768
+      --max-num-seqs 256
+      --enable-prefix-caching
+      --enable-chunked-prefill
+      --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # Secondary vLLM instance - W5700X (auxiliary)
+  vllm-w5700x:
+    image: rocm/vllm:main
+    container_name: vllm-w5700x
+    privileged: true
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    environment:
+      - HIP_VISIBLE_DEVICES=1  # W5700X
+      - PYTORCH_HIP_ALLOC_CONF=expandable_segments:True
+      - VLLM_ALLOW_DEPRECATED_ARCH=1
+    volumes:
+      - /home/mark/models:/models:ro
+      - vllm-cache:/root/.cache/vllm
+    ports:
+      - "11434:8000"  # Match current Ollama port
+    command: >
+      --model /models/qwen2.5-coder-7b-awq
+      --quantization awq
+      --tensor-parallel-size 1
+      --gpu-memory-utilization 0.90
+      --max-model-len 16384
+      --max-num-seqs 128
+      --enable-prefix-caching
+      --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Load balancer / router for distributed inference
+  vllm-router:
+    image: nginx:alpine
+    container_name: vllm-router
+    ports:
+      - "11430:80"  # Unified vLLM endpoint
+    volumes:
+      - ./nginx-vllm.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - vllm-6900xt
+      - vllm-w5700x
+    restart: unless-stopped
+
+volumes:
+  vllm-cache:
+    driver: local

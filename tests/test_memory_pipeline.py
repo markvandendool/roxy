@@ -1,6 +1,9 @@
+import asyncio
+import sys
 import types
 from datetime import datetime, timedelta
 
+import benchmark_suite
 import infrastructure
 import memory_postgres
 import roxy_commands
@@ -34,6 +37,13 @@ def test_extract_user_facts_age_and_dislike():
     by_category = {f["category"]: f["preference"] for f in facts}
     assert by_category.get("age") == "35"
     assert by_category.get("general_dislike") == "long meetings"
+
+
+def test_extract_user_facts_benchmark_codename():
+    text = "My benchmark codename is AZURE-EMBER-914. Remember it for later."
+    facts = infrastructure.extract_user_facts(text)
+    by_category = {f["category"]: f["preference"] for f in facts}
+    assert by_category.get("benchmark_codename") == "AZURE-EMBER-914"
 
 
 def test_memory_rerank_prefers_lexical_overlap():
@@ -183,6 +193,51 @@ def test_execute_command_passes_memory_context_env(monkeypatch):
     assert "1. Inspect health" in captured_env["ROXY_PLAN_CONTEXT"]
 
 
+def test_execute_command_preserves_repo_snapshot_metadata(monkeypatch):
+    handler = object.__new__(roxy_core.RoxyCoreHandler)
+    handler.headers = {"X-ROXY-Session": "sess-repo"}
+    handler._last_execution_metadata = {}
+
+    monkeypatch.setattr(
+        roxy_core,
+        "_resolve_ollama_pools",
+        lambda: {
+            "default": "http://127.0.0.1:11435",
+            "w5700x": {"url": "http://127.0.0.1:11434", "configured": True},
+            "6900xt": {"url": "http://127.0.0.1:11435", "configured": True},
+            "misconfigured": False,
+        },
+    )
+    monkeypatch.setattr(
+        roxy_core,
+        "_check_ollama_reachability",
+        lambda _url: {"reachable": True, "error": None},
+    )
+    monkeypatch.setattr(roxy_core, "_get_default_model", lambda *args, **kwargs: "qwen2.5-coder:14b-instruct")
+
+    def fake_run(_cmd, capture_output, text, timeout, cwd, env):
+        structured = (
+            "repo summary\n__STRUCTURED_RESPONSE__\n"
+            '{"mode":"git_query","tools_executed":[],"metadata":{"route":"git_query","repo_path":"/tmp/repo","repo_snapshot":{"repo_path":"/tmp/repo","branch":"main","upstream":"origin/main","is_dirty":true,"changed_count":1,"modified_paths":["apps/roxy-command-center/main.py"],"untracked_paths":[],"status_lines":[" M apps/roxy-command-center/main.py"]},"routing_meta":{"selected_pool":"none","model_used":"none","reason":"deterministic:git_query:repo_override"}}}'
+        )
+        return types.SimpleNamespace(stdout=structured, stderr="")
+
+    monkeypatch.setattr(roxy_core.subprocess, "run", fake_run)
+
+    result = handler._execute_command(
+        "In /tmp/repo, what branch am I on and which Roxy Command Center files are modified?",
+        request_id="rid-repo",
+        session_id="sess-repo",
+        user_id="mark-roxy-canonical",
+    )
+
+    assert "repo summary" in result
+    assert handler._last_execution_metadata["route"] == "git_query"
+    assert handler._last_execution_metadata["repo_path"] == "/tmp/repo"
+    assert handler._last_execution_metadata["repo_snapshot"]["branch"] == "main"
+    assert handler._last_execution_metadata["routing_meta"]["reason"] == "deterministic:git_query:repo_override"
+
+
 def test_canonical_identity_conflict_is_skipped(monkeypatch):
     recorded = []
 
@@ -202,6 +257,197 @@ def test_canonical_identity_conflict_is_skipped(monkeypatch):
     # Canonical identity conflict should be skipped, preference should still be learned.
     assert any(item.get("skipped") == "canonical_identity_conflict" for item in result["learned"])
     assert all(entry[0] != "name" for entry in recorded)
+
+
+def test_learn_user_facts_reports_receipt_for_benchmark_codename(monkeypatch):
+    recorded = []
+
+    class DummyMemory:
+        def learn_preference(self, category, preference, confidence=0.5, user_id=None):
+            recorded.append((category, preference, confidence, user_id))
+
+        def health_check(self):
+            return {"healthy": True, "backend": "dummy-memory"}
+
+    monkeypatch.setattr(infrastructure, "get_memory", lambda: DummyMemory())
+
+    result = infrastructure.learn_user_facts(
+        "My benchmark codename is AZURE-EMBER-914.",
+        session_id="sess-bench",
+        user_id="mark-roxy-canonical",
+    )
+
+    assert result["attempted"] is True
+    assert result["succeeded"] is True
+    assert result["backend"] == "dummy-memory"
+    assert result["count"] == 1
+    assert recorded[0][0] == "benchmark_codename"
+    assert recorded[0][1] == "AZURE-EMBER-914"
+
+
+def test_remember_conversation_returns_receipt(monkeypatch):
+    calls = []
+
+    class DummyMemory:
+        def remember(self, *args, **kwargs):
+            calls.append((args, kwargs))
+
+        def health_check(self):
+            return {"healthy": True, "backend": "dummy-memory"}
+
+    monkeypatch.setattr(infrastructure, "get_memory", lambda: DummyMemory())
+
+    receipt = infrastructure.remember_conversation("hello", "world", "sess-1", {"source": "test"}, user_id="mark")
+
+    assert receipt["attempted"] is True
+    assert receipt["succeeded"] is True
+    assert receipt["backend"] == "dummy-memory"
+    assert receipt["error"] is None
+    assert calls
+
+
+def test_recall_conversations_with_receipt_handles_missing_backend(monkeypatch):
+    monkeypatch.setattr(infrastructure, "get_memory", lambda: None)
+
+    results, receipt = infrastructure.recall_conversations_with_receipt("test query", k=3)
+
+    assert results == []
+    assert receipt["attempted"] is False
+    assert receipt["backend_healthy"] is False
+    assert receipt["error"] == "memory unavailable"
+
+
+def test_memory_recall_latency_reports_backend_failure(monkeypatch):
+    monkeypatch.setenv("ROXY_BENCHMARK_USE_SERVICE", "0")
+    fake_infra = types.SimpleNamespace(
+        recall_conversations_with_receipt=lambda *_args, **_kwargs: (
+            [],
+            {
+                "attempted": True,
+                "succeeded": False,
+                "backend": "postgres",
+                "backend_healthy": False,
+                "error": "password authentication failed",
+            },
+        )
+    )
+    monkeypatch.setitem(sys.modules, "infrastructure", fake_infra)
+
+    result = asyncio.run(benchmark_suite.LatencyBenchmark.memory_recall_latency())
+
+    assert result.passed is False
+    assert result.score == 0.0
+    assert result.details["backend"] == "postgres"
+    assert result.details["backend_healthy"] is False
+    assert result.error == "password authentication failed"
+
+
+def test_memory_recall_latency_prefers_service_endpoint(monkeypatch, tmp_path):
+    token_file = tmp_path / "secret.token"
+    token_file.write_text("test-token")
+    monkeypatch.setattr(benchmark_suite, "ROXY_DIR", tmp_path)
+    monkeypatch.setenv("ROXY_BENCHMARK_USE_SERVICE", "1")
+    monkeypatch.setenv("ROXY_BENCHMARK_MEMORY_URL", "http://127.0.0.1:8766/memory/recall")
+
+    class FakeResponse:
+        status_code = 200
+        headers = {"content-type": "application/json"}
+
+        @staticmethod
+        def json():
+            return {
+                "count": 3,
+                "memory_receipt": {
+                    "backend": "postgres",
+                    "backend_healthy": True,
+                    "attempted": True,
+                    "succeeded": True,
+                    "error": None,
+                },
+            }
+
+    fake_requests = types.ModuleType("requests")
+    captured = {}
+
+    def fake_post(*args, **kwargs):
+        captured["json"] = kwargs.get("json", {})
+        return FakeResponse()
+
+    fake_requests.post = fake_post
+    monkeypatch.setitem(sys.modules, "requests", fake_requests)
+
+    result = asyncio.run(benchmark_suite.LatencyBenchmark.memory_recall_latency())
+
+    assert result.details["mode"] == "service"
+    assert result.details["backend"] == "postgres"
+    assert result.details["results"] == 3
+    assert result.error is None
+    assert captured["json"]["query"] == "what is my benchmark codename from earlier"
+
+
+def test_sigterm_ignore_is_disabled_under_systemd(monkeypatch):
+    monkeypatch.setenv("ROXY_IGNORE_SIGTERM", "1")
+    monkeypatch.setenv("INVOCATION_ID", "systemd-unit-123")
+
+    assert roxy_core._should_ignore_sigterm() is False
+
+
+def test_sigterm_ignore_still_supported_for_manual_shell_launch(monkeypatch):
+    monkeypatch.setenv("ROXY_IGNORE_SIGTERM", "1")
+    monkeypatch.delenv("INVOCATION_ID", raising=False)
+    monkeypatch.delenv("NOTIFY_SOCKET", raising=False)
+    monkeypatch.delenv("JOURNAL_STREAM", raising=False)
+
+    assert roxy_core._should_ignore_sigterm() is True
+
+
+def test_build_memory_context_prioritizes_benchmark_codename(monkeypatch):
+    monkeypatch.setattr(roxy_core, "INFRASTRUCTURE_AVAILABLE", True)
+    monkeypatch.setattr(
+        roxy_core,
+        "recall_conversations_with_receipt",
+        lambda *_args, **_kwargs: ([], {"attempted": True, "succeeded": True, "backend": "dummy", "error": None}),
+    )
+
+    def fake_get_user_profile(category=None, limit=10, user_id=None):
+        if category == "benchmark_codename":
+            return [
+                {
+                    "category": "benchmark_codename",
+                    "preference": "AZURE-EMBER-915",
+                    "confidence": 0.95,
+                    "updated_at": "2026-04-20T23:30:00Z",
+                },
+                {
+                    "category": "benchmark_codename",
+                    "preference": "AZURE-EMBER-914",
+                    "confidence": 0.95,
+                    "updated_at": "2026-04-20T22:30:00Z",
+                },
+            ]
+        return [
+            {"category": "name", "preference": "Mark", "confidence": 0.99, "updated_at": "2026-04-20T20:00:00Z"},
+            {
+                "category": "benchmark_codename",
+                "preference": "AZURE-EMBER-914",
+                "confidence": 0.95,
+                "updated_at": "2026-04-20T22:30:00Z",
+            },
+        ]
+
+    monkeypatch.setattr(roxy_core, "get_user_profile", fake_get_user_profile)
+    monkeypatch.setattr(roxy_core, "get_typed_records", lambda **_kwargs: [])
+    monkeypatch.setattr(roxy_core, "_build_repo_context_for_prompt", lambda _query: ("", {}))
+
+    context, meta = roxy_core._build_memory_context_for_prompt(
+        "What is my benchmark codename from earlier? Reply with only the codename.",
+        "sess-bench",
+        "mark-roxy-canonical",
+    )
+
+    assert meta["priority_profile_category"] == "benchmark_codename"
+    assert "AZURE-EMBER-915" in context
+    assert context.index("AZURE-EMBER-915") < context.index("AZURE-EMBER-914")
 
 
 def test_reflection_verifier_detects_hallucination():
@@ -405,3 +651,64 @@ def test_typed_record_roundtrip_in_memory_store():
     assert records
     assert records[0]["record_type"] == "fix_recipe"
     assert "fastmcp" in records[0]["content"]
+
+
+def test_build_ui_snapshot_payload_merges_truth_and_snapshot(monkeypatch):
+    monkeypatch.setattr(
+        roxy_core,
+        "_fetch_ui_panel_snapshot",
+        lambda mode, remote_host, remote_port: (
+            {
+                "mode": mode,
+                "source": "local",
+                "system": {"cpu_pct": 12.5, "mem_used_gb": 4.0, "mem_total_gb": 16.0},
+                "gpu": [{"index": 0, "name": "6900 XT", "temp_c": 54, "utilization_pct": 33}],
+                "services": {"roxy_core": {"active": True, "source": "local"}},
+                "bench": {"available": True, "status": "idle"},
+            },
+            True,
+        ),
+    )
+    monkeypatch.setattr(
+        roxy_core,
+        "_collect_info_payload",
+        lambda: {"git": {"branch": "main", "head_sha": "abc1234", "dirty": True}},
+    )
+
+    payload = roxy_core._build_ui_snapshot_payload(
+        mode="local",
+        remote_host="127.0.0.1",
+        remote_port=8766,
+    )
+
+    assert payload["mode"] == "local"
+    assert payload["info"]["git"]["branch"] == "main"
+    assert payload["truth"]["git"]["head_sha"] == "abc1234"
+    assert payload["bench"]["status"] == "idle"
+    assert payload["snapshot_meta"]["cache_hit"] is True
+    assert payload["snapshot_meta"]["target_host"] == "127.0.0.1"
+
+
+def test_build_ui_snapshot_payload_falls_back_on_panel_failure(monkeypatch):
+    monkeypatch.setattr(
+        roxy_core,
+        "_fetch_ui_panel_snapshot",
+        lambda mode, remote_host, remote_port: (_ for _ in ()).throw(RuntimeError("panel unavailable")),
+    )
+    monkeypatch.setattr(
+        roxy_core,
+        "_collect_info_payload",
+        lambda: {"git": {"branch": "main"}},
+    )
+    monkeypatch.setattr(
+        roxy_core,
+        "_get_bench_status_payload",
+        lambda: {"available": False, "status": "unavailable"},
+    )
+
+    payload = roxy_core._build_ui_snapshot_payload()
+
+    assert payload["source"] == "roxy-core-fallback"
+    assert payload["snapshot_error"] == "panel unavailable"
+    assert payload["info"]["git"]["branch"] == "main"
+    assert payload["bench"]["status"] == "unavailable"

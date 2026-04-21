@@ -47,9 +47,9 @@ class SettingsPage(Gtk.ScrolledWindow):
         
         return {
             "mode": "local",
-            "remote_host": "",
-            "remote_port": 8080,
-            "poll_interval_ms": 1000,
+            "remote_host": "127.0.0.1",
+            "remote_port": 8766,
+            "poll_interval_ms": 5000,
             "notifications_enabled": True,
             "theme": "system",
             "show_graphs": True,
@@ -125,7 +125,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         # Remote port
         self.port_row = Adw.SpinRow.new_with_range(1, 65535, 1)
         self.port_row.set_title("Remote Port")
-        self.port_row.set_value(self._config.get("remote_port", 8080))
+        self.port_row.set_value(self._config.get("remote_port", 8766))
         self.port_row.connect("notify::value", self._on_port_changed)
         self.port_row.set_sensitive(current_mode == "remote")
         conn_group.add(self.port_row)
@@ -134,7 +134,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         poll_row = Adw.SpinRow.new_with_range(500, 10000, 100)
         poll_row.set_title("Poll Interval (ms)")
         poll_row.set_subtitle("How often to fetch data")
-        poll_row.set_value(self._config.get("poll_interval_ms", 1000))
+        poll_row.set_value(self._config.get("poll_interval_ms", 5000))
         poll_row.connect("notify::value", self._on_poll_interval_changed)
         conn_group.add(poll_row)
         

@@ -7,8 +7,9 @@ ROXY-CMD-STORY-001: Non-blocking HTTP fetches with GLib integration.
 import subprocess
 import json
 import os
-import threading
 import time
+import urllib.parse
+import urllib.request
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional, Callable, Dict, Any
@@ -18,8 +19,9 @@ gi.require_version('Gtk', '4.0')
 from gi.repository import GLib
 
 DAEMON_PATH = Path.home() / ".config/eww/roxy-panel/scripts/roxy-panel-daemon.py"
+ROXY_CORE_URL = os.getenv("ROXY_CORE_URL", "http://127.0.0.1:8766")
 DEFAULT_TIMEOUT = 2.0  # 2 second timeout per ORACLE-04 mitigation
-MAX_CACHE_AGE = 30.0   # Cache TTL in seconds
+MAX_CACHE_AGE = 5.0    # Snapshot staleness indicator for the GTK client
 
 @dataclass
 class DaemonResponse:
@@ -49,11 +51,11 @@ class DaemonClient:
         self._callbacks: list = []
         
         # Mode configuration
-        self.mode = "auto"
-        self.remote_host = "10.0.0.69"
+        self.mode = "local"
+        self.remote_host = "127.0.0.1"
         self.remote_port = 8766
     
-    def configure(self, mode: str = "auto", remote_host: str = "10.0.0.69", remote_port: int = 8766):
+    def configure(self, mode: str = "local", remote_host: str = "127.0.0.1", remote_port: int = 8766):
         """Update daemon connection configuration."""
         self.mode = mode
         self.remote_host = remote_host
@@ -111,10 +113,48 @@ class DaemonClient:
     
     def _do_fetch(self) -> DaemonResponse:
         """Synchronous fetch (runs in worker thread)."""
+        query = urllib.parse.urlencode({
+            "mode": self.mode or "local",
+            "remote_host": self.remote_host or "127.0.0.1",
+            "remote_port": str(self.remote_port or 8766),
+        })
+        snapshot_url = f"{ROXY_CORE_URL}/ui/snapshot?{query}"
+        request = urllib.request.Request(
+            snapshot_url,
+            headers={"User-Agent": "roxy-command-center/daemon-client"},
+            method="GET",
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            return DaemonResponse(
+                data=data,
+                timestamp=time.time(),
+                source=(data.get("snapshot_meta") or {}).get("source", "roxy-core"),
+            )
+        except Exception as primary_error:
+            fallback_response = self._do_fetch_via_panel_daemon()
+            if fallback_response is not None and not fallback_response.error:
+                return fallback_response
+            if fallback_response is not None and fallback_response.error:
+                return DaemonResponse(
+                    error=f"Snapshot fetch failed: {primary_error}; fallback failed: {fallback_response.error}",
+                    timestamp=time.time(),
+                    source="error",
+                )
+            return DaemonResponse(
+                error=f"Snapshot fetch failed: {primary_error}",
+                timestamp=time.time(),
+                source="error",
+            )
+
+    def _do_fetch_via_panel_daemon(self) -> Optional[DaemonResponse]:
+        """Fallback to the legacy panel daemon if roxy-core snapshot is unavailable."""
         env = os.environ.copy()
         env.update({
-            "ROXY_MODE": self.mode,
-            "ROXY_REMOTE_HOST": self.remote_host,
+            "ROXY_MODE": self.mode or "local",
+            "ROXY_REMOTE_HOST": self.remote_host or "127.0.0.1",
             "ROXY_REMOTE_PORT": str(self.remote_port),
         })
         
@@ -138,7 +178,7 @@ class DaemonClient:
             return DaemonResponse(
                 data=data,
                 timestamp=time.time(),
-                source=data.get("source", "unknown")
+                source="panel-daemon-fallback"
             )
         
         except subprocess.TimeoutExpired:
@@ -182,7 +222,7 @@ def get_client() -> DaemonClient:
         _client = DaemonClient()
     return _client
 
-def get_status(mode="auto", remote_host="10.0.0.69", remote_port=8766) -> dict:
+def get_status(mode="local", remote_host="127.0.0.1", remote_port=8766) -> dict:
     """
     Legacy sync interface for backward compatibility.
     Returns dict with status data or error.
@@ -196,7 +236,7 @@ def get_status(mode="auto", remote_host="10.0.0.69", remote_port=8766) -> dict:
     return response.data
 
 def fetch_status_async(callback: Callable[[DaemonResponse], None], 
-                       mode="auto", remote_host="10.0.0.69", remote_port=8766):
+                       mode="local", remote_host="127.0.0.1", remote_port=8766):
     """
     Async fetch interface.
     Callback receives DaemonResponse on main thread.
@@ -285,5 +325,8 @@ def normalize_status(raw: dict) -> dict:
         "disk": raw.get("disk") or {},
         "alerts": raw.get("alerts") or [],
         "roxy": raw.get("roxy") or {},
+        "info": raw.get("info") or raw.get("truth") or {},
+        "bench": raw.get("bench") or {},
+        "snapshot_meta": raw.get("snapshot_meta") or {},
         "_raw": raw,  # Keep original for debug
     }

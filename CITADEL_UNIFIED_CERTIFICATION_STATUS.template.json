@@ -1,0 +1,106 @@
+{
+  "_comment": "CITADEL UNIFIED CERTIFICATION STATUS TEMPLATE",
+  "_description": "This is the target schema for Phase 4 unified certification. Actual values populated by run_certification.ts",
+  "generatedAt": "2026-04-15T00:00:00Z",
+  "overallStatus": "PARTIAL",
+  "planes": {
+    "citadelRoxyCore": {
+      "status": "GREEN",
+      "testsRun": 34,
+      "testsPassed": 34,
+      "testsFailed": 0,
+      "passRate": 100,
+      "qualifiedAt": "2026-04-15T12:00:00Z",
+      "latencyP95": "2.1852s",
+      "targetLatency": "12.0s",
+      "scheduler": "DISABLED",
+      "ragStatus": "DEGRADED_ACCEPTED",
+      "mcpStatus": "REPAIRED",
+      "models": {
+        "default": "qwen2.5-coder:14b",
+        "pool": ["qwen2.5-coder:14b", "qwen2.5-coder:7b"]
+      }
+    },
+    "macStudioRuns": {
+      "status": "UNCERTIFIED",
+      "testsRun": 0,
+      "testsPassed": 0,
+      "testsFailed": 0,
+      "passRate": 0,
+      "qualifiedAt": null,
+      "ingress": "http://10.0.0.92:4899",
+      "defaultModel": "claude-opus-4.6",
+      "mode": "story_only",
+      "pending": true
+    },
+    "remoteCodexLane": {
+      "status": "UNCERTIFIED",
+      "testsRun": 0,
+      "testsPassed": 0,
+      "testsFailed": 0,
+      "passRate": 0,
+      "qualifiedAt": null,
+      "model": "gpt-5.3-codex",
+      "targetSuccessRate": 80,
+      "pending": true
+    }
+  },
+  "dataPlane": {
+    "mindsongDocs": {
+      "status": "DEGRADED",
+      "collection": "mindsong_docs",
+      "backend": "ChromaDB",
+      "issue": "HNSW index corruption",
+      "productionPosture": "FALLBACK_ACCEPTED",
+      "fallbackTarget": "ROXY collections (healthy)",
+      "fullRebuild": "DEFERRED_TO_PHASE_3"
+    },
+    "roxyCollections": {
+      "status": "HEALTHY",
+      "personalMemory": "OPERATIONAL",
+      "repoIntel": "OPERATIONAL"
+    }
+  },
+  "scheduler": {
+    "currentStatus": "DISABLED",
+    "reenableReady": false,
+    "blockers": [
+      "Mac Studio Runs plane not certified",
+      "Remote Codex lane not certified"
+    ],
+    "prerequisites": [
+      "Citadel core: GREEN ✅",
+      "Mac Studio Runs: GREEN ⏳",
+      "Remote Codex: GREEN or QUARANTINED ⏳",
+      "Dispatch semantics: EXACT ⏳",
+      "mindsong_docs: DEGRADED_ACCEPTED ✅"
+    ],
+    "soakTestRequired": true,
+    "soakTestDuration": "24h"
+  },
+  "_certificationCriteria": {
+    "macStudioRuns": {
+      "tests": [
+        "TEST-01: Authentication & Contract (10/10)",
+        "TEST-02: Terminal State Machine (10/10)",
+        "TEST-03: ExecutionId Truth (10/10)",
+        "TEST-04: Codex Lane Success (8/10, 80%)",
+        "TEST-05: Codex Lane Failure Class (10/10)",
+        "TEST-06: Lease Renewal (5/5, preferred)"
+      ],
+      "threshold": "5/6 at 100%, TEST-04 at 80%"
+    },
+    "remoteCodexLane": {
+      "successRate": ">= 80%",
+      "failureClassification": "EXACT (not generic)",
+      "laneIdentification": "VISIBLE in error responses"
+    }
+  },
+  "_nextActions": [
+    "Execute: cd /home/mark/mindsong-juke-hub && npx tsx test/certification/run_certification.ts",
+    "Verify: cat /home/mark/.roxy/CITADEL_UNIFIED_CERTIFICATION_STATUS.json",
+    "Decision: If GREEN -> proceed Phase 3 data plane decision",
+    "Decision: If PARTIAL -> debug failing tests, patch seams if needed",
+    "Decision: If RED -> do not proceed, maintain current DISABLED posture"
+  ]
+}

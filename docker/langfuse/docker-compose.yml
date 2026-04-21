@@ -1,0 +1,52 @@
+version: '3.8'
+
+# Langfuse - LLM Observability Platform
+# Self-hosted alternative to LangSmith/Arize
+
+services:
+  langfuse:
+    image: langfuse/langfuse:latest
+    container_name: langfuse
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/langfuse
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-local-secret-change-in-production}
+      - SALT=${SALT:-local-salt-change-in-production}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-local-encryption-change-in-production}
+      - NEXTAUTH_URL=http://localhost:3000
+      - TELEMETRY_ENABLED=false
+      - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/public/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: langfuse-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=langfuse
+    volumes:
+      - langfuse-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ClickHouse for high-volume event storage (optional, uses Postgres by default)
+  # clickhouse:
+  #   image: clickhouse/clickhouse-server:latest
+  #   container_name: langfuse-clickhouse
+
+volumes:
+  langfuse-postgres-data:

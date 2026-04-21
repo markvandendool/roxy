@@ -457,7 +457,6 @@ scrollbar slider:hover {
 /* === Settings === */
 .settings-page {
     padding: 24px;
-    max-width: 600px;
 }
 
 .settings-group {
@@ -645,26 +644,4 @@ label.accent {
     background-color: @accent_bg_color;
 }
 
-/* === Responsive === */
-@media (max-width: 600px) {
-    .navigation-sidebar {
-        width: 60px;
-    }
-    
-    .nav-button label {
-        display: none;
-    }
-    
-    .overview-card {
-        padding: 12px;
-    }
-    
-    .overview-value {
-        font-size: 24px;
-    }
-    
-    .triage-column,
-    .execute-column {
-        min-width: 200px;
-    }
-}
+/* GTK CSS does not support browser-style media queries; responsive layout lives in widget code. */

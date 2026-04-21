@@ -1,0 +1,4 @@
+mcp>=0.1.0
+imapclient>=3.0.1
+aiosmtplib>=3.0.1
+pydantic>=2.0.0

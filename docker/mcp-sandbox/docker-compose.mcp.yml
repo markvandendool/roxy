@@ -1,0 +1,86 @@
+version: '3.8'
+
+# Sandboxed MCP Server Infrastructure
+# Secure, containerized MCP servers with capability-based isolation
+
+services:
+  # Filesystem MCP - Sandboxed with explicit path grants
+  mcp-filesystem:
+    build:
+      context: .
+      dockerfile: Dockerfile.filesystem
+    container_name: mcp-filesystem-sandbox
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    tmpfs:
+      - /sandbox/work:noexec,nosuid,size=100m
+      - /tmp:noexec,nosuid,size=50m
+    environment:
+      - MCP_READONLY_PATHS=/home/mark/.roxy/readonly,/home/mark/mindsong-juke-hub/readonly
+      - MCP_MEMORY_LIMIT=256
+      - MCP_TIME_LIMIT=60
+    volumes:
+      # Bind mount specific read-only directories
+      - type: bind
+        source: /home/mark/.roxy
+        target: /home/mark/.roxy/readonly
+        read_only: true
+      - type: bind
+        source: /home/mark/mindsong-juke-hub
+        target: /home/mark/mindsong-juke-hub/readonly
+        read_only: true
+      # Log directory (writable)
+      - type: bind
+        source: /home/mark/.roxy/logs/mcp
+        target: /sandbox/logs
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # GitHub MCP - Network-isolated with token injection
+  mcp-github:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: mcp-github-sandbox
+    command: ["@modelcontextprotocol/server-github"]
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MCP_MEMORY_LIMIT=256
+      - MCP_TIME_LIMIT=120
+    secrets:
+      - github_token
+    networks:
+      - mcp-network
+    restart: unless-stopped
+
+  # Future MCP servers can be added here following the same pattern
+  # mcp-puppeteer:
+  # mcp-playwright:
+  # mcp-notion:
+
+secrets:
+  github_token:
+    file: /home/mark/.roxy/credentials/github_token.secret
+
+networks:
+  mcp-network:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16

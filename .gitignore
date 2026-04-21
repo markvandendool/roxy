@@ -81,6 +81,8 @@ vault/tokens/
 *.token
 *.key
 *.pem
+mcp-servers/email/accounts.json
+infisical/docker-compose.yml
 
 # Runtime data directories
 content-pipeline/jobs/
@@ -90,3 +92,6 @@ data/feedback/
 forensics/
 obs-portable/
 obs-acceptance/
+
+# Large local snapshots
+backups/chroma_db_snapshot_*/

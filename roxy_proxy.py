@@ -34,6 +34,20 @@ PATH_MAP = {
     '/api/roxy/feedback/stats': '/feedback/stats',
     '/api/roxy/memory/recall': '/memory/recall',
     '/api/roxy/info': '/info',
+    '/api/roxy/github/status': '/github/status',
+    '/api/roxy/mcp/voice/voice_get_status': '/mcp/voice/voice_get_status',
+}
+
+RUN_GATEWAY_PREFIXES = (
+    '/api/runs',
+    '/api/bridge',
+    '/api/cluster',
+    '/api/diagnostics',
+)
+
+RUN_GATEWAY_PATHS = {
+    '/api/health',
+    '/api/roxy/command',
 }
 
 DEFAULT_ACTIONS = [
@@ -122,7 +136,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         # Canonical run ingress + operational command ingress route to run gateway.
         # All other ROXY reads/writes continue to route to roxy-core.
-        use_run_gateway = route_path.startswith('/api/runs') or route_path == '/api/roxy/command'
+        use_run_gateway = (
+            route_path in RUN_GATEWAY_PATHS
+            or any(route_path.startswith(prefix) for prefix in RUN_GATEWAY_PREFIXES)
+        )
 
         if use_run_gateway:
             mapped_path = self.path

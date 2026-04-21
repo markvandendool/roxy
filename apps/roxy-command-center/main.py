@@ -35,7 +35,13 @@ from services.alert_manager import get_alert_manager
 from services.ollama_control import get_ollama_control, OllamaAction, ActionResult
 
 APP_ID = "org.roxy.CommandCenter"
+APP_NAME = "Roxy Command Center"
+CACHE_DIR = Path.home() / ".cache" / "roxy-command-center"
+PID_PATH = CACHE_DIR / "cc.pid"
 CSS_PATH = Path(__file__).parent / "styles" / "custom.css"
+
+GLib.set_prgname(APP_ID)
+GLib.set_application_name(APP_NAME)
 
 
 class RoxyCommandCenter(Adw.Application):
@@ -49,6 +55,8 @@ class RoxyCommandCenter(Adw.Application):
         self.window: Optional['MainWindow'] = None
         self._signal_handler_ids: List[int] = []
         self._fault_log = self._setup_fault_logging()
+        self._exit_reason = "user_close"
+        self._exit_details = "Normal shutdown"
     
     def do_startup(self):
         """Application startup."""
@@ -78,6 +86,7 @@ class RoxyCommandCenter(Adw.Application):
         if not self.window:
             print("[App] Creating main window...")
             self.window = MainWindow(self)
+            self._write_pid_file()
             print("[App] Main window created")
         print("[App] Presenting window...")
         self.window.present()
@@ -86,13 +95,16 @@ class RoxyCommandCenter(Adw.Application):
     def do_shutdown(self):
         """Application shutdown."""
         print(f"[App] Shutting down (PID {os.getpid()})")
-        self._write_exit_breadcrumb("user_close", "Normal shutdown")
-        
-        for handler_id in list(self._signal_handler_ids):
+        if self.window:
             try:
-                GLib.source_remove(handler_id)
-            except Exception:
-                pass
+                self.window.shutdown()
+            except Exception as exc:
+                print(f"[App] Window shutdown cleanup failed: {exc}")
+        self._remove_pid_file()
+        self._write_exit_breadcrumb(self._exit_reason, self._exit_details)
+
+        # The process is terminating; letting GLib tear down signal sources avoids
+        # noisy "Source ID was not found" warnings for handlers already auto-removed.
         self._signal_handler_ids.clear()
         if self._fault_log:
             try:
@@ -131,7 +143,9 @@ class RoxyCommandCenter(Adw.Application):
             except Exception:
                 name = str(sig)
             print(f"[App] Received signal {sig} ({name}); initiating graceful shutdown")
-            self._write_exit_breadcrumb(f"signal:{name}", f"Terminated by signal {sig}")
+            self._exit_reason = f"signal:{name}"
+            self._exit_details = f"Terminated by signal {sig}"
+            self._write_exit_breadcrumb(self._exit_reason, self._exit_details)
             GLib.idle_add(self.quit)
             return False  # Remove handler after first invocation
 
@@ -162,6 +176,27 @@ class RoxyCommandCenter(Adw.Application):
                 os.fsync(f.fileno())
         except Exception as e:
             print(f"[App] Warning: Could not write exit breadcrumb: {e}")
+
+    def _write_pid_file(self):
+        """Persist the real GTK process PID for helper status/stop commands."""
+        try:
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            PID_PATH.write_text(f"{os.getpid()}\n")
+        except Exception as exc:
+            print(f"[App] Warning: Could not write PID file: {exc}")
+
+    def _remove_pid_file(self):
+        """Remove the PID file if it still points at this process."""
+        try:
+            if not PID_PATH.exists():
+                return
+            if PID_PATH.read_text().strip() != str(os.getpid()):
+                return
+            PID_PATH.unlink()
+        except FileNotFoundError:
+            pass
+        except Exception as exc:
+            print(f"[App] Warning: Could not remove PID file: {exc}")
     
     def _check_previous_exit(self):
         """Check for unexpected death from previous run."""
@@ -226,7 +261,7 @@ class MainWindow(Adw.ApplicationWindow):
         print("[MainWindow] Window class initialized")
         
         # Window properties
-        self.set_title("Roxy Command Center")
+        self.set_title(APP_NAME)
         self.set_default_size(1280, 800)
         self.set_size_request(800, 600)
         print("[MainWindow] Window properties set")
@@ -235,6 +270,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._daemon_client = DaemonClient()
         self._current_data: dict = {}
         self._poll_source_id: Optional[int] = None
+        self._shutdown_complete = False
         print("[MainWindow] Data structures initialized")
         
         # Initialize alert manager with app
@@ -246,6 +282,7 @@ class MainWindow(Adw.ApplicationWindow):
         print("[MainWindow] Building UI...")
         self._build_ui()
         print("[MainWindow] UI built successfully")
+        self._sync_snapshot_client_config()
         
         # Start polling
         print("[MainWindow] Starting polling...")
@@ -334,10 +371,22 @@ class MainWindow(Adw.ApplicationWindow):
         """Handle setting change."""
         print(f"[MainWindow] Setting changed: {key} = {value}")
 
-        if key == "poll_interval_ms":
+        if key in {"mode", "remote_host", "remote_port"}:
+            self._sync_snapshot_client_config()
+            self._fetch_data()
+        elif key == "poll_interval_ms":
             self._restart_polling(int(value))
         elif key == "_reset":
+            self._sync_snapshot_client_config()
             self._restart_polling()
+
+    def _sync_snapshot_client_config(self):
+        """Keep the snapshot client aligned with the Settings page."""
+        config = self.settings_page.get_config() if hasattr(self, "settings_page") else {}
+        mode = (config.get("mode") or "local").strip().lower()
+        remote_host = (config.get("remote_host") or "127.0.0.1").strip() or "127.0.0.1"
+        remote_port = int(config.get("remote_port") or 8766)
+        self._daemon_client.configure(mode=mode, remote_host=remote_host, remote_port=remote_port)
 
     def _on_ollama_unload(self, pool: str, model: str):
         """Handle Ollama model unload request."""
@@ -367,9 +416,12 @@ class MainWindow(Adw.ApplicationWindow):
         else:
             print(f"[MainWindow] Toast: {message}")
     
-    def _start_polling(self, interval_ms: int = 5000):
+    def _start_polling(self, interval_ms: int = None):
         """Start daemon polling."""
         self._stop_polling()
+        if interval_ms is None:
+            config = self.settings_page.get_config() if hasattr(self, "settings_page") else {}
+            interval_ms = int(config.get("poll_interval_ms", 5000))
         
         # Initial fetch
         self._fetch_data()
@@ -388,7 +440,7 @@ class MainWindow(Adw.ApplicationWindow):
         """Restart polling with new interval."""
         if interval_ms is None:
             config = self.settings_page.get_config()
-            interval_ms = config.get("poll_interval_ms", 2000)
+            interval_ms = config.get("poll_interval_ms", 5000)
         self._start_polling(interval_ms)
     
     def _on_poll_timer(self) -> bool:
@@ -416,7 +468,8 @@ class MainWindow(Adw.ApplicationWindow):
                 
                 # Update header mode
                 mode = data.get("mode", "local")
-                host = raw_data.get("remote_host", "")
+                snapshot_meta = data.get("snapshot_meta") or {}
+                host = snapshot_meta.get("target_host") or raw_data.get("remote_host", "")
                 self.header.set_mode(mode, host)
                 
                 # Update header debug strip
@@ -454,10 +507,24 @@ class MainWindow(Adw.ApplicationWindow):
     def refresh(self):
         """Manual refresh."""
         self._fetch_data()
+
+    def shutdown(self):
+        """Release background work owned by the window before exit."""
+        if self._shutdown_complete:
+            return
+
+        self._shutdown_complete = True
+        self._stop_polling()
+
+        if hasattr(self, "home_page"):
+            try:
+                self.home_page.shutdown()
+            except Exception as exc:
+                print(f"[MainWindow] Home page shutdown cleanup failed: {exc}")
     
     def do_close_request(self) -> bool:
         """Handle window close."""
-        self._stop_polling()
+        self.shutdown()
         return False  # Allow close
 
 

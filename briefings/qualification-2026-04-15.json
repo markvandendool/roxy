@@ -1,0 +1,247 @@
+{
+  "timestamp": "2026-04-15T17:03:20.368405+00:00",
+  "qualified": false,
+  "QUALIFIED": "NO",
+  "overall_score": 0.8,
+  "gates": [
+    {
+      "name": "security_scan",
+      "passed": false,
+      "duration_ms": 4528.259754180908,
+      "message": "1 violations found",
+      "details": {
+        "violations": 1,
+        "critical": 0,
+        "high": 1
+      }
+    },
+    {
+      "name": "eval_harness",
+      "passed": true,
+      "duration_ms": 59879.37521934509,
+      "message": "Eval harness passed",
+      "details": {
+        "attempts": [
+          {
+            "attempt": 1,
+            "returncode": 0,
+            "passed": true,
+            "stdout": "ailed: 0\nPass Rate: 100.0%\nMeets Threshold (95%): \u2705 YES\n\nBy Category:\n  runtime: 100% (1/1)\n  memory: 100% (3/3)\n  confidence: 100% (2/2)\n  quality: 100% (2/2)\n\nDetailed Results:\n  \u2705 [runtime] mcp_gate\n  \u2705 [memory] memory_identity\n  \u2705 [memory] memory_production\n  \u2705 [memory] memory_preferences\n  \u2705 [confidence] confidence_known\n  \u2705 [confidence] confidence_unknown\n  \u2705 [quality] quality_technical\n  \u2705 [quality] quality_production\n======================================================================\n",
+            "stderr": "on\nINFO:roxy.eval:  \u2705 PASS: memory_production\nINFO:roxy.eval:Running test: memory_preferences\nINFO:roxy.eval:  \u2705 PASS: memory_preferences\nINFO:roxy.eval:Running test: confidence_known\nINFO:roxy.eval:  \u2705 PASS: confidence_known\nINFO:roxy.eval:Running test: confidence_unknown\nINFO:roxy.eval:  \u2705 PASS: confidence_unknown\nINFO:roxy.eval:Running test: quality_technical\nINFO:roxy.eval:  \u2705 PASS: quality_technical\nINFO:roxy.eval:Running test: quality_production\nINFO:roxy.eval:  \u2705 PASS: quality_production\n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp_auth",
+      "passed": true,
+      "duration_ms": 11523.026466369629,
+      "message": "7/7 MCP servers connected",
+      "details": {
+        "github": {
+          "connected": true,
+          "tool_count": 26
+        },
+        "filesystem": {
+          "connected": true,
+          "tool_count": 14
+        },
+        "roxy-browser": {
+          "connected": true,
+          "tool_count": 4
+        },
+        "roxy-desktop": {
+          "connected": true,
+          "tool_count": 9
+        },
+        "roxy-voice": {
+          "connected": true,
+          "tool_count": 4
+        },
+        "roxy-obs": {
+          "connected": true,
+          "tool_count": 10
+        },
+        "roxy-content": {
+          "connected": true,
+          "tool_count": 6
+        }
+      }
+    },
+    {
+      "name": "preflight",
+      "passed": true,
+      "duration_ms": 12906.452894210815,
+      "message": "Preflight: degraded",
+      "details": {
+        "timestamp": "2026-04-15T17:03:19.016289+00:00",
+        "overall_ready": "degraded",
+        "models_ready": [
+          "opencode/big-pickle",
+          "openai/gpt-5.4"
+        ],
+        "mcp_ready": [
+          "github",
+          "filesystem",
+          "roxy-browser",
+          "roxy-desktop",
+          "roxy-voice",
+          "roxy-obs",
+          "roxy-content"
+        ],
+        "skills_ready": [
+          "skill_code_review",
+          "skill_data_analysis",
+          "skill_web_research"
+        ],
+        "mission_valid": true,
+        "components": [
+          {
+            "name": "models",
+            "status": "ok",
+            "message": "2 preferred models available",
+            "details": {
+              "available": [
+                "opencode/big-pickle",
+                "openai/gpt-5.4"
+              ],
+              "total_models": 174
+            }
+          },
+          {
+            "name": "api_keys",
+            "status": "ok",
+            "message": "Auth token present",
+            "details": {}
+          },
+          {
+            "name": "luno_service",
+            "status": "ok",
+            "message": "Luno service healthy",
+            "details": {}
+          },
+          {
+            "name": "mcp_servers",
+            "status": "warn",
+            "message": "7/16 required MCP servers connected",
+            "details": {
+              "github": {
+                "connected": true,
+                "tool_count": 26
+              },
+              "filesystem": {
+                "connected": true,
+                "tool_count": 14
+              },
+              "roxy-browser": {
+                "connected": true,
+                "tool_count": 4
+              },
+              "roxy-desktop": {
+                "connected": true,
+                "tool_count": 9
+              },
+              "roxy-voice": {
+                "connected": true,
+                "tool_count": 4
+              },
+              "roxy-obs": {
+                "connected": true,
+                "tool_count": 10
+              },
+              "roxy-content": {
+                "connected": true,
+                "tool_count": 6
+              },
+              "_required_servers": [
+                "roxy-browser",
+                "roxy-desktop",
+                "roxy-voice",
+                "roxy-obs",
+                "roxy-content",
+                "mindsong-skills",
+                "blender",
+                "playwright",
+                "chrome-devtools",
+                "puppeteer",
+                "notion",
+                "github",
+                "memory",
+                "filesystem",
+                "sequential-thinking",
+                "greptile"
+              ],
+              "_missing_required": [
+                "mindsong-skills",
+                "blender",
+                "playwright",
+                "chrome-devtools",
+                "puppeteer",
+                "notion",
+                "memory",
+                "sequential-thinking",
+                "greptile"
+              ],
+              "_optional_servers": [],
+              "_missing_optional": []
+            }
+          },
+          {
+            "name": "skills",
+            "status": "ok",
+            "message": "3 skills found",
+            "details": {
+              "count": 3,
+              "skills": [
+                "skill_code_review",
+                "skill_data_analysis",
+                "skill_web_research"
+              ]
+            }
+          },
+          {
+            "name": "mission_contract",
+            "status": "ok",
+            "message": "Mission bootstrap-20260320115859 valid",
+            "details": {
+              "mission_id": "bootstrap-20260320115859",
+              "objective": "Keep ROXY command center healthy, execute queued stories safely, and preserve production readiness.",
+              "constraints": [
+                "No destructive git operations",
+                "Preserve existing worktree changes",
+                "Run targeted verification before completion",
+                "Log all tool calls and outcomes"
+              ],
+              "priority": "high",
+              "budget": 0.0,
+              "timeout_sec": 900,
+              "metadata": {
+                "source": "preflight_bridge",
+                "auto_generated": true,
+                "created_at": "2026-03-20T11:58:59.145862+00:00"
+              }
+            }
+          }
+        ],
+        "blocking_reasons": [],
+        "warnings": [
+          "MCP servers: 7/16 required MCP servers connected"
+        ]
+      }
+    },
+    {
+      "name": "opencode_probe",
+      "passed": true,
+      "duration_ms": 1351.6685962677002,
+      "message": "OpenCode CLI available",
+      "details": {}
+    }
+  ],
+  "blocking_issues": [
+    "1 violations found"
+  ],
+  "warnings": [],
+  "recommendations": [
+    "Fix: security_scan - 1 violations found"
+  ]
+}

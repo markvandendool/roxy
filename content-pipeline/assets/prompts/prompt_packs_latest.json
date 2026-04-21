@@ -1,16 +1,16 @@
 {
-  "pack_id": "PACK_20260320_112208_45f14a01",
-  "timestamp": "2026-03-20T17:22:08.361633+00:00",
+  "pack_id": "PACK_20260402_092203_25a2677d",
+  "timestamp": "2026-04-02T15:22:03.374946+00:00",
   "status": "healthy",
-  "source_briefs": "BRIEF_20260320_112007_79977c14",
+  "source_briefs": "BRIEF_20260402_092008_53c7a972",
   "packs": [
     {
-      "script_id": "SCR_74ac4c746b97",
+      "script_id": "SCR_b15ee7594d0b",
       "prompts": [
         {
-          "asset_id": "ASSET_74ac4c74_thumbnail_00_ba83b591",
+          "asset_id": "ASSET_b15ee759_thumbnail_00_9e1560ad",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, The best AI investment might be in energy tech, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, AI system learns to keep warehouse robot traffic r, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -25,13 +25,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b"
+            "AI system learns to keep wareh"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_intro_card_00_94118ca8",
+          "asset_id": "ASSET_b15ee759_intro_card_00_9fdfe277",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, The best AI investment might be in energy tech, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, AI system learns to keep warehouse robot traffic r, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -46,11 +46,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b"
+            "AI system learns to keep wareh"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_lower_third_00_ef287e54",
+          "asset_id": "ASSET_b15ee759_lower_third_00_ca5b8643",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -67,14 +67,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
+            "AI system learns to keep wareh",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_lower_third_01_12b9bd5e",
+          "asset_id": "ASSET_b15ee759_lower_third_01_8793e4d8",
           "asset_type": "lower_third",
-          "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Lower third graphic, CONTEXT: Intro, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -89,14 +89,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "CONTEXT: Context"
+            "AI system learns to keep wareh",
+            "CONTEXT: Intro"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_lower_third_02_e52e2fc4",
+          "asset_id": "ASSET_b15ee759_lower_third_02_a00efe88",
           "asset_type": "lower_third",
-          "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Lower third graphic, STEP_1: Step 1, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -111,12 +111,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "DETAILS: Details"
+            "AI system learns to keep wareh",
+            "STEP_1: Step 1"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_broll_00_66679bd1",
+          "asset_id": "ASSET_b15ee759_broll_00_bc894730",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -135,14 +135,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
+            "AI system learns to keep wareh",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_broll_01_98d5b015",
+          "asset_id": "ASSET_b15ee759_broll_01_f9d503a5",
           "asset_type": "broll",
-          "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "B-roll footage, Professional tech environment, screens with code, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -159,14 +159,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "CONTEXT: Context"
+            "AI system learns to keep wareh",
+            "CONTEXT: Intro"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_broll_02_e898dc06",
+          "asset_id": "ASSET_b15ee759_broll_02_49dd93cd",
           "asset_type": "broll",
-          "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "B-roll footage, Tutorial-style screen capture, step indicators, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -183,14 +183,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "DETAILS: Details"
+            "AI system learns to keep wareh",
+            "STEP_1: Step 1"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_broll_03_59c94550",
+          "asset_id": "ASSET_b15ee759_broll_03_9362830b",
           "asset_type": "broll",
-          "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "B-roll footage, Tutorial-style screen capture, step indicators, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -207,14 +207,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "ANALYSIS: Analysis"
+            "AI system learns to keep wareh",
+            "STEP_2: Step 2"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_broll_04_e357a20a",
+          "asset_id": "ASSET_b15ee759_broll_04_42e296d4",
           "asset_type": "broll",
-          "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "B-roll footage, Tutorial-style screen capture, step indicators, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -231,12 +231,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "TAKEAWAY: Takeaway"
+            "AI system learns to keep wareh",
+            "STEP_3: Step 3"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_title_card_00_e26dc2d1",
+          "asset_id": "ASSET_b15ee759_title_card_00_122e7ee7",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -253,14 +253,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
+            "AI system learns to keep wareh",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_title_card_01_39cdef2b",
+          "asset_id": "ASSET_b15ee759_title_card_01_f63b6c82",
           "asset_type": "title_card",
-          "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Section title card, CONTEXT: Intro, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -275,14 +275,14 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "CONTEXT: Context"
+            "AI system learns to keep wareh",
+            "CONTEXT: Intro"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_title_card_02_a2db3a81",
+          "asset_id": "ASSET_b15ee759_title_card_02_1d5279e2",
           "asset_type": "title_card",
-          "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Section title card, STEP_1: Step 1, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -297,12 +297,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b",
-            "DETAILS: Details"
+            "AI system learns to keep wareh",
+            "STEP_1: Step 1"
           ]
         },
         {
-          "asset_id": "ASSET_74ac4c74_end_card_00_4633dd48",
+          "asset_id": "ASSET_b15ee759_end_card_00_4ae178b5",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -319,18 +319,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "The best AI investment might b"
+            "AI system learns to keep wareh"
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_a8bc4e18f00d",
+      "script_id": "SCR_06fb702c5ee7",
       "prompts": [
         {
-          "asset_id": "ASSET_a8bc4e18_thumbnail_00_54139b5f",
+          "asset_id": "ASSET_06fb702c_thumbnail_00_f3366748",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, Cognichip wants AI to design the chips that power , professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -345,13 +345,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield"
+            "Cognichip wants AI to design t"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_intro_card_00_20a9169f",
+          "asset_id": "ASSET_06fb702c_intro_card_00_9951581e",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, Cognichip wants AI to design the chips that power , professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -366,11 +366,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield"
+            "Cognichip wants AI to design t"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_lower_third_00_801e18a5",
+          "asset_id": "ASSET_06fb702c_lower_third_00_7324b7e9",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -387,12 +387,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_lower_third_01_c69ab782",
+          "asset_id": "ASSET_06fb702c_lower_third_01_20b452eb",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -409,12 +409,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_lower_third_02_066fec5f",
+          "asset_id": "ASSET_06fb702c_lower_third_02_b9a7f5b1",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -431,12 +431,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_broll_00_07a5cca0",
+          "asset_id": "ASSET_06fb702c_broll_00_c768b4cd",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -455,12 +455,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_broll_01_57541d2f",
+          "asset_id": "ASSET_06fb702c_broll_01_64ee45ee",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -479,12 +479,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_broll_02_724e7fb2",
+          "asset_id": "ASSET_06fb702c_broll_02_54c7937b",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -503,12 +503,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_broll_03_0b40380b",
+          "asset_id": "ASSET_06fb702c_broll_03_5d797982",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -527,12 +527,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_broll_04_35a2bb93",
+          "asset_id": "ASSET_06fb702c_broll_04_99696c51",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -551,12 +551,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_title_card_00_198370a4",
+          "asset_id": "ASSET_06fb702c_title_card_00_40cf615b",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -573,12 +573,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_title_card_01_826286da",
+          "asset_id": "ASSET_06fb702c_title_card_01_4fa9c16c",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -595,12 +595,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_title_card_02_b4c830e3",
+          "asset_id": "ASSET_06fb702c_title_card_02_6598ace4",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -617,12 +617,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield",
+            "Cognichip wants AI to design t",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_a8bc4e18_end_card_00_2fc33403",
+          "asset_id": "ASSET_06fb702c_end_card_00_5cb272e3",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -639,18 +639,18 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "TechCrunch\u00a0Startup Battlefield"
+            "Cognichip wants AI to design t"
           ]
         }
       ]
     },
     {
-      "script_id": "SCR_6bea7c64fbea",
+      "script_id": "SCR_8b63cb8f51f5",
       "prompts": [
         {
-          "asset_id": "ASSET_6bea7c64_thumbnail_00_43f3f349",
+          "asset_id": "ASSET_8b63cb8f_thumbnail_00_9943e3a3",
           "asset_type": "thumbnail",
-          "prompt": "YouTube video thumbnail, WordPress.com now lets AI agents write and publish, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "YouTube video thumbnail, Mercor says it was hit by cyberattack tied to comp, professional style, professional quality, eye-catching, high contrast text area, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1280,
@@ -665,13 +665,13 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen"
+            "Mercor says it was hit by cybe"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_intro_card_00_ffe17f89",
+          "asset_id": "ASSET_8b63cb8f_intro_card_00_db664dfa",
           "asset_type": "intro_card",
-          "prompt": "Video intro title card, WordPress.com now lets AI agents write and publish, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
+          "prompt": "Video intro title card, Mercor says it was hit by cyberattack tied to comp, professional motion graphics style, sleek animation ready, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
           "target_specs": {
             "width": 1920,
@@ -686,11 +686,11 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen"
+            "Mercor says it was hit by cybe"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_lower_third_00_ddca197e",
+          "asset_id": "ASSET_8b63cb8f_lower_third_00_ced447df",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, HOOK: Hook, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -707,12 +707,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_lower_third_01_aa8a9919",
+          "asset_id": "ASSET_8b63cb8f_lower_third_01_706bb510",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, CONTEXT: Context, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -729,12 +729,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_lower_third_02_cad568c7",
+          "asset_id": "ASSET_8b63cb8f_lower_third_02_d19079d5",
           "asset_type": "lower_third",
           "prompt": "Lower third graphic, DETAILS: Details, professional style, semi-transparent background, modern typography, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -751,12 +751,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_broll_00_2ea0f8dc",
+          "asset_id": "ASSET_8b63cb8f_broll_00_225f0277",
           "asset_type": "broll",
           "prompt": "B-roll footage, Attention-grabbing tech visuals, glitch effects, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -775,12 +775,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_broll_01_0949e55e",
+          "asset_id": "ASSET_8b63cb8f_broll_01_e204f218",
           "asset_type": "broll",
           "prompt": "B-roll footage, Historical footage, timeline graphics, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -799,12 +799,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_broll_02_09ce4e32",
+          "asset_id": "ASSET_8b63cb8f_broll_02_1eba3e0e",
           "asset_type": "broll",
           "prompt": "B-roll footage, Product shots, UI demos, data visualizations, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -823,12 +823,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_broll_03_1f52ed34",
+          "asset_id": "ASSET_8b63cb8f_broll_03_b2fd350c",
           "asset_type": "broll",
           "prompt": "B-roll footage, Charts, graphs, expert-style talking head frame, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -847,12 +847,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "ANALYSIS: Analysis"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_broll_04_19acb924",
+          "asset_id": "ASSET_8b63cb8f_broll_04_b13ec230",
           "asset_type": "broll",
           "prompt": "B-roll footage, Key point graphics, summary card, professional cinematography, professional grade, 4K quality, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -871,12 +871,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "TAKEAWAY: Takeaway"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_title_card_00_381105f7",
+          "asset_id": "ASSET_8b63cb8f_title_card_00_af693fca",
           "asset_type": "title_card",
           "prompt": "Section title card, HOOK: Hook, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -893,12 +893,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "HOOK: Hook"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_title_card_01_74d7f6db",
+          "asset_id": "ASSET_8b63cb8f_title_card_01_d57713e5",
           "asset_type": "title_card",
           "prompt": "Section title card, CONTEXT: Context, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -915,12 +915,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "CONTEXT: Context"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_title_card_02_1e03da80",
+          "asset_id": "ASSET_8b63cb8f_title_card_02_a9c34397",
           "asset_type": "title_card",
           "prompt": "Section title card, DETAILS: Details, professional design, minimal clean layout, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -937,12 +937,12 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen",
+            "Mercor says it was hit by cybe",
             "DETAILS: Details"
           ]
         },
         {
-          "asset_id": "ASSET_6bea7c64_end_card_00_c1a41ff9",
+          "asset_id": "ASSET_8b63cb8f_end_card_00_6466be03",
           "asset_type": "end_card",
           "prompt": "YouTube end screen, subscribe CTA, professional style, engaging call to action, clean lines, corporate aesthetic, soft shadows",
           "negative_prompt": "blurry, low quality, distorted text, amateur, watermark, logo, cluttered, noisy, oversaturated, underexposed",
@@ -959,7 +959,7 @@
             "minimal design"
           ],
           "safe_text_overlays": [
-            "WordPress.com now lets AI agen"
+            "Mercor says it was hit by cybe"
           ]
         }
       ]

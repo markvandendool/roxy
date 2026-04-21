@@ -1,0 +1,32 @@
+# Sandboxed Filesystem MCP Server
+# Restricted filesystem access with capability-based permissions
+
+FROM node:20-alpine
+
+RUN addgroup -g 1000 mcp && \
+    adduser -u 1000 -G mcp -s /bin/sh -D mcp
+
+RUN apk add --no-cache bubblewrap libseccomp
+
+# Install filesystem MCP server globally
+RUN npm install -g @modelcontextprotocol/server-filesystem
+
+# Create sandbox structure
+RUN mkdir -p /sandbox/work /sandbox/readonly /sandbox/logs && \
+    chown -R mcp:mcp /sandbox
+
+# Copy wrapper script
+COPY --chown=mcp:mcp filesystem-wrapper.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/filesystem-wrapper.sh
+
+USER mcp
+WORKDIR /sandbox/work
+
+# Environment for allowed paths (set at runtime)
+ENV MCP_READONLY_PATHS=""
+ENV MCP_MEMORY_LIMIT="256"
+ENV MCP_TIME_LIMIT="60"
+
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/local/bin/filesystem-wrapper.sh"]

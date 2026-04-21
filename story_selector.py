@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 logger = logging.getLogger("roxy.story_selector")
 
 PRIORITY_ORDER = {"critical": 4, "high": 3, "medium": 2, "low": 1}
-SKOREQ_INDEX = Path.home() / "work" / "mindsong_gh_https_1769765834" / "docs" / "skoreq" / "index.json"
+SKOREQ_INDEX = Path.home() / "mindsong-juke-hub" / "docs" / "skoreq" / "index.json"
 
 
 @dataclass

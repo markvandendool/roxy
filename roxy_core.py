@@ -17,6 +17,7 @@ import atexit
 import uuid
 import hashlib
 import re
+import importlib.util
 from pathlib import Path
 from datetime import datetime, UTC
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -61,6 +62,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger("roxy-core")
 
+UI_SNAPSHOT_CACHE_TTL = float(os.getenv("ROXY_UI_SNAPSHOT_CACHE_TTL", "6.0"))
+UI_INFO_CACHE_TTL = float(os.getenv("ROXY_UI_INFO_CACHE_TTL", "15.0"))
+UI_SNAPSHOT_DAEMON_PATH = (
+    Path.home() / ".config" / "eww" / "roxy-panel" / "scripts" / "roxy-panel-daemon.py"
+)
+_UI_SNAPSHOT_LOCK = Lock()
+_UI_SNAPSHOT_CACHE: Dict[str, Dict[str, Any]] = {}
+_UI_INFO_CACHE: Dict[str, Any] = {"ts": 0.0, "payload": None}
+_UI_SNAPSHOT_MODULE = None
+
 # -----------------------------------------------------------------------------
 # JSON sanitation helpers
 # -----------------------------------------------------------------------------
@@ -74,6 +85,14 @@ def _json_sanitize(obj):
         return [_json_sanitize(v) for v in obj]
     return obj
 
+
+def _copy_jsonish(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Return a detached copy of a JSON-like dict."""
+    try:
+        return json.loads(json.dumps(_json_sanitize(payload)))
+    except Exception:
+        return dict(payload)
+
 # Configuration - single source of truth
 ROXY_DIR = Path.home() / ".roxy"
 CONFIG_FILE = ROXY_DIR / "config.json"
@@ -83,6 +102,52 @@ TOKEN_FILE = ROXY_DIR / "secret.token"
 DEFAULT_QWEN_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b")
 _MODEL_CACHE = {"selected": {}, "models": [], "ts": 0.0}
 _MODEL_CACHE_TTL = 60.0
+
+# Legacy compatibility map for /raw and /modes after the older global mode
+# registry was removed. Keep this intentionally small and deterministic.
+ROXY_MODES = {
+    "technical": {
+        "description": "Minimal prompting for technical work and diagnostics.",
+        "system_prompt": False,
+        "temperature": 0.2,
+    },
+    "balanced": {
+        "description": "General assistant framing with moderate creativity.",
+        "system_prompt": True,
+        "temperature": 0.5,
+    },
+    "creative": {
+        "description": "Higher-creativity response mode for drafting and ideation.",
+        "system_prompt": True,
+        "temperature": 0.9,
+    },
+}
+
+
+def _env_truthy(name: str) -> bool:
+    return os.getenv(name, "0").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _running_under_systemd() -> bool:
+    """Detect a systemd-managed process context."""
+    return any(os.getenv(name) for name in ("INVOCATION_ID", "NOTIFY_SOCKET", "JOURNAL_STREAM"))
+
+
+def _should_ignore_sigterm() -> bool:
+    """
+    Preserve the legacy opt-out only for ad hoc shell launches.
+
+    A systemd-managed service must always honor SIGTERM so stop/restart does not hang
+    in `deactivating (stop-sigterm)`.
+    """
+    return _env_truthy("ROXY_IGNORE_SIGTERM") and not _running_under_systemd()
+
+
+def _resolve_raw_query_mode(mode: str) -> Tuple[str, Dict[str, Any]]:
+    normalized = (mode or "technical").strip().lower()
+    if normalized not in ROXY_MODES:
+        normalized = "technical"
+    return normalized, ROXY_MODES[normalized]
 
 
 def _score_qwen_model(name: str) -> int:
@@ -190,6 +255,312 @@ def _get_default_model(base_url: Optional[str] = None, query: str = "", mode: st
     _MODEL_CACHE.setdefault("selected", {})[cache_key] = selected
     _MODEL_CACHE["ts"] = now
     return selected
+
+
+def _get_bench_status_payload() -> Dict[str, Any]:
+    """Best-effort benchmark status payload for UI consumers."""
+    try:
+        from benchmark_service import get_status
+        status = get_status() or {}
+        if isinstance(status, dict):
+            return status
+        return {"status": "unknown", "detail": "non-dict benchmark status"}
+    except ImportError as exc:
+        return {
+            "available": False,
+            "status": "unavailable",
+            "error": f"benchmark service unavailable: {exc}",
+        }
+    except Exception as exc:
+        logger.warning(f"UI snapshot bench status failed: {exc}")
+        return {
+            "available": False,
+            "status": "error",
+            "error": str(exc),
+        }
+
+
+def _load_ui_snapshot_module():
+    """Load the panel snapshot module once so its caches persist in-process."""
+    global _UI_SNAPSHOT_MODULE
+    if _UI_SNAPSHOT_MODULE is not None:
+        return _UI_SNAPSHOT_MODULE
+
+    if not UI_SNAPSHOT_DAEMON_PATH.exists():
+        raise FileNotFoundError(f"panel daemon missing: {UI_SNAPSHOT_DAEMON_PATH}")
+
+    spec = importlib.util.spec_from_file_location(
+        "roxy_panel_daemon_embed",
+        UI_SNAPSHOT_DAEMON_PATH,
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"unable to load snapshot module from {UI_SNAPSHOT_DAEMON_PATH}")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _UI_SNAPSHOT_MODULE = module
+    return module
+
+
+def _collect_info_payload() -> Dict[str, Any]:
+    """Authoritative truth payload for the native Command Center."""
+    now = time.time()
+    with _UI_SNAPSHOT_LOCK:
+        cached_payload = _UI_INFO_CACHE.get("payload")
+        cached_ts = float(_UI_INFO_CACHE.get("ts", 0.0) or 0.0)
+        if cached_payload and (now - cached_ts) < UI_INFO_CACHE_TTL:
+            return _copy_jsonish(cached_payload)
+
+    import socket
+
+    info: Dict[str, Any] = {
+        "server_time_iso": datetime.now().isoformat(),
+        "hostname": socket.gethostname(),
+        "roxy_core_pid": os.getpid(),
+        "git": {},
+        "ollama": {},
+        "routing_policy": config.get("routing_policy", "auto"),
+    }
+
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+        )
+        info["git"]["branch"] = result.stdout.strip() if result.returncode == 0 else "unknown"
+
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+        )
+        info["git"]["head_sha"] = result.stdout.strip() if result.returncode == 0 else "unknown"
+
+        result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+        )
+        info["git"]["dirty"] = bool(result.stdout.strip()) if result.returncode == 0 else None
+
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%s"],
+            capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
+        )
+        info["git"]["last_commit_subject"] = result.stdout.strip()[:80] if result.returncode == 0 else ""
+    except Exception as exc:
+        info["git"]["error"] = str(exc)
+
+    pools = _resolve_ollama_pools()
+    ollama_base = pools["default"]
+
+    w5700x_reach = _check_ollama_reachability(pools["w5700x"]["url"])
+    xt6900_reach = _check_ollama_reachability(pools["6900xt"]["url"])
+
+    port_service_map = {
+        11434: {"service": "ollama-w5700x.service", "gpu": "W5700X"},
+        11435: {"service": "ollama-6900xt.service", "gpu": "6900XT"},
+    }
+
+    def _get_pool_hints(url: str) -> dict:
+        hints = {"service_name": None, "gpu": None, "pid": None}
+        if not url:
+            return hints
+        port_match = re.search(r":(\d+)", url)
+        if not port_match:
+            return hints
+        port = int(port_match.group(1))
+        if port in port_service_map:
+            hints["service_name"] = port_service_map[port]["service"]
+            hints["gpu"] = port_service_map[port]["gpu"]
+        try:
+            result = subprocess.run(
+                ["lsof", "-i", f":{port}", "-t"],
+                capture_output=True, text=True, timeout=1
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                hints["pid"] = int(result.stdout.strip().split("\n")[0])
+        except Exception:
+            pass
+        return hints
+
+    w5700x_hints = _get_pool_hints(pools["w5700x"]["url"])
+    xt6900_hints = _get_pool_hints(pools["6900xt"]["url"])
+
+    info["ollama"]["pools"] = {
+        "w5700x": {
+            "url": pools["w5700x"]["url"],
+            "configured": pools["w5700x"]["configured"],
+            "reachable": w5700x_reach["reachable"],
+            "latency_ms": w5700x_reach["latency_ms"],
+            "error": w5700x_reach["error"],
+            "service_name": w5700x_hints["service_name"],
+            "gpu": w5700x_hints["gpu"],
+            "pid": w5700x_hints["pid"],
+        },
+        "6900xt": {
+            "url": pools["6900xt"]["url"],
+            "configured": pools["6900xt"]["configured"],
+            "reachable": xt6900_reach["reachable"],
+            "latency_ms": xt6900_reach["latency_ms"],
+            "error": xt6900_reach["error"],
+            "service_name": xt6900_hints["service_name"],
+            "gpu": xt6900_hints["gpu"],
+            "pid": xt6900_hints["pid"],
+        },
+    }
+    info["ollama"]["base_url"] = ollama_base
+    info["ollama"]["fast_url"] = pools["6900xt"]["url"]
+    info["ollama"]["misconfigured"] = pools["misconfigured"]
+
+    try:
+        import urllib.request
+        start = time.time()
+        req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
+        req.add_header("User-Agent", "roxy-core/info-check")
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            info["ollama"]["latency_ms"] = round((time.time() - start) * 1000, 2)
+            info["ollama"]["ok"] = resp.status == 200
+            info["ollama"]["error"] = None
+    except Exception as exc:
+        info["ollama"]["ok"] = False
+        info["ollama"]["error"] = str(exc)
+        info["ollama"]["latency_ms"] = None
+
+    try:
+        from benchmark_service import check_pool_invariants
+        info["ollama"]["pool_invariants"] = check_pool_invariants()
+    except Exception as exc:
+        info["ollama"]["pool_invariants"] = {"error": str(exc), "ok": False}
+
+    github_token = _get_github_token()
+    github_reach = _check_github_reachability(github_token)
+    info["github"] = {
+        "configured": bool(github_token),
+        "reachable": github_reach["reachable"],
+        "latency_ms": github_reach["latency_ms"],
+        "error": github_reach["error"],
+        "rate_limit": github_reach["rate_limit"],
+    }
+    with _UI_SNAPSHOT_LOCK:
+        _UI_INFO_CACHE["ts"] = time.time()
+        _UI_INFO_CACHE["payload"] = _copy_jsonish(info)
+    return info
+
+
+def _fetch_ui_panel_snapshot(
+    mode: str = "local",
+    remote_host: str = "127.0.0.1",
+    remote_port: int = 8766,
+) -> tuple[Dict[str, Any], bool]:
+    """Fetch the heavier system snapshot via the existing panel daemon with a short cache."""
+    normalized_mode = (mode or "local").strip().lower()
+    if normalized_mode not in {"local", "remote", "auto"}:
+        normalized_mode = "local"
+
+    normalized_host = (remote_host or "127.0.0.1").strip() or "127.0.0.1"
+    try:
+        normalized_port = int(remote_port)
+    except (TypeError, ValueError):
+        normalized_port = 8766
+
+    cache_key = f"{normalized_mode}|{normalized_host}|{normalized_port}"
+    now = time.time()
+    with _UI_SNAPSHOT_LOCK:
+        cached_entry = _UI_SNAPSHOT_CACHE.get(cache_key)
+        if cached_entry and (now - cached_entry["ts"]) < UI_SNAPSHOT_CACHE_TTL:
+            return _copy_jsonish(cached_entry["payload"]), True
+
+    try:
+        module = _load_ui_snapshot_module()
+        module.ROXY_MODE = normalized_mode
+        module.ROXY_REMOTE_HOST = normalized_host
+        module.ROXY_REMOTE_PORT = normalized_port
+        payload = module.build_snapshot()
+    except Exception as module_error:
+        env = os.environ.copy()
+        env.update({
+            "ROXY_MODE": normalized_mode,
+            "ROXY_REMOTE_HOST": normalized_host,
+            "ROXY_REMOTE_PORT": str(normalized_port),
+        })
+
+        result = subprocess.run(
+            ["python3", str(UI_SNAPSHOT_DAEMON_PATH), "--mode", "oneshot"],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=2.5,
+        )
+        if result.returncode != 0:
+            stderr = (result.stderr or "").strip()
+            raise RuntimeError(
+                f"snapshot module failed: {module_error}; panel daemon exit {result.returncode}: {stderr or 'no stderr'}"
+            )
+
+        stdout = (result.stdout or "").strip()
+        if not stdout:
+            raise RuntimeError(f"snapshot module failed: {module_error}; panel daemon returned empty snapshot")
+
+        payload = json.loads(stdout)
+
+    with _UI_SNAPSHOT_LOCK:
+        _UI_SNAPSHOT_CACHE[cache_key] = {
+            "ts": time.time(),
+            "payload": _copy_jsonish(payload),
+        }
+    return payload, False
+
+
+def _build_ui_snapshot_payload(
+    mode: str = "local",
+    remote_host: str = "127.0.0.1",
+    remote_port: int = 8766,
+) -> Dict[str, Any]:
+    """Build the native Command Center snapshot served by roxy-core."""
+    snapshot_started = time.time()
+    try:
+        panel_payload, cache_hit = _fetch_ui_panel_snapshot(
+            mode=mode,
+            remote_host=remote_host,
+            remote_port=remote_port,
+        )
+    except Exception as exc:
+        cache_hit = False
+        panel_payload = {
+            "version": "2.0.0",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "mode": (mode or "local").strip().lower() or "local",
+            "source": "roxy-core-fallback",
+            "remote_error": str(exc),
+            "roxy": {"status": "degraded"},
+            "services": {},
+            "ollama": {},
+            "gpu": [],
+            "system": {},
+            "disk": [],
+            "bench": _get_bench_status_payload(),
+            "alerts": [{
+                "severity": "warning",
+                "message": f"UI snapshot degraded: {exc}",
+                "timestamp": datetime.now(UTC).isoformat(),
+            }],
+            "snapshot_error": str(exc),
+        }
+
+    payload = _copy_jsonish(panel_payload)
+    payload["info"] = _collect_info_payload()
+    payload["truth"] = payload["info"]
+    payload.setdefault("bench", _get_bench_status_payload())
+    payload["snapshot_meta"] = {
+        "source": "roxy-core",
+        "transport": "roxy-core.ui_snapshot",
+        "cache_hit": cache_hit,
+        "target_mode": (mode or "local").strip().lower() or "local",
+        "target_host": (remote_host or "127.0.0.1").strip() or "127.0.0.1",
+        "target_port": int(remote_port) if str(remote_port).isdigit() else 8766,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "total_ms": round((time.time() - snapshot_started) * 1000, 2),
+    }
+    return payload
 
 
 _GREETING_PATTERNS = [
@@ -722,6 +1093,19 @@ _PROFILE_QUERY_PATTERN = re.compile(
     r"\b(my name|who am i|how old am i|my age|what do i like|what do i dislike|remember about me|my preference)\b",
     re.IGNORECASE,
 )
+_BENCHMARK_CODENAME_QUERY_PATTERN = re.compile(
+    r"\bbenchmark codename\b|\bcodename from earlier\b|\bmy codename\b",
+    re.IGNORECASE,
+)
+_STRICT_OUTPUT_PATTERN = re.compile(
+    r"\b(reply|respond|answer|return)\s+only\s+with\b"
+    r"|\bonly the codename\b"
+    r"|\bonly the answer\b"
+    r"|\bexactly\s+\d+\s+(?:short\s+)?lines?\b"
+    r"|\bexactly\s+(?:one|two|three)\s+short\s+lines\b"
+    r"|\b(?:one|single)\s+word\s+only\b",
+    re.IGNORECASE,
+)
 _MEMORY_MISS_PATTERN = re.compile(
     r"(no mention|cannot answer|can(?: ?')?t answer|not (?:provided|available)|given context|doesn(?: ?')?t contain|insufficient context)",
     re.IGNORECASE,
@@ -793,6 +1177,10 @@ def _verify_and_enhance_response(
         logger.debug(f"Response verification failed (non-critical): {e}")
     
     return response_text, verification
+
+
+def _is_strict_output_request(query: str) -> bool:
+    return bool(_STRICT_OUTPUT_PATTERN.search(query or ""))
 
 
 # Configuration for retry behavior
@@ -954,6 +1342,32 @@ def _trim_text(value: str, max_len: int = 200) -> str:
     return text[:max_len].rstrip() + "..."
 
 
+def _build_repo_snapshot_from_git_status(repo_path: str, output: str) -> dict:
+    """Parse `git status --short --branch` output into stable snapshot metadata."""
+    lines = [line.rstrip() for line in (output or "").splitlines() if line.strip()]
+    branch_line = lines[0].strip() if lines else ""
+    branch_info = branch_line.replace("##", "", 1).strip() if branch_line else ""
+    branch = branch_info.split("...")[0].strip() if branch_info else "unknown"
+    upstream = branch_info.split("...", 1)[1].strip() if "..." in branch_info else ""
+    entries = []
+    for line in lines[1:]:
+        status = line[:2]
+        rel_path = line[3:].strip()
+        entries.append((status, rel_path))
+    modified_paths = [path for status, path in entries if "?" not in status]
+    untracked_paths = [path for status, path in entries if "?" in status]
+    return {
+        "repo_path": repo_path,
+        "branch": branch or "unknown",
+        "upstream": upstream,
+        "is_dirty": bool(entries),
+        "changed_count": len(entries),
+        "modified_paths": modified_paths,
+        "untracked_paths": untracked_paths,
+        "status_lines": [f"{status} {path}" for status, path in entries],
+    }
+
+
 def _build_memory_context_for_prompt(
     query: str,
     session_id: Optional[str],
@@ -971,12 +1385,17 @@ def _build_memory_context_for_prompt(
         "repo_context_items": 0,
         "context_chars": 0,
         "query_rewritten": False,
+        "recall_attempted": False,
+        "recall_succeeded": False,
+        "recall_backend": None,
+        "recall_failure_reason": None,
         "user_id": _sanitize_user_id(user_id),
     }
 
     memories = []
     profile = []
     typed_records = []
+    raw_query = query
 
     if INFRASTRUCTURE_AVAILABLE:
         # Apply query rewriting for better retrieval
@@ -994,24 +1413,36 @@ def _build_memory_context_for_prompt(
             logger.debug(f"Query rewriting failed: {e}")
 
         try:
-            memories = recall_conversations(
+            memories, recall_receipt = recall_conversations_with_receipt(
                 query,
                 k=MAX_MEMORY_RECALL_ITEMS,
                 session_id=session_id,
                 user_id=meta["user_id"],
                 min_score=MIN_MEMORY_RECALL_SCORE,
                 min_similarity=MIN_MEMORY_RECALL_SIMILARITY,
-            ) or []
+            )
+            memories = memories or []
+            meta["recall_attempted"] = bool(recall_receipt.get("attempted"))
+            meta["recall_succeeded"] = bool(recall_receipt.get("succeeded"))
+            meta["recall_backend"] = recall_receipt.get("backend")
+            meta["recall_failure_reason"] = recall_receipt.get("error")
 
             # If session-scoped recall is sparse, blend in global recall for cross-session continuity.
             if len(memories) < 2:
-                global_memories = recall_conversations(
+                global_memories, global_receipt = recall_conversations_with_receipt(
                     query,
                     k=MAX_MEMORY_RECALL_ITEMS,
                     user_id=meta["user_id"],
                     min_score=max(MIN_MEMORY_RECALL_SCORE - 0.04, 0.0),
                     min_similarity=max(MIN_MEMORY_RECALL_SIMILARITY - 0.05, 0.0),
-                ) or []
+                )
+                global_memories = global_memories or []
+                meta["recall_attempted"] = meta["recall_attempted"] or bool(global_receipt.get("attempted"))
+                meta["recall_succeeded"] = meta["recall_succeeded"] or bool(global_receipt.get("succeeded"))
+                if not meta.get("recall_backend"):
+                    meta["recall_backend"] = global_receipt.get("backend")
+                if not meta.get("recall_failure_reason"):
+                    meta["recall_failure_reason"] = global_receipt.get("error")
                 seen = set()
                 merged = []
                 for m in memories + global_memories:
@@ -1031,6 +1462,26 @@ def _build_memory_context_for_prompt(
 
         try:
             profile = get_user_profile(limit=MAX_PROFILE_ITEMS, user_id=meta["user_id"]) or []
+            if _BENCHMARK_CODENAME_QUERY_PATTERN.search(raw_query or ""):
+                benchmark_profile = get_user_profile(
+                    category="benchmark_codename",
+                    limit=3,
+                    user_id=meta["user_id"],
+                ) or []
+                if benchmark_profile:
+                    seen = set()
+                    prioritized = []
+                    for item in benchmark_profile + profile:
+                        key = (
+                            str(item.get("category", "")).lower(),
+                            str(item.get("preference", "")).lower(),
+                        )
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        prioritized.append(item)
+                    profile = prioritized
+                    meta["priority_profile_category"] = "benchmark_codename"
         except Exception as e:
             logger.debug(f"Profile context build failed: {e}")
             profile = []
@@ -1328,15 +1779,23 @@ def _get_runtime_state_snapshot() -> Dict[str, Any]:
 
     if REPO_INTEL_AVAILABLE:
         try:
-            idx = get_repo_index(repo_root=repo_root)
-            state["repo_intel"] = {
-                "root": getattr(idx, "root", str(repo_root)),
-                "file_count": getattr(idx, "file_count", 0),
-                "symbol_count": len(getattr(idx, "symbol_index", {}) or {}),
-                "language_stats": getattr(idx, "language_stats", {}),
-                "built_at": datetime.fromtimestamp(getattr(idx, "built_at", time.time())).isoformat(),
-                "stale": bool(idx.is_stale()) if idx else True,
-            }
+            idx = get_cached_repo_index(repo_root=repo_root)
+            if idx:
+                state["repo_intel"] = {
+                    "root": getattr(idx, "root", str(repo_root)),
+                    "available": True,
+                    "file_count": getattr(idx, "file_count", 0),
+                    "symbol_count": len(getattr(idx, "symbol_index", {}) or {}),
+                    "language_stats": getattr(idx, "language_stats", {}),
+                    "built_at": datetime.fromtimestamp(getattr(idx, "built_at", time.time())).isoformat(),
+                    "stale": bool(idx.is_stale()) if idx else True,
+                }
+            else:
+                state["repo_intel"] = {
+                    "root": str(repo_root),
+                    "available": False,
+                    "reason": "cache_missing",
+                }
         except Exception as e:
             state["repo_intel"] = {"error": str(e)}
     else:
@@ -1464,6 +1923,9 @@ def _build_proactive_suggestions(query: str) -> List[str]:
     lowered = (query or "").lower()
     suggestions: List[str] = []
 
+    if _is_strict_output_request(query):
+        return []
+
     if any(token in lowered for token in ("benchmark", "score", "performance", "latency")):
         suggestions.extend([
             "Run a fresh benchmark baseline before and after each change to track measurable deltas.",
@@ -1495,6 +1957,8 @@ def _append_proactive_suggestions(query: str, result_text: str) -> tuple[str, Li
     if not ENABLE_PROACTIVE_HINTS:
         return result_text, []
     if not result_text:
+        return result_text, []
+    if _is_strict_output_request(query):
         return result_text, []
     if "Recommended next steps:" in result_text:
         return result_text, []
@@ -1632,7 +2096,7 @@ try:
         get_infrastructure_status,
         get_cache, get_memory, get_router, get_event_stream, get_feedback,
         cache_query, get_cached_response,
-        remember_conversation, recall_conversations,
+        remember_conversation, recall_conversations, recall_conversations_with_receipt,
         learn_user_facts, get_user_profile,
         remember_typed_record, get_typed_records,
         route_query, classify_query,
@@ -1672,6 +2136,8 @@ except ImportError as e:
 
     def recall_conversations(*args, **kwargs): return []
 
+    def recall_conversations_with_receipt(*args, **kwargs): return [], {"attempted": False, "succeeded": False}
+
     def learn_user_facts(*args, **kwargs): return {"learned": [], "count": 0}
 
     def get_user_profile(*args, **kwargs): return []
@@ -1702,6 +2168,7 @@ try:
     from repo_intel import (
         DEFAULT_REPO as REPO_INTEL_DEFAULT_REPO,
         get_repo_index,
+        get_cached_repo_index,
         get_file_context,
         query_symbol,
     )
@@ -1713,6 +2180,8 @@ except ImportError as e:
     REPO_INTEL_DEFAULT_REPO = Path.home() / "work" / "mindsong_gh_https_1769765834"
 
     def get_repo_index(*args, **kwargs): return None
+
+    def get_cached_repo_index(*args, **kwargs): return None
 
     def get_file_context(*args, **kwargs): return {}
 
@@ -2350,6 +2819,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_feedback_stats()
         elif path == "/info" or path == "/v1/info":
             self._handle_info()
+        elif path == "/ui/snapshot" or path == "/v1/ui/snapshot":
+            self._handle_ui_snapshot()
         elif path == "/auth/status" or path == "/v1/auth/status":
             self._handle_auth_status()
         elif path == "/github/status" or path == "/v1/github/status":
@@ -2402,6 +2873,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_qualification_status()
         elif path == "/repo/intel" or path == "/v1/repo/intel":
             self._handle_repo_intel()
+        elif path == "/mcp/tools" or path == "/v1/mcp/tools":
+            self._handle_mcp_tools()
         else:
             self.send_response(404)
             self.end_headers()
@@ -2774,156 +3247,31 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         
         Chief's Truth Panel - authoritative data for Command Center.
         """
-        import socket
-        
-        info = {
-            "server_time_iso": datetime.now().isoformat(),
-            "hostname": socket.gethostname(),
-            "roxy_core_pid": os.getpid(),
-            "git": {},
-            "ollama": {},
-            "routing_policy": config.get("routing_policy", "auto")
-        }
-        
-        # Git state
-        try:
-            result = subprocess.run(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
-            )
-            info["git"]["branch"] = result.stdout.strip() if result.returncode == 0 else "unknown"
-            
-            result = subprocess.run(
-                ["git", "rev-parse", "--short", "HEAD"],
-                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
-            )
-            info["git"]["head_sha"] = result.stdout.strip() if result.returncode == 0 else "unknown"
-            
-            result = subprocess.run(
-                ["git", "status", "--porcelain"],
-                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
-            )
-            info["git"]["dirty"] = bool(result.stdout.strip()) if result.returncode == 0 else None
-            
-            result = subprocess.run(
-                ["git", "log", "-1", "--format=%s"],
-                capture_output=True, text=True, timeout=2, cwd=ROXY_DIR
-            )
-            info["git"]["last_commit_subject"] = result.stdout.strip()[:80] if result.returncode == 0 else ""
-        except Exception as e:
-            info["git"]["error"] = str(e)
-        
-        # Ollama state
-        pools = _resolve_ollama_pools()
-        ollama_base = pools["default"]
+        info = _collect_info_payload()
 
-        # CHIEF'S TRUTH CONTRACT: Expose pool configuration + reachability + MISCONFIGURATION
-        # CHIEF DIRECTIVE: Pool names match hardware (w5700x, 6900xt), not semantic roles
-        w5700x_reach = _check_ollama_reachability(pools["w5700x"]["url"])
-        xt6900_reach = _check_ollama_reachability(pools["6900xt"]["url"])
-
-        # Port -> service mapping (single source of truth)
-        PORT_SERVICE_MAP = {
-            11434: {"service": "ollama-w5700x.service", "gpu": "W5700X"},
-            11435: {"service": "ollama-6900xt.service", "gpu": "6900XT"},
-        }
-
-        def _get_pool_hints(url: str) -> dict:
-            """Get service/pid hints for a pool URL (best-effort)"""
-            import re
-            import subprocess
-            hints = {"service_name": None, "gpu": None, "pid": None}
-            if not url:
-                return hints
-            port_match = re.search(r':(\d+)', url)
-            if not port_match:
-                return hints
-            port = int(port_match.group(1))
-            # Service/GPU from mapping
-            if port in PORT_SERVICE_MAP:
-                hints["service_name"] = PORT_SERVICE_MAP[port]["service"]
-                hints["gpu"] = PORT_SERVICE_MAP[port]["gpu"]
-            # PID from lsof (best-effort)
-            try:
-                result = subprocess.run(
-                    ["lsof", "-i", f":{port}", "-t"],
-                    capture_output=True, text=True, timeout=1
-                )
-                if result.returncode == 0 and result.stdout.strip():
-                    hints["pid"] = int(result.stdout.strip().split('\n')[0])
-            except:
-                pass
-            return hints
-
-        w5700x_hints = _get_pool_hints(pools["w5700x"]["url"])
-        xt6900_hints = _get_pool_hints(pools["6900xt"]["url"])
-
-        info["ollama"]["pools"] = {
-            "w5700x": {
-                "url": pools["w5700x"]["url"],
-                "configured": pools["w5700x"]["configured"],
-                "reachable": w5700x_reach["reachable"],
-                "latency_ms": w5700x_reach["latency_ms"],
-                "error": w5700x_reach["error"],
-                "service_name": w5700x_hints["service_name"],
-                "gpu": w5700x_hints["gpu"],
-                "pid": w5700x_hints["pid"],
-            },
-            "6900xt": {
-                "url": pools["6900xt"]["url"],
-                "configured": pools["6900xt"]["configured"],
-                "reachable": xt6900_reach["reachable"],
-                "latency_ms": xt6900_reach["latency_ms"],
-                "error": xt6900_reach["error"],
-                "service_name": xt6900_hints["service_name"],
-                "gpu": xt6900_hints["gpu"],
-                "pid": xt6900_hints["pid"],
-            }
-        }
-        info["ollama"]["base_url"] = ollama_base
-        # Legacy field for compatibility
-        info["ollama"]["fast_url"] = pools["6900xt"]["url"]
-        # HARD INVARIANT: Expose misconfiguration state
-        info["ollama"]["misconfigured"] = pools["misconfigured"]
-        
-        # Default pool reachability (for legacy compatibility)
-        try:
-            import urllib.request
-            start = time.time()
-            req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
-            req.add_header("User-Agent", "roxy-core/info-check")
-            with urllib.request.urlopen(req, timeout=2) as resp:
-                info["ollama"]["latency_ms"] = round((time.time() - start) * 1000, 2)
-                info["ollama"]["ok"] = resp.status == 200
-                info["ollama"]["error"] = None
-        except Exception as e:
-            info["ollama"]["ok"] = False
-            info["ollama"]["error"] = str(e)
-            info["ollama"]["latency_ms"] = None
-
-        # CHIEF DIRECTIVE: Add pool invariants check (startup latency validation)
-        try:
-            from benchmark_service import check_pool_invariants
-            info["ollama"]["pool_invariants"] = check_pool_invariants()
-        except Exception as e:
-            info["ollama"]["pool_invariants"] = {"error": str(e), "ok": False}
-
-        # GitHub state
-        github_token = _get_github_token()
-        github_reach = _check_github_reachability(github_token)
-        
-        info["github"] = {
-            "configured": bool(github_token),
-            "reachable": github_reach["reachable"],
-            "latency_ms": github_reach["latency_ms"],
-            "error": github_reach["error"],
-            "rate_limit": github_reach["rate_limit"]
-        }
-        
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(info, indent=2).encode())
+
+    def _handle_ui_snapshot(self):
+        """GET /ui/snapshot - Unified native Command Center snapshot."""
+        params = self._parse_query_params()
+        mode = params.get("mode", "local")
+        remote_host = params.get("remote_host", "127.0.0.1")
+        remote_port = params.get("remote_port", 8766)
+
+        payload = _build_ui_snapshot_payload(
+            mode=mode,
+            remote_host=remote_host,
+            remote_port=remote_port,
+        )
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
 
     def _handle_auth_status(self):
         """GET /auth/status - Auth configuration info (no secrets exposed).
@@ -4068,6 +4416,64 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode())
 
+    def _handle_mcp_tools(self):
+        """GET /mcp/tools - Enumerate MCP tools for local operator surfaces."""
+        tools = []
+        errors = []
+        mcp_dir = Path.home() / ".roxy" / "mcp"
+
+        if mcp_dir.exists():
+            import importlib.util
+
+            for module_path in sorted(mcp_dir.glob("mcp_*.py")):
+                if module_path.name == "mcp_server.py":
+                    continue
+
+                module_name = module_path.stem.replace("mcp_", "")
+                try:
+                    spec = importlib.util.spec_from_file_location(f"mcp_{module_name}", module_path)
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    module_tools = getattr(module, "TOOLS", {})
+                    if not isinstance(module_tools, dict):
+                        continue
+
+                    for tool_name, tool_def in module_tools.items():
+                        description = ""
+                        parameters = {}
+                        if isinstance(tool_def, dict):
+                            description = str(tool_def.get("description") or "")
+                            raw_parameters = tool_def.get("parameters")
+                            if isinstance(raw_parameters, dict):
+                                parameters = raw_parameters
+                        else:
+                            description = str(tool_def)
+
+                        tools.append({
+                            "name": tool_name,
+                            "description": description,
+                            "bridge": module_name,
+                            "parameters": parameters,
+                        })
+                except Exception as e:
+                    errors.append({
+                        "bridge": module_name,
+                        "error": str(e),
+                    })
+
+        payload = {
+            "tools": tools,
+            "count": len(tools),
+            "bridges": sorted({tool["bridge"] for tool in tools}),
+        }
+        if errors:
+            payload["errors"] = errors[:20]
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(payload).encode())
+
     def _handle_feedback_submission(self):
         """Handle user feedback submission"""
         try:
@@ -4158,7 +4564,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 return
             
             if INFRASTRUCTURE_AVAILABLE:
-                memories = recall_conversations(
+                memories, recall_receipt = recall_conversations_with_receipt(
                     query,
                     k,
                     session_id=session_id,
@@ -4169,12 +4575,17 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 )
             else:
                 memories = []
+                recall_receipt = {"attempted": False, "succeeded": False, "error": "infrastructure unavailable"}
 
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             sanitized = _json_sanitize(memories)
-            self.wfile.write(json.dumps({"memories": sanitized, "count": len(sanitized)}).encode())
+            self.wfile.write(json.dumps({
+                "memories": sanitized,
+                "count": len(sanitized),
+                "memory_receipt": _json_sanitize(recall_receipt),
+            }).encode())
             
         except Exception as e:
             logger.error(f"Memory recall failed: {e}")
@@ -4326,12 +4737,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             
             prompt = data.get('prompt', '').strip()
             model = data.get('model') or _get_default_model()
-            mode = data.get('mode', 'technical')
-            
-            if mode not in ROXY_MODES:
-                mode = 'technical'
-            
-            mode_config = ROXY_MODES[mode]
+            mode, mode_config = _resolve_raw_query_mode(data.get('mode', 'technical'))
             temperature = float(data.get('temperature', mode_config['temperature']))
             max_tokens = int(data.get('max_tokens', 1024))
             
@@ -5036,7 +5442,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         
         response = {
             "modes": modes_info,
-            "default": "broadcast",
+            "default": "technical",
             "endpoints": {
                 "/run": "Full ROXY with personality (broadcast mode)",
                 "/benchmark": "Direct model access, no personality",
@@ -5503,7 +5909,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 # Non-critical, continue execution
             
             # Infrastructure integration - Cache, Memory, Events (non-blocking)
+            exec_meta = getattr(self, '_last_execution_metadata', {})
             learned_facts = []
+            fact_learning = {"learned": [], "count": 0, "attempted": False, "succeeded": False}
+            store_receipt = exec_meta.get("memory_receipt") if isinstance(exec_meta, dict) else None
             if INFRASTRUCTURE_AVAILABLE:
                 try:
                     # Cache the response with routing metadata preserved
@@ -5527,7 +5936,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         exec_meta.get("route") == "memory_store" or flags.get("memory_store") is True
                     )
                     if not skip_memory:
-                        remember_conversation(command, result, session_id, {
+                        store_receipt = remember_conversation(command, result, session_id, {
                             'response_time': response_time,
                             'client_ip': client_ip,
                             'endpoint': '/run',
@@ -5535,6 +5944,13 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             'complex_query': bool(agentic_meta.get("complex")),
                             'proactive_suggestions': len(proactive_suggestions),
                         }, user_id=user_id)
+                    elif not isinstance(store_receipt, dict):
+                        store_receipt = {
+                            "attempted": False,
+                            "succeeded": False,
+                            "skipped": True,
+                            "error": "memory_store_route",
+                        }
                     try:
                         fact_learning = learn_user_facts(command, session_id=session_id, user_id=user_id)
                         learned_facts = fact_learning.get("learned", []) if isinstance(fact_learning, dict) else []
@@ -5597,6 +6013,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     "tools_count": len(exec_meta.get("tools_executed", []))
                 }
             }
+            if exec_meta.get("routing_meta"):
+                response["metadata"]["routing"] = exec_meta.get("routing_meta")
+            if exec_meta.get("repo_path") or exec_meta.get("repo_snapshot"):
+                snapshot = exec_meta.get("repo_snapshot") or {}
+                response["metadata"]["repo"] = {
+                    "repo_path": exec_meta.get("repo_path") or snapshot.get("repo_path"),
+                    "branch": snapshot.get("branch"),
+                    "upstream": snapshot.get("upstream"),
+                    "is_dirty": snapshot.get("is_dirty"),
+                    "changed_count": snapshot.get("changed_count"),
+                    "modified_paths": snapshot.get("modified_paths", []),
+                    "untracked_paths": snapshot.get("untracked_paths", []),
+                }
             debug_echo = os.getenv("ROXY_DEBUG_ECHO", "").lower() in ("1", "true", "yes")
             if self.headers.get("X-ROXY-Debug", "").lower() in ("1", "true", "yes"):
                 debug_echo = True
@@ -5626,10 +6055,35 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             response["metadata"]["memory"]["profile_items"] = int(memory_context_meta.get("profile_items", 0))
             response["metadata"]["memory"]["typed_record_items"] = int(memory_context_meta.get("typed_record_items", 0))
             response["metadata"]["memory"]["repo_context_items"] = int(memory_context_meta.get("repo_context_items", 0))
-            response["metadata"]["memory"]["facts_learned"] = len(learned_facts)
+            response["metadata"]["memory"]["recall_attempted"] = bool(memory_context_meta.get("recall_attempted", False))
+            response["metadata"]["memory"]["recall_succeeded"] = bool(memory_context_meta.get("recall_succeeded", False))
+            response["metadata"]["memory"]["recall_backend"] = memory_context_meta.get("recall_backend")
+            response["metadata"]["memory"]["recall_failure_reason"] = memory_context_meta.get("recall_failure_reason")
+            response["metadata"]["memory"]["facts_learned"] = int(fact_learning.get("count", len(learned_facts)) if isinstance(fact_learning, dict) else len(learned_facts))
             response["metadata"]["memory"]["user_id"] = user_id
             response["metadata"]["memory"]["identity_conflict"] = bool(memory_context_meta.get("identity_conflict", False))
             response["metadata"]["memory"]["identity_candidates"] = memory_context_meta.get("identity_candidates", [])
+            response["metadata"]["memory"]["learned_facts"] = learned_facts
+            if isinstance(fact_learning, dict):
+                response["metadata"]["memory"]["learning_attempted"] = bool(fact_learning.get("attempted", False))
+                response["metadata"]["memory"]["learning_succeeded"] = bool(fact_learning.get("succeeded", False))
+                if fact_learning.get("backend"):
+                    response["metadata"]["memory"]["learning_backend"] = fact_learning.get("backend")
+                if fact_learning.get("backend_healthy") is not None:
+                    response["metadata"]["memory"]["learning_backend_healthy"] = bool(fact_learning.get("backend_healthy"))
+                if fact_learning.get("error"):
+                    response["metadata"]["memory"]["learning_failure_reason"] = fact_learning.get("error")
+            if isinstance(store_receipt, dict):
+                response["metadata"]["memory"]["store_attempted"] = bool(store_receipt.get("attempted", False))
+                response["metadata"]["memory"]["store_succeeded"] = bool(store_receipt.get("succeeded", False))
+                if store_receipt.get("backend"):
+                    response["metadata"]["memory"]["store_backend"] = store_receipt.get("backend")
+                if store_receipt.get("backend_healthy") is not None:
+                    response["metadata"]["memory"]["store_backend_healthy"] = bool(store_receipt.get("backend_healthy"))
+                if store_receipt.get("error"):
+                    response["metadata"]["memory"]["store_failure_reason"] = store_receipt.get("error")
+            elif isinstance(exec_meta.get("memory_receipt"), dict):
+                response["metadata"]["memory"]["store_receipt"] = exec_meta.get("memory_receipt")
             response["metadata"]["agentic"] = {
                 "enabled": ENABLE_AGENTIC_PIPELINE,
                 "intent": agentic_meta.get("intent"),
@@ -5908,12 +6362,25 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     timeout=8,
                 )
                 git_output = (git_result.stdout or git_result.stderr or "").strip()
+                repo_snapshot = _build_repo_snapshot_from_git_status(str(ROXY_DIR), git_output)
                 self._last_execution_metadata.update(
                     {
                         "route": "local_fastpath_git_status",
                         "mode": "exec",
                         "model_used": None,
                         "tools_executed": [],
+                        "repo_path": str(ROXY_DIR),
+                        "repo_snapshot": repo_snapshot,
+                        "routing_meta": {
+                            "query_type": "git_status",
+                            "routed_mode": "exec",
+                            "reason": "deterministic:local_fastpath_git_status",
+                            "selected_pool": "none",
+                            "model_used": "none",
+                            "repo_path": str(ROXY_DIR),
+                            "changed_count": repo_snapshot.get("changed_count", 0),
+                            "is_dirty": repo_snapshot.get("is_dirty", False),
+                        },
                     }
                 )
                 return git_output or "No changes"
@@ -6140,15 +6607,20 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                             # Store metadata for caller (Chief's Truth Panel)
                             existing_meta = self._last_execution_metadata.copy()
                             flags = metadata.get("flags") or {}
+                            routing_meta = metadata.get("routing_meta") or {}
                             self._last_execution_metadata = {
                                 "mode": mode,
-                                "model_used": metadata.get("routing_meta", {}).get("model_used") or metadata.get("model", metadata.get("model_used")),
-                                "route": mode,  # rag, tool_direct, etc.
-                                "pool": metadata.get("routing_meta", {}).get("selected_pool", effective_pool.lower()),
+                                "model_used": routing_meta.get("model_used") or metadata.get("model", metadata.get("model_used")),
+                                "route": metadata.get("route") or routing_meta.get("route") or mode,
+                                "pool": routing_meta.get("selected_pool", effective_pool.lower()),
                                 "tools_executed": tools_executed,
                                 "flags": flags,
                                 "memory_context_chars": existing_meta.get("memory_context_chars", len(effective_memory_context)),
                                 "plan_steps": existing_meta.get("plan_steps", effective_plan_steps),
+                                "routing_meta": routing_meta,
+                                "repo_path": metadata.get("repo_path"),
+                                "repo_snapshot": metadata.get("repo_snapshot"),
+                                "memory_receipt": metadata.get("memory_receipt"),
                             }
                             # Preserve base_url_used from our earlier decision
                             self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
@@ -6270,6 +6742,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
     
     def _validate_response(self, response: str, query: str) -> str:
         """Validate response using validation gates"""
+        if _is_strict_output_request(query):
+            return response
         try:
             sys.path.insert(0, str(ROXY_DIR))
             from validation.fact_checker import FactChecker
@@ -7104,16 +7578,32 @@ class RoxyCore:
             self.background_scheduler_thread = None
         
         if self.server:
-            self.server.shutdown()
+            try:
+                self.server.shutdown()
+            finally:
+                try:
+                    self.server.server_close()
+                except Exception as e:
+                    logger.debug(f"Server close failed: {e}")
             logger.info("✓ HTTP server stopped")
+            self.server = None
+
+        if self.server_thread:
+            try:
+                self.server_thread.join(timeout=5)
+            except Exception as e:
+                logger.debug(f"Server thread join failed: {e}")
+            self.server_thread = None
         
         logger.info("ROXY core stopped")
     
     def _signal_handler(self, signum, frame):
         """Handle termination signals"""
-        if signum == signal.SIGTERM and os.getenv("ROXY_IGNORE_SIGTERM", "0").lower() in ("1", "true", "yes"):
+        if signum == signal.SIGTERM and _should_ignore_sigterm():
             logger.warning("Ignoring SIGTERM (ROXY_IGNORE_SIGTERM=1)")
             return
+        if signum == signal.SIGTERM and _env_truthy("ROXY_IGNORE_SIGTERM") and _running_under_systemd():
+            logger.info("Honoring SIGTERM under systemd despite ROXY_IGNORE_SIGTERM=1")
         logger.info(f"Received signal {signum}")
         self.stop()
         sys.exit(0)

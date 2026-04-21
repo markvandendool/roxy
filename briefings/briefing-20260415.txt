@@ -1,0 +1,15 @@
+Generated: 2026-04-15T07:00:33.715096
+
+Good morning, Mark! Roxy here, your AI assistant. I've got a quick briefing for you.
+
+First off, our MRR is looking great - we're at $12,500, which represents an impressive 8.5% growth. That's a strong start to the day!
+
+On the student front, we currently have 156 active learners, with 8 of them identified as being at-risk. Let me know if you'd like to dive into that further.
+
+Content-wise, we're looking good too - we've got 14 clips ready to go and another 21 scheduled for release. That's a healthy pipeline.
+
+In terms of product development, our next major release is v0.4.0, which is still on track. We have three open PRs that need attention, but I'll make sure those are prioritized.
+
+Lastly, let me highlight your calendar for the day - you've got two meetings lined up, with the first one at 10:00 AM being a team sync. Make sure to prep for that!
+
+That's a quick rundown of what's happening today. What would you like to focus on first?

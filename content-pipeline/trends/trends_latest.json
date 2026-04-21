@@ -1,6 +1,6 @@
 {
-  "snapshot_id": "TREND_20260320_110022_d55b6918",
-  "timestamp": "2026-03-20T17:00:22.225391+00:00",
+  "snapshot_id": "TREND_20260402_090010_060aff9a",
+  "timestamp": "2026-04-02T15:00:10.583139+00:00",
   "status": "healthy",
   "sources": [
     {
@@ -27,164 +27,164 @@
   ],
   "trends": [
     {
-      "title": "The best AI investment might be in energy tech",
-      "link": "https://techcrunch.com/2026/03/20/the-best-ai-investment-might-be-in-energy-tech/",
-      "source": "TechCrunch AI",
-      "category": "ai",
+      "title": "AI system learns to keep warehouse robot traffic running smoothly",
+      "link": "https://news.mit.edu/2026/ai-system-keeps-warehouse-robot-traffic-running-smoothly-0326",
+      "source": "MIT News AI",
+      "category": "ai_research",
       "score": 85,
-      "summary": "Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's creating an opening for investors."
+      "summary": "This new approach adapts to decide which robots should get the right of way at every moment, avoiding congestion and increasing throughput."
     },
     {
-      "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
-      "link": "https://techcrunch.com/2026/03/19/techcrunch-startup-battlefield-200-nominations-are-still-open/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 85,
-      "summary": "Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access."
-    },
-    {
-      "title": "WordPress.com now lets AI agents write and publish posts, and more",
-      "link": "https://techcrunch.com/2026/03/20/wordpress-com-now-lets-ai-agents-write-and-publish-posts-and-more/",
+      "title": "Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
+      "link": "https://techcrunch.com/2026/04/01/cognichip-wants-ai-to-design-the-chips-that-power-ai-and-just-raised-60m-to-try/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "New AI agents on WordPress.com could lower barriers to publishing while increasing machine-generated content across the web."
+      "summary": "The firm says it can reduce the cost of chip development by more than 75% and cut the timeline by more than half."
     },
     {
-      "title": "Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
-      "link": "https://techcrunch.com/2026/03/20/trumps-ai-framework-targets-state-laws-shifts-child-safety-burden-to-parents/",
+      "title": "Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project",
+      "link": "https://techcrunch.com/2026/03/31/mercor-says-it-was-hit-by-cyberattack-tied-to-compromise-of-open-source-litellm-project/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Trump\u2019s AI framework pushes federal preemption of state laws, emphasizes innovation, and shifts responsibility for child safety toward parents while laying out lighter-touch rules for tech companies."
+      "summary": "The AI recruiting startup confirmed a security incident after an extortion hacking crew took credit for stealing data from the company's systems."
     },
     {
-      "title": "These AI notetaking devices can help you record and transcribe your meetings",
-      "link": "https://techcrunch.com/2026/03/20/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/",
+      "title": "Salesforce announces an AI-heavy makeover for Slack, with 30 new features",
+      "link": "https://techcrunch.com/2026/03/31/salesforce-announces-an-ai-heavy-makeover-for-slack-with-30-new-features/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "These physical notetakers transcribe audio and give users summaries and action items of meetings using AI. Some even offer live translation."
+      "summary": "Slack just got a whole lot more useful."
     },
     {
-      "title": "Jeff Bezos reportedly wants $100 billion to buy and transform old manufacturing firms with AI",
-      "link": "https://techcrunch.com/2026/03/19/jeff-bezos-reportedly-wants-100-billion-to-buy-and-transform-old-manufacturing-firms-with-ai/",
+      "title": "OpenAI, not yet public, raises $3B from retail investors in monster $122B fund raise",
+      "link": "https://techcrunch.com/2026/03/31/openai-not-yet-public-raises-3b-from-retail-investors-in-monster-122b-fund-raise/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "The Amazon magnate has a new project centered around acquiring industrial firms and revamping them with AI technology."
+      "summary": "OpenAI's latest funding round, led by Amazon, Nvidia, and SoftBank, values the AI lab at $852 billion as it nears an IPO."
     },
     {
-      "title": "Meta rolls out new AI content enforcement systems while reducing reliance on third-party vendors",
-      "link": "https://techcrunch.com/2026/03/19/meta-rolls-out-new-ai-content-enforcement-systems-while-reducing-reliance-on-third-party-vendors/",
+      "title": "Yupp shuts down after raising $33M from a16z crypto\u2019s Chris Dixon",
+      "link": "https://techcrunch.com/2026/03/31/yupp-ai-shuts-down-33m-a16z-crypto-chris-dixon/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 75,
-      "summary": "Meta believes these AI systems can detect more violations with greater accuracy, better prevent scams, respond more quickly to real-world events, and reduce over-enforcement."
+      "summary": "Less than a year after launching, with checks from some of the biggest names in Silicon Valley, crowdsourced AI model feedback startup Yupp is closing its business, the company said Tuesday."
     },
     {
-      "title": "DoorDash launches a new \u2018Tasks\u2019 app that pays couriers to submit videos to train AI",
-      "link": "https://techcrunch.com/2026/03/19/doordash-launches-a-new-tasks-app-that-pays-couriers-to-submit-videos-to-train-ai/",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "score": 75,
-      "summary": "Delivery couriers will be able to earn money by completing activities like filming everyday tasks or recording themselves speaking in another language."
-    },
-    {
-      "title": "What\u2019s the right path for AI?",
-      "link": "https://news.mit.edu/2026/right-path-for-ai-karen-hao-paola-ricaurte-0320",
+      "title": "MIT researchers use AI to uncover atomic defects in materials",
+      "link": "https://news.mit.edu/2026/mit-researchers-use-ai-uncover-atomic-defects-materials-0330",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "Conference speakers discussed the unfolding trajectory of AI and the benefits of shaping technology to meets people\u2019s needs."
+      "summary": "A new model measures defects that can be leveraged to improve materials\u2019 mechanical strength, heat transfer, and energy-conversion efficiency."
     },
     {
-      "title": "MIT and Hasso Plattner Institute establish collaborative hub for AI and creativity",
-      "link": "https://news.mit.edu/2026/mit-hasso-plattner-institute-collaborative-hub-for-ai-and-creativity-0320",
+      "title": "Wristband enables wearers to control a robotic hand with their own movements",
+      "link": "https://news.mit.edu/2026/wristband-enables-wearers-control-robotic-hand-with-own-movements-0325",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "Jointly led by the MIT Morningside Academy for Design, MIT Schwarzman College of Computing, and the Hasso Plattner Institute in Potsdam, the hub will foster a dynamic community where computing, creativity, and human-centered innovation meet."
+      "summary": "By moving their hands and fingers, users can direct a robot to play piano or shoot a basketball, or they can manipulate objects in a virtual environment."
     },
     {
-      "title": "Generative AI improves a wireless vision system that sees through obstructions",
-      "link": "https://news.mit.edu/2026/generative-ai-improves-wireless-vision-system-sees-through-obstructions-0319",
+      "title": "How to create \u201chumble\u201d AI",
+      "link": "https://news.mit.edu/2026/creating-humble-ai-0324",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 75,
-      "summary": "With this new technique, a robot could more accurately detect hidden objects or understand an indoor scene using reflected Wi-Fi signals."
+      "summary": "An MIT-led team is designing artificial intelligence systems for medical diagnosis that are more collaborative and forthcoming about uncertainty."
     },
     {
-      "title": "Sustaining diplomacy amid competition in US-China relations",
-      "link": "https://news.mit.edu/2026/sustaining-diplomacy-amid-us-china-competition-0318",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 75,
-      "summary": "At MIT, former U.S. ambassador to China Nicholas Burns highlights climate change as an area for diplomatic engagement, while exploring areas including China's emphasis on STEM education."
-    },
-    {
-      "title": "MIT-IBM Watson AI Lab seed to signal: Amplifying early-career faculty impact",
-      "link": "https://news.mit.edu/2026/mit-ibm-watson-ai-lab-seed-signal-amplifying-early-career-faculty-impact-0317",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 75,
-      "summary": "Academia-industry relationship is an early-stage accelerator, supporting professional progress and research."
-    },
-    {
-      "title": "Can AI help predict which heart-failure patients will worsen within a year?",
-      "link": "https://news.mit.edu/2026/can-ai-help-predict-which-heart-failure-patients-will-worsen-0312",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 75,
-      "summary": "Researchers at MIT, Mass General Brigham, and Harvard Medical School developed a deep-learning model to forecast a patient\u2019s heart failure prognosis up to a year in advance."
-    },
-    {
-      "title": "3 Questions: On the future of AI and the mathematical and physical sciences",
-      "link": "https://news.mit.edu/2026/3-questions-future-of-ai-and-mathematical-physical-sciences-0311",
-      "source": "MIT News AI",
-      "category": "ai_research",
-      "score": 75,
-      "summary": "Professor Jesse Thaler describes a vision for a two-way bridge between artificial intelligence and the mathematical and physical sciences \u2014 one that promises to advance both."
-    },
-    {
-      "title": "Online bot traffic will exceed human traffic by 2027, Cloudflare CEO says",
-      "link": "https://techcrunch.com/2026/03/19/online-bot-traffic-will-exceed-human-traffic-by-2027-cloudflare-ceo-says/",
+      "title": "Anthropic took down thousands of GitHub repos trying to yank its leaked source code \u2014 a move the company says was an accident",
+      "link": "https://techcrunch.com/2026/04/01/anthropic-took-down-thousands-of-github-repos-trying-to-yank-its-leaked-source-code-a-move-the-company-says-was-an-accident/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 65,
-      "summary": "AI bots may outnumber humans online by 2027, says Cloudflare CEO Matthew Prince, as generative AI agents dramatically increase web traffic and infrastructure demands."
+      "summary": "Anthropic executives said it was an accident and retracted the bulk of the takedown notices."
     },
     {
-      "title": "Amazon brings Alexa+ to the UK",
-      "link": "https://techcrunch.com/2026/03/19/amazon-brings-alexa-to-the-uk/",
+      "title": "Meta\u2019s natural gas binge could power South Dakota",
+      "link": "https://techcrunch.com/2026/04/01/metas-natural-gas-binge-could-power-south-dakota/",
       "source": "TechCrunch AI",
       "category": "ai",
       "score": 65,
-      "summary": "The company is currently letting users in the U.K. try out Alexa+ for free via an early access program."
+      "summary": "Meta's upcoming Hyperion AI data center will be powered by 10 new natural gas plants."
     },
     {
-      "title": "A better method for identifying overconfident large language models",
-      "link": "https://news.mit.edu/2026/better-method-identifying-overconfident-large-language-models-0319",
+      "title": "Less than a month: StrictlyVC San Francisco brings leaders from TDK Ventures, Replit, and more together",
+      "link": "https://techcrunch.com/2026/04/01/join-the-first-strictlyvc-of-2026-in-sf-with-leaders-from-tdk-ventures-and-replits-co-founder/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "StrictlyVC San Francisco brings leaders from TDK Ventures, Replit, and more together on April 30. Space is limited. Register here for your pass."
+    },
+    {
+      "title": "Anthropic is having a month",
+      "link": "https://techcrunch.com/2026/03/31/anthropic-is-having-a-month/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "A human really borks things at Anthropic for the second time this week."
+    },
+    {
+      "title": "Alexa+ gets new food ordering experiences with Uber Eats and Grubhub",
+      "link": "https://techcrunch.com/2026/03/31/alexa-plus-new-food-ordering-experiences-with-uber-eats-and-grubhub/",
+      "source": "TechCrunch AI",
+      "category": "ai",
+      "score": 65,
+      "summary": "You can now order from Uber Eats and Grubhub using Alexa+, an experience Amazon says will be similar to chatting with a waiter at a restaurant or placing an order at a drive-thru."
+    },
+    {
+      "title": "Evaluating the ethics of autonomous systems",
+      "link": "https://news.mit.edu/2026/evaluating-autonomous-systems-ethics-0402",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "This new metric for measuring uncertainty could flag hallucinations and help users know whether to trust an AI model."
+      "summary": "MIT researchers developed a testing framework that pinpoints situations where AI decision-support systems are not treating people and communities fairly."
     },
     {
-      "title": "New MIT class uses anthropology to improve chatbots",
-      "link": "https://news.mit.edu/2026/mit-class-uses-anthropology-to-improve-chatbots-0311",
+      "title": "Preview tool helps makers visualize 3D-printed objects",
+      "link": "https://news.mit.edu/2026/preview-tool-helps-makers-visualize-3d-printed-objects-0401",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "MIT computer science students design AI chatbots to help young users become more social, and socially confident."
+      "summary": "By quickly generating aesthetically accurate previews of fabricated objects, the VisiPrint system could make prototyping faster and less wasteful."
     },
     {
-      "title": "A better method for planning complex visual tasks",
-      "link": "https://news.mit.edu/2026/better-method-planning-complex-visual-tasks-0311",
+      "title": "Seeing sounds",
+      "link": "https://news.mit.edu/2026/seeing-sounds-mariano-salcedo-0326",
       "source": "MIT News AI",
       "category": "ai_research",
       "score": 65,
-      "summary": "A new hybrid system could help robots navigate in changing environments or increase the efficiency of multirobot assembly teams."
+      "summary": "Mariano Salcedo \u201925, a master\u2019s student in the new Music Technology and Computation Graduate Program, is designing an AI to visualize and express music and other sounds."
+    },
+    {
+      "title": "MIT engineers design proteins by their motion, not just their shape",
+      "link": "https://news.mit.edu/2026/mit-engineers-design-proteins-by-motion-not-just-shape-0326",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "score": 65,
+      "summary": "An AI model generates novel proteins based on how they vibrate and move, opening new possibilities for dynamic biomaterials and adaptive therapeutics."
+    },
+    {
+      "title": "Augmenting citizen science with computer vision for fish monitoring",
+      "link": "https://news.mit.edu/2026/augmenting-citizen-science-computer-vision-fish-monitoring-0325",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "score": 65,
+      "summary": "MIT Sea Grant works with the Woodwell Climate Research Center and other collaborators to demonstrate a deep learning-based system for fish monitoring."
+    },
+    {
+      "title": "Advancing international trade research and finding community",
+      "link": "https://news.mit.edu/2026/sojun-park-advancing-international-trade-research-finding-community-0323",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "score": 65,
+      "summary": "Sojun Park, a postdoc at the Center for International Studies, has learned much from his research on intellectual property as well as his interactions with students and mentors at MIT."
     }
   ],
   "meta": {

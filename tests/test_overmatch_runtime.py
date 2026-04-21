@@ -7,6 +7,7 @@ import types
 import infrastructure
 import mission_supervisor
 import repo_intel
+import roxy_commands
 import roxy_core
 import story_selector
 import tool_retry
@@ -64,6 +65,41 @@ def test_repo_intel_query_symbol_returns_real_file_path(tmp_path):
     assert matches[0]["line"] == 1
 
 
+def test_runtime_state_snapshot_uses_cached_repo_index_without_rebuild(monkeypatch, tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    monkeypatch.setenv("ROXY_REPO_ROOT", str(repo_root))
+    monkeypatch.setattr(roxy_core, "REPO_INTEL_AVAILABLE", True)
+    monkeypatch.setattr(roxy_core, "get_repo_index", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("should not rebuild")))
+    dummy_index = types.SimpleNamespace(
+        root=str(repo_root),
+        file_count=12,
+        symbol_index={"alpha": []},
+        language_stats={"python": 3},
+        built_at=time.time(),
+        is_stale=lambda: False,
+    )
+    monkeypatch.setattr(roxy_core, "get_cached_repo_index", lambda repo_root=None: dummy_index)
+
+    snapshot = roxy_core._get_runtime_state_snapshot()
+
+    assert snapshot["repo_intel"]["available"] is True
+    assert snapshot["repo_intel"]["file_count"] == 12
+
+
+def test_runtime_state_snapshot_reports_missing_repo_intel_cache(monkeypatch, tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    monkeypatch.setenv("ROXY_REPO_ROOT", str(repo_root))
+    monkeypatch.setattr(roxy_core, "REPO_INTEL_AVAILABLE", True)
+    monkeypatch.setattr(roxy_core, "get_cached_repo_index", lambda repo_root=None: None)
+
+    snapshot = roxy_core._get_runtime_state_snapshot()
+
+    assert snapshot["repo_intel"]["available"] is False
+    assert snapshot["repo_intel"]["reason"] == "cache_missing"
+
+
 def test_build_repo_context_for_prompt_includes_file_and_symbol(monkeypatch, tmp_path):
     dummy_index = types.SimpleNamespace(
         root=str(tmp_path),
@@ -100,6 +136,89 @@ def test_build_repo_context_for_prompt_includes_file_and_symbol(monkeypatch, tmp
     assert "src/demo.py" in context
     assert "load_mpc_core" in context
     assert meta["repo_context_items"] >= 1
+
+
+def test_personal_memory_query_returns_profile_summary_from_verified_memory(monkeypatch):
+    monkeypatch.setenv(
+        "ROXY_MEMORY_CONTEXT",
+        "- name: Mark\n"
+        "- role: CEO of MindSong Studios\n"
+        "- production_state: SkyBeam render queue with 5 videos pending\n"
+        "- general_preference: electronic music\n"
+        "- production_tool: SkyBeam\n",
+    )
+
+    response = roxy_commands._answer_personal_memory_query(
+        "Summarize my profile from memory with no assumptions."
+    )
+
+    assert response is not None
+    assert "Mark" in response
+    assert "CEO of MindSong Studios" in response
+    assert "SkyBeam" in response
+
+
+def test_query_rag_sanitizes_backend_index_errors(monkeypatch):
+    def fail(*args, **kwargs):
+        raise RuntimeError(
+            "Error executing plan: Error sending backfill request to compactor: "
+            "Error constructing hnsw segment reader"
+        )
+
+    monkeypatch.setattr(roxy_commands, "_query_rag_impl", fail)
+
+    result = roxy_commands.query_rag("where is the theater release note?")
+
+    assert isinstance(result, dict)
+    assert result["rag_status"] == "index_unavailable"
+    assert result["model_used"] == "none"
+    assert "hnsw" not in result["response"].lower()
+    assert "compactor" not in result["response"].lower()
+    assert "temporarily unavailable" in result["response"].lower()
+
+
+
+def test_query_fallback_collections_combines_healthy_sources():
+    class FakeCollection:
+        def __init__(self, name, docs, distance):
+            self.name = name
+            self.docs = docs
+            self.distance = distance
+
+        def query(self, **kwargs):
+            return {
+                "documents": [self.docs],
+                "metadatas": [[{"source": f"/{self.name}.md"} for _ in self.docs]],
+                "distances": [[self.distance for _ in self.docs]],
+            }
+
+    class FakeClient:
+        def get_collection(self, name):
+            if name == "roxy_onboarding":
+                return FakeCollection(name, ["onboarding doc"], 0.4)
+            if name == "roxy_api":
+                return FakeCollection(name, ["api doc"], 0.8)
+            raise RuntimeError("missing")
+
+    results, used = roxy_commands._query_fallback_collections(FakeClient(), [0.1, 0.2], n_results=2)
+
+    assert used == ["roxy_onboarding", "roxy_api"]
+    assert results["documents"][0][0] == "onboarding doc"
+    assert results["metadatas"][0][0]["collection"] == "roxy_onboarding"
+
+
+
+def test_resolve_raw_query_mode_falls_back_to_technical():
+    mode, config = roxy_core._resolve_raw_query_mode("not-a-real-mode")
+
+    assert mode == "technical"
+    assert config["temperature"] == roxy_core.ROXY_MODES["technical"]["temperature"]
+
+
+def test_personal_memory_query_detection_prefers_memory_answering():
+    assert roxy_commands._is_personal_memory_query("Who am I?") is True
+    assert roxy_commands._is_personal_memory_query("What are my preferences?") is True
+    assert roxy_commands._is_personal_memory_query("What does the mindsong documentation say about onboarding?") is False
 
 
 def test_mission_ledger_persists_files_in_scope_and_writes_evidence(tmp_path, monkeypatch):
@@ -239,7 +358,8 @@ def test_mission_executor_execute_touches_lease(monkeypatch):
     assert result["trace_path"].endswith("m3.jsonl")
 
 
-def test_mission_executor_execute_verification_stops_on_failure():
+def test_mission_executor_execute_verification_stops_on_failure(tmp_path, monkeypatch):
+    monkeypatch.setenv("ROXY_REPO_ROOT", str(tmp_path))
     executor = mission_supervisor.MissionExecutor()
     mission = mission_supervisor.Mission(
         mission_id="m4",
@@ -258,6 +378,31 @@ def test_mission_executor_execute_verification_stops_on_failure():
 
     assert len(results) == 1
     assert results[0]["success"] is False
+
+
+def test_mission_ledger_load_clears_stale_active_pointer_and_persists(tmp_path, monkeypatch):
+    ledger_path = tmp_path / "mission_ledger.json"
+    evidence_dir = tmp_path / "evidence"
+    trace_dir = tmp_path / "trace"
+    evidence_dir.mkdir()
+    trace_dir.mkdir()
+
+    monkeypatch.setattr(mission_supervisor, "MISSION_LEDGER", ledger_path)
+    monkeypatch.setattr(mission_supervisor, "EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(mission_supervisor, "TRACE_DIR", trace_dir)
+
+    ledger_path.write_text(json.dumps({
+        "missions": {},
+        "active_mission_id": "mission-stale-1",
+        "saved_at": time.time(),
+    }))
+
+    ledger = mission_supervisor.MissionLedger()
+    persisted = json.loads(ledger_path.read_text())
+
+    assert ledger.get_active() is None
+    assert ledger.get_stats()["active"] is None
+    assert persisted["active_mission_id"] is None
 
 
 def test_mission_ledger_story_blocklist_covers_terminal_and_active_states(tmp_path, monkeypatch):

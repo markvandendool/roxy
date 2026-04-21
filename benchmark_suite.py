@@ -4,6 +4,7 @@ Benchmark Suite - Performance and quality benchmarks for ROXY
 Measures latency, throughput, accuracy, and tool execution.
 """
 import asyncio
+import importlib
 import json
 import logging
 import os
@@ -19,6 +20,11 @@ logger = logging.getLogger("roxy.benchmark")
 ROXY_DIR = Path.home() / ".roxy"
 EVIDENCE_DIR = ROXY_DIR / "evidence" / "benchmarks"
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _load_requests_module():
+    """Import requests outside benchmark timing so import cost does not pollute latency."""
+    return importlib.import_module("requests")
 
 
 @dataclass
@@ -102,17 +108,96 @@ class LatencyBenchmark:
     @staticmethod
     async def memory_recall_latency() -> BenchmarkResult:
         """Benchmark memory recall query time."""
-        start = time.time()
         try:
-            from infrastructure import recall_conversations
-            results = recall_conversations("test query", k=5)
+            service_url = os.getenv("ROXY_BENCHMARK_MEMORY_URL", "http://127.0.0.1:8766/memory/recall").strip()
+            use_service = os.getenv("ROXY_BENCHMARK_USE_SERVICE", "1").lower() in ("1", "true", "yes")
+            token_path = ROXY_DIR / "secret.token"
+            benchmark_query = os.getenv(
+                "ROXY_BENCHMARK_MEMORY_QUERY",
+                "what is my benchmark codename from earlier",
+            ).strip() or "what is my benchmark codename from earlier"
+
+            if use_service and token_path.exists():
+                try:
+                    requests = _load_requests_module()
+                    start = time.time()
+
+                    token = token_path.read_text().strip()
+                    response = requests.post(
+                        service_url,
+                        headers={"X-ROXY-Token": token},
+                        json={"query": benchmark_query, "k": 5},
+                        timeout=10,
+                    )
+                    recall_time = time.time() - start
+                    payload = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                    receipt = payload.get("memory_receipt") or {}
+                    details = {
+                        "mode": "service",
+                        "status_code": response.status_code,
+                        "results": int(payload.get("count", 0) or 0),
+                        "backend": receipt.get("backend"),
+                        "backend_healthy": bool(receipt.get("backend_healthy", response.status_code == 200)),
+                        "recall_attempted": bool(receipt.get("attempted", response.status_code == 200)),
+                        "recall_succeeded": bool(receipt.get("succeeded", response.status_code == 200)),
+                        "failure_reason": receipt.get("error"),
+                    }
+                    if response.status_code != 200:
+                        return BenchmarkResult(
+                            name="memory_recall_latency",
+                            passed=False,
+                            score=0.0,
+                            duration=recall_time,
+                            details=details,
+                            error=f"service_http_{response.status_code}",
+                        )
+                    if not details["backend_healthy"] or (details["recall_attempted"] and not details["recall_succeeded"]):
+                        return BenchmarkResult(
+                            name="memory_recall_latency",
+                            passed=False,
+                            score=0.0,
+                            duration=recall_time,
+                            details=details,
+                            error=details["failure_reason"] or "memory backend degraded",
+                        )
+                    return BenchmarkResult(
+                        name="memory_recall_latency",
+                        passed=recall_time < 0.5,
+                        score=100.0 if recall_time < 0.1 else (50.0 if recall_time < 0.5 else 0.0),
+                        duration=recall_time,
+                        details=details,
+                    )
+                except Exception as service_error:
+                    logger.debug(f"Service memory recall benchmark fell back to local path: {service_error}")
+
+            from infrastructure import recall_conversations_with_receipt
+            start = time.time()
+            results, receipt = recall_conversations_with_receipt(benchmark_query, k=5)
             recall_time = time.time() - start
+            details = {
+                "mode": "local",
+                "results": len(results),
+                "backend": receipt.get("backend"),
+                "backend_healthy": bool(receipt.get("backend_healthy")),
+                "recall_attempted": bool(receipt.get("attempted")),
+                "recall_succeeded": bool(receipt.get("succeeded")),
+                "failure_reason": receipt.get("error"),
+            }
+            if not receipt.get("backend_healthy") or (receipt.get("attempted") and not receipt.get("succeeded")):
+                return BenchmarkResult(
+                    name="memory_recall_latency",
+                    passed=False,
+                    score=0.0,
+                    duration=recall_time,
+                    details=details,
+                    error=receipt.get("error") or "memory backend degraded",
+                )
             return BenchmarkResult(
                 name="memory_recall_latency",
                 passed=recall_time < 0.5,
                 score=100.0 if recall_time < 0.1 else (50.0 if recall_time < 0.5 else 0.0),
                 duration=recall_time,
-                details={"results": len(results)},
+                details=details,
             )
         except Exception as e:
             return BenchmarkResult(
@@ -121,6 +206,58 @@ class LatencyBenchmark:
                 score=0.0,
                 duration=time.time() - start,
                 error=str(e),
+            )
+
+    @staticmethod
+    async def ui_snapshot_latency() -> BenchmarkResult:
+        """Benchmark the native Command Center snapshot endpoint."""
+        try:
+            requests = _load_requests_module()
+            params = {"mode": "local", "remote_host": "127.0.0.1", "remote_port": 8766}
+            warmup = requests.get(
+                "http://127.0.0.1:8766/ui/snapshot",
+                params=params,
+                timeout=10,
+            )
+            warmup.raise_for_status()
+
+            start = time.time()
+            response = requests.get(
+                "http://127.0.0.1:8766/ui/snapshot",
+                params=params,
+                timeout=10,
+            )
+            duration = time.time() - start
+            payload = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+            snapshot_meta = payload.get("snapshot_meta") or {}
+            passed = (
+                response.status_code == 200
+                and bool(payload.get("info"))
+                and snapshot_meta.get("source") == "roxy-core"
+                and duration < 0.5
+            )
+            return BenchmarkResult(
+                name="ui_snapshot_latency",
+                passed=passed,
+                score=100.0 if duration < 0.15 else (75.0 if duration < 0.3 else (50.0 if duration < 0.5 else 0.0)),
+                duration=duration,
+                details={
+                    "warmup_status_code": warmup.status_code,
+                    "status_code": response.status_code,
+                    "cache_hit": snapshot_meta.get("cache_hit"),
+                    "source": snapshot_meta.get("source"),
+                    "transport": snapshot_meta.get("transport"),
+                },
+                error=None if response.status_code == 200 else f"http_{response.status_code}",
+            )
+        except Exception as exc:
+            start = locals().get("start", time.time())
+            return BenchmarkResult(
+                name="ui_snapshot_latency",
+                passed=False,
+                score=0.0,
+                duration=time.time() - start,
+                error=str(exc),
             )
 
 
@@ -267,6 +404,7 @@ async def run_all_benchmarks() -> Dict[str, Any]:
             benchmarks=[
                 LatencyBenchmark.ollama_streaming_latency,
                 LatencyBenchmark.memory_recall_latency,
+                LatencyBenchmark.ui_snapshot_latency,
             ],
         ),
         BenchmarkSuite(

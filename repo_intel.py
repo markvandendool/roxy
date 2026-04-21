@@ -463,6 +463,32 @@ def get_repo_index(repo_root: Optional[Path] = None, force: bool = False) -> Rep
     return _repo_index
 
 
+def get_cached_repo_index(repo_root: Optional[Path] = None) -> Optional[RepoIndex]:
+    """Load a cached RepoIndex without triggering a rebuild."""
+    global _repo_index, _repo_index_root
+    root_path = Path(repo_root or DEFAULT_REPO)
+    root = str(root_path)
+    if _repo_index is not None and _repo_index_root == root:
+        return _repo_index
+
+    indexer = RepoIndexer(root_path)
+    cache_file = CACHE_DIR / f"{indexer.root_hash}.json"
+    if not cache_file.exists():
+        return None
+
+    try:
+        with open(cache_file) as f:
+            data = json.load(f)
+        idx = indexer._dict_to_index(data)
+    except Exception as e:
+        logger.warning(f"Failed to load cached RepoIntel index: {e}")
+        return None
+
+    _repo_index = idx
+    _repo_index_root = root
+    return idx
+
+
 def query_symbol(symbol_name: str, repo_root: Optional[Path] = None) -> List[Dict[str, Any]]:
     """Find where a symbol is defined across the repo."""
     idx = get_repo_index(repo_root)

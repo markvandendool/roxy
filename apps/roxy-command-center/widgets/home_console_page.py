@@ -16,11 +16,13 @@ Voice is Option B: Speak button toggle (not auto-speak).
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, GLib, Pango
+gi.require_version('Soup', '3.0')
+from gi.repository import Gtk, Adw, GLib, Pango, Gio, Soup
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
+import json
 import random
 import sys
 import os
@@ -35,6 +37,8 @@ from services.chat_service import (
     Identity as ServiceIdentity,
     get_chat_service, get_voice_service
 )
+
+INFO_FETCH_TIMEOUT_SECONDS = 2.0
 
 
 
@@ -578,6 +582,21 @@ class TalkColumn(Gtk.Box):
         self._chat_service = get_chat_service()
         self._voice_service = get_voice_service()
         print("[TalkColumn] Services acquired")
+
+        self._disposed = False
+        self._info_session = Soup.Session()
+        try:
+            self._info_session.set_property("timeout", max(1, int(INFO_FETCH_TIMEOUT_SECONDS)))
+        except TypeError:
+            try:
+                self._info_session.props.timeout = max(1, int(INFO_FETCH_TIMEOUT_SECONDS))
+            except Exception:
+                pass
+        except Exception:
+            pass
+        self._info_fetch_pending = False
+        self._info_poll_active = False
+        self._info_cancellable: Optional[Gio.Cancellable] = None
         
         # UI references
         self._status_chip: Optional[Gtk.Label] = None
@@ -586,6 +605,7 @@ class TalkColumn(Gtk.Box):
         self._typing_indicator: Optional[Gtk.Box] = None
         self._status_label: Optional[Gtk.Label] = None
         self._status_spinner: Optional[Gtk.Spinner] = None
+        self._chat_scroller: Optional[Gtk.ScrolledWindow] = None
         
         # Truth Panel chips (from /info endpoint)
         self._time_chip: Optional[Gtk.Label] = None
@@ -603,8 +623,7 @@ class TalkColumn(Gtk.Box):
         self._load_settings()  # Sticky settings (Phase 2C)
         print("[TalkColumn] Connecting to roxy...")
         self._connect_to_roxy()
-        print("[TalkColumn] Starting info polling...")
-        self._start_info_polling()
+        print("[TalkColumn] Truth panel awaiting unified snapshot...")
         print("[TalkColumn] ========== INIT COMPLETE ==========" )
     
     def _save_settings(self):
@@ -797,6 +816,7 @@ class TalkColumn(Gtk.Box):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_vexpand(True)
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self._chat_scroller = scrolled
         self.append(scrolled)
         
         self.chat_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
@@ -929,72 +949,274 @@ class TalkColumn(Gtk.Box):
             on_meta_update=self._on_meta_update
         )
 
-    def _on_meta_update(self, meta: dict):
-        """Update the last execution metadata chip."""
-        if not self._last_meta_chip:
-            return
-            
-        # Format: [MODE:POOL] route -> model (t ms)
+    def _short_model_name(self, model: Optional[str]) -> str:
+        if not model or model == "none":
+            return ""
+        short = str(model)
+        replacements = {
+            "qwen2.5-coder:14b-instruct": "Qwen14B",
+            "qwen2.5-coder:14b": "Qwen14B",
+            "llama3.1:8b": "L3.8B",
+        }
+        for source, target in replacements.items():
+            short = short.replace(source, target)
+        return short.split(":")[0]
+
+    def _display_model_name(self, meta: dict) -> str:
+        route = meta.get("route") or ""
+        deterministic_routes = {
+            "memory_recall",
+            "memory_store",
+            "git_query",
+            "local_fastpath_git_status",
+            "time_direct",
+            "ping_direct",
+        }
+        model_used = meta.get("model_used")
+        if route in deterministic_routes:
+            return self._short_model_name(model_used)
+        return self._short_model_name(model_used or meta.get("selected_model"))
+
+    def _is_deterministic_route(self, route: str) -> bool:
+        return route in {
+            "memory_recall",
+            "memory_store",
+            "git_query",
+            "local_fastpath_git_status",
+            "time_direct",
+            "ping_direct",
+        }
+
+    def _format_last_execution_summary(self, meta: dict) -> tuple[str, str]:
         mode = (meta.get("mode") or "??").upper()
         pool = (meta.get("pool") or "AUTO").upper()
         route = meta.get("route") or "?"
-        model = meta.get("model_used")
-        if model:
-            # Shorten model name
-            model = model.replace("qwen2.5-coder:14b", "Qwen14B").replace("llama3.1:8b", "L3.8B").split(":")[0]
-        
+        model = self._display_model_name(meta)
         total_ms = meta.get("total_ms")
-        timing = f"{total_ms}ms" if total_ms else ""
-        
-        text = f"[{mode}:{pool}] {route}"
+        total_ms_text = f"{int(round(float(total_ms)))}ms" if total_ms is not None else ""
+        repo = meta.get("repo") or {}
+        memory = meta.get("memory") or {}
+
+        summary_parts = []
+
+        if repo.get("branch"):
+            repo_state = "dirty" if repo.get("is_dirty") else "clean"
+            changed = repo.get("changed_count")
+            repo_text = f"repo:{repo['branch']}"
+            if isinstance(changed, int):
+                repo_text += f" {repo_state}:{changed}"
+            else:
+                repo_text += f" {repo_state}"
+            summary_parts.append(repo_text)
+
+        memory_backend = (
+            memory.get("recall_backend")
+            or memory.get("store_backend")
+            or memory.get("learning_backend")
+            or memory.get("backend")
+        )
+        if route == "memory_recall":
+            mem_text = f"mem:{memory_backend or 'unknown'}"
+            if memory.get("recall_succeeded") is True:
+                mem_text += " hit"
+            elif memory.get("recall_succeeded") is False:
+                mem_text += " miss"
+            summary_parts.append(mem_text)
+        elif route == "memory_store":
+            learned = memory.get("facts_learned")
+            mem_text = f"learn:{learned}" if learned is not None else "learn:?"
+            if memory_backend:
+                mem_text += f" {memory_backend}"
+            summary_parts.append(mem_text)
+        elif memory_backend and memory.get("context_injected"):
+            summary_parts.append(f"ctx:{memory_backend}")
+
         if model:
-            text += f" → {model}"
-        if timing:
-            text += f" ({timing})"
-            
-        # Update chip
+            summary_parts.append(f"model:{model}")
+
+        if total_ms_text:
+            summary_parts.append(total_ms_text)
+
+        text = f"[{mode}:{pool}] {route}"
+        if summary_parts:
+            text += " • " + " • ".join(summary_parts[:3])
+
+        lines = [
+            "Last Execution",
+            f"Trace: {meta.get('trace_id', '--')}",
+            f"Mode: {mode}",
+            f"Pool: {pool}",
+            f"Route: {route}",
+        ]
+        if model:
+            lines.append(f"Model: {model}")
+        if total_ms_text:
+            lines.append(f"Total: {total_ms_text}")
+
+        if repo:
+            lines.append(
+                "Repo: "
+                + str(repo.get("repo_path") or "--")
+            )
+            lines.append(
+                "Repo State: "
+                + f"{repo.get('branch', '--')} "
+                + ("dirty" if repo.get("is_dirty") else "clean")
+                + f" ({repo.get('changed_count', 0)} changed)"
+            )
+            modified = repo.get("modified_paths") or []
+            if modified:
+                lines.append("Modified: " + ", ".join(modified[:5]))
+            untracked = repo.get("untracked_paths") or []
+            if untracked:
+                lines.append("Untracked: " + ", ".join(untracked[:3]))
+
+        if memory:
+            lines.append(
+                "Memory: backend="
+                + str(memory_backend or "--")
+                + f", recall={memory.get('recall_succeeded')}, store={memory.get('store_succeeded')}, learned={memory.get('facts_learned')}"
+            )
+            learned_facts = memory.get("learned_facts") or []
+            if learned_facts:
+                preview = []
+                for item in learned_facts[:3]:
+                    if isinstance(item, dict):
+                        category = item.get("category") or "fact"
+                        preference = item.get("preference") or item.get("value") or "?"
+                        preview.append(f"{category}={preference}")
+                    else:
+                        preview.append(str(item))
+                lines.append("Learned: " + ", ".join(preview))
+
+        return text, "\n".join(lines)
+
+    def _on_meta_update(self, meta: dict):
+        """Update the last execution metadata chip."""
+        if self._disposed:
+            return
+        if not self._last_meta_chip:
+            return
+
+        text, tooltip = self._format_last_execution_summary(meta)
         self._last_meta_chip.set_label(text)
-        
-        # Tooltip with full details
-        full_text = "\n".join([f"{k}: {v}" for k, v in meta.items()])
-        self._last_meta_chip.set_tooltip_text(f"Last Execution:\n{full_text}")
+        self._last_meta_chip.set_tooltip_text(tooltip)
+
+        model = self._display_model_name(meta)
+        route = meta.get("route") or "?"
+        if self._model_chip:
+            if model:
+                self._model_chip.set_label(f"🧠 {model}")
+            elif route in ("memory_recall", "memory_store", "git_query", "local_fastpath_git_status", "time_direct", "ping_direct"):
+                self._model_chip.set_label("🧠 deterministic")
+        if self._latency_chip and meta.get("total_ms") is not None:
+            core_ms = int(round(float(meta["total_ms"])))
+            self._latency_chip.set_label(f"⏱️ {core_ms}ms")
+            self._latency_chip.set_tooltip_text(
+                f"Core execution: {core_ms}ms\nEnd-to-end UI/transport: {self._chat_service.latency_ms}ms"
+            )
+
+    def update_snapshot(self, data: dict):
+        """Apply the latest unified snapshot from roxy-core."""
+        if self._disposed:
+            return
+
+        snapshot_info = data.get("info") or data.get("_raw", {}).get("info") or data.get("truth") or {}
+        if snapshot_info:
+            self._update_truth_panel(snapshot_info)
+            return
+
+        snapshot_error = (
+            data.get("_raw", {}).get("snapshot_error")
+            or data.get("_raw", {}).get("remote_error")
+            or data.get("_raw", {}).get("error")
+        )
+        if snapshot_error:
+            self._update_truth_panel_error(str(snapshot_error))
     
     def _start_info_polling(self):
         """Start polling /info endpoint for Truth Panel."""
-        self._info_fetch_pending = False  # Guard against concurrent fetches
-        # Poll every 10 seconds (increased to reduce load)
+        if self._disposed or self._info_poll_active:
+            return
+
+        self._info_poll_active = True
         self._info_poll_id = GLib.timeout_add_seconds(10, self._poll_info)
-        # Also do immediate fetch
-        GLib.idle_add(self._poll_info)
+        GLib.idle_add(self._poll_info_once)
+
+    def _poll_info_once(self):
+        """Run exactly one immediate /info fetch after startup."""
+        self._poll_info()
+        return False
+
+    def _stop_info_polling(self):
+        """Cancel truth-panel polling and any active /info request."""
+        self._info_poll_active = False
+
+        if self._info_poll_id is not None:
+            try:
+                GLib.source_remove(self._info_poll_id)
+            except Exception:
+                pass
+            self._info_poll_id = None
+
+        cancellable = self._info_cancellable
+        self._info_cancellable = None
+        if cancellable is not None and not cancellable.is_cancelled():
+            try:
+                cancellable.cancel()
+            except Exception:
+                pass
+
+        self._info_fetch_pending = False
     
     def _poll_info(self) -> bool:
         """Fetch /info endpoint and update Truth Panel chips."""
-        # Skip if previous fetch still in progress (prevents thread accumulation)
-        if getattr(self, '_info_fetch_pending', False):
+        if self._disposed or not self._info_poll_active:
+            return False
+
+        if self._info_fetch_pending:
             return True
 
+        message = Soup.Message.new("GET", "http://127.0.0.1:8766/info")
+        message.get_request_headers().append("User-Agent", "roxy-command-center/truth-panel")
+
+        cancellable = Gio.Cancellable()
         self._info_fetch_pending = True
+        self._info_cancellable = cancellable
 
-        import threading
-        def fetch():
-            try:
-                import urllib.request
-                import json
-                req = urllib.request.Request("http://127.0.0.1:8766/info")
-                req.add_header("User-Agent", "roxy-command-center/truth-panel")
-                with urllib.request.urlopen(req, timeout=5) as resp:
-                    data = json.loads(resp.read().decode())
-                    GLib.idle_add(self._update_truth_panel, data)
-            except Exception as e:
-                GLib.idle_add(self._update_truth_panel_error, str(e))
-            finally:
-                self._info_fetch_pending = False
+        self._info_session.send_and_read_async(
+            message,
+            GLib.PRIORITY_DEFAULT,
+            cancellable,
+            self._on_info_response,
+            None,
+        )
+        return True
 
-        threading.Thread(target=fetch, daemon=True).start()
-        return True  # Keep polling
+    def _on_info_response(self, session, result, _user_data):
+        """Handle async /info completion on the GTK main loop."""
+        cancellable = self._info_cancellable
+        self._info_cancellable = None
+        try:
+            response_bytes = session.send_and_read_finish(result)
+            if self._disposed:
+                return
+
+            raw = bytes(response_bytes.get_data()).decode("utf-8")
+            data = json.loads(raw) if raw else {}
+            self._update_truth_panel(data)
+        except Exception as exc:
+            cancelled = bool(cancellable and cancellable.is_cancelled())
+            if self._disposed or cancelled:
+                return
+            self._update_truth_panel_error(str(exc))
+        finally:
+            self._info_fetch_pending = False
     
     def _update_truth_panel(self, data: dict):
         """Update Truth Panel chips with /info data."""
+        if self._disposed:
+            return
         if self._time_chip:
             try:
                 ts = data.get("server_time_iso", "")
@@ -1079,6 +1301,8 @@ class TalkColumn(Gtk.Box):
     
     def _update_truth_panel_error(self, error: str):
         """Handle /info fetch error."""
+        if self._disposed:
+            return
         if self._time_chip:
             self._time_chip.set_label("🕐 --:--")
         if self._git_chip:
@@ -1092,6 +1316,8 @@ class TalkColumn(Gtk.Box):
 
     def _on_connect_click(self, button):
         """Manual reconnect."""
+        if self._disposed:
+            return
         if self._status_chip:
             self._status_chip.set_label("🟡 Connecting")
         if self._model_chip:
@@ -1109,6 +1335,8 @@ class TalkColumn(Gtk.Box):
     
     def _on_chat_message(self, message: ServiceChatMessage):
         """Called when a new message arrives (user or assistant)."""
+        if self._disposed:
+            return
         # Convert to UI widget
         ui_message = ChatMessage(
             id=message.id,
@@ -1118,17 +1346,30 @@ class TalkColumn(Gtk.Box):
         )
         widget = ChatMessage_Widget(ui_message)
         self.chat_box.append(widget)
+        self._scroll_chat_to_bottom()
         
         # Update latency chip for assistant messages
         if message.role == "assistant":
             latency = self._chat_service.latency_ms
-            self._latency_chip.set_label(f"⏱️ {latency}ms")
+            latest_meta = getattr(self._chat_service, "_last_execution_meta", {}) or {}
+            total_ms = latest_meta.get("total_ms")
+            if total_ms is not None:
+                core_ms = int(round(float(total_ms)))
+                self._latency_chip.set_label(f"⏱️ {core_ms}ms")
+                self._latency_chip.set_tooltip_text(
+                    f"Core execution: {core_ms}ms\nEnd-to-end UI/transport: {latency}ms"
+                )
+            else:
+                self._latency_chip.set_label(f"⏱️ {latency}ms")
+                self._latency_chip.set_tooltip_text("Response latency")
             
             # Speak if speak mode enabled (Option B)
             if self._speak_mode:
                 self._voice_service.speak(message.content)
 
     def _append_system_message(self, text: str):
+        if self._disposed:
+            return
         message = ChatMessage(
             id=str(uuid.uuid4()),
             role="system",
@@ -1137,9 +1378,27 @@ class TalkColumn(Gtk.Box):
         )
         widget = ChatMessage_Widget(message)
         self.chat_box.append(widget)
+        self._scroll_chat_to_bottom()
+
+    def _scroll_chat_to_bottom(self):
+        if self._disposed or not self._chat_scroller:
+            return
+
+        def _apply_scroll():
+            if self._disposed or not self._chat_scroller:
+                return False
+            adjustment = self._chat_scroller.get_vadjustment()
+            if adjustment is None:
+                return False
+            adjustment.set_value(max(0.0, adjustment.get_upper() - adjustment.get_page_size()))
+            return False
+
+        GLib.idle_add(_apply_scroll)
     
     def _on_status_change(self, status: ConnectionStatus, message: str):
         """Called when connection status changes."""
+        if self._disposed:
+            return
         status_icons = {
             ConnectionStatus.DISCONNECTED: "⚪",
             ConnectionStatus.CONNECTING: "🟡",
@@ -1166,9 +1425,16 @@ class TalkColumn(Gtk.Box):
                 self._status_spinner.stop()
 
         if status == ConnectionStatus.CONNECTED:
-            model = self._chat_service.model or "ready"
+            latest_meta = getattr(self._chat_service, "_last_execution_meta", {}) or {}
+            route = latest_meta.get("route") or ""
+            model = self._display_model_name(latest_meta)
             if self._model_chip:
-                self._model_chip.set_label(f"🧠 {model}")
+                if model:
+                    self._model_chip.set_label(f"🧠 {model}")
+                elif self._is_deterministic_route(route):
+                    self._model_chip.set_label("🧠 deterministic")
+                else:
+                    self._model_chip.set_label(f"🧠 {self._chat_service.model or 'ready'}")
         elif status == ConnectionStatus.WARMING:
             if self._model_chip:
                 self._model_chip.set_label("🧠 warming…")
@@ -1181,6 +1447,8 @@ class TalkColumn(Gtk.Box):
     
     def _on_typing_change(self, is_typing: bool):
         """Called when typing indicator should show/hide."""
+        if self._disposed:
+            return
         self._is_typing = is_typing
         if self._typing_indicator:
             self._typing_indicator.set_visible(is_typing)
@@ -1229,6 +1497,8 @@ class TalkColumn(Gtk.Box):
     
     def _on_send(self, widget):
         """Send message to roxy-core."""
+        if self._disposed:
+            return
         text = self.entry.get_text().strip()
         if not text:
             return
@@ -1248,6 +1518,29 @@ class TalkColumn(Gtk.Box):
             routing_mode=self._routing_mode if self._routing_mode != "AUTO" else "",
             pool=self._pool_mode if self._pool_mode != "AUTO" else ""
         )
+
+    def shutdown(self):
+        """Release background work before the widget leaves the UI tree."""
+        if self._disposed:
+            return
+
+        self._disposed = True
+        self._stop_info_polling()
+
+        try:
+            self._chat_service.disconnect()
+        except Exception as exc:
+            print(f"[Talk] Chat disconnect cleanup failed: {exc}")
+
+        if self._typing_indicator:
+            self._typing_indicator.set_visible(False)
+        if self._status_spinner:
+            self._status_spinner.stop()
+            self._status_spinner.set_visible(False)
+
+    def do_unroot(self):
+        self.shutdown()
+        return super().do_unroot()
 
 
 class ExecutionRunCard(Gtk.Box):
@@ -1476,6 +1769,13 @@ class HomeConsolePage(Gtk.Box):
         2. Refresh runs from orchestrator
         3. Update context chips in talk column
         """
-        # For now, just log that we received data
-        # The mock data is loaded on init
-        pass
+        if hasattr(self, "talk"):
+            self.talk.update_snapshot(data)
+
+    def shutdown(self):
+        if hasattr(self, "talk"):
+            self.talk.shutdown()
+
+    def do_unroot(self):
+        self.shutdown()
+        return super().do_unroot()

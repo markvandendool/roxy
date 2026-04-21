@@ -7,6 +7,7 @@ Chief requirement: Single command to rebuild vector store from repo roots
 import argparse
 import hashlib
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Sequence
@@ -18,6 +19,33 @@ ROXY_DIR = Path.home() / ".roxy"
 CHROMA_PATH = ROXY_DIR / "chroma_db"
 DEFAULT_COLLECTION = "mindsong_docs"
 DEFAULT_EXTENSIONS = {".md", ".txt", ".py", ".js", ".ts", ".json", ".yaml", ".yml"}
+
+
+def _resolve_mindsong_docs_root() -> Path:
+    override = (os.environ.get("ROXY_MINDSONG_DOCS_ROOT") or "").strip()
+    candidates = []
+    if override:
+        candidates.append(Path(override).expanduser())
+
+    work_root = Path.home() / "work"
+    if work_root.exists():
+        try:
+            mirrors = sorted(
+                work_root.glob("mindsong_gh_https_*/docs"),
+                key=lambda candidate: candidate.stat().st_mtime,
+                reverse=True,
+            )
+            candidates.extend(mirrors)
+        except Exception:
+            pass
+
+    candidates.append(Path.home() / "mindsong-juke-hub" / "docs")
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return Path.home() / "mindsong-juke-hub" / "docs"
 
 
 @dataclass(frozen=True)
@@ -33,7 +61,7 @@ COLLECTIONS: Dict[str, CollectionConfig] = {
     "mindsong_docs": CollectionConfig(
         name="mindsong_docs",
         roots=(
-            Path.home() / "mindsong-juke-hub" / "docs",
+            _resolve_mindsong_docs_root(),
             Path.home() / "jarvis-docs",
         ),
         extensions=frozenset(DEFAULT_EXTENSIONS),

@@ -1,0 +1,80 @@
+{
+  "date_local": "2026-04-20",
+  "scope": "Phase 2 /api/runs plane recertification on roxy-local surfaces",
+  "service_posture": {
+    "ENABLE_EXECUTION_LAYER": "false",
+    "DISABLE_AUTO_DISPATCH": "true",
+    "ENABLE_BREAKROOM": "false",
+    "ENABLE_CLI_MAINS": null,
+    "method": "temporary standalone run-backed worker for bounded certification"
+  },
+  "story": "PROD-GATE-NOOUT-001",
+  "pre_fix_findings": {
+    "direct_gateway_terminal_failure": {
+      "runId": "run-1776735954846-947a93cb",
+      "surface": "direct-4899",
+      "status": "failed",
+      "message": "codex exited with code 1"
+    },
+    "proxy_surface": {
+      "runId": "run-1776736134768-cf83350c",
+      "surface": "proxy-9136",
+      "status": "failed",
+      "message": "No commit was made during execution",
+      "note": "Ingress and terminal lifecycle proven; local executor ignored modelOverride and attempted real mainline codex execution until interrupted."
+    },
+    "vite_surface": {
+      "runId": "run-1776736265731-03fec3a4",
+      "surface": "vite-9135",
+      "status": "failed",
+      "message": "No commit was made during execution",
+      "note": "Same defect reproduced on second ingress surface."
+    },
+    "blocking_defect": {
+      "component": "CliMainExecutor local path",
+      "file": "/home/mark/mindsong-juke-hub/luno-orchestrator/src/execution/cli-main-executor.ts",
+      "symptom": "Local execution resolved gpt-5.3-codex from defaults instead of honoring request.modelOverride.",
+      "observed_worker_log": "[Processor] Model=gpt-5.3-codex timeout=900000ms auth=account cwd=/home/mark/mindsong-juke-hub",
+      "secondary_defect": "Auto-commit attempted on main checkout and failed with spawnSync git ETIMEDOUT."
+    }
+  },
+  "fix": {
+    "file": "/home/mark/mindsong-juke-hub/luno-orchestrator/src/execution/cli-main-executor.ts",
+    "test_file": "/home/mark/mindsong-juke-hub/luno-orchestrator/tests/unit/cli-main-executor.dispatch.test.ts",
+    "change": "Honor request.modelOverride on the normal local CLI engine path via resolveCliMainModel(); keep cross-engine fallback on default model selection."
+  },
+  "post_fix_validation": {
+    "live_run": {
+      "runId": "run-1776736523101-86572657",
+      "surface": "direct-4899",
+      "status": "failed",
+      "message": "codex exited with code 1",
+      "modelOverride": "definitely-not-a-real-model",
+      "actualHost": "local",
+      "resolvedEngine": "codex",
+      "worker_log": "[Processor] Model=definitely-not-a-real-model timeout=900000ms auth=account cwd=/home/mark/mindsong-juke-hub",
+      "result": "Safe-failure oracle restored on local path."
+    },
+    "scoped_diff_check": {
+      "command": "git diff --name-only -- src/services/KhronosTimeEngine.ts",
+      "result": "empty"
+    },
+    "unit_runner_note": "bun test is currently blocked by an environment-level EPERM on /home/mark/mindsong-juke-hub/luno-orchestrator/src/test-setup.ts, so validation used live worker execution plus direct module import.",
+    "module_import_check": {
+      "command": "bun -e \"import('./src/execution/cli-main-executor.ts').then((m) => { console.log(m.resolveCliMainModel('codex', 'definitely-not-a-real-model')); console.log(m.resolveCliMainModel('codex')); })\"",
+      "result": [
+        "definitely-not-a-real-model",
+        "gpt-5.3-codex"
+      ]
+    }
+  },
+  "verdict": {
+    "status": "partial_pass_with_remaining_gap",
+    "summary": "Direct, proxy, and Vite /api/runs ingress surfaces have terminal run evidence. The local modelOverride safety bug is fixed and live-verified. Operator/podium ingress remains unexecuted in this pass, and the repo still shows a separate git timeout defect on generic status/auto-commit paths.",
+    "next_actions": [
+      "Add an explicit unit/integration test that exercises CliMainExecutor.execute() with request.modelOverride once the Bun test harness permission issue is resolved.",
+      "Certify the podium operator ingress after the safe-failure oracle is restored across all intended paths.",
+      "Investigate the git timeout defect that caused auto-commit and git status hangs on the mounted repository."
+    ]
+  }
+}

@@ -10,7 +10,7 @@ import sys
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger("roxy.infrastructure")
 
@@ -263,6 +263,41 @@ def get_memory():
     return POSTGRES_MEMORY
 
 
+def get_memory_backend_receipt(memory=None) -> Dict[str, Any]:
+    """Return backend health/identity for the active memory implementation."""
+    status = {
+        "backend": None,
+        "backend_healthy": False,
+        "error": None,
+    }
+
+    if memory is None:
+        memory = get_memory()
+
+    if not memory:
+        status["error"] = "memory unavailable"
+        return status
+
+    health_check = getattr(memory, "health_check", None)
+    if callable(health_check):
+        try:
+            health = health_check() or {}
+            status["backend_healthy"] = bool(health.get("healthy"))
+            if health.get("backend"):
+                status["backend"] = health.get("backend")
+            if health.get("error"):
+                status["error"] = health.get("error")
+        except Exception as e:
+            status["error"] = str(e)
+    else:
+        status["backend_healthy"] = True
+
+    if not status["backend"]:
+        status["backend"] = type(memory).__name__
+
+    return status
+
+
 def get_router():
     """Get expert router instance."""
     global EXPERT_ROUTER
@@ -319,7 +354,7 @@ def cache_query(query: str, response: str, metadata: Optional[Dict[str, Any]] = 
             payload = {
                 "response": response,
                 "metadata": metadata or {},
-                "cached_at": datetime.utcnow().isoformat()
+            "cached_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             }
             cache.set(query, json.dumps(payload))
         except Exception as e:
@@ -381,17 +416,81 @@ def remember_conversation(
 ):
     """Store conversation in episodic memory."""
     memory = get_memory()
+    receipt = {
+        "attempted": False,
+        "succeeded": False,
+        "user_id": resolve_user_id(user_id),
+        **get_memory_backend_receipt(memory),
+    }
     if memory:
+        receipt["attempted"] = True
         try:
             memory.remember(
                 query,
                 response,
                 session_id,
                 context,
-                user_id=resolve_user_id(user_id),
+                user_id=receipt["user_id"],
             )
+            receipt["succeeded"] = True
+            receipt["error"] = None
         except Exception as e:
+            receipt["error"] = str(e)
             logger.debug(f"Memory store failed: {e}")
+    return receipt
+
+
+def recall_conversations_with_receipt(
+    query: str,
+    k: int = 5,
+    session_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+    time_window_days: Optional[int] = None,
+    min_score: Optional[float] = None,
+    min_similarity: Optional[float] = None,
+) -> tuple[list, Dict[str, Any]]:
+    """Recall conversations plus explicit backend/result receipt metadata."""
+    memory = get_memory()
+    receipt = {
+        "attempted": False,
+        "succeeded": False,
+        "results_count": 0,
+        "user_id": resolve_user_id(user_id),
+        **get_memory_backend_receipt(memory),
+    }
+    if not memory:
+        return [], receipt
+
+    receipt["attempted"] = True
+    try:
+        try:
+            results = memory.recall(
+                query,
+                k,
+                session_id=session_id,
+                user_id=receipt["user_id"],
+                time_window_days=time_window_days,
+                min_score=min_score,
+                min_similarity=min_similarity,
+            )
+        except TypeError:
+            # Backward compatibility for memory backends without new thresholds.
+            results = memory.recall(
+                query,
+                k,
+                session_id=session_id,
+                user_id=receipt["user_id"],
+                time_window_days=time_window_days,
+            )
+        results = results or []
+        receipt["succeeded"] = True
+        receipt["results_count"] = len(results)
+        receipt["error"] = None
+        return results, receipt
+    except Exception as e:
+        receipt["error"] = str(e)
+        logger.debug(f"Memory recall failed: {e}")
+        return [], receipt
 
 
 def recall_conversations(
@@ -404,31 +503,16 @@ def recall_conversations(
     min_similarity: Optional[float] = None,
 ) -> list:
     """Recall relevant conversations from memory."""
-    memory = get_memory()
-    if memory:
-        try:
-            try:
-                return memory.recall(
-                    query,
-                    k,
-                    session_id=session_id,
-                    user_id=resolve_user_id(user_id),
-                    time_window_days=time_window_days,
-                    min_score=min_score,
-                    min_similarity=min_similarity,
-                )
-            except TypeError:
-                # Backward compatibility for memory backends without new thresholds.
-                return memory.recall(
-                    query,
-                    k,
-                    session_id=session_id,
-                    user_id=resolve_user_id(user_id),
-                    time_window_days=time_window_days,
-                )
-        except Exception as e:
-            logger.debug(f"Memory recall failed: {e}")
-    return []
+    results, _receipt = recall_conversations_with_receipt(
+        query,
+        k=k,
+        session_id=session_id,
+        user_id=user_id,
+        time_window_days=time_window_days,
+        min_score=min_score,
+        min_similarity=min_similarity,
+    )
+    return results
 
 
 def _clean_fact_value(value: str, max_len: int = 80) -> str:
@@ -532,6 +616,17 @@ def extract_user_facts(text: str) -> list:
         if value:
             facts.append({"category": "timezone", "preference": value, "confidence": 0.9})
 
+    # Benchmark/session codename capture for cross-session recall verification.
+    codename_match = re.search(
+        r"\bmy\s+(?:benchmark\s+)?codename\s+is\s+([A-Za-z0-9][A-Za-z0-9._-]{2,80})",
+        content,
+        re.IGNORECASE,
+    )
+    if codename_match:
+        value = _clean_fact_value(codename_match.group(1), max_len=80)
+        if value:
+            facts.append({"category": "benchmark_codename", "preference": value, "confidence": 0.95})
+
     # Deduplicate preserving order
     deduped = []
     seen = set()
@@ -554,13 +649,23 @@ def learn_user_facts(
     Returns {"learned": [...], "count": int}
     """
     memory = get_memory()
+    receipt = {
+        "learned": [],
+        "count": 0,
+        "attempted": False,
+        "succeeded": False,
+        "user_id": resolve_user_id(user_id),
+        **get_memory_backend_receipt(memory),
+    }
     if not memory:
-        return {"learned": [], "count": 0}
+        return receipt
 
     learned = []
-    effective_user_id = resolve_user_id(user_id)
+    effective_user_id = receipt["user_id"]
+    receipt["attempted"] = True
     try:
         facts = extract_user_facts(query)
+        receipt["extracted_count"] = len(facts)
         for fact in facts:
             category = fact.get("category")
             preference = fact.get("preference")
@@ -599,11 +704,17 @@ def learn_user_facts(
                 "confidence": confidence,
                 "session_id": session_id,
                 "user_id": effective_user_id,
-            })
+                })
     except Exception as e:
+        receipt["error"] = str(e)
         logger.debug(f"User fact learning failed: {e}")
 
-    return {"learned": learned, "count": len(learned)}
+    receipt["learned"] = learned
+    receipt["count"] = len(learned)
+    receipt["succeeded"] = len(learned) > 0
+    if receipt["succeeded"]:
+        receipt["error"] = None
+    return receipt
 
 
 def remember_typed_record(

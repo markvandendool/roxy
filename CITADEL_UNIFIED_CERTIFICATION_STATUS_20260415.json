@@ -1,0 +1,106 @@
+{
+  "generatedAt": "2026-04-15T19:10:00Z",
+  "version": "2.0",
+  "overallStatus": "RED",
+  "planes": {
+    "citadelRoxyCore": {
+      "status": "GREEN",
+      "host": "10.0.0.99",
+      "testsRun": 34,
+      "testsPassed": 34,
+      "testsFailed": 0,
+      "passRate": 1.0,
+      "qualifiedAt": "2026-04-15T14:00:00Z",
+      "evidence": {
+        "evalHarness": "8/8 PASS",
+        "adversarial": "5/5 PASS",
+        "targetedRuntime": "21/21 PASS",
+        "qualificationStatus": "QUALIFIED=YES",
+        "p95Latency": "2.1852s (target: 12.0s)"
+      },
+      "blockers": []
+    },
+    "macStudioRuns": {
+      "status": "RED",
+      "host": "10.0.0.92",
+      "testsRun": 0,
+      "testsPassed": 0,
+      "testsFailed": 6,
+      "passRate": 0.0,
+      "qualifiedAt": null,
+      "evidence": {
+        "connectivity": "PING OK (0.489ms)",
+        "port4899": "CLOSED - Luno Orchestrator not responding",
+        "port9135": "CLOSED - Command Center not responding",
+        "port9136": "CLOSED - ROXY Proxy not responding",
+        "port8766": "CLOSED - ROXY Core not responding",
+        "certificationTests": "BLOCKED - Services offline"
+      },
+      "blockers": [
+        "Luno Orchestrator service not running on port 4899",
+        "Command Center service not running on port 9135",
+        "ROXY Proxy service not running on port 9136"
+      ]
+    },
+    "remoteCodexLane": {
+      "status": "RED",
+      "host": "10.0.0.92",
+      "testsRun": 0,
+      "testsPassed": 0,
+      "testsFailed": 8,
+      "passRate": 0.0,
+      "qualifiedAt": null,
+      "evidence": {
+        "dependency": "Depends on Mac Studio Runs plane",
+        "status": "BLOCKED - Parent plane RED",
+        "previousFailures": "Exit 124 timeout on gpt-5.3-codex executions"
+      },
+      "blockers": [
+        "Mac Studio Runs plane must be GREEN first",
+        "Remote execution semantics unverified",
+        "Terminal state classification not tested"
+      ]
+    }
+  },
+  "dataPlane": {
+    "mindsongDocs": "DEGRADED_ACCEPTED",
+    "fallbackActive": true,
+    "fallbackCollections": [
+      "roxy_onboarding",
+      "roxy_api",
+      "roxy_systems",
+      "roxy_protocols"
+    ],
+    "rebuildStatus": "DEFERRED - 15,705 files / 584,372 chunks"
+  },
+  "scheduler": {
+    "currentStatus": "DISABLED",
+    "reenableReady": false,
+    "blockers": [
+      "Mac Studio Runs plane must be certified GREEN",
+      "Remote Codex lane must achieve 80% success rate",
+      "Unified system certification must be GREEN"
+    ]
+  },
+  "certificationCriteria": {
+    "TEST-01": { "description": "POST /api/runs auth & contract", "required": "10/10", "blocking": true, "status": "NOT_TESTED" },
+    "TEST-02": { "description": "story_only terminal state machine", "required": "10/10", "blocking": true, "status": "NOT_TESTED" },
+    "TEST-03": { "description": "ExecutionId truth", "required": "10/10", "blocking": true, "status": "NOT_TESTED" },
+    "TEST-04": { "description": "Codex lane success rate", "required": "8/10", "blocking": true, "status": "NOT_TESTED" },
+    "TEST-05": { "description": "Codex failure classification", "required": "10/10", "blocking": true, "status": "NOT_TESTED" },
+    "TEST-06": { "description": "Lease renewal", "required": "5/5", "blocking": false, "status": "NOT_TESTED" }
+  },
+  "nextActions": [
+    "Start Luno Orchestrator service on Mac Studio (port 4899)",
+    "Start Command Center service on Mac Studio (port 9135)",
+    "Execute Mac Runs plane certification tests",
+    "Verify remote Codex lane terminal execution",
+    "Re-run unified certification when both planes operational"
+  ],
+  "assessment": {
+    "citadelCore": "Freshly recertified post-repair. All critical paths GREEN.",
+    "macPlane": "Services offline. Cannot certify until operational.",
+    "system": "Two-plane architecture valid but Mac plane requires activation.",
+    "scheduler": "Correctly DISABLED per Chief directive until full certification."
+  }
+}

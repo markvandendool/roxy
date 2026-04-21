@@ -1642,7 +1642,7 @@ class PostgresMemory:
             # Filter by time window if specified
             if time_window_days:
                 created = self._coerce_datetime(memory['created_at'])
-                if datetime.now() - created > timedelta(days=time_window_days):
+                if datetime.now(created.tzinfo) - created > timedelta(days=time_window_days):
                     continue
             
             semantic_similarity = self._cosine_similarity(
@@ -1658,7 +1658,7 @@ class PostgresMemory:
             
             # Apply importance and temporal decay
             created = self._coerce_datetime(memory['created_at'])
-            days_old = (datetime.now() - created).days
+            days_old = (datetime.now(created.tzinfo) - created).days
             decay = math.exp(-0.01 * days_old)
             
             score = memory['importance'] * decay * (0.35 + 0.45 * similarity + 0.20 * semantic_similarity)
@@ -1796,14 +1796,14 @@ class PostgresMemory:
                             SELECT user_id, category, preference, confidence, updated_at
                             FROM learned_preferences
                             WHERE user_id = %s AND category = %s
-                            ORDER BY confidence DESC
+                            ORDER BY confidence DESC, updated_at DESC
                         """, (effective_user_id, category))
                     else:
                         cur.execute("""
                             SELECT user_id, category, preference, confidence, updated_at
                             FROM learned_preferences
                             WHERE user_id = %s
-                            ORDER BY category, confidence DESC
+                            ORDER BY category, confidence DESC, updated_at DESC
                         """, (effective_user_id,))
                     return [dict(r) for r in cur.fetchall()]
             except Exception as e:
@@ -1843,6 +1843,18 @@ class PostgresMemory:
                             "confidence": confidence,
                             "updated_at": row["updated_at"]
                         })
+                    try:
+                        prefs = sorted(
+                            prefs,
+                            key=lambda item: (
+                                str(item.get("category", "")),
+                                float(item.get("confidence", 0.0)),
+                                str(item.get("updated_at", "")),
+                            ),
+                            reverse=True,
+                        )
+                    except Exception:
+                        pass
                     return prefs
             except Exception as e:
                 logger.warning(f"SQLite get preferences failed: {e}")

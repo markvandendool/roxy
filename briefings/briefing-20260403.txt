@@ -1,0 +1,15 @@
+Generated: 2026-04-03T07:00:33.495093
+
+Good morning, Mark! Roxy here, with your morning briefing.
+
+I'm happy to report that our MRR has seen a strong 8.5% growth, reaching $12,500. That's a great start to the day!
+
+On the student front, we're currently at 156 active students, with 8 of them being flagged as at-risk. We'll need to keep an eye on those students and make sure they get the support they need.
+
+Content-wise, we've got 14 clips ready to go and 21 scheduled for release. That's a lot of fresh content to engage our audience!
+
+In product news, we're keeping busy with 3 open PRs, and our next release is shaping up nicely - v0.4.0 is looking like a solid update.
+
+As for the calendar, you've got two meetings today: first one at 10:00 AM, it's time to sync up with the team!
+
+So, that's your morning briefing in a nutshell! What would you like to focus on first?

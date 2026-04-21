@@ -21,7 +21,7 @@ import json
 import os
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional, Callable, List
+from typing import Optional, Callable, List, Set
 from datetime import datetime
 from enum import Enum
 import uuid
@@ -126,7 +126,7 @@ class ChatService:
             pass
         self._status = ConnectionStatus.DISCONNECTED
         self._auth_token = get_auth_token()
-        self._timeout_handles: List[int] = []
+        self._timeout_handles: Set[int] = set()
         self._pending_request_active = False
         self._pending_message: Optional[Soup.Message] = None
         self._timeout_error_triggered = False
@@ -425,27 +425,43 @@ class ChatService:
         self._schedule_status_updates()
     
     def _cancel_status_timeouts(self):
-        for handle in self._timeout_handles:
-            GLib.source_remove(handle)
+        for handle in list(self._timeout_handles):
+            try:
+                GLib.source_remove(handle)
+            except Exception:
+                pass
         self._timeout_handles.clear()
+
+    def _schedule_timeout(self, seconds: int, callback: Callable[[], bool]) -> int:
+        handle_box = {"id": 0}
+
+        def _wrapped():
+            handle = handle_box["id"]
+            if handle:
+                self._timeout_handles.discard(handle)
+            return callback()
+
+        handle_box["id"] = GLib.timeout_add_seconds(seconds, _wrapped)
+        self._timeout_handles.add(handle_box["id"])
+        return handle_box["id"]
 
     def _schedule_status_updates(self):
         self._cancel_status_timeouts()
-        self._timeout_handles.append(
-            GLib.timeout_add_seconds(5, self._status_callback(
+        self._schedule_timeout(
+            5,
+            self._status_callback(
                 ConnectionStatus.WARMING,
                 "Loading model… (cold start can take 60–120s)"
-            ))
+            ),
         )
-        self._timeout_handles.append(
-            GLib.timeout_add_seconds(30, self._status_callback(
+        self._schedule_timeout(
+            30,
+            self._status_callback(
                 ConnectionStatus.WARMING,
                 "Still loading…"
-            ))
+            ),
         )
-        self._timeout_handles.append(
-            GLib.timeout_add_seconds(120, self._timeout_callback())
-        )
+        self._schedule_timeout(120, self._timeout_callback())
 
     def _status_callback(self, status: ConnectionStatus, message: str):
         def _callback():

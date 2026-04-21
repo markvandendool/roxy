@@ -251,3 +251,4 @@ Consult Rocky AI for musical theory when relevant."""
             return cls.get_code_prompt(context, query)
         else:
             return cls.get_general_prompt(query)
+

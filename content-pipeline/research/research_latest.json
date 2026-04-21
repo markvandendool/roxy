@@ -1,18 +1,39 @@
 {
-  "brief_id": "BRIEF_20260320_110519_53f12e40",
-  "timestamp": "2026-03-20T17:05:19.175218+00:00",
+  "brief_id": "BRIEF_20260402_090515_6ab4cabd",
+  "timestamp": "2026-04-02T15:05:15.450994+00:00",
   "status": "healthy",
-  "source_snapshot": "TREND_20260320_110022_d55b6918",
+  "source_snapshot": "TREND_20260402_090010_060aff9a",
   "briefs": [
     {
-      "title": "The best AI investment might be in energy tech",
+      "title": "AI system learns to keep warehouse robot traffic running smoothly",
+      "source": "MIT News AI",
+      "category": "ai_research",
+      "link": "https://news.mit.edu/2026/ai-system-keeps-warehouse-robot-traffic-running-smoothly-0326",
+      "summary": "This new approach adapts to decide which robots should get the right of way at every moment, avoiding congestion and increasing throughput.",
+      "claims": [
+        "This trend focuses on: AI system learns to keep warehouse robot traffic running smoothly",
+        "Key insight: This new approach adapts to decide which robots should get the right of way at every moment, avoiding congestion and increasing throughput",
+        "Source: MIT News AI (category: ai_research)",
+        "This relates to academic AI research and new discoveries",
+        "This is general technology news coverage"
+      ],
+      "followups": [
+        "What are the key players/companies mentioned?",
+        "What is the timeline for this development?",
+        "What are the potential implications for the industry?",
+        "What AI models or techniques are involved?",
+        "How does this compare to existing solutions?"
+      ]
+    },
+    {
+      "title": "Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/20/the-best-ai-investment-might-be-in-energy-tech/",
-      "summary": "Power has become one of the biggest bottlenecks in rolling out new AI data centers. That's creating an opening for investors.",
+      "link": "https://techcrunch.com/2026/04/01/cognichip-wants-ai-to-design-the-chips-that-power-ai-and-just-raised-60m-to-try/",
+      "summary": "The firm says it can reduce the cost of chip development by more than 75% and cut the timeline by more than half.",
       "claims": [
-        "This trend focuses on: The best AI investment might be in energy tech",
-        "Key insight: Power has become one of the biggest bottlenecks in rolling out new AI data centers",
+        "This trend focuses on: Cognichip wants AI to design the chips that power AI, and just raised $60M to try",
+        "Key insight: The firm says it can reduce the cost of chip development by more than 75% and cut the timeline by more than half",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"
@@ -26,14 +47,14 @@
       ]
     },
     {
-      "title": "TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
+      "title": "Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/19/techcrunch-startup-battlefield-200-nominations-are-still-open/",
-      "summary": "Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27. Chance to win $100,000 equity-free funding and VC access.",
+      "link": "https://techcrunch.com/2026/03/31/mercor-says-it-was-hit-by-cyberattack-tied-to-compromise-of-open-source-litellm-project/",
+      "summary": "The AI recruiting startup confirmed a security incident after an extortion hacking crew took credit for stealing data from the company's systems.",
       "claims": [
-        "This trend focuses on: TechCrunch\u00a0Startup Battlefield 200 nominations\u00a0are still\u00a0open",
-        "Key insight: Nominate your startup, or one you know, for TechCrunch Startup Battlefield 200 before May 27",
+        "This trend focuses on: Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project",
+        "Key insight: The AI recruiting startup confirmed a security incident after an extortion hacking crew took credit for stealing data from the company's systems",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"
@@ -47,17 +68,17 @@
       ]
     },
     {
-      "title": "WordPress.com now lets AI agents write and publish posts, and more",
+      "title": "Salesforce announces an AI-heavy makeover for Slack, with 30 new features",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/20/wordpress-com-now-lets-ai-agents-write-and-publish-posts-and-more/",
-      "summary": "New AI agents on WordPress.com could lower barriers to publishing while increasing machine-generated content across the web.",
+      "link": "https://techcrunch.com/2026/03/31/salesforce-announces-an-ai-heavy-makeover-for-slack-with-30-new-features/",
+      "summary": "Slack just got a whole lot more useful.",
       "claims": [
-        "This trend focuses on: WordPress.com now lets AI agents write and publish posts, and more",
-        "Key insight: New AI agents on WordPress",
+        "This trend focuses on: Salesforce announces an AI-heavy makeover for Slack, with 30 new features",
+        "Key insight: Slack just got a whole lot more useful",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
+        "This appears to be a new announcement or product launch"
       ],
       "followups": [
         "What are the key players/companies mentioned?",
@@ -68,35 +89,14 @@
       ]
     },
     {
-      "title": "Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
+      "title": "OpenAI, not yet public, raises $3B from retail investors in monster $122B fund raise",
       "source": "TechCrunch AI",
       "category": "ai",
-      "link": "https://techcrunch.com/2026/03/20/trumps-ai-framework-targets-state-laws-shifts-child-safety-burden-to-parents/",
-      "summary": "Trump\u2019s AI framework pushes federal preemption of state laws, emphasizes innovation, and shifts responsibility for child safety toward parents while laying out lighter-touch rules for tech companies.",
+      "link": "https://techcrunch.com/2026/03/31/openai-not-yet-public-raises-3b-from-retail-investors-in-monster-122b-fund-raise/",
+      "summary": "OpenAI's latest funding round, led by Amazon, Nvidia, and SoftBank, values the AI lab at $852 billion as it nears an IPO.",
       "claims": [
-        "This trend focuses on: Trump\u2019s AI framework targets state laws, shifts child safety burden to parents",
-        "Key insight: Trump\u2019s AI framework pushes federal preemption of state laws, emphasizes innovation, and shifts responsibility for child safety toward parents while l",
-        "Source: TechCrunch AI (category: ai)",
-        "This relates to commercial AI applications and industry developments",
-        "This is general technology news coverage"
-      ],
-      "followups": [
-        "What are the key players/companies mentioned?",
-        "What is the timeline for this development?",
-        "What are the potential implications for the industry?",
-        "What AI models or techniques are involved?",
-        "How does this compare to existing solutions?"
-      ]
-    },
-    {
-      "title": "These AI notetaking devices can help you record and transcribe your meetings",
-      "source": "TechCrunch AI",
-      "category": "ai",
-      "link": "https://techcrunch.com/2026/03/20/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/",
-      "summary": "These physical notetakers transcribe audio and give users summaries and action items of meetings using AI. Some even offer live translation.",
-      "claims": [
-        "This trend focuses on: These AI notetaking devices can help you record and transcribe your meetings",
-        "Key insight: These physical notetakers transcribe audio and give users summaries and action items of meetings using AI",
+        "This trend focuses on: OpenAI, not yet public, raises $3B from retail investors in monster $122B fund raise",
+        "Key insight: OpenAI's latest funding round, led by Amazon, Nvidia, and SoftBank, values the AI lab at $852 billion as it nears an IPO",
         "Source: TechCrunch AI (category: ai)",
         "This relates to commercial AI applications and industry developments",
         "This is general technology news coverage"

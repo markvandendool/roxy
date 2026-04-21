@@ -1,0 +1,11 @@
+Generated: 2026-04-10T07:00:37.721955
+
+"Hey Mark! Roxy here with your morning briefing. I've got some great news to start the day - our MRR is up 8.5% from last month, sitting at $12,500. That's a fantastic growth rate!
+
+I also wanted to touch base on our active students. We're currently at 156, and I'm keeping an eye on the 8 who are at-risk. Let's make sure we prioritize their support.
+
+On the content front, we've got 14 clips ready to go, with another 21 scheduled in the pipeline. You'll also want to know that our product team is making progress - they're working on v0.4.0, and there are three open PRs waiting for your attention.
+
+Before you dive into all this, I wanted to give you a heads up on your calendar. You've got two meetings scheduled: the first one's at 10:00 AM, our team sync. Let me know if you need any prep work or talking points before then.
+
+What would you like to focus on first?"

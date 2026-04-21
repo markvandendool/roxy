@@ -1,0 +1,179 @@
+ROXY BASELINE CAPTURE
+timestamp=2026-04-17T05:55:37-06:00
+
+[service-status]
+active
+inactive
+inactive
+
+[health]
+{
+  "status": "healthy",
+  "service": "roxy-core",
+  "timestamp": "2026-04-17T05:55:37.949580",
+  "checks": {
+    "auth_token": "ok",
+    "rate_limiter": "ok",
+    "chromadb": "ok",
+    "ollama": {
+      "ok": true,
+      "base_url": "http://127.0.0.1:11435",
+      "latency_ms": 6.39,
+      "last_ok_ts": 1776426938,
+      "last_error": null
+    },
+    "infrastructure": {
+      "initialized": true
+    },
+    "infra_redis_cache": "ok",
+    "infra_postgres_memory": "ok",
+    "infra_expert_router": "ok",
+    "infra_event_stream": "ok",
+    "infra_feedback": "ok"
+  }
+}
+
+[ready]
+{
+  "ready": true,
+  "timestamp": "2026-04-17T05:55:38.159594",
+  "checks": {
+    "http_server": {
+      "ok": true
+    },
+    "auth_token": {
+      "ok": true
+    },
+    "roxy_commands_import": {
+      "ok": true
+    },
+    "ping_direct": {
+      "ok": true
+    },
+    "time_direct": {
+      "ok": true
+    },
+    "memory_postgres": {
+      "ok": true,
+      "details": {
+        "healthy": true,
+        "backend": "postgres",
+        "details": {
+          "pgvector": true,
+          "hot_memory_cache": 0
+        }
+      },
+      "backend": "postgres"
+    },
+    "pool_invariants": {
+      "ok": true,
+      "pools": {
+        "w5700x": {
+          "port": 11434,
+          "gpu": "W5700X",
+          "service": "ollama-w5700x.service",
+          "reachable": true,
+          "latency_ms": 0.98,
+          "error": null
+        },
+        "6900xt": {
+          "port": 11435,
+          "gpu": "6900XT",
+          "service": "ollama-6900xt.service",
+          "reachable": true,
+          "latency_ms": 0.83,
+          "error": null
+        }
+      },
+      "warning": null,
+      "checked_at": "2026-04-17T05:55:38.170648"
+    }
+  },
+  "status": "ready",
+  "ollama_ok": true,
+  "message": "Core command fast-paths available"
+}
+
+[infrastructure]
+{
+  "initialized": true,
+  "components": {
+    "redis_cache": {
+      "healthy": true,
+      "backend": "redis",
+      "details": {
+        "vector_search": false,
+        "used_memory": "6.44M"
+      }
+    },
+    "postgres_memory": {
+      "healthy": true,
+      "backend": "postgres",
+      "details": {
+        "pgvector": true,
+        "hot_memory_cache": 0
+      }
+    },
+    "expert_router": {
+      "healthy": true,
+      "classifier_available": true,
+      "experts_available": [
+        "qwen2.5-coder:14b",
+        "deepseek-coder:6.7b",
+        "wizard-math:7b",
+        "llama3:8b",
+        "qwen2.5:32b",
+        "phi:2.7b"
+      ],
+      "details": {
+        "available_count": 6
+      }
+    },
+    "event_stream": {
+      "healthy": true,
+      "connected": true,
+      "jetstream": true,
+      "details": {
+        "server": "nats://localhost:4222"
+      }
+    },
+    "feedback": {
+      "healthy": true,
+      "stats": {
+        "total": 0,
+        "thumbs_up": 0,
+        "thumbs_down": 0,
+        "corrections": 0
+      }
+    }
+  }
+}
+
+[eval]
+
+======================================================================
+ROXY EVALUATION REPORT
+======================================================================
+Timestamp: 2026-04-17T05:56:32.802800
+Total Tests: 8
+Passed: 8
+Failed: 0
+Pass Rate: 100.0%
+Meets Threshold (95%): ✅ YES
+
+By Category:
+  runtime: 100% (1/1)
+  memory: 100% (3/3)
+  confidence: 100% (2/2)
+  quality: 100% (2/2)
+
+Detailed Results:
+  ✅ [runtime] mcp_gate
+  ✅ [memory] memory_identity
+  ✅ [memory] memory_production
+  ✅ [memory] memory_preferences
+  ✅ [confidence] confidence_known
+  ✅ [confidence] confidence_unknown
+  ✅ [quality] quality_technical
+  ✅ [quality] quality_production
+======================================================================
