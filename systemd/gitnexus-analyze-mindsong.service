@@ -1,0 +1,19 @@
+[Unit]
+Description=GitNexus Analyze MindSong Local Mirror
+After=gitnexus.service
+Wants=gitnexus.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/.roxy
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+Environment=ROXY_MINDSONG_CANONICAL_ROOT=%h/mindsong-juke-hub
+Environment=ROXY_GITNEXUS_MIRROR_ROOT=%h/work/gitnexus-mirrors
+Environment=ROXY_GITNEXUS_MINDSONG_INDEX_PATH=%h/work/gitnexus-mirrors/mindsong-juke-hub
+Environment=ROXY_GITNEXUS_STATUS_PATH=%h/.roxy/run/gitnexus/mindsong_status.json
+ExecStartPre=%h/.roxy/scripts/gitnexus/sync_mindsong_mirror.sh
+ExecStart=%h/.roxy/venv/bin/python -u %h/.roxy/scripts/gitnexus/analyze_mindsong_mirror.py
+
+[Install]
+WantedBy=default.target

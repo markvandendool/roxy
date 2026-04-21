@@ -25,6 +25,12 @@ DEFAULT_TIMEOUT_SECONDS = float(os.getenv("ROXY_GITNEXUS_TIMEOUT_SECONDS", "1.25
 DEFAULT_REPO_STATUS_TIMEOUT_SECONDS = float(
     os.getenv("ROXY_GITNEXUS_REPO_STATUS_TIMEOUT_SECONDS", str(max(DEFAULT_TIMEOUT_SECONDS, 5.0)))
 )
+DEFAULT_MIRROR_ROOT = Path(
+    os.getenv("ROXY_GITNEXUS_MIRROR_ROOT", str(Path.home() / "work" / "gitnexus-mirrors"))
+).expanduser()
+DEFAULT_STATUS_ROOT = Path(
+    os.getenv("ROXY_GITNEXUS_STATUS_ROOT", str(Path.home() / ".roxy" / "run" / "gitnexus"))
+).expanduser()
 
 REPO_NAME_HINTS = {
     ".roxy": "roxy",
@@ -37,6 +43,15 @@ REPO_NAME_HINTS = {
 REPO_PATH_HINTS = {
     "roxy": str(Path.home() / ".roxy"),
     "mindsong-juke-hub": str(Path.home() / "mindsong-juke-hub"),
+}
+
+REPO_INDEX_PATH_HINTS = {
+    "roxy": str(Path.home() / ".roxy"),
+    "mindsong-juke-hub": str(DEFAULT_MIRROR_ROOT / "mindsong-juke-hub"),
+}
+
+REPO_RUNTIME_STATUS_HINTS = {
+    "mindsong-juke-hub": str(DEFAULT_STATUS_ROOT / "mindsong_status.json"),
 }
 
 
@@ -173,8 +188,15 @@ def resolve_repo_path_hint(repo_name: Optional[str]) -> Optional[str]:
     return REPO_PATH_HINTS.get(normalized)
 
 
+def resolve_repo_index_path_hint(repo_name: Optional[str]) -> Optional[str]:
+    normalized = resolve_repo_name(repo_name)
+    if not normalized:
+        return None
+    return REPO_INDEX_PATH_HINTS.get(normalized)
+
+
 def _resolve_repo_fs_path(repo_name: Optional[str]) -> Optional[Path]:
-    hint = resolve_repo_path_hint(repo_name)
+    hint = resolve_repo_index_path_hint(repo_name) or resolve_repo_path_hint(repo_name)
     if hint:
         return Path(hint).expanduser()
 
@@ -186,11 +208,29 @@ def _resolve_repo_fs_path(repo_name: Optional[str]) -> Optional[Path]:
     return None
 
 
+def _read_runtime_status(repo_name: Optional[str]) -> Dict[str, Any]:
+    normalized = resolve_repo_name(repo_name)
+    path_hint = REPO_RUNTIME_STATUS_HINTS.get(normalized or "")
+    if not path_hint:
+        return {}
+
+    status_path = Path(path_hint).expanduser()
+    if not status_path.exists():
+        return {}
+
+    try:
+        payload = json.loads(status_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    return payload if isinstance(payload, dict) else {}
+
+
 def _read_local_index_state(repo_name: Optional[str]) -> Dict[str, Any]:
     repo_path = _resolve_repo_fs_path(repo_name)
     registry_entry = _read_registry_entry(repo_name, repo_path)
     state: Dict[str, Any] = {
-        "repo_path": str(repo_path) if repo_path else None,
+        "index_path": str(repo_path) if repo_path else None,
         "meta_repo_path": None,
         "indexed_commit": None,
         "current_commit": None,
@@ -241,7 +281,7 @@ def _read_local_index_state(repo_name: Optional[str]) -> Dict[str, Any]:
                 check=False,
             )
             head = (current.stdout or "").strip()
-            if head:
+            if head and head != "HEAD":
                 state["current_commit"] = head
         except Exception:
             state["current_commit"] = None
@@ -303,17 +343,13 @@ def get_repo_status(
 ) -> Dict[str, Any]:
     normalized_repo = resolve_repo_name(repo_name) or DEFAULT_REPO
     local_state = _read_local_index_state(normalized_repo)
-    server = get_server_info(base_url=base_url, timeout=timeout)
-    if not server.get("available"):
+    runtime_state = _read_runtime_status(normalized_repo)
+    canonical_path_hint = resolve_repo_path_hint(normalized_repo)
+    index_path_hint = resolve_repo_index_path_hint(normalized_repo) or canonical_path_hint
+
+    def _status_base() -> Dict[str, Any]:
+        bootstrap_progress = runtime_state.get("progress") or {}
         return {
-            "available": False,
-            "repo_name": normalized_repo,
-            "repo_path_hint": resolve_repo_path_hint(normalized_repo),
-            "indexed": False,
-            "indexed_at": local_state.get("indexed_at_local"),
-            "stats": {"files": 0, "nodes": 0, "processes": 0},
-            "error": server.get("error"),
-            "base_url": base_url,
             "truth_source": "gitnexus",
             "indexed_commit": local_state.get("indexed_commit"),
             "current_commit": local_state.get("current_commit"),
@@ -321,6 +357,51 @@ def get_repo_status(
             "meta_repo_path": local_state.get("meta_repo_path"),
             "repo_path_match": local_state.get("repo_path_match"),
             "staleness_reason": local_state.get("staleness_reason"),
+            "bootstrap_state": runtime_state.get("state"),
+            "bootstrap_job_id": runtime_state.get("job_id"),
+            "bootstrap_progress": bootstrap_progress,
+            "bootstrap_updated_at": runtime_state.get("updated_at"),
+            "bootstrap_error": runtime_state.get("error"),
+            "bootstrap_registered": runtime_state.get("registered"),
+            "bootstrap_repo_name": runtime_state.get("repo_name"),
+            "bootstrap_mirror_root": runtime_state.get("mirror_root"),
+            "bootstrap_source_head": runtime_state.get("source_head"),
+            "bootstrap_mirror_head": runtime_state.get("mirror_head"),
+            "bootstrap_canonical_head": runtime_state.get("canonical_head"),
+        }
+
+    def _bootstrap_message(fallback: Optional[str]) -> Optional[str]:
+        state = str(runtime_state.get("state") or "").strip()
+        if state not in {"starting", "submitted", "indexing"}:
+            return fallback
+        progress = runtime_state.get("progress") or {}
+        phase = progress.get("phase") or state
+        percent = progress.get("percent")
+        message = progress.get("message") or ""
+        prefix = f"GitNexus bootstrap {state}"
+        if percent is not None:
+            prefix = f"{prefix}: {phase} {percent}%"
+        elif phase:
+            prefix = f"{prefix}: {phase}"
+        if message:
+            prefix = f"{prefix} - {message}"
+        if fallback:
+            return f"{prefix} (backend: {fallback})"
+        return prefix
+
+    server = get_server_info(base_url=base_url, timeout=timeout)
+    if not server.get("available"):
+        return {
+            "available": False,
+            "repo_name": normalized_repo,
+            "repo_path_hint": canonical_path_hint,
+            "index_path_hint": index_path_hint,
+            "indexed": False,
+            "indexed_at": local_state.get("indexed_at_local"),
+            "stats": {"files": 0, "nodes": 0, "processes": 0},
+            "error": server.get("error"),
+            "base_url": base_url,
+            **_status_base(),
         }
 
     try:
@@ -331,10 +412,22 @@ def get_repo_status(
             base_url=base_url,
         )
         stats = payload.get("stats") or {}
+        status_base = _status_base()
+        if (
+            is_indexed_repo(payload)
+            and status_base.get("bootstrap_state") in {"starting", "submitted", "indexing"}
+            and status_base.get("fresh") is True
+            and status_base.get("indexed_commit")
+            and status_base.get("indexed_commit") == status_base.get("current_commit")
+        ):
+            status_base["bootstrap_state"] = "complete"
+            status_base["bootstrap_progress"] = {}
+            status_base["bootstrap_registered"] = True
         return {
             "available": True,
             "repo_name": normalized_repo,
-            "repo_path_hint": resolve_repo_path_hint(normalized_repo),
+            "repo_path_hint": canonical_path_hint,
+            "index_path_hint": index_path_hint,
             "indexed": is_indexed_repo(payload),
             "indexed_at": payload.get("indexedAt") or local_state.get("indexed_at_local"),
             "stats": {
@@ -346,53 +439,37 @@ def get_repo_status(
             "base_url": base_url,
             "version": server.get("version"),
             "launch_context": server.get("launch_context"),
-            "truth_source": "gitnexus",
-            "indexed_commit": local_state.get("indexed_commit"),
-            "current_commit": local_state.get("current_commit"),
-            "fresh": local_state.get("fresh"),
-            "meta_repo_path": local_state.get("meta_repo_path"),
-            "repo_path_match": local_state.get("repo_path_match"),
-            "staleness_reason": local_state.get("staleness_reason"),
+            **status_base,
         }
     except HTTPError as exc:
         return {
             "available": True,
             "repo_name": normalized_repo,
-            "repo_path_hint": resolve_repo_path_hint(normalized_repo),
+            "repo_path_hint": canonical_path_hint,
+            "index_path_hint": index_path_hint,
             "indexed": False,
             "indexed_at": local_state.get("indexed_at_local"),
             "stats": {"files": 0, "nodes": 0, "processes": 0},
-            "error": _http_error_message(exc),
+            "error": _bootstrap_message(_http_error_message(exc)),
             "base_url": base_url,
             "version": server.get("version"),
             "launch_context": server.get("launch_context"),
-            "truth_source": "gitnexus",
-            "indexed_commit": local_state.get("indexed_commit"),
-            "current_commit": local_state.get("current_commit"),
-            "fresh": local_state.get("fresh"),
-            "meta_repo_path": local_state.get("meta_repo_path"),
-            "repo_path_match": local_state.get("repo_path_match"),
-            "staleness_reason": local_state.get("staleness_reason"),
+            **_status_base(),
         }
     except (URLError, TimeoutError, ValueError, OSError) as exc:
         return {
             "available": True,
             "repo_name": normalized_repo,
-            "repo_path_hint": resolve_repo_path_hint(normalized_repo),
+            "repo_path_hint": canonical_path_hint,
+            "index_path_hint": index_path_hint,
             "indexed": False,
             "indexed_at": local_state.get("indexed_at_local"),
             "stats": {"files": 0, "nodes": 0, "processes": 0},
-            "error": str(exc),
+            "error": _bootstrap_message(str(exc)),
             "base_url": base_url,
             "version": server.get("version"),
             "launch_context": server.get("launch_context"),
-            "truth_source": "gitnexus",
-            "indexed_commit": local_state.get("indexed_commit"),
-            "current_commit": local_state.get("current_commit"),
-            "fresh": local_state.get("fresh"),
-            "meta_repo_path": local_state.get("meta_repo_path"),
-            "repo_path_match": local_state.get("repo_path_match"),
-            "staleness_reason": local_state.get("staleness_reason"),
+            **_status_base(),
         }
 
 

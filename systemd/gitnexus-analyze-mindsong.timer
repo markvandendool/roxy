@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic GitNexus Analyze for MindSong Local Mirror
+
+[Timer]
+OnBootSec=4min
+OnUnitActiveSec=45min
+Unit=gitnexus-analyze-mindsong.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
