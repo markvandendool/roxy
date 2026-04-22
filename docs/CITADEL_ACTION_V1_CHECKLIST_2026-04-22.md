@@ -68,7 +68,7 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
 - [x] Add a Podium-side adapter so `/api/operator/*` write routes can forward into `POST /citadel/action` when Citadel is configured.
 - [x] Add a one-hop bypass marker so ROXY-to-Mac Citadel callbacks execute local Podium handlers instead of looping back into Citadel.
 - [x] Verify at least one live web operator write flow now traverses Citadel in practice.
-- [ ] Verify same confirm-token semantics through the web surface after Citadel forwarding.
+- [x] Verify same confirm-token semantics through the web surface after Citadel forwarding.
 
 ## P1 Fleet Metadata
 
@@ -83,8 +83,8 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
 - [x] Unit-test Mac Studio SSH-routed run launch routing.
 - [x] Unit-test Mac Studio SSH-routed email routing.
 - [ ] Live-verify `command.run` through the native macOS menubar app after rebuild.
-- [ ] Live-verify `email.send` through Citadel end to end.
-- [ ] Live-verify `recording.start` / `recording.stop` through Citadel end to end.
+- [x] Live-verify `email.send` through Citadel end to end.
+- [x] Live-verify `recording.start` / `recording.stop` through Citadel end to end.
 - [x] Live-verify alert acknowledgement through Citadel end to end.
 - [x] Live-verify a web operator write flow through Citadel once Podium forwarding is patched.
 - [x] Live-verify Mac quick-command gateway routing through Citadel with a safe `status` probe.
@@ -96,6 +96,10 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
 - macOS native source adapter is live in the installed menubar binary.
 - Web operator forwarding is live for the patched Podium routes when `CITADEL_API_URL` is configured.
 - Mac-side gateway and Podium targets now require runtime discovery instead of stale hardcoded ports or tokens.
+- Live April 22 proof now includes:
+  - `command.run` pending-confirm responses preserved through both `POST /citadel/action` and `POST /api/operator/run/launch`
+  - `recording.start` and `recording.stop` succeeding through both Citadel and web operator paths
+  - `email.send` succeeding through Citadel with ROXY email MCP delivery and returned Message-ID evidence
 
 ## Next Highest-Value Follow-Up
 
