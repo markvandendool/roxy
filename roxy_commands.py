@@ -163,6 +163,8 @@ def _is_personal_memory_query(query: str) -> bool:
         "who am i",
         "my name",
         "my codename",
+        "mbench-recall",
+        "mbench-store",
         "benchmark codename",
         "codename from earlier",
         "my role",
@@ -189,7 +191,15 @@ def _is_personal_memory_query(query: str) -> bool:
 
 def _is_benchmark_codename_query(query: str) -> bool:
     lower = (query or "").lower()
-    return any(token in lower for token in ("benchmark codename", "codename from earlier", "my codename"))
+    return any(
+        token in lower
+        for token in (
+            "benchmark codename",
+            "codename from earlier",
+            "my codename",
+            "mbench-recall",
+        )
+    )
 
 
 def _is_strict_output_request(query: str) -> bool:
@@ -252,13 +262,17 @@ def _extract_literal_only_reply_fastpath(query: str) -> Optional[str]:
 
 
 def _extract_benchmark_codename_value(query: str) -> Optional[str]:
-    match = re.search(
+    patterns = (
         r"(?i)\bbenchmark codename is\s+([A-Za-z0-9._-]+)",
-        query or "",
+        r"(?i)\bcodename exactly:\s*([A-Za-z0-9._-]+)",
+        r"(?i)\bremember this codename exactly:\s*([A-Za-z0-9._-]+)",
+        r"(?i)\bcodename:\s*([A-Za-z0-9._-]+)",
     )
-    if not match:
-        return None
-    return match.group(1).strip().rstrip(".!?,;:")
+    for pattern in patterns:
+        match = re.search(pattern, query or "")
+        if match:
+            return match.group(1).strip().rstrip(".!?,;:")
+    return None
 
 
 def _load_benchmark_fast_memory() -> Dict[str, Any]:
@@ -389,7 +403,7 @@ def _extract_write_file_request(text: str) -> Optional[Dict[str, Any]]:
         (
             False,
             re.compile(
-                r"""(?is)^\s*(?:please\s+)?(?:create|overwrite|replace|save|write)(?:\s+(?:a\s+)?)?(?:file\s+)?(?:at\s+)?(?P<path>(?:~|/)[^\s]+|[A-Za-z0-9_./-]+)(?:\s+(?:with\s+(?:content|contents)|containing|that\s+says|and\s+write)\s+(?P<content>.+))?\s*$"""
+                r"""(?is)^\s*(?:please\s+)?(?:create|overwrite|replace|save|write)\s+(?:(?:the|a)\s+)?(?:file\s+)?(?:at\s+)?(?P<path>(?:~|/)[^\s]+|[A-Za-z0-9_./-]+)(?:\s+(?:with\s+(?:content|contents|exactly)|containing|that\s+says|and\s+write)\s+(?P<content>.+))?\s*$"""
             ),
         ),
     ]
@@ -409,6 +423,7 @@ def _extract_write_file_request(text: str) -> Optional[Dict[str, Any]]:
         )
         if trailing_instruction:
             content = content[: trailing_instruction.start()].rstrip(" \t\r\n.;")
+        content = re.sub(r"""(?is)\s+and\s+nothing\s+else\.?\s*$""", "", content).rstrip(" \t\r\n.;")
         return {
             "path": str(resolved),
             "content": content,
@@ -1251,6 +1266,12 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
         text_lower.startswith("can you ") and any(marker in text_lower for marker in capability_probe_keywords)
     ):
         return ("capabilities", [text])
+
+    if text_lower.startswith("mbench-store"):
+        benchmark_codename = _extract_benchmark_codename_value(text) or text.strip()
+        return ("memory_store", [benchmark_codename, text])
+    if text_lower.startswith("mbench-recall"):
+        return ("memory_recall", [text])
     
     # === MODEL INFO QUERY ===
     if "what model" in text_lower or "which model" in text_lower or "your model" in text_lower:
@@ -2091,7 +2112,12 @@ def chat_direct(query):
     pool_canonical = POOL_ALIASES.get(pool, pool)
 
     # Default model logic (always best 14B Qwen unless explicitly overridden)
-    default_model = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+    default_model = (
+        os.getenv("ROXY_MODEL")
+        or os.getenv("ROXY_SINGLE_MODEL")
+        or os.getenv("ROXY_DEFAULT_MODEL")
+        or "qwen3:14b"
+    )
     model = model_override or default_model
 
     literal_reply = _extract_literal_only_reply_fastpath(query)
@@ -2445,7 +2471,12 @@ Answer:"""
             llm_resp = requests.post(
                 f"{base_url}/api/generate",
                 json={
-                    "model": os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct"),
+                    "model": (
+                        os.getenv("ROXY_MODEL")
+                        or os.getenv("ROXY_SINGLE_MODEL")
+                        or os.getenv("ROXY_DEFAULT_MODEL")
+                        or "qwen3:14b"
+                    ),
                     "prompt": prompt,
                     "stream": False,
                     "options": {"temperature": rag_temperature, "num_predict": rag_num_predict}
@@ -2464,7 +2495,15 @@ Answer:"""
                     final_response = response
                 
                 # Return both response and model used (fallback model)
-                return {"response": final_response, "model_used": os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")}
+                return {
+                    "response": final_response,
+                    "model_used": (
+                        os.getenv("ROXY_MODEL")
+                        or os.getenv("ROXY_SINGLE_MODEL")
+                        or os.getenv("ROXY_DEFAULT_MODEL")
+                        or "qwen3:14b"
+                    ),
+                }
 
     except Exception as e:
         logger.error(f"RAG query implementation failed: {e}")
@@ -2576,7 +2615,12 @@ def main():
         if cmd_type in {"tool_direct", "memory_store", "memory_recall", "git_query", "ping_direct", "time_direct"}:
             model_used = "none"
         else:
-            model_used = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+            model_used = (
+                os.getenv("ROXY_MODEL")
+                or os.getenv("ROXY_SINGLE_MODEL")
+                or os.getenv("ROXY_DEFAULT_MODEL")
+                or "qwen3:14b"
+            )
     
     # Build routing_meta for structured response (required for tests)
     selected_pool = (explicit_pool or "6900XT").lower()

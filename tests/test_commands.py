@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path.home() / ".roxy"))
 import roxy_commands
+from capabilities import CapabilitiesProvider
 from roxy_commands import parse_command, _extract_repo_override
 
 
@@ -229,6 +230,20 @@ class TestRAGQueryDetection:
         )
         assert result[0] == "memory_store"
 
+    def test_benchmark_store_without_colon_routes_to_memory_store(self):
+        """MBENCH-STORE prefix should route deterministically even without the legacy colon form."""
+        result = parse_command(
+            "MBENCH-STORE Remember this codename exactly: AZURE-EMBER-918. Reply only with STORED-MBENCH."
+        )
+        assert result[0] == "memory_store"
+
+    def test_benchmark_recall_prefix_routes_to_memory_recall(self):
+        """MBENCH-RECALL prefix should not fall through to chat."""
+        result = parse_command(
+            "MBENCH-RECALL What codename did I ask you to remember? Reply with only the codename."
+        )
+        assert result[0] == "memory_recall"
+
     def test_answer_personal_memory_query_returns_latest_benchmark_codename(self, monkeypatch, tmp_path):
         """Personal memory fastpath should answer benchmark codenames from learned profile data."""
         fake_infra = types.ModuleType("infrastructure")
@@ -360,6 +375,28 @@ class TestRAGQueryDetection:
         assert recalled == "AZURE-EMBER-999"
         assert roxy_commands.LAST_COMMAND_METADATA["memory_receipt"]["backend"] == "benchmark_fast_memory"
 
+    def test_benchmark_fast_memory_roundtrip_for_remember_this_codename_shape(self, monkeypatch, tmp_path):
+        """The newer operator phrasing should hit the same fast-memory backend."""
+        fast_path = tmp_path / "benchmark_fast_memory.json"
+        monkeypatch.setattr(roxy_commands, "BENCHMARK_FAST_MEMORY_PATH", fast_path)
+        monkeypatch.setenv("ROXY_USER_ID", "mark-test")
+        roxy_commands._reset_last_command_metadata()
+
+        stored, _model = roxy_commands.execute_command(
+            "memory_store",
+            [
+                "REVIEW-CODENAME-4422",
+                "MBENCH-STORE Remember this codename exactly: REVIEW-CODENAME-4422. Reply only with STORED-MBENCH.",
+            ],
+        )
+        recalled = roxy_commands.answer_memory_recall_query(
+            "MBENCH-RECALL What codename did I ask you to remember? Reply with only the codename."
+        )
+
+        assert stored == "STORED-MBENCH"
+        assert recalled == "REVIEW-CODENAME-4422"
+        assert roxy_commands.LAST_COMMAND_METADATA["memory_receipt"]["backend"] == "benchmark_fast_memory"
+
     def test_git_dirty_paths_prompt_routes_to_git_query(self):
         """Structured dirty-path prompts should bypass RAG and use deterministic git_query."""
         result = parse_command(
@@ -485,6 +522,17 @@ class TestToolDirectCalls:
         assert result[0] == "tool_direct"
         assert result[1][1]["content"] == "HELLO-ROXY"
 
+    def test_natural_language_write_file_with_exactly_and_nothing_else(self, tmp_path):
+        """Common operator phrasing should still route to deterministic host writes."""
+        target = tmp_path / "note.txt"
+        result = parse_command(
+            f"Create the file {target} with exactly HELLO-ROXY and nothing else."
+        )
+        assert result[0] == "tool_direct"
+        assert result[1][0] == "write_file"
+        assert result[1][1]["path"] == str(target)
+        assert result[1][1]["content"] == "HELLO-ROXY"
+
     def test_capability_probe_routes_to_capabilities(self):
         """Direct capability checks should use the deterministic capabilities lane."""
         result = parse_command("Can you create a file in /home/mark/.roxy right now? Reply only with YES or NO.")
@@ -499,6 +547,41 @@ class TestToolDirectCalls:
         )
         assert "WROTE:" in result
         assert target.read_text() == "hello world"
+
+
+class TestCapabilitiesProvider:
+    """Capability answers must stay deterministic and evidence-backed."""
+
+    def test_three_line_capability_answer_honors_exact_prompt(self, monkeypatch):
+        provider = CapabilitiesProvider()
+        monkeypatch.setattr(
+            provider,
+            "get_available_tools",
+            lambda: ["file_writing", "memory_recall", "mcp:browser", "mcp:sandbox"],
+        )
+        monkeypatch.setattr(
+            provider,
+            "check_email_available",
+            lambda: {"enabled": False, "reason": "google_access_token missing"},
+        )
+        monkeypatch.setattr(
+            provider,
+            "get_gitnexus_info",
+            lambda repo_name="roxy": {"indexed": False},
+        )
+        monkeypatch.setattr(
+            provider,
+            "get_model_info",
+            lambda: {"current_model": "qwen3:14b"},
+        )
+
+        answer = provider.answer_query("What are your capabilities right now? Reply in exactly 3 lines.")
+
+        lines = answer.splitlines()
+        assert len(lines) == 3
+        assert lines[0].startswith("Files/Git:")
+        assert "GitNexus for roxy is not indexed." in lines[1]
+        assert lines[2] == "Model: qwen3:14b. Email: unavailable until Google OAuth is configured."
 
 
 class TestGreetings:

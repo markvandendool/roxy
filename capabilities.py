@@ -43,6 +43,8 @@ class CapabilitiesProvider:
         return {
             "tools": self.get_available_tools(),
             "model": self.get_model_info(),
+            "email": self.check_email_available(),
+            "gitnexus": self.get_gitnexus_info("roxy"),
             "repo_roots": self.get_repo_roots(),
             "file_operations": self.get_file_operation_permissions(),
             "command_execution": self.check_command_execution(),
@@ -125,7 +127,11 @@ class CapabilitiesProvider:
                         model_name = line.split()[0]
                         models.append(model_name)
 
-                preferred = os.getenv("ROXY_MODEL", "").strip() or os.getenv("ROXY_DEFAULT_MODEL", "").strip()
+                preferred = (
+                    os.getenv("ROXY_MODEL", "").strip()
+                    or os.getenv("ROXY_SINGLE_MODEL", "").strip()
+                    or os.getenv("ROXY_DEFAULT_MODEL", "").strip()
+                )
                 if running_models:
                     current_model = running_models[0]
                     evidence = "ollama ps command executed"
@@ -212,13 +218,30 @@ class CapabilitiesProvider:
         except Exception as exc:
             return {"enabled": False, "reason": str(exc)}
 
+    def get_gitnexus_info(self, repo_name: str = "roxy") -> Dict[str, Any]:
+        """Best-effort GitNexus status for a repo."""
+        try:
+            from gitnexus_client import get_repo_status
+
+            return get_repo_status(repo_name)
+        except Exception as exc:
+            return {
+                "available": False,
+                "indexed": False,
+                "error": str(exc),
+                "truth_source": "gitnexus",
+            }
+
     def answer_query(self, query: str) -> str:
         """Deterministic capability answers for operator questions."""
         lower = (query or "").lower().strip()
         tools = set(self.get_available_tools())
         email_status = self.check_email_available()
+        gitnexus = self.get_gitnexus_info("roxy")
         file_writing = "file_writing" in tools
         memory_recall = "memory_recall" in tools
+        browser_available = "mcp:browser" in tools
+        sandbox_available = "mcp:sandbox" in tools
 
         if "reply only with yes" in lower or "reply only with no" in lower or "reply only with yes or no" in lower:
             if "create a file" in lower or "write a file" in lower or "write file" in lower:
@@ -228,12 +251,31 @@ class CapabilitiesProvider:
             if "send email" in lower or "email right now" in lower:
                 return "YES" if email_status.get("enabled") else "NO"
 
-        if "what can you do" in lower and "three short lines" in lower:
+        wants_three_lines = any(
+            marker in lower
+            for marker in (
+                "exactly 3 lines",
+                "exactly three lines",
+                "reply in 3 lines",
+                "reply in exactly 3 lines",
+                "three short lines",
+                "three lines",
+            )
+        )
+        is_capability_query = any(
+            marker in lower for marker in ("what can you do", "what are your capabilities", "capabilities")
+        )
+        if is_capability_query and wants_three_lines:
             model = self.get_model_info().get("current_model", "UNKNOWN")
+            gitnexus_line = (
+                "GitNexus for roxy is indexed."
+                if gitnexus.get("indexed")
+                else "GitNexus for roxy is not indexed."
+            )
             email_line = "Email: live." if email_status.get("enabled") else "Email: unavailable until Google OAuth is configured."
             return (
                 f"Files/Git: read, write, search, and repo truth are live.\n"
-                f"Memory/Atlas: benchmark recall, Brain Atlas, and GitNexus truth are live.\n"
+                f"Memory/Atlas: benchmark recall and Brain Atlas are live. {gitnexus_line}\n"
                 f"Model: {model}. {email_line}"
             )
 
@@ -245,6 +287,11 @@ class CapabilitiesProvider:
         NO HALLUCINATION - evidence-only
         """
         caps = self.get_all_capabilities()
+        tools = set(caps["tools"])
+        email_status = caps.get("email", {})
+        gitnexus = caps.get("gitnexus", {})
+        browser_status = "available via MCP browser bridge" if "mcp:browser" in tools else "not available"
+        sandbox_status = "available via MCP sandbox bridge" if "mcp:sandbox" in tools else "not available"
         
         statement = "ROXY CAPABILITIES (Evidence-Based)\n\n"
         
@@ -253,17 +300,19 @@ class CapabilitiesProvider:
         statement += f"- Model: {caps['model'].get('current_model', 'UNKNOWN')}\n"
         statement += f"- Tools: {', '.join(caps['tools'])}\n"
         statement += f"- Repo Roots: {len(caps['repo_roots'])} configured\n"
+        statement += f"- Browser Automation: {browser_status}\n"
+        statement += f"- Sandbox Shell: {sandbox_status}\n"
         
         statement += "\n❌ NOT AVAILABLE:\n"
-        statement += "- Browser Control: NO TOOL\n"
         statement += "- GUI Applications: NO TOOL\n"
-        statement += f"- Shell Commands: {caps['command_execution']['reason']}\n"
+        statement += f"- Direct Shell Commands: {caps['command_execution']['reason']}\n"
         statement += "- Cloud Integrations (AWS/Azure/GCP): NO TOOL\n"
+        statement += f"- Email Send/Read: {'configured' if email_status.get('enabled') else email_status.get('reason', 'unavailable')}\n"
         
         statement += "\n⚠️ LIMITATIONS:\n"
         statement += "- Can only access configured repo_roots\n"
         statement += "- Cannot open applications unless execute_command enabled\n"
-        statement += "- Cannot browse web (no browser automation tool)\n"
+        statement += f"- GitNexus roxy status: {'indexed' if gitnexus.get('indexed') else 'not indexed'}\n"
         statement += "- File operations limited to allowed_file_operations paths\n"
         
         return statement

@@ -99,7 +99,12 @@ CONFIG_FILE = ROXY_DIR / "config.json"
 TOKEN_FILE = ROXY_DIR / "secret.token"
 
 # Default model selection (max-strength Qwen 14B unless explicitly overridden)
-DEFAULT_QWEN_MODEL = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b")
+DEFAULT_QWEN_MODEL = (
+    os.getenv("ROXY_MODEL")
+    or os.getenv("ROXY_SINGLE_MODEL")
+    or os.getenv("ROXY_DEFAULT_MODEL")
+    or "qwen3:14b"
+)
 _MODEL_CACHE = {"selected": {}, "models": [], "ts": 0.0}
 _MODEL_CACHE_TTL = 60.0
 
@@ -243,7 +248,7 @@ def _select_best_model(base_url: Optional[str], query: str = "", mode: str = "")
 
 
 def _get_default_model(base_url: Optional[str] = None, query: str = "", mode: str = "") -> str:
-    override = os.getenv("ROXY_DEFAULT_MODEL")
+    override = os.getenv("ROXY_MODEL") or os.getenv("ROXY_SINGLE_MODEL") or os.getenv("ROXY_DEFAULT_MODEL")
     if override:
         return override.strip()
     cache_key = f"{base_url or _get_ollama_base_url()}::{_infer_model_task(query, mode)}"
