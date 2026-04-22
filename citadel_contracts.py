@@ -47,6 +47,7 @@ _KNOWN_MACHINES: List[Dict[str, Any]] = [
         "machine_id": "roxy-macpro",
         "display_name": "ROXY Mac Pro",
         "hostname_aliases": ["macpro-linux", "roxy-macpro"],
+        "ssh_target": "roxy",
         "os": "linux",
         "roles": ["primary-runtime", "command-center", "gpu-inference"],
         "repo_roots": [str(_ROXY_DIR), str(_MINDSONG_DIR)],
@@ -62,6 +63,7 @@ _KNOWN_MACHINES: List[Dict[str, Any]] = [
         "machine_id": "mac-studio",
         "display_name": "Mac Studio",
         "hostname_aliases": ["mac-studio", "Marks-Mac-mini.local", "marks-mac-mini.local"],
+        "ssh_target": "macstudio",
         "os": "macos",
         "roles": ["owner-cockpit", "operator-bar", "lifepanel", "recording-oversight"],
         "repo_roots": [str(Path.home() / "mindsong-juke-hub")],
@@ -78,6 +80,7 @@ _KNOWN_MACHINES: List[Dict[str, Any]] = [
         "machine_id": "citadel-worker-1-imac",
         "display_name": "Citadel Worker 1 iMac",
         "hostname_aliases": ["citadel-worker-1-imac", "friday"],
+        "ssh_target": "friday",
         "os": "macos",
         "roles": ["worker", "render", "orchestrator"],
         "repo_roots": [],
@@ -447,7 +450,16 @@ def validate_citadel_action_envelope(payload: Any) -> Dict[str, Any]:
     if audit_tags is not None and not isinstance(audit_tags, list):
         errors.append("invalid:audit_tags")
 
+    target_scope = normalized.get("target_scope")
+    if target_scope is not None and not isinstance(target_scope, dict):
+        errors.append("invalid:target_scope")
+
+    action_payload = normalized.get("payload")
+    if action_payload is not None and not isinstance(action_payload, dict):
+        errors.append("invalid:payload")
+
     normalized.setdefault("target_scope", {})
+    normalized.setdefault("payload", {})
     normalized.setdefault("audit_tags", [])
     normalized.setdefault("requires_confirmation", False)
     normalized.setdefault("version", CITADEL_ACTION_VERSION)

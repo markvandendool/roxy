@@ -112,3 +112,22 @@ def test_validate_citadel_action_envelope_requires_core_fields():
     )
     assert valid["valid"] is True
     assert valid["normalized"]["version"] == citadel_contracts.CITADEL_ACTION_VERSION
+    assert valid["normalized"]["target_scope"] == {}
+    assert valid["normalized"]["payload"] == {}
+
+
+def test_validate_citadel_action_envelope_rejects_non_object_payloads():
+    invalid = citadel_contracts.validate_citadel_action_envelope(
+        {
+            "action_id": "act-456",
+            "action_type": "command.run",
+            "target_machine": "roxy-macpro",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "target_scope": [],
+            "payload": "not-a-dict",
+        }
+    )
+    assert invalid["valid"] is False
+    assert "invalid:target_scope" in invalid["errors"]
+    assert "invalid:payload" in invalid["errors"]

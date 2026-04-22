@@ -3629,7 +3629,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
 
     def _handle_citadel_action(self):
-        """POST /citadel/action - schema gate for the shared Citadel action bus."""
+        """POST /citadel/action - shared Citadel action bus over current operator lanes."""
         content_length = int(self.headers.get("Content-Length", 0) or 0)
         raw_body = self.rfile.read(content_length).decode("utf-8") if content_length else "{}"
         try:
@@ -3670,20 +3670,36 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             )
             return
 
-        self.send_response(501)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(
-            json.dumps(
-                {
-                    "status": "not_implemented",
-                    "message": "CitadelAction routing is not wired yet. The shared envelope is now live for client compatibility.",
+        try:
+            from citadel_action_router import route_citadel_action
+
+            routed = route_citadel_action(validation.get("normalized", {}))
+            status_code = int(routed.get("http_status") or 500)
+            body = routed.get("body")
+            if not isinstance(body, dict):
+                body = {
+                    "status": "error",
+                    "message": "CitadelAction router returned an invalid body.",
                     "action": validation.get("normalized", {}),
-                    "supported_action_types": list(CITADEL_ACTION_TYPES),
-                },
-                indent=2,
-            ).encode()
-        )
+                }
+                status_code = 500
+            body.setdefault("supported_action_types", list(CITADEL_ACTION_TYPES))
+        except Exception as exc:
+            logger.error(f"CitadelAction routing failed: {exc}", exc_info=True)
+            status_code = 500
+            body = {
+                "status": "error",
+                "error": "citadel_action_router_failure",
+                "message": str(exc),
+                "action": validation.get("normalized", {}),
+                "supported_action_types": list(CITADEL_ACTION_TYPES),
+            }
+
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(body), indent=2).encode())
 
     def _handle_auth_status(self):
         """GET /auth/status - Auth configuration info (no secrets exposed).
