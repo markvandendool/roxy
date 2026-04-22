@@ -201,8 +201,8 @@ class CapabilitiesProvider:
             "date": "2026-01-01",
         }
 
-    def check_email_available(self) -> Dict[str, Any]:
-        """Check Gmail bridge configuration via vault token presence."""
+    def _check_google_oauth_email_lane(self) -> Dict[str, Any]:
+        """Check Gmail API lane via vault token presence."""
         module_path = self.roxy_dir / "mcp" / "mcp_vault.py"
         if not module_path.exists():
             return {"enabled": False, "reason": "vault module missing"}
@@ -217,6 +217,76 @@ class CapabilitiesProvider:
             return {"enabled": False, "reason": token_result.get("error") or "google_access_token missing"}
         except Exception as exc:
             return {"enabled": False, "reason": str(exc)}
+
+    def _check_multi_account_email_lane(self) -> Dict[str, Any]:
+        """Check the local multi-account IMAP/SMTP bridge registry."""
+        config_path = self.roxy_dir / "mcp-servers" / "email" / "accounts.json"
+        if not config_path.exists():
+            return {
+                "enabled": False,
+                "reason": "multi-account email config missing",
+                "account_count": 0,
+                "account_names": [],
+            }
+        try:
+            raw = json.loads(config_path.read_text())
+            accounts = raw.get("accounts", [])
+            names = [str(account.get("name", "")).strip() for account in accounts if account.get("name")]
+            enabled = len(names) > 0
+            return {
+                "enabled": enabled,
+                "reason": f"{len(names)} accounts configured in mcp-servers/email/accounts.json"
+                if enabled
+                else "accounts.json present but empty",
+                "account_count": len(names),
+                "account_names": names,
+                "config_path": str(config_path),
+            }
+        except Exception as exc:
+            return {
+                "enabled": False,
+                "reason": f"failed to parse accounts.json: {exc}",
+                "account_count": 0,
+                "account_names": [],
+                "config_path": str(config_path),
+            }
+
+    def check_email_available(self) -> Dict[str, Any]:
+        """Check all known email lanes and report live capability truth."""
+        gmail_api = self._check_google_oauth_email_lane()
+        multi_account = self._check_multi_account_email_lane()
+
+        if multi_account.get("enabled"):
+            return {
+                "enabled": True,
+                "mode": "multi_account_mcp",
+                "reason": multi_account.get("reason"),
+                "account_count": multi_account.get("account_count", 0),
+                "account_names": multi_account.get("account_names", []),
+                "gmail_api": gmail_api,
+                "multi_account": multi_account,
+            }
+
+        if gmail_api.get("enabled"):
+            return {
+                "enabled": True,
+                "mode": "gmail_api_vault",
+                "reason": gmail_api.get("reason"),
+                "account_count": 1,
+                "account_names": ["gmail_api"],
+                "gmail_api": gmail_api,
+                "multi_account": multi_account,
+            }
+
+        return {
+            "enabled": False,
+            "mode": "none",
+            "reason": multi_account.get("reason") or gmail_api.get("reason") or "email not configured",
+            "account_count": multi_account.get("account_count", 0),
+            "account_names": multi_account.get("account_names", []),
+            "gmail_api": gmail_api,
+            "multi_account": multi_account,
+        }
 
     def get_gitnexus_info(self, repo_name: str = "roxy") -> Dict[str, Any]:
         """Best-effort GitNexus status for a repo."""
@@ -272,7 +342,14 @@ class CapabilitiesProvider:
                 if gitnexus.get("indexed")
                 else "GitNexus for roxy is not indexed."
             )
-            email_line = "Email: live." if email_status.get("enabled") else "Email: unavailable until Google OAuth is configured."
+            if email_status.get("enabled"):
+                account_count = int(email_status.get("account_count") or 0)
+                if account_count > 0:
+                    email_line = f"Email: live via {account_count} configured accounts."
+                else:
+                    email_line = "Email: live."
+            else:
+                email_line = "Email: unavailable."
             return (
                 f"Files/Git: read, write, search, and repo truth are live.\n"
                 f"Memory/Atlas: benchmark recall and Brain Atlas are live. {gitnexus_line}\n"

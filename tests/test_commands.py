@@ -562,7 +562,7 @@ class TestCapabilitiesProvider:
         monkeypatch.setattr(
             provider,
             "check_email_available",
-            lambda: {"enabled": False, "reason": "google_access_token missing"},
+            lambda: {"enabled": True, "mode": "multi_account_mcp", "account_count": 4, "account_names": ["icloud", "gmail", "novaxe-gmail", "novaxe"]},
         )
         monkeypatch.setattr(
             provider,
@@ -581,7 +581,29 @@ class TestCapabilitiesProvider:
         assert len(lines) == 3
         assert lines[0].startswith("Files/Git:")
         assert "GitNexus for roxy is not indexed." in lines[1]
-        assert lines[2] == "Model: qwen3:14b. Email: unavailable until Google OAuth is configured."
+        assert lines[2] == "Model: qwen3:14b. Email: live via 4 configured accounts."
+
+    def test_check_email_available_uses_multi_account_registry(self, tmp_path):
+        provider = CapabilitiesProvider()
+        provider.roxy_dir = tmp_path / ".roxy"
+        (provider.roxy_dir / "mcp-servers" / "email").mkdir(parents=True)
+        (provider.roxy_dir / "mcp-servers" / "email" / "accounts.json").write_text(
+            """
+            {
+              "accounts": [
+                {"name": "icloud", "email": "mark@me.com"},
+                {"name": "gmail", "email": "mark@gmail.com"}
+              ]
+            }
+            """.strip()
+        )
+
+        status = provider.check_email_available()
+
+        assert status["enabled"] is True
+        assert status["mode"] == "multi_account_mcp"
+        assert status["account_count"] == 2
+        assert status["account_names"] == ["icloud", "gmail"]
 
 
 class TestGreetings:
