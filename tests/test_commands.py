@@ -212,6 +212,11 @@ class TestRAGQueryDetection:
         result = parse_command("Return only with READY")
         assert result[0] == "chat"
 
+    def test_reply_with_exactly_routes_to_chat(self):
+        """Exact literal prompts using 'with exactly' must bypass RAG."""
+        result = parse_command("Reply with exactly READY.")
+        assert result[0] == "chat"
+
     def test_benchmark_codename_prompt_routes_to_memory_recall(self):
         """Benchmark codename recall should use the explicit deterministic memory-recall path."""
         result = parse_command("What is my benchmark codename from earlier? Reply with only the codename.")
@@ -224,7 +229,7 @@ class TestRAGQueryDetection:
         )
         assert result[0] == "memory_store"
 
-    def test_answer_personal_memory_query_returns_latest_benchmark_codename(self, monkeypatch):
+    def test_answer_personal_memory_query_returns_latest_benchmark_codename(self, monkeypatch, tmp_path):
         """Personal memory fastpath should answer benchmark codenames from learned profile data."""
         fake_infra = types.ModuleType("infrastructure")
         fake_infra.get_user_profile = lambda **_kwargs: [
@@ -243,6 +248,11 @@ class TestRAGQueryDetection:
         ]
         monkeypatch.setitem(sys.modules, "infrastructure", fake_infra)
         monkeypatch.setenv("ROXY_USER_ID", "mark-roxy-canonical")
+        monkeypatch.setattr(
+            roxy_commands,
+            "BENCHMARK_FAST_MEMORY_PATH",
+            tmp_path / "benchmark_fast_memory.json",
+        )
 
         assert (
             roxy_commands._answer_personal_memory_query(
@@ -323,6 +333,85 @@ class TestRAGQueryDetection:
             )
             == "STORED-MBENCH"
         )
+
+    def test_extract_literal_reply_fastpath_matches_with_exactly(self):
+        """'Reply with exactly' should also use the deterministic literal fastpath."""
+        assert roxy_commands._extract_literal_only_reply_fastpath("Reply with exactly READY.") == "READY"
+
+    def test_benchmark_fast_memory_roundtrip(self, monkeypatch, tmp_path):
+        """Benchmark codename store/recall should use the direct fast-memory path."""
+        fast_path = tmp_path / "benchmark_fast_memory.json"
+        monkeypatch.setattr(roxy_commands, "BENCHMARK_FAST_MEMORY_PATH", fast_path)
+        monkeypatch.setenv("ROXY_USER_ID", "mark-test")
+        roxy_commands._reset_last_command_metadata()
+
+        stored, _model = roxy_commands.execute_command(
+            "memory_store",
+            [
+                "MBENCH-STORE: My benchmark codename is AZURE-EMBER-999. Remember it for later. Reply only with STORED-MBENCH.",
+                "MBENCH-STORE: My benchmark codename is AZURE-EMBER-999. Remember it for later. Reply only with STORED-MBENCH.",
+            ],
+        )
+        recalled = roxy_commands.answer_memory_recall_query(
+            "What is my benchmark codename from earlier? Reply only with the codename."
+        )
+
+        assert stored == "STORED-MBENCH"
+        assert recalled == "AZURE-EMBER-999"
+        assert roxy_commands.LAST_COMMAND_METADATA["memory_receipt"]["backend"] == "benchmark_fast_memory"
+
+    def test_git_dirty_paths_prompt_routes_to_git_query(self):
+        """Structured dirty-path prompts should bypass RAG and use deterministic git_query."""
+        result = parse_command(
+            "In /home/mark/.roxy, list every dirty path as a JSON array of relative paths only, sorted ascending, with no extra text."
+        )
+        assert result[0] == "git_query"
+
+    def test_answer_git_query_serializes_branch_dirty_contract(self, monkeypatch, tmp_path):
+        """Strict branch/dirty contracts should render exact machine-readable output."""
+        repo_path = tmp_path / "repo"
+        repo_path.mkdir()
+        (repo_path / ".git").mkdir()
+        monkeypatch.setattr(
+            roxy_commands,
+            "_run_git_status_snapshot",
+            lambda _repo: (
+                "## main...origin/main",
+                [
+                    (" M", "apps/roxy-command-center/main.py"),
+                    ("??", "briefings/live-bench.md"),
+                ],
+            ),
+        )
+        monkeypatch.setattr(roxy_commands, "_mount_type_for", lambda _repo: "ext4")
+
+        result = roxy_commands.answer_git_query(
+            f"In {repo_path}, what branch am I on and how many dirty paths are there? Reply exactly in the form BRANCH=<branch>; DIRTY=<n>."
+        )
+        assert result == "BRANCH=main; DIRTY=2"
+
+    def test_answer_git_query_serializes_dirty_paths_json(self, monkeypatch, tmp_path):
+        """Strict dirty-path prompts should render a raw JSON array without prose."""
+        repo_path = tmp_path / "repo"
+        repo_path.mkdir()
+        (repo_path / ".git").mkdir()
+        monkeypatch.setattr(
+            roxy_commands,
+            "_run_git_status_snapshot",
+            lambda _repo: (
+                "## main...origin/main",
+                [
+                    (" M", "briefings/a.md"),
+                    ("??", "briefings/b.json"),
+                ],
+            ),
+        )
+        monkeypatch.setattr(roxy_commands, "_mount_type_for", lambda _repo: "ext4")
+
+        result = roxy_commands.answer_git_query(
+            f"In {repo_path}, list every dirty path as a JSON array of relative paths only, sorted ascending, with no extra text."
+        )
+        assert result == '["briefings/a.md", "briefings/b.json"]'
 
 
 class TestSystemCommands:

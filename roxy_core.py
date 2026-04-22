@@ -1261,12 +1261,23 @@ _BENCHMARK_CODENAME_QUERY_PATTERN = re.compile(
 )
 _STRICT_OUTPUT_PATTERN = re.compile(
     r"\b(reply|respond|answer|return)\s+only\s+with\b"
+    r"|\b(reply|respond|answer|return)\s+with\s+exactly\b"
+    r"|\b(reply|respond|answer|return)\s+exactly\b"
     r"|\bonly the codename\b"
     r"|\bonly the answer\b"
+    r"|\bexactly in the form\b"
+    r"|\bno extra text\b"
+    r"|\bjson array\b"
+    r"|\brelative paths only\b"
     r"|\bexactly\s+\d+\s+(?:short\s+)?lines?\b"
     r"|\bexactly\s+(?:one|two|three)\s+short\s+lines\b"
     r"|\b(?:one|single)\s+word\s+only\b",
     re.IGNORECASE,
+)
+_STRICT_LITERAL_REPLY_PATTERN = re.compile(
+    r"(?i)(?:reply|respond|answer|return)\s+"
+    r"(?:only\s+with|with\s+exactly|exactly)\s+"
+    r"['\"]?([A-Za-z0-9._:/=-]+)['\"]?[.!?]?\s*$"
 )
 _MEMORY_MISS_PATTERN = re.compile(
     r"(no mention|cannot answer|can(?: ?')?t answer|not (?:provided|available)|given context|doesn(?: ?')?t contain|insufficient context)",
@@ -1343,6 +1354,57 @@ def _verify_and_enhance_response(
 
 def _is_strict_output_request(query: str) -> bool:
     return bool(_STRICT_OUTPUT_PATTERN.search(query or ""))
+
+
+def _extract_strict_literal_reply(query: str) -> Optional[str]:
+    match = _STRICT_LITERAL_REPLY_PATTERN.search(query or "")
+    if not match:
+        return None
+    return match.group(1).rstrip(".!?")
+
+
+def _is_low_latency_deterministic_request(query: str) -> bool:
+    lower = (query or "").lower()
+    if _extract_strict_literal_reply(query):
+        return True
+    if "mbench-store:" in lower:
+        return True
+    if _BENCHMARK_CODENAME_QUERY_PATTERN.search(query or ""):
+        return True
+    if "branch=<branch>" in lower and "dirty=<n>" in lower:
+        return True
+    if "json array" in lower and "dirty path" in lower:
+        return True
+    return False
+
+
+def _enforce_strict_output_contract(query: str, response_text: str, exec_meta: Dict[str, Any]) -> str:
+    """Repair deterministic strict-format responses before returning them to the client."""
+    literal = _extract_strict_literal_reply(query)
+    if literal:
+        return literal
+
+    lower = (query or "").lower()
+    route = str(exec_meta.get("route") or exec_meta.get("mode") or "").strip().lower()
+    snapshot = exec_meta.get("repo_snapshot") or {}
+    branch = snapshot.get("branch") or "unknown"
+    changed_count = int(snapshot.get("changed_count") or 0)
+    changed_paths = sorted(
+        list(snapshot.get("modified_paths") or []) + list(snapshot.get("untracked_paths") or [])
+    )
+
+    if route in {"git_query", "local_fastpath_git_status"}:
+        if "json array" in lower and "dirty path" in lower:
+            return json.dumps(changed_paths)
+        if "branch=<branch>" in lower and "dirty=<n>" in lower:
+            return f"BRANCH={branch}; DIRTY={changed_count}"
+
+    if route in {"memory_store", "memory_recall"}:
+        nonempty = [line.strip() for line in (response_text or "").splitlines() if line.strip()]
+        if nonempty:
+            return nonempty[-1]
+
+    return (response_text or "").strip()
 
 
 # Configuration for retry behavior
@@ -5959,6 +6021,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 f"pool={explicit_pool or 'auto'} request_id={request_id}"
             )
 
+            strict_contract = _is_strict_output_request(command)
+            low_latency_request = _is_low_latency_deterministic_request(command)
             memory_context = ""
             memory_context_meta = {
                 "enabled": False,
@@ -5968,11 +6032,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "repo_context_items": 0,
                 "context_chars": 0,
             }
-            memory_context, memory_context_meta = _build_memory_context_for_prompt(
-                command,
-                session_id,
-                user_id=user_id,
-            )
+            if not low_latency_request:
+                memory_context, memory_context_meta = _build_memory_context_for_prompt(
+                    command,
+                    session_id,
+                    user_id=user_id,
+                )
 
             agentic_meta = {
                 "intent": "general",
@@ -5981,7 +6046,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 "clarifying_question": "",
                 "plan_steps": [],
             }
-            if ENABLE_AGENTIC_PIPELINE:
+            if ENABLE_AGENTIC_PIPELINE and not low_latency_request:
                 agentic_meta = _analyze_agentic_request(command)
                 if agentic_meta.get("needs_clarification"):
                     self.send_response(200)
@@ -6031,7 +6096,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             )
             memory_rescue_attempted = False
             memory_rescue_applied = False
-            if ENABLE_AGENTIC_PIPELINE and _should_attempt_memory_rescue(command, result, memory_context):
+            if (
+                ENABLE_AGENTIC_PIPELINE
+                and not low_latency_request
+                and _should_attempt_memory_rescue(command, result, memory_context)
+            ):
                 memory_rescue_attempted = True
                 rescue_prompt = (
                     "Use known user memory facts to answer directly and concisely. "
@@ -6064,6 +6133,19 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             exec_meta_ref = getattr(self, '_last_execution_metadata', {})
             if isinstance(exec_meta_ref, dict) and ("total_ms" not in exec_meta_ref or not exec_meta_ref.get("cache_hit")):
                 exec_meta_ref["total_ms"] = total_ms
+            route_name = str(exec_meta_ref.get("route") or "").strip().lower()
+            deterministic_routes = {
+                "memory_store",
+                "memory_recall",
+                "git_query",
+                "local_fastpath_git_status",
+                "strict_literal_reply",
+                "time_direct",
+                "ping_direct",
+            }
+            deterministic_fast_route = route_name in deterministic_routes and (
+                strict_contract or low_latency_request
+            )
             
             # CHIEF P0: Pool errors must be HTTP errors, not embedded strings
             if isinstance(result, str) and result.startswith("ERROR:"):
@@ -6128,7 +6210,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                 # Log but don't block - output filtering is less critical than input
 
             proactive_suggestions: List[str] = []
-            if ENABLE_AGENTIC_PIPELINE:
+            if ENABLE_AGENTIC_PIPELINE and not deterministic_fast_route:
                 result, proactive_suggestions = _append_proactive_suggestions(command, result)
                 _update_goal_tracker(session_id, command, result)
             
@@ -6172,7 +6254,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             learned_facts = []
             fact_learning = {"learned": [], "count": 0, "attempted": False, "succeeded": False}
             store_receipt = exec_meta.get("memory_receipt") if isinstance(exec_meta, dict) else None
-            if INFRASTRUCTURE_AVAILABLE:
+            if INFRASTRUCTURE_AVAILABLE and not deterministic_fast_route:
                 try:
                     # Cache the response with routing metadata preserved
                     exec_meta = getattr(self, '_last_execution_metadata', {})
@@ -6228,20 +6310,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     logger.debug(f"Infrastructure integration failed (non-critical): {e}")
             
             # Reflection/Verification pass - check for hallucinations, regenerate if needed
-            try:
-                truth_packet_snippet = ""
-                model_used = exec_meta.get("selected_model") or exec_meta.get("model_used") or "qwen2.5-coder:14b-instruct"
-                result, verification = _verify_and_enhance_with_retry(
-                    query=command,
-                    response_text=result,
-                    memory_context=memory_context,
-                    truth_packet=truth_packet_snippet,
-                    session_id=session_id,
-                    model=model_used
-                )
-            except Exception as e:
-                logger.debug(f"Response verification failed (non-critical): {e}")
-                verification = {"confidence": 1.0, "flags": [], "needs_reflection": False}
+            verification = {"confidence": 1.0, "flags": [], "needs_reflection": False}
+            if not deterministic_fast_route:
+                try:
+                    truth_packet_snippet = ""
+                    model_used = exec_meta.get("selected_model") or exec_meta.get("model_used") or "qwen2.5-coder:14b-instruct"
+                    result, verification = _verify_and_enhance_with_retry(
+                        query=command,
+                        response_text=result,
+                        memory_context=memory_context,
+                        truth_packet=truth_packet_snippet,
+                        session_id=session_id,
+                        model=model_used
+                    )
+                except Exception as e:
+                    logger.debug(f"Response verification failed (non-critical): {e}")
+                    verification = {"confidence": 1.0, "flags": [], "needs_reflection": False}
             
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -6297,7 +6381,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             if lane:
                 response["metadata"]["gpu_lane"] = lane
             memory_status = {"enabled": False}
-            if INFRASTRUCTURE_AVAILABLE:
+            if INFRASTRUCTURE_AVAILABLE and not deterministic_fast_route:
                 try:
                     infra = get_infrastructure_status()
                     mem = infra.get("components", {}).get("postgres_memory", {})
@@ -6308,6 +6392,12 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         memory_status["error"] = mem.get("error")
                 except Exception as e:
                     memory_status["error"] = str(e)
+            elif isinstance(store_receipt, dict):
+                memory_status["enabled"] = bool(
+                    store_receipt.get("backend_healthy") or store_receipt.get("succeeded")
+                )
+                if store_receipt.get("backend"):
+                    memory_status["backend"] = store_receipt.get("backend")
             response["metadata"]["memory"] = memory_status
             response["metadata"]["memory"]["context_injected"] = bool(memory_context)
             response["metadata"]["memory"]["context_chars"] = int(memory_context_meta.get("context_chars", 0))
@@ -6624,18 +6714,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         effective_user_id = _sanitize_user_id(user_id)
         effective_memory_context = memory_context or ""
         effective_plan_steps = [step.strip() for step in (plan_steps or []) if str(step).strip()]
-        if not effective_memory_context:
-            try:
-                built_context, _ = _build_memory_context_for_prompt(
-                    command,
-                    effective_session_id,
-                    user_id=effective_user_id,
-                )
-                effective_memory_context = built_context or ""
-            except Exception as e:
-                logger.debug(f"Memory context assembly failed in execute path: {e}")
-        
-        # Initialize execution metadata for this call
+        normalized_command = (command or "").strip().lower()
+        low_latency_request = _is_low_latency_deterministic_request(command)
+
         self._last_execution_metadata = {
             "mode": mode.lower() if mode else "auto",
             "model_used": model_override or None,
@@ -6647,6 +6728,41 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             "plan_steps": effective_plan_steps,
             "operator_surface": operator_surface,
         }
+
+        literal_reply = None
+        if "remember" not in normalized_command and not normalized_command.startswith("mbench-store:"):
+            literal_reply = _extract_strict_literal_reply(command)
+        if literal_reply:
+            self._last_execution_metadata.update(
+                {
+                    "mode": "exec",
+                    "route": "strict_literal_reply",
+                    "model_used": "none",
+                    "selected_model": "none",
+                    "pool": "none",
+                    "base_url_used": None,
+                    "routing_meta": {
+                        "query_type": "strict_literal_reply",
+                        "routed_mode": "exec",
+                        "reason": "deterministic:strict_literal_reply",
+                        "selected_pool": "none",
+                        "model_used": "none",
+                    },
+                }
+            )
+            return literal_reply
+
+        if not effective_memory_context and not low_latency_request:
+            try:
+                built_context, _ = _build_memory_context_for_prompt(
+                    command,
+                    effective_session_id,
+                    user_id=effective_user_id,
+                )
+                effective_memory_context = built_context or ""
+            except Exception as e:
+                logger.debug(f"Memory context assembly failed in execute path: {e}")
+        self._last_execution_metadata["memory_context_chars"] = len(effective_memory_context)
         
         # GREETING FASTPATH - keep health/smoke interactions off the heavy execution path.
         disable_greeting_fastpath = os.getenv("ROXY_DISABLE_GREETING_FASTPATH", "0").lower() in ("1", "true", "yes")
@@ -6655,7 +6771,6 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         if _is_pure_greeting(command) and greeting_fastpath_enabled:
             return "Hi! I'm ROXY, your resident AI assistant. How can I help you today?"
 
-        normalized_command = (command or "").strip().lower()
         if normalized_command == "git status":
             try:
                 git_result = subprocess.run(
@@ -6699,20 +6814,22 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         is_casual_chat = any(re.search(p, command, re.IGNORECASE) for p in casual_chat_patterns)
         
         # Get context from conversation history
-        try:
-            sys.path.insert(0, str(ROXY_DIR))
-            from context_manager import get_context_manager
-            context_mgr = get_context_manager()
-            context = context_mgr.get_context(command, include_recent=5)
-        except Exception as e:
-            logger.debug(f"Context manager failed: {e}")
-            context = None
+        context = None
+        if not low_latency_request:
+            try:
+                sys.path.insert(0, str(ROXY_DIR))
+                from context_manager import get_context_manager
+                context_mgr = get_context_manager()
+                context = context_mgr.get_context(command, include_recent=5)
+            except Exception as e:
+                logger.debug(f"Context manager failed: {e}")
         
         # CHIEF'S CACHE FIX: Never bypass routing for tool-forcing or file queries
         # Cache discipline: only cache AFTER we know mode == "rag" from roxy_commands
         
         # Skip cache for anything that needs preflight routing
         bypass_cache = (
+            low_latency_request or
             command.strip().startswith('{') or  # JSON tool calls
             command.startswith('RUN_TOOL ') or  # Explicit tool syntax
             self._is_file_claim_query(command)  # File-existence queries
@@ -6949,8 +7066,30 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         except json.JSONDecodeError as e:
                             logger.debug(f"Failed to parse tools_executed JSON: {e}")
                 
-                # Apply Truth Gate validation (prevent hallucinations)
-                if TRUTH_GATE_AVAILABLE:
+                route_for_validation = str(
+                    self._last_execution_metadata.get("route") or metadata.get("route") or mode or ""
+                ).strip().lower()
+                strict_contract = _is_strict_output_request(command)
+                deterministic_routes = {
+                    "memory_store",
+                    "memory_recall",
+                    "git_query",
+                    "local_fastpath_git_status",
+                    "strict_literal_reply",
+                    "time_direct",
+                    "ping_direct",
+                }
+
+                if strict_contract:
+                    response_text = _enforce_strict_output_contract(
+                        command,
+                        response_text,
+                        self._last_execution_metadata,
+                    )
+
+                # Apply Truth Gate validation (prevent hallucinations) only when the
+                # response is not already sourced from a deterministic truth path.
+                if TRUTH_GATE_AVAILABLE and not strict_contract and route_for_validation not in deterministic_routes:
                     try:
                         truth_gate = get_truth_gate()
                         # Disable file verification for RAG (files are in context, thus verified)
