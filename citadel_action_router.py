@@ -184,9 +184,21 @@ def _ssh_json_request(
 
 
 def _discover_remote_gateway_token(ssh_target: str, *, port: int = 9136, timeout: float = 10.0) -> Optional[str]:
+    return _discover_remote_service_token(ssh_target, ports=(port,), timeout=timeout)
+
+
+def _discover_remote_service_token(
+    ssh_target: str,
+    *,
+    ports: tuple[int, ...] = (9136, 3848, 3847),
+    timeout: float = 10.0,
+) -> Optional[str]:
+    port_checks = " ".join(str(int(port)) for port in ports)
     script = (
-        f'PID=$(lsof -tiTCP:{port} -sTCP:LISTEN | head -n1 || true); '
-        'if [ -n "$PID" ]; then ps eww -p "$PID"; fi'
+        f'for PORT in {port_checks}; do '
+        'PID=$(lsof -tiTCP:"$PORT" -sTCP:LISTEN | head -n1 || true); '
+        'if [ -n "$PID" ]; then ps eww -p "$PID"; exit 0; fi; '
+        'done'
     )
     remote_command = f"sh -lc {shlex.quote(script)}"
     completed = subprocess.run(
@@ -213,6 +225,14 @@ def _discover_remote_gateway_token(ssh_target: str, *, port: int = 9136, timeout
         if match and match.group(1).strip():
             return match.group(1).strip()
     return None
+
+
+def _discover_remote_podium_headers(ssh_target: str) -> Dict[str, str]:
+    headers: Dict[str, str] = {"X-Citadel-Hop": "1"}
+    podium_token = _discover_remote_service_token(ssh_target, ports=(3848, 3847, 9136))
+    if podium_token:
+        headers["Authorization"] = f"Bearer {podium_token}"
+    return headers
 
 
 def _discover_remote_http_base(
@@ -431,7 +451,7 @@ def _route_command_run(action: Dict[str, Any]) -> Dict[str, Any]:
             ssh_target,
             f"{podium_base}/api/operator/run/launch",
             payload,
-            headers={"X-Citadel-Hop": "1"},
+            headers=_discover_remote_podium_headers(ssh_target),
         )
 
     return _unsupported(action, f"Unsupported command.run dispatch_path for {target_machine}: {dispatch_path}", status_code=400)
@@ -455,7 +475,7 @@ def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
             ssh_target,
             f"{podium_base}/api/operator/email/send",
             payload,
-            headers={"X-Citadel-Hop": "1"},
+            headers=_discover_remote_podium_headers(ssh_target),
         )
 
     if action_type == "recording.start":
@@ -468,7 +488,7 @@ def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
             ssh_target,
             f"{podium_base}/api/operator/recording/start",
             payload,
-            headers={"X-Citadel-Hop": "1"},
+            headers=_discover_remote_podium_headers(ssh_target),
         )
 
     if action_type == "recording.stop":
@@ -481,7 +501,7 @@ def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
             ssh_target,
             f"{podium_base}/api/operator/recording/stop",
             payload,
-            headers={"X-Citadel-Hop": "1"},
+            headers=_discover_remote_podium_headers(ssh_target),
         )
 
     if action_type == "mobile.alert.ack":
@@ -494,7 +514,7 @@ def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
             ssh_target,
             f"{podium_base}/api/operator/alerts/ack",
             payload,
-            headers={"X-Citadel-Hop": "1"},
+            headers=_discover_remote_podium_headers(ssh_target),
         )
 
     if action_type == "repo.status":

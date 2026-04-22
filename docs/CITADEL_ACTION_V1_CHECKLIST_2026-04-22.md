@@ -69,6 +69,8 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
 - [x] Add a one-hop bypass marker so ROXY-to-Mac Citadel callbacks execute local Podium handlers instead of looping back into Citadel.
 - [x] Verify at least one live web operator write flow now traverses Citadel in practice.
 - [x] Verify same confirm-token semantics through the web surface after Citadel forwarding.
+- [x] Remove the temporary Mac insecure-auth dependency for Citadel-originated operator writes by sending a shared service token to local-only Podium routes.
+- [x] Verify direct unauthenticated POSTs to Mac-local `/api/operator/*` now fail with `401` while authorized POSTs still succeed.
 
 ## P1 Fleet Metadata
 
@@ -82,12 +84,16 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
 - [x] Unit-test local gateway command routing.
 - [x] Unit-test Mac Studio SSH-routed run launch routing.
 - [x] Unit-test Mac Studio SSH-routed email routing.
+- [x] Unit-test Mac Studio SSH-routed recording routing with Podium auth headers.
 - [ ] Live-verify `command.run` through the native macOS menubar app after rebuild.
 - [x] Live-verify `email.send` through Citadel end to end.
 - [x] Live-verify `recording.start` / `recording.stop` through Citadel end to end.
 - [x] Live-verify alert acknowledgement through Citadel end to end.
 - [x] Live-verify a web operator write flow through Citadel once Podium forwarding is patched.
 - [x] Live-verify Mac quick-command gateway routing through Citadel with a safe `status` probe.
+- [x] Live-verify Mac-local Podium auth behavior after hardening:
+  - unauthenticated `POST /api/operator/run/launch` returns `401 Unauthorized`
+  - `Authorization: Bearer <service token>` returns a normal pending-confirm payload
 
 ## Current Cutover Judgment
 
@@ -100,9 +106,13 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
   - `command.run` pending-confirm responses preserved through both `POST /citadel/action` and `POST /api/operator/run/launch`
   - `recording.start` and `recording.stop` succeeding through both Citadel and web operator paths
   - `email.send` succeeding through Citadel with ROXY email MCP delivery and returned Message-ID evidence
+  - Mac-local Podium auth enabled on `127.0.0.1:3847` with:
+    - unauthenticated operator writes rejected with `401`
+    - Citadel-originated operator writes succeeding through shared service-token auth
+    - no `PODIUM_ALLOW_INSECURE_DEV_AUTH=true` in the live Podium process env
 
 ## Next Highest-Value Follow-Up
 
-1. Patch Podium operator write handlers to proxy into CitadelAction when `CITADEL_API_URL` is configured.
-2. Rebuild/reinstall `OperatorBar` on Mac Studio and capture a live quick-launch proof.
-3. Add `gitnexus.analyze` and `gitnexus.resume` to the action router so Nexus execution also flows through the shared bus.
+1. Capture one real native `OperatorBar` interaction proof through the installed macOS menubar UI, not just direct Citadel/web probes.
+2. Add `gitnexus.analyze` and `gitnexus.resume` to the action router so Nexus execution also flows through the shared bus.
+3. Add endpoint reachability metadata into the shared Citadel snapshot/registry packet.
