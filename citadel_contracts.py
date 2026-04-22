@@ -10,11 +10,13 @@ other native shells can consume over time.
 from __future__ import annotations
 
 import os
+import ipaddress
 import socket
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlparse
 
 from brain_atlas import load_latest_snapshot
 
@@ -68,8 +70,8 @@ _KNOWN_MACHINES: List[Dict[str, Any]] = [
         "roles": ["owner-cockpit", "operator-bar", "lifepanel", "recording-oversight"],
         "repo_roots": [str(Path.home() / "mindsong-juke-hub")],
         "control_endpoints": {
-            "operator_briefing": "http://127.0.0.1:3848/api/operator/briefing",
-            "operator_ws": "ws://127.0.0.1:3848/ws",
+            "operator_briefing": "http://127.0.0.1:3847/api/operator/briefing",
+            "operator_ws": "ws://127.0.0.1:3847/ws",
             "run_gateway": "http://localhost:9136/api/runs",
             "hardware_authority": "http://127.0.0.1:49173",
         },
@@ -165,6 +167,67 @@ def _json_sanitize(value: Any) -> Any:
     return value
 
 
+def _infer_endpoint_bind_scope(url: str) -> str:
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return "unknown"
+
+    host = (parsed.hostname or "").strip().lower()
+    if not host:
+        return "unknown"
+    if host in {"localhost", "127.0.0.1", "::1"}:
+        return "localhost"
+
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        if host.endswith(".ts.net"):
+            return "tailscale"
+        return "hostname"
+
+    if ip.is_loopback:
+        return "localhost"
+    if ip.version == 4 and ip in ipaddress.ip_network("100.64.0.0/10"):
+        return "tailscale"
+    if ip.is_private:
+        return "lan"
+    if ip.is_global:
+        return "public"
+    return "unknown"
+
+
+def _reachable_from(bind_scope: str) -> List[str]:
+    if bind_scope == "localhost":
+        return ["same_machine"]
+    if bind_scope == "tailscale":
+        return ["same_machine", "tailscale"]
+    if bind_scope == "lan":
+        return ["same_machine", "lan"]
+    if bind_scope == "public":
+        return ["same_machine", "lan", "tailscale", "public"]
+    if bind_scope == "hostname":
+        return ["same_machine", "name_resolution_dependent"]
+    return []
+
+
+def _build_endpoint_meta(control_endpoints: Dict[str, str]) -> Dict[str, Dict[str, Any]]:
+    meta: Dict[str, Dict[str, Any]] = {}
+    for endpoint_id, url in control_endpoints.items():
+        parsed = urlparse(url)
+        bind_scope = _infer_endpoint_bind_scope(url)
+        meta[endpoint_id] = {
+            "url": url,
+            "scheme": parsed.scheme or None,
+            "host": parsed.hostname or None,
+            "port": parsed.port,
+            "path": parsed.path or "/",
+            "bind_scope": bind_scope,
+            "reachable_from": _reachable_from(bind_scope),
+        }
+    return meta
+
+
 def resolve_machine_id(hostname: Optional[str] = None) -> Optional[str]:
     target = (hostname or socket.gethostname()).strip().lower()
     if not target:
@@ -182,6 +245,9 @@ def build_citadel_registry(current_hostname: Optional[str] = None) -> Dict[str, 
     machines = deepcopy(_KNOWN_MACHINES)
     for machine in machines:
         machine["is_current"] = machine.get("machine_id") == current_machine_id
+        control_endpoints = machine.get("control_endpoints") or {}
+        if isinstance(control_endpoints, dict):
+            machine["control_endpoint_meta"] = _build_endpoint_meta(control_endpoints)
 
     return {
         "version": CITADEL_REGISTRY_VERSION,

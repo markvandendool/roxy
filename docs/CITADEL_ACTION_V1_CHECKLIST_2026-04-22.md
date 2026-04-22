@@ -75,8 +75,8 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
 ## P1 Fleet Metadata
 
 - [x] Add `ssh_target` metadata for SSH-routable machines in the registry.
-- [ ] Add explicit network reachability metadata for each machine and endpoint.
-- [ ] Distinguish public bind, LAN bind, Tailscale bind, and localhost-only control endpoints.
+- [x] Add explicit network reachability metadata for each machine and endpoint.
+- [x] Distinguish public bind, LAN bind, Tailscale bind, and localhost-only control endpoints.
 
 ## P2 Verification
 
@@ -110,6 +110,14 @@ Scope: ROXY action bus, macOS OperatorBar adapter, web/LifePanel compatibility
     - unauthenticated operator writes rejected with `401`
     - Citadel-originated operator writes succeeding through shared service-token auth
     - no `PODIUM_ALLOW_INSECURE_DEV_AUTH=true` in the live Podium process env
+  - Citadel registry/snapshot now include per-endpoint metadata:
+    - `scheme`
+    - `host`
+    - `port`
+    - `path`
+    - `bind_scope`
+    - `reachable_from`
+  - Mac Studio operator briefing authority corrected to `http://127.0.0.1:3847/api/operator/briefing`
 
 ## Next Highest-Value Follow-Up
 
