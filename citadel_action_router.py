@@ -10,26 +10,46 @@ This is intentionally additive:
 
 from __future__ import annotations
 
-import json
 import base64
+import json
+import re
 import shlex
 import subprocess
-import re
-from pathlib import Path
+import uuid
+from datetime import UTC, datetime
 from typing import Any, Dict, Optional, Tuple
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from citadel_event_log import (
+    append_event,
+    append_worker_dispatch,
+    claim_device,
+    load_authority_state,
+    release_device,
+)
+
 
 LOCAL_PROXY_BASE = "http://127.0.0.1:9136"
-MAC_PODIUM_BASE = "http://127.0.0.1:3848"
 MAC_GATEWAY_BASE = "http://127.0.0.1:9136"
-
-SECRET_TOKEN_PATH = Path.home() / ".roxy" / "secret.token"
 
 MACHINE_SSH_TARGETS = {
     "mac-studio": "macstudio",
     "citadel-worker-1-imac": "friday",
+}
+
+MAC_LUNO_ROOT = "/Users/markvandendool/mindsong-juke-hub/luno-orchestrator"
+
+ROXY_SERVICE_UNITS = {
+    "gitnexus": "gitnexus.service",
+    "gitnexus-analyze": "gitnexus-analyze-mindsong.service",
+    "gitnexus-analyze-mindsong": "gitnexus-analyze-mindsong.service",
+}
+
+MAC_SERVICE_COMMANDS = {
+    "operator-stack": ["bun", "run", "scripts/operator-supervisor.ts", "restart"],
+    "operator-bar": ["sh", "-lc", "launchctl kickstart -k gui/$(id -u)/com.mindsong.operator-bar"],
+    "operator-mirror": ["sh", "-lc", "launchctl kickstart -k gui/$(id -u)/com.mindsong.operator-mirror"],
 }
 
 REMOTE_HTTP_SCRIPT = r"""
@@ -74,12 +94,8 @@ except Exception as exc:
 """
 
 
-def _read_roxy_token() -> Optional[str]:
-    try:
-        token = SECRET_TOKEN_PATH.read_text(encoding="utf-8").strip()
-    except Exception:
-        return None
-    return token or None
+def _now_iso() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _coerce_message(payload: Any, status_code: int) -> str:
@@ -134,6 +150,39 @@ def _json_request(
         return 503, {"status": "error", "message": str(exc)}
     except Exception as exc:
         return 500, {"status": "error", "message": str(exc)}
+
+
+def _run_local_command(
+    argv: list[str],
+    *,
+    cwd: Optional[str] = None,
+    timeout: float = 20.0,
+) -> Tuple[int, Dict[str, Any]]:
+    try:
+        completed = subprocess.run(
+            argv,
+            cwd=cwd,
+            text=True,
+            capture_output=True,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return 504, {"status": "error", "message": "timed out", "argv": argv}
+    except Exception as exc:
+        return 500, {"status": "error", "message": str(exc), "argv": argv}
+
+    stdout = (completed.stdout or "").strip()
+    stderr = (completed.stderr or "").strip()
+    status_code = 200 if completed.returncode == 0 else 500
+    return status_code, {
+        "status": "ok" if completed.returncode == 0 else "error",
+        "message": stdout or stderr or f"exit {completed.returncode}",
+        "response": stdout,
+        "stderr": stderr,
+        "exit_code": completed.returncode,
+        "argv": argv,
+    }
 
 
 def _ssh_json_request(
@@ -315,42 +364,7 @@ def _route_local_process(
     cwd: Optional[str] = None,
     timeout: float = 20.0,
 ) -> Dict[str, Any]:
-    try:
-        completed = subprocess.run(
-            argv,
-            cwd=cwd,
-            text=True,
-            capture_output=True,
-            timeout=timeout,
-            check=False,
-        )
-    except subprocess.TimeoutExpired:
-        response_payload: Dict[str, Any] = {
-            "status": "error",
-            "message": "timed out",
-            "argv": argv,
-        }
-        status_code = 504
-    except Exception as exc:
-        response_payload = {
-            "status": "error",
-            "message": str(exc),
-            "argv": argv,
-        }
-        status_code = 500
-    else:
-        stdout = (completed.stdout or "").strip()
-        stderr = (completed.stderr or "").strip()
-        status_code = 200 if completed.returncode == 0 else 500
-        response_payload = {
-            "status": "ok" if completed.returncode == 0 else "error",
-            "message": stdout or stderr or f"exit {completed.returncode}",
-            "response": stdout,
-            "stderr": stderr,
-            "exit_code": completed.returncode,
-            "argv": argv,
-        }
-
+    status_code, response_payload = _run_local_command(argv, cwd=cwd, timeout=timeout)
     return {
         "http_status": status_code,
         "body": _attach_citadel_meta(
@@ -384,6 +398,43 @@ def _route_ssh_json(
     }
 
 
+def _route_ssh_process(
+    action: Dict[str, Any],
+    ssh_target: str,
+    argv: list[str],
+    *,
+    cwd: Optional[str] = None,
+    timeout: float = 60.0,
+) -> Dict[str, Any]:
+    command = shlex.join(argv)
+    if cwd:
+        command = f"cd {shlex.quote(cwd)} && {command}"
+    status_code, response_payload = _run_local_command(
+        [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=5",
+            ssh_target,
+            "sh",
+            "-lc",
+            command,
+        ],
+        timeout=timeout,
+    )
+    return {
+        "http_status": status_code,
+        "body": _attach_citadel_meta(
+            action,
+            status_code,
+            response_payload,
+            routed_via=f"ssh:{ssh_target}",
+            target_endpoint=command,
+        ),
+    }
+
+
 def _unsupported(action: Dict[str, Any], message: str, *, status_code: int = 501) -> Dict[str, Any]:
     return {
         "http_status": status_code,
@@ -400,6 +451,43 @@ def _unsupported(action: Dict[str, Any], message: str, *, status_code: int = 501
             },
         },
     }
+
+
+def _inline_result(
+    action: Dict[str, Any],
+    *,
+    status_code: int,
+    payload: Dict[str, Any],
+    routed_via: str,
+    target_endpoint: str,
+) -> Dict[str, Any]:
+    return {
+        "http_status": status_code,
+        "body": _attach_citadel_meta(
+            action,
+            status_code,
+            payload,
+            routed_via=routed_via,
+            target_endpoint=target_endpoint,
+        ),
+    }
+
+
+def _schedule_deferred_roxy_core_restart() -> Tuple[int, Dict[str, Any]]:
+    try:
+        subprocess.Popen(
+            [
+                "bash",
+                "-lc",
+                "sleep 1; systemctl --user restart roxy-core.service >/dev/null 2>&1",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    except Exception as exc:
+        return 500, {"status": "error", "message": str(exc)}
+    return 202, {"status": "accepted", "message": "Deferred restart scheduled for roxy-core.service"}
 
 
 def _route_command_run(action: Dict[str, Any]) -> Dict[str, Any]:
@@ -457,64 +545,327 @@ def _route_command_run(action: Dict[str, Any]) -> Dict[str, Any]:
     return _unsupported(action, f"Unsupported command.run dispatch_path for {target_machine}: {dispatch_path}", status_code=400)
 
 
+def _route_gitnexus_action(action: Dict[str, Any], *, resume: bool) -> Dict[str, Any]:
+    payload = dict(action.get("payload") or {})
+    repo_name = str(payload.get("repo_name") or payload.get("repo") or "mindsong-juke-hub").strip() or "mindsong-juke-hub"
+    if repo_name != "mindsong-juke-hub":
+        return _unsupported(action, f"GitNexus action currently supports only mindsong-juke-hub, got: {repo_name}", status_code=400)
+
+    import gitnexus_client
+
+    current_status = gitnexus_client.get_repo_status(repo_name)
+    bootstrap_state = str(current_status.get("bootstrap_state") or "").strip().lower()
+    if resume and bootstrap_state in {"starting", "submitted", "indexing", "reloading"}:
+        return _inline_result(
+            action,
+            status_code=200,
+            payload={
+                "status": "ok",
+                "message": "GitNexus analyze is already active.",
+                "repo_name": repo_name,
+                "gitnexus": current_status,
+            },
+            routed_via="local_kernel",
+            target_endpoint="gitnexus.status",
+        )
+
+    verb = "start" if resume else "restart"
+    status_code, response_payload = _run_local_command(
+        ["systemctl", "--user", verb, "--no-block", "gitnexus-analyze-mindsong.service"],
+        timeout=20.0,
+    )
+    refreshed_status = gitnexus_client.get_repo_status(repo_name)
+    if status_code >= 400:
+        response_payload["gitnexus"] = refreshed_status
+        return _inline_result(
+            action,
+            status_code=status_code,
+            payload=response_payload,
+            routed_via="local_kernel",
+            target_endpoint=f"systemctl --user {verb} --no-block gitnexus-analyze-mindsong.service",
+        )
+    return _inline_result(
+        action,
+        status_code=202,
+        payload={
+            "status": "accepted",
+            "message": "GitNexus analyze requested." if not resume else "GitNexus analyze resume requested.",
+            "repo_name": repo_name,
+            "gitnexus": refreshed_status,
+        },
+        routed_via="local_kernel",
+        target_endpoint=f"systemctl --user {verb} --no-block gitnexus-analyze-mindsong.service",
+    )
+
+
+def _route_device_claim(action: Dict[str, Any]) -> Dict[str, Any]:
+    payload = dict(action.get("payload") or {})
+    device_id = str(payload.get("device_id") or payload.get("deviceId") or "").strip()
+    if not device_id:
+        return _unsupported(action, "device.claim requires payload.device_id", status_code=400)
+
+    owner = str(payload.get("owner") or action.get("requested_by") or "").strip()
+    if not owner:
+        return _unsupported(action, "device.claim requires an owner or requested_by", status_code=400)
+
+    claims = (load_authority_state().get("claims") or {})
+    existing = claims.get(device_id) if isinstance(claims, dict) else None
+    force = payload.get("force") is True
+    if isinstance(existing, dict) and str(existing.get("owner") or "").strip() not in {"", owner} and not force:
+        return _inline_result(
+            action,
+            status_code=409,
+            payload={
+                "status": "error",
+                "message": f"Device {device_id} is already claimed by {existing.get('owner')}.",
+                "claim": existing,
+            },
+            routed_via="local_kernel",
+            target_endpoint="authority_state.claims",
+        )
+
+    claim = claim_device(
+        device_id,
+        owner=owner,
+        target_machine=str(action.get("target_machine") or "").strip() or None,
+        requested_from_surface=str(action.get("requested_from_surface") or "").strip() or None,
+        note=str(payload.get("note") or "").strip() or None,
+    )
+    return _inline_result(
+        action,
+        status_code=200,
+        payload={
+            "status": "ok",
+            "message": f"Claimed device {device_id} for {owner}.",
+            "claim": claim,
+        },
+        routed_via="local_kernel",
+        target_endpoint="authority_state.claims",
+    )
+
+
+def _route_device_release(action: Dict[str, Any]) -> Dict[str, Any]:
+    payload = dict(action.get("payload") or {})
+    device_id = str(payload.get("device_id") or payload.get("deviceId") or "").strip()
+    if not device_id:
+        return _unsupported(action, "device.release requires payload.device_id", status_code=400)
+
+    claims = (load_authority_state().get("claims") or {})
+    existing = claims.get(device_id) if isinstance(claims, dict) else None
+    if not isinstance(existing, dict):
+        return _inline_result(
+            action,
+            status_code=404,
+            payload={"status": "error", "message": f"Device {device_id} is not currently claimed."},
+            routed_via="local_kernel",
+            target_endpoint="authority_state.claims",
+        )
+
+    requester = str(action.get("requested_by") or "").strip()
+    owner = str(existing.get("owner") or "").strip()
+    force = payload.get("force") is True
+    if owner and requester and owner != requester and not force:
+        return _inline_result(
+            action,
+            status_code=409,
+            payload={
+                "status": "error",
+                "message": f"Device {device_id} is owned by {owner}; use force to release it.",
+                "claim": existing,
+            },
+            routed_via="local_kernel",
+            target_endpoint="authority_state.claims",
+        )
+
+    released = release_device(device_id)
+    return _inline_result(
+        action,
+        status_code=200,
+        payload={
+            "status": "ok",
+            "message": f"Released device {device_id}.",
+            "claim": released,
+        },
+        routed_via="local_kernel",
+        target_endpoint="authority_state.claims",
+    )
+
+
+def _route_service_restart(action: Dict[str, Any]) -> Dict[str, Any]:
+    payload = dict(action.get("payload") or {})
+    target_machine = str(action.get("target_machine") or "").strip()
+    service_id = str(payload.get("service_id") or payload.get("service") or "").strip().lower()
+    if not service_id:
+        return _unsupported(action, "service.restart requires payload.service_id", status_code=400)
+
+    if target_machine == "roxy-macpro":
+        if service_id == "roxy-core":
+            status_code, response_payload = _schedule_deferred_roxy_core_restart()
+            return _inline_result(
+                action,
+                status_code=status_code,
+                payload=response_payload,
+                routed_via="local_kernel",
+                target_endpoint="systemctl --user restart roxy-core.service",
+            )
+
+        unit_name = ROXY_SERVICE_UNITS.get(service_id)
+        if not unit_name:
+            return _unsupported(action, f"Unsupported ROXY service.restart target: {service_id}", status_code=400)
+        return _route_local_process(action, ["systemctl", "--user", "restart", unit_name], timeout=30.0)
+
+    ssh_target = MACHINE_SSH_TARGETS.get(target_machine)
+    remote_command = MAC_SERVICE_COMMANDS.get(service_id)
+    if ssh_target and remote_command:
+        return _route_ssh_process(
+            action,
+            ssh_target,
+            remote_command,
+            cwd=MAC_LUNO_ROOT if service_id == "operator-stack" else None,
+            timeout=90.0,
+        )
+
+    return _unsupported(action, f"Unsupported service.restart target: {service_id} on {target_machine}", status_code=400)
+
+
+def _route_worker_dispatch(action: Dict[str, Any]) -> Dict[str, Any]:
+    payload = dict(action.get("payload") or {})
+    mission = str(payload.get("mission") or payload.get("text") or payload.get("task") or "").strip()
+    if not mission:
+        return _unsupported(action, "worker.dispatch requires payload.mission or payload.text", status_code=400)
+
+    dispatch = append_worker_dispatch(
+        {
+            "dispatch_id": f"dispatch-{uuid.uuid4().hex[:12]}",
+            "created_at": _now_iso(),
+            "target_machine": action.get("target_machine"),
+            "worker_id": payload.get("worker_id") or action.get("target_machine"),
+            "mission": mission,
+            "focus": payload.get("focus"),
+            "repo_id": payload.get("repo_id"),
+            "file_path": payload.get("file_path"),
+            "requested_by": action.get("requested_by"),
+            "requested_from_surface": action.get("requested_from_surface"),
+            "status": "queued",
+        }
+    )
+    return _inline_result(
+        action,
+        status_code=202,
+        payload={
+            "status": "queued",
+            "message": f"Worker dispatch queued for {dispatch.get('worker_id')}.",
+            "dispatch": dispatch,
+        },
+        routed_via="local_kernel",
+        target_endpoint="worker_dispatches.jsonl",
+    )
+
+
+def _finalize_action(action: Dict[str, Any], response: Dict[str, Any]) -> Dict[str, Any]:
+    body = response.get("body") if isinstance(response, dict) else {}
+    if not isinstance(body, dict):
+        return response
+    citadel_meta = body.get("citadelAction") if isinstance(body.get("citadelAction"), dict) else {}
+    append_event(
+        "citadel.action",
+        status="ok" if int(response.get("http_status") or 500) < 400 else "error",
+        source="roxy-core.citadel_action",
+        machine_id=str(action.get("target_machine") or "").strip() or None,
+        action=action,
+        payload={
+            "message": body.get("message"),
+            "routed_via": citadel_meta.get("routed_via"),
+            "target_endpoint": citadel_meta.get("target_endpoint"),
+            "status_code": response.get("http_status"),
+        },
+        tags=["citadel", str(action.get("action_type") or "").strip()],
+    )
+    return response
+
+
 def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
     action_type = str(action.get("action_type") or "").strip()
     target_machine = str(action.get("target_machine") or "").strip()
     payload = dict(action.get("payload") or {})
 
     if action_type == "command.run":
-        return _route_command_run(action)
+        return _finalize_action(action, _route_command_run(action))
 
     if action_type == "email.send":
         ssh_target = MACHINE_SSH_TARGETS.get(target_machine)
         if not ssh_target:
-            return _unsupported(action, f"email.send requires an SSH-routable target_machine, got: {target_machine}", status_code=400)
+            return _finalize_action(
+                action,
+                _unsupported(action, f"email.send requires an SSH-routable target_machine, got: {target_machine}", status_code=400),
+            )
         podium_base = _discover_remote_http_base(ssh_target, ports=(3848, 3847))
-        return _route_ssh_json(
+        return _finalize_action(
             action,
-            ssh_target,
-            f"{podium_base}/api/operator/email/send",
-            payload,
-            headers=_discover_remote_podium_headers(ssh_target),
+            _route_ssh_json(
+                action,
+                ssh_target,
+                f"{podium_base}/api/operator/email/send",
+                payload,
+                headers=_discover_remote_podium_headers(ssh_target),
+            ),
         )
 
     if action_type == "recording.start":
         ssh_target = MACHINE_SSH_TARGETS.get(target_machine)
         if not ssh_target:
-            return _unsupported(action, f"recording.start requires an SSH-routable target_machine, got: {target_machine}", status_code=400)
+            return _finalize_action(
+                action,
+                _unsupported(action, f"recording.start requires an SSH-routable target_machine, got: {target_machine}", status_code=400),
+            )
         podium_base = _discover_remote_http_base(ssh_target, ports=(3848, 3847))
-        return _route_ssh_json(
+        return _finalize_action(
             action,
-            ssh_target,
-            f"{podium_base}/api/operator/recording/start",
-            payload,
-            headers=_discover_remote_podium_headers(ssh_target),
+            _route_ssh_json(
+                action,
+                ssh_target,
+                f"{podium_base}/api/operator/recording/start",
+                payload,
+                headers=_discover_remote_podium_headers(ssh_target),
+            ),
         )
 
     if action_type == "recording.stop":
         ssh_target = MACHINE_SSH_TARGETS.get(target_machine)
         if not ssh_target:
-            return _unsupported(action, f"recording.stop requires an SSH-routable target_machine, got: {target_machine}", status_code=400)
+            return _finalize_action(
+                action,
+                _unsupported(action, f"recording.stop requires an SSH-routable target_machine, got: {target_machine}", status_code=400),
+            )
         podium_base = _discover_remote_http_base(ssh_target, ports=(3848, 3847))
-        return _route_ssh_json(
+        return _finalize_action(
             action,
-            ssh_target,
-            f"{podium_base}/api/operator/recording/stop",
-            payload,
-            headers=_discover_remote_podium_headers(ssh_target),
+            _route_ssh_json(
+                action,
+                ssh_target,
+                f"{podium_base}/api/operator/recording/stop",
+                payload,
+                headers=_discover_remote_podium_headers(ssh_target),
+            ),
         )
 
     if action_type == "mobile.alert.ack":
         ssh_target = MACHINE_SSH_TARGETS.get(target_machine)
         if not ssh_target:
-            return _unsupported(action, f"mobile.alert.ack requires an SSH-routable target_machine, got: {target_machine}", status_code=400)
+            return _finalize_action(
+                action,
+                _unsupported(action, f"mobile.alert.ack requires an SSH-routable target_machine, got: {target_machine}", status_code=400),
+            )
         podium_base = _discover_remote_http_base(ssh_target, ports=(3848, 3847))
-        return _route_ssh_json(
+        return _finalize_action(
             action,
-            ssh_target,
-            f"{podium_base}/api/operator/alerts/ack",
-            payload,
-            headers=_discover_remote_podium_headers(ssh_target),
+            _route_ssh_json(
+                action,
+                ssh_target,
+                f"{podium_base}/api/operator/alerts/ack",
+                payload,
+                headers=_discover_remote_podium_headers(ssh_target),
+            ),
         )
 
     if action_type == "repo.status":
@@ -523,7 +874,7 @@ def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
         if repo_path:
             argv.extend(["-C", str(repo_path)])
         argv.extend(["status", "--short", "--branch"])
-        return _route_local_process(action, argv)
+        return _finalize_action(action, _route_local_process(action, argv))
 
     if action_type == "repo.push":
         repo_path = payload.get("repo_path") or ""
@@ -531,6 +882,27 @@ def route_citadel_action(action: Dict[str, Any]) -> Dict[str, Any]:
         if repo_path:
             argv.extend(["-C", str(repo_path)])
         argv.append("push")
-        return _route_local_process(action, argv, timeout=60.0)
+        return _finalize_action(action, _route_local_process(action, argv, timeout=60.0))
 
-    return _unsupported(action, f"CitadelAction routing is not implemented yet for {action_type}")
+    if action_type == "gitnexus.analyze":
+        return _finalize_action(action, _route_gitnexus_action(action, resume=False))
+
+    if action_type == "gitnexus.resume":
+        return _finalize_action(action, _route_gitnexus_action(action, resume=True))
+
+    if action_type == "device.claim":
+        return _finalize_action(action, _route_device_claim(action))
+
+    if action_type == "device.release":
+        return _finalize_action(action, _route_device_release(action))
+
+    if action_type == "service.restart":
+        return _finalize_action(action, _route_service_restart(action))
+
+    if action_type == "worker.dispatch":
+        return _finalize_action(action, _route_worker_dispatch(action))
+
+    return _finalize_action(
+        action,
+        _unsupported(action, f"CitadelAction routing is not implemented yet for {action_type}"),
+    )

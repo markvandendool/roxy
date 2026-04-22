@@ -3083,6 +3083,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_citadel_registry()
         elif path == "/citadel/snapshot" or path == "/v1/citadel/snapshot":
             self._handle_citadel_snapshot()
+        elif path == "/citadel/events" or path == "/v1/citadel/events":
+            self._handle_citadel_events()
         elif path == "/ui/snapshot" or path == "/v1/ui/snapshot":
             self._handle_ui_snapshot()
         elif path == "/auth/status" or path == "/v1/auth/status":
@@ -3603,6 +3605,33 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             remote_port=remote_port,
         )
         payload = build_citadel_snapshot(ui_payload)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_citadel_events(self):
+        """GET /citadel/events - append-only Citadel action and state event feed."""
+        params = self._parse_query_params()
+        try:
+            limit = max(1, min(int(params.get("limit", 50)), 200))
+        except Exception:
+            limit = 50
+        before_event_id = str(params.get("before_event_id", "")).strip() or None
+
+        from citadel_event_log import CITADEL_EVENT_VERSION, list_events
+
+        events = list_events(limit=limit, before_event_id=before_event_id)
+        payload = {
+            "version": "citadel-event-feed-v1",
+            "event_version": CITADEL_EVENT_VERSION,
+            "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "limit": limit,
+            "count": len(events),
+            "before_event_id": before_event_id,
+            "events": events,
+        }
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Cache-Control", "no-store")

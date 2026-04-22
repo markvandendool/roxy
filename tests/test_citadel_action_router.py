@@ -1,9 +1,17 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path.home() / ".roxy"))
 
 import citadel_action_router
+import gitnexus_client
+
+
+@pytest.fixture(autouse=True)
+def suppress_event_log(monkeypatch):
+    monkeypatch.setattr(citadel_action_router, "append_event", lambda *args, **kwargs: {"event_id": "evt-test"})
 
 
 def test_command_run_gateway_command_routes_to_local_proxy(monkeypatch):
@@ -229,3 +237,188 @@ def test_repo_status_routes_to_local_process(monkeypatch):
     assert captured["argv"] == ["git", "-C", "/home/mark/.roxy", "status", "--short", "--branch"]
     assert result["http_status"] == 200
     assert result["body"]["citadelAction"]["routed_via"] == "local_process"
+
+
+def test_gitnexus_analyze_restarts_local_service(monkeypatch):
+    captured = {}
+
+    monkeypatch.setattr(
+        gitnexus_client,
+        "get_repo_status",
+        lambda _repo: {"bootstrap_state": "idle", "fresh": False, "repo_name": "mindsong-juke-hub"},
+    )
+
+    def fake_run_local_command(argv, cwd=None, timeout=20.0):
+        captured["argv"] = argv
+        captured["cwd"] = cwd
+        captured["timeout"] = timeout
+        return 200, {"status": "ok", "message": "started"}
+
+    monkeypatch.setattr(citadel_action_router, "_run_local_command", fake_run_local_command)
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-5",
+            "action_type": "gitnexus.analyze",
+            "target_machine": "roxy-macpro",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"repo_name": "mindsong-juke-hub"},
+        }
+    )
+
+    assert captured["argv"] == ["systemctl", "--user", "restart", "--no-block", "gitnexus-analyze-mindsong.service"]
+    assert result["http_status"] == 202
+    assert result["body"]["gitnexus"]["repo_name"] == "mindsong-juke-hub"
+
+
+def test_gitnexus_resume_returns_active_when_indexing(monkeypatch):
+    monkeypatch.setattr(
+        gitnexus_client,
+        "get_repo_status",
+        lambda _repo: {"bootstrap_state": "indexing", "repo_name": "mindsong-juke-hub"},
+    )
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-6",
+            "action_type": "gitnexus.resume",
+            "target_machine": "roxy-macpro",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"repo_name": "mindsong-juke-hub"},
+        }
+    )
+
+    assert result["http_status"] == 200
+    assert result["body"]["message"] == "GitNexus analyze is already active."
+
+
+def test_device_claim_conflicts_without_force(monkeypatch):
+    monkeypatch.setattr(
+        citadel_action_router,
+        "load_authority_state",
+        lambda: {"claims": {"hid-primary": {"device_id": "hid-primary", "owner": "someone-else"}}},
+    )
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-7",
+            "action_type": "device.claim",
+            "target_machine": "mac-studio",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"device_id": "hid-primary"},
+        }
+    )
+
+    assert result["http_status"] == 409
+    assert "already claimed" in result["body"]["message"]
+
+
+def test_device_release_releases_owned_device(monkeypatch):
+    monkeypatch.setattr(
+        citadel_action_router,
+        "load_authority_state",
+        lambda: {"claims": {"hid-primary": {"device_id": "hid-primary", "owner": "codex"}}},
+    )
+    monkeypatch.setattr(
+        citadel_action_router,
+        "release_device",
+        lambda device_id: {"device_id": device_id, "owner": "codex"},
+    )
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-8",
+            "action_type": "device.release",
+            "target_machine": "mac-studio",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"device_id": "hid-primary"},
+        }
+    )
+
+    assert result["http_status"] == 200
+    assert result["body"]["claim"]["device_id"] == "hid-primary"
+
+
+def test_worker_dispatch_queues_record(monkeypatch):
+    monkeypatch.setattr(
+        citadel_action_router,
+        "append_worker_dispatch",
+        lambda dispatch: dict(dispatch),
+    )
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-9",
+            "action_type": "worker.dispatch",
+            "target_machine": "citadel-worker-1-imac",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"mission": "Reindex the repo graph", "focus": "gitnexus"},
+        }
+    )
+
+    assert result["http_status"] == 202
+    assert result["body"]["dispatch"]["mission"] == "Reindex the repo graph"
+    assert result["body"]["status"] == "queued"
+
+
+def test_service_restart_routes_mac_operator_stack_over_ssh(monkeypatch):
+    captured = {}
+
+    def fake_ssh_process(action, ssh_target, argv, cwd=None, timeout=60.0):
+        captured["ssh_target"] = ssh_target
+        captured["argv"] = argv
+        captured["cwd"] = cwd
+        captured["timeout"] = timeout
+        return {
+            "http_status": 200,
+            "body": {
+                "status": "ok",
+                "message": "operator stack restarted",
+                "citadelAction": {"routed_via": f"ssh:{ssh_target}"},
+            },
+        }
+
+    monkeypatch.setattr(citadel_action_router, "_route_ssh_process", fake_ssh_process)
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-10",
+            "action_type": "service.restart",
+            "target_machine": "mac-studio",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"service_id": "operator-stack"},
+        }
+    )
+
+    assert captured["ssh_target"] == "macstudio"
+    assert captured["argv"] == ["bun", "run", "scripts/operator-supervisor.ts", "restart"]
+    assert captured["cwd"].endswith("/mindsong-juke-hub/luno-orchestrator")
+    assert result["http_status"] == 200
+
+
+def test_service_restart_schedules_roxy_core_restart(monkeypatch):
+    monkeypatch.setattr(
+        citadel_action_router,
+        "_schedule_deferred_roxy_core_restart",
+        lambda: (202, {"status": "accepted", "message": "Deferred restart scheduled for roxy-core.service"}),
+    )
+
+    result = citadel_action_router.route_citadel_action(
+        {
+            "action_id": "act-11",
+            "action_type": "service.restart",
+            "target_machine": "roxy-macpro",
+            "requested_by": "codex",
+            "requested_from_surface": "operator-bar",
+            "payload": {"service_id": "roxy-core"},
+        }
+    )
+
+    assert result["http_status"] == 202
+    assert "Deferred restart scheduled" in result["body"]["message"]
