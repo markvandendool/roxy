@@ -3079,6 +3079,10 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_atlas_repo()
         elif path == "/atlas/service" or path == "/v1/atlas/service":
             self._handle_atlas_service()
+        elif path == "/citadel/registry" or path == "/v1/citadel/registry":
+            self._handle_citadel_registry()
+        elif path == "/citadel/snapshot" or path == "/v1/citadel/snapshot":
+            self._handle_citadel_snapshot()
         elif path == "/ui/snapshot" or path == "/v1/ui/snapshot":
             self._handle_ui_snapshot()
         elif path == "/auth/status" or path == "/v1/auth/status":
@@ -3573,6 +3577,38 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
 
+    def _handle_citadel_registry(self):
+        """GET /citadel/registry - stable fleet registry for Citadel clients."""
+        params = self._parse_query_params()
+        from citadel_contracts import build_citadel_registry
+
+        payload = build_citadel_registry(current_hostname=params.get("hostname"))
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_citadel_snapshot(self):
+        """GET /citadel/snapshot - compatibility packet over current ROXY truth."""
+        params = self._parse_query_params()
+        mode = params.get("mode", "local")
+        remote_host = params.get("remote_host", "127.0.0.1")
+        remote_port = params.get("remote_port", 8766)
+        from citadel_contracts import build_citadel_snapshot
+
+        ui_payload = _build_ui_snapshot_payload(
+            mode=mode,
+            remote_host=remote_host,
+            remote_port=remote_port,
+        )
+        payload = build_citadel_snapshot(ui_payload)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
     def _handle_ui_snapshot(self):
         """GET /ui/snapshot - Unified native Command Center snapshot."""
         params = self._parse_query_params()
@@ -3591,6 +3627,63 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(json.dumps(_json_sanitize(payload), indent=2).encode())
+
+    def _handle_citadel_action(self):
+        """POST /citadel/action - schema gate for the shared Citadel action bus."""
+        content_length = int(self.headers.get("Content-Length", 0) or 0)
+        raw_body = self.rfile.read(content_length).decode("utf-8") if content_length else "{}"
+        try:
+            request_payload = json.loads(raw_body) if raw_body else {}
+        except json.JSONDecodeError:
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "error": "invalid_json",
+                        "message": "CitadelAction payload must be valid JSON.",
+                    },
+                    indent=2,
+                ).encode()
+            )
+            return
+
+        from citadel_contracts import CITADEL_ACTION_TYPES, validate_citadel_action_envelope
+
+        validation = validate_citadel_action_envelope(request_payload)
+        if not validation.get("valid"):
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "error": "invalid_citadel_action",
+                        "errors": validation.get("errors", []),
+                        "supported_action_types": list(CITADEL_ACTION_TYPES),
+                    },
+                    indent=2,
+                ).encode()
+            )
+            return
+
+        self.send_response(501)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(
+            json.dumps(
+                {
+                    "status": "not_implemented",
+                    "message": "CitadelAction routing is not wired yet. The shared envelope is now live for client compatibility.",
+                    "action": validation.get("normalized", {}),
+                    "supported_action_types": list(CITADEL_ACTION_TYPES),
+                },
+                indent=2,
+            ).encode()
+        )
 
     def _handle_auth_status(self):
         """GET /auth/status - Auth configuration info (no secrets exposed).
@@ -4654,6 +4747,8 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             self._handle_missions_run()
         elif path == "/qualification/run" or path == "/v1/qualification/run":
             self._handle_qualification_run()
+        elif path == "/citadel/action" or path == "/v1/citadel/action":
+            self._handle_citadel_action()
         elif path == "/github/status" or path == "/v1/github/status":
             # POST deprecated: use GET for read-only status
             self.send_response(405)
