@@ -16,6 +16,9 @@ RestartSec=2
 # Allow time for startup + readiness check
 TimeoutStartSec=45
 Environment=PYTHONUNBUFFERED=1
+# Optional operator-surface reachability:
+# set ROXY_HOST=0.0.0.0 via %h/.roxy/.env or a user override when remote
+# Citadel clients such as OperatorBar need to reach roxy-core over the network.
 EnvironmentFile=-%h/.roxy/.env
 
 [Install]

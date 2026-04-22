@@ -2441,10 +2441,10 @@ except ImportError as e:
 if CONFIG_FILE.exists():
     with open(CONFIG_FILE) as f:
         config = json.load(f)
-        IPC_HOST = config.get("host", "127.0.0.1")
+        IPC_HOST = os.getenv("ROXY_HOST", config.get("host", "127.0.0.1"))
         IPC_PORT = int(os.getenv("ROXY_PORT", config.get("port", 8766)))
 else:
-    IPC_HOST = "127.0.0.1"
+    IPC_HOST = os.getenv("ROXY_HOST", "127.0.0.1")
     IPC_PORT = int(os.getenv("ROXY_PORT", 8766))
     logger.warning(f"Config file not found at {CONFIG_FILE}, using defaults")
 
