@@ -467,6 +467,39 @@ class TestToolDirectCalls:
         assert result[0] == "tool_direct"
         assert result[1][0] == "execute_command"
 
+    def test_natural_language_write_file_routes_to_tool_direct(self, tmp_path):
+        """Natural-language create/write requests should route to deterministic host writes."""
+        target = tmp_path / "note.txt"
+        result = parse_command(f"Create file {target} with content HELLO-ROXY")
+        assert result[0] == "tool_direct"
+        assert result[1][0] == "write_file"
+        assert result[1][1]["path"] == str(target)
+        assert result[1][1]["content"] == "HELLO-ROXY"
+
+    def test_natural_language_write_file_strips_trailing_reply_instruction(self, tmp_path):
+        """Write-file parser should not leak exact-output instructions into file content."""
+        target = tmp_path / "note.txt"
+        result = parse_command(
+            f"Create file {target} with content HELLO-ROXY. Reply only with CREATED."
+        )
+        assert result[0] == "tool_direct"
+        assert result[1][1]["content"] == "HELLO-ROXY"
+
+    def test_capability_probe_routes_to_capabilities(self):
+        """Direct capability checks should use the deterministic capabilities lane."""
+        result = parse_command("Can you create a file in /home/mark/.roxy right now? Reply only with YES or NO.")
+        assert result[0] == "capabilities"
+
+    def test_execute_tool_direct_write_file_creates_host_file(self, tmp_path):
+        """write_file tool should create real host files deterministically."""
+        target = tmp_path / "created.txt"
+        result = roxy_commands.execute_tool_direct(
+            "write_file",
+            {"path": str(target), "content": "hello world", "create_dirs": True},
+        )
+        assert "WROTE:" in result
+        assert target.read_text() == "hello world"
+
 
 class TestGreetings:
     """Test greeting detection (for fastpath optimization)"""

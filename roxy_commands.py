@@ -326,6 +326,99 @@ def _extract_repo_override(text: str) -> Optional[str]:
     return None
 
 
+def _default_workspace_root(text: str = "") -> Path:
+    """Pick a sensible workspace root for file-oriented tasks."""
+    explicit_repo = _extract_repo_override(text)
+    if explicit_repo:
+        return Path(explicit_repo)
+
+    lower = (text or "").lower()
+    roxy_root = Path.home() / ".roxy"
+    mindsong_root = Path.home() / "mindsong-juke-hub"
+
+    if any(token in lower for token in ("roxy", "command center", "command-center")) and roxy_root.exists():
+        return roxy_root
+    if any(token in lower for token in ("mindsong", "theater", "theater-8k", "skybeam")) and mindsong_root.exists():
+        return mindsong_root
+
+    selected_repo, _ = _select_git_repo()
+    return selected_repo
+
+
+def _resolve_workspace_path(raw_path: str, text: str = "") -> Optional[Path]:
+    """Resolve an absolute or repo-relative workspace path from a prompt hint."""
+    cleaned = str(raw_path or "").strip().strip("'\"")
+    if not cleaned:
+        return None
+    cleaned = cleaned.rstrip(".,;:!?)]}")
+    if not cleaned:
+        return None
+
+    candidate = Path(cleaned).expanduser()
+    if candidate.is_absolute():
+        return candidate
+
+    explicit_repo = _extract_repo_override(text)
+    if explicit_repo:
+        return Path(explicit_repo) / candidate
+
+    if cleaned.startswith(".") or "/" in cleaned or "." in candidate.name:
+        return _default_workspace_root(text) / candidate
+
+    return None
+
+
+def _extract_write_file_request(text: str) -> Optional[Dict[str, Any]]:
+    """Parse deterministic host-workspace write requests from natural language."""
+    if not text:
+        return None
+
+    patterns = [
+        (
+            False,
+            re.compile(
+                r"""(?is)^\s*(?:please\s+)?write\s+(?P<content>.+?)\s+to\s+(?:file\s+)?(?P<path>(?:~|/)[^\s]+|[A-Za-z0-9_./-]+)\s*$"""
+            ),
+        ),
+        (
+            True,
+            re.compile(
+                r"""(?is)^\s*(?:please\s+)?append\s+(?P<content>.+?)\s+to\s+(?:file\s+)?(?P<path>(?:~|/)[^\s]+|[A-Za-z0-9_./-]+)\s*$"""
+            ),
+        ),
+        (
+            False,
+            re.compile(
+                r"""(?is)^\s*(?:please\s+)?(?:create|overwrite|replace|save|write)(?:\s+(?:a\s+)?)?(?:file\s+)?(?:at\s+)?(?P<path>(?:~|/)[^\s]+|[A-Za-z0-9_./-]+)(?:\s+(?:with\s+(?:content|contents)|containing|that\s+says|and\s+write)\s+(?P<content>.+))?\s*$"""
+            ),
+        ),
+    ]
+
+    for append_mode, pattern in patterns:
+        match = pattern.match(text)
+        if not match:
+            continue
+        raw_path = match.group("path")
+        resolved = _resolve_workspace_path(raw_path, text)
+        if not resolved:
+            continue
+        content = (match.groupdict().get("content") or "").strip()
+        trailing_instruction = re.search(
+            r"""(?is)(?:^|[\s.])(?:reply|respond|answer|return)\s+(?:only\s+with|with\s+exactly|exactly)\b.*$""",
+            content,
+        )
+        if trailing_instruction:
+            content = content[: trailing_instruction.start()].rstrip(" \t\r\n.;")
+        return {
+            "path": str(resolved),
+            "content": content,
+            "append": append_mode,
+            "create_dirs": True,
+        }
+
+    return None
+
+
 def _is_git_repo_question(text: str) -> bool:
     """Detect natural-language git questions that need repo truth, not a raw git action."""
     lower = (text or "").lower().strip()
@@ -1143,8 +1236,21 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
 
     # === CAPABILITIES / TOOLS QUERY ===
     capability_keywords = ["capabilities", "what can you do", "available tools", "what tools", "list tools"]
-    if any(kw in text_lower for kw in capability_keywords):
-        return ("capabilities", [])
+    capability_probe_keywords = [
+        "create a file",
+        "write a file",
+        "write file",
+        "benchmark codename",
+        "memory recall",
+        "send email",
+        "email right now",
+        "git push",
+        "push to github",
+    ]
+    if any(kw in text_lower for kw in capability_keywords) or (
+        text_lower.startswith("can you ") and any(marker in text_lower for marker in capability_probe_keywords)
+    ):
+        return ("capabilities", [text])
     
     # === MODEL INFO QUERY ===
     if "what model" in text_lower or "which model" in text_lower or "your model" in text_lower:
@@ -1232,6 +1338,10 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
                 except:
                     tool_args = {"raw": parts[2]}
             return ("tool_direct", [tool_name, tool_args])
+
+    write_request = _extract_write_file_request(text)
+    if write_request:
+        return ("tool_direct", ["write_file", write_request])
     
     # === CHIEF'S PHASE 3: FILE-CLAIM PREFLIGHT (routing-level enforcement) ===
     # Queries about files MUST execute list_files/search_code FIRST
@@ -1248,17 +1358,19 @@ def parse_command(text: str) -> Tuple[str, List[str]]:
     has_file_extension = re.search(r'\b\w+\.(py|md|js|ts|json|yaml|yml|txt|sh|rs)\b', text_lower)
     
     if any(trigger in text_lower for trigger in file_claim_triggers) or has_file_extension:
+        workspace_root = _default_workspace_root(text)
         # Force preflight: list relevant files first
         if "onboarding" in text_lower:
-            # List onboarding docs specifically (*.md files only in onboarding dir)
-            return ("tool_preflight", ["list_files", {"path": "/home/mark/mindsong-juke-hub/docs/onboarding", "pattern": "*.md"}, text])
+            onboarding_dir = workspace_root / "docs" / "onboarding"
+            target_dir = onboarding_dir if onboarding_dir.exists() else workspace_root / "docs"
+            return ("tool_preflight", ["list_files", {"path": str(target_dir), "pattern": "*.md"}, text])
         elif has_file_extension:
             # Search for the specific file mentioned
             filename = has_file_extension.group(0)
-            return ("tool_preflight", ["search_code", {"path": "/home/mark/mindsong-juke-hub", "pattern": filename}, text])
+            return ("tool_preflight", ["search_code", {"path": str(workspace_root), "pattern": filename}, text])
         else:
             # Generic file list query
-            return ("tool_preflight", ["list_files", {"path": "/home/mark/mindsong-juke-hub"}, text])
+            return ("tool_preflight", ["list_files", {"path": str(workspace_root)}, text])
 
     # === PING FAST-PATH (CHIEF'S REQUIREMENT) ===
     # Deterministic, no LLM, no RAG, <100ms target
@@ -1540,6 +1652,42 @@ def execute_tool_direct(tool_name, tool_args):
             content = path.read_text()
             track_tool_execution(tool_name, tool_args, f"Read {len(content)} bytes from {file_path}", ok=True)
             return content
+
+        elif tool_name == "write_file":
+            file_path = tool_args.get("file_path") or tool_args.get("path")
+            if not file_path:
+                return "ERROR: write_file requires 'file_path' or 'path' argument"
+
+            content = tool_args.get("content")
+            if content is None:
+                content = tool_args.get("text", "")
+            content = str(content)
+            append_mode = bool(tool_args.get("append", False))
+            create_dirs = tool_args.get("create_dirs", True)
+            encoding = tool_args.get("encoding", "utf-8")
+
+            path = Path(file_path).expanduser()
+            if path.exists() and path.is_dir():
+                track_tool_execution(tool_name, tool_args, None, ok=False, error="Path is a directory")
+                return f"ERROR: Path is a directory: {file_path}"
+
+            if create_dirs:
+                path.parent.mkdir(parents=True, exist_ok=True)
+            elif not path.parent.exists():
+                track_tool_execution(tool_name, tool_args, None, ok=False, error="Parent directory missing")
+                return f"ERROR: Parent directory not found: {path.parent}"
+
+            if append_mode:
+                with path.open("a", encoding=encoding) as f:
+                    f.write(content)
+                action = "APPENDED"
+            else:
+                with path.open("w", encoding=encoding) as f:
+                    f.write(content)
+                action = "WROTE"
+
+            track_tool_execution(tool_name, tool_args, f"{action} {len(content)} chars to {file_path}", ok=True)
+            return f"{action}: {path} ({len(content)} chars)"
         
         elif tool_name == "list_files":
             # CANONICAL ARG: path (Chief's requirement)
@@ -1584,7 +1732,7 @@ def execute_tool_direct(tool_name, tool_args):
             return "\n".join(str(m) for m in matches[:50])
         
         else:
-            return f"ERROR: Unknown tool '{tool_name}'. Available: execute_command, read_file, list_files, search_code"
+            return f"ERROR: Unknown tool '{tool_name}'. Available: execute_command, read_file, write_file, list_files, search_code"
     
     except Exception as e:
         track_tool_execution(tool_name, tool_args, None, ok=False, error=str(e))
@@ -1613,7 +1761,8 @@ def execute_command(cmd_type, args):
         sys.path.insert(0, str(ROXY_DIR))
         from capabilities import get_capabilities
         caps = get_capabilities()
-        return caps.get_truth_statement(), None
+        query = " ".join(args) if args else ""
+        return caps.answer_query(query), "none"
     
     elif cmd_type == "model_info":
         # Return ACTUAL model info (no hallucination)
@@ -2424,7 +2573,10 @@ def main():
     if model_used is None and extra_metadata.get("routing_meta", {}).get("model_used") is not None:
         model_used = extra_metadata.get("routing_meta", {}).get("model_used")
     if not model_used:
-        model_used = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
+        if cmd_type in {"tool_direct", "memory_store", "memory_recall", "git_query", "ping_direct", "time_direct"}:
+            model_used = "none"
+        else:
+            model_used = os.getenv("ROXY_DEFAULT_MODEL", "qwen2.5-coder:14b-instruct")
     
     # Build routing_meta for structured response (required for tests)
     selected_pool = (explicit_pool or "6900XT").lower()

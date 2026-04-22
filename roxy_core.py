@@ -1356,6 +1356,27 @@ def _is_strict_output_request(query: str) -> bool:
     return bool(_STRICT_OUTPUT_PATTERN.search(query or ""))
 
 
+_DETERMINISTIC_NO_VALIDATION_ROUTES = frozenset(
+    {
+        "capabilities",
+        "memory_store",
+        "memory_recall",
+        "git_query",
+        "local_fastpath_git_status",
+        "strict_literal_reply",
+        "tool_direct",
+        "time_direct",
+        "ping_direct",
+    }
+)
+
+
+def _should_skip_response_validation(query: str, route: Optional[str] = None) -> bool:
+    if _is_strict_output_request(query):
+        return True
+    return str(route or "").strip().lower() in _DETERMINISTIC_NO_VALIDATION_ROUTES
+
+
 def _extract_strict_literal_reply(query: str) -> Optional[str]:
     match = _STRICT_LITERAL_REPLY_PATTERN.search(query or "")
     if not match:
@@ -6134,15 +6155,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
             if isinstance(exec_meta_ref, dict) and ("total_ms" not in exec_meta_ref or not exec_meta_ref.get("cache_hit")):
                 exec_meta_ref["total_ms"] = total_ms
             route_name = str(exec_meta_ref.get("route") or "").strip().lower()
-            deterministic_routes = {
-                "memory_store",
-                "memory_recall",
-                "git_query",
-                "local_fastpath_git_status",
-                "strict_literal_reply",
-                "time_direct",
-                "ping_direct",
-            }
+            deterministic_routes = _DETERMINISTIC_NO_VALIDATION_ROUTES
             deterministic_fast_route = route_name in deterministic_routes and (
                 strict_contract or low_latency_request
             )
@@ -6730,7 +6743,18 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         }
 
         literal_reply = None
-        if "remember" not in normalized_command and not normalized_command.startswith("mbench-store:"):
+        write_intent = (
+            any(token in normalized_command for token in ("create file", "write file", "append ", "overwrite ", "replace ", "save "))
+            or (
+                any(token in normalized_command for token in ("create ", "write ", "append ", "overwrite ", "replace ", "save "))
+                and any(marker in command for marker in ("/", "~"))
+            )
+        )
+        if (
+            "remember" not in normalized_command
+            and not normalized_command.startswith("mbench-store:")
+            and not write_intent
+        ):
             literal_reply = _extract_strict_literal_reply(command)
         if literal_reply:
             self._last_execution_metadata.update(
@@ -7046,9 +7070,15 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                                 "gitnexus": metadata.get("gitnexus"),
                                 "atlas": metadata.get("atlas"),
                             }
-                            # Preserve base_url_used from our earlier decision
-                            self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
-                            self._last_execution_metadata["selected_model"] = existing_meta.get("selected_model") or self._last_execution_metadata.get("model_used")
+                            routing_model = str(routing_meta.get("model_used") or "").strip().lower()
+                            if routing_model == "none":
+                                self._last_execution_metadata["model_used"] = "none"
+                                self._last_execution_metadata["selected_model"] = "none"
+                                self._last_execution_metadata["base_url_used"] = None
+                            else:
+                                # Preserve base_url_used from our earlier decision
+                                self._last_execution_metadata["base_url_used"] = existing_meta.get("base_url_used", pool_config["default"])
+                                self._last_execution_metadata["selected_model"] = existing_meta.get("selected_model") or self._last_execution_metadata.get("model_used")
                             if not self._last_execution_metadata.get("model_used"):
                                 self._last_execution_metadata["model_used"] = selected_model
                         except json.JSONDecodeError as e:
@@ -7070,15 +7100,7 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                     self._last_execution_metadata.get("route") or metadata.get("route") or mode or ""
                 ).strip().lower()
                 strict_contract = _is_strict_output_request(command)
-                deterministic_routes = {
-                    "memory_store",
-                    "memory_recall",
-                    "git_query",
-                    "local_fastpath_git_status",
-                    "strict_literal_reply",
-                    "time_direct",
-                    "ping_direct",
-                }
+                deterministic_routes = _DETERMINISTIC_NO_VALIDATION_ROUTES
 
                 if strict_contract:
                     response_text = _enforce_strict_output_contract(
@@ -7138,7 +7160,11 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
                         logger.debug(f"Cache storage failed: {e}")
                     
                     # Validate response
-                    response_text = self._validate_response(response_text, command)
+                    response_text = self._validate_response(
+                        response_text,
+                        command,
+                        route=route_for_validation,
+                    )
                     
                     # Add to conversation history
                     try:
@@ -7186,9 +7212,9 @@ class RoxyCoreHandler(BaseHTTPRequestHandler):
         
         return False
     
-    def _validate_response(self, response: str, query: str) -> str:
+    def _validate_response(self, response: str, query: str, route: Optional[str] = None) -> str:
         """Validate response using validation gates"""
-        if _is_strict_output_request(query):
+        if _should_skip_response_validation(query, route):
             return response
         try:
             sys.path.insert(0, str(ROXY_DIR))

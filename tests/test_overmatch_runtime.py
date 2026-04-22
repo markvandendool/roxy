@@ -1,4 +1,5 @@
 import asyncio
+import builtins
 import json
 from pathlib import Path
 import time
@@ -135,6 +136,27 @@ def test_runtime_state_snapshot_reports_missing_repo_intel_cache(monkeypatch, tm
 
     assert snapshot["repo_intel"]["available"] is False
     assert snapshot["repo_intel"]["reason"] == "cache_missing"
+
+
+def test_validate_response_skips_confidence_for_deterministic_capabilities(monkeypatch):
+    response = "Files/Git: read, write, search, and repo truth are live."
+    original_import = builtins.__import__
+
+    def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name.startswith("validation"):
+            raise AssertionError("validation imports should be skipped for deterministic routes")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
+
+    result = roxy_core.RoxyCoreHandler._validate_response(
+        object(),
+        response,
+        "What can you do right now? Reply in three short lines.",
+        route="capabilities",
+    )
+
+    assert result == response
 
 
 def test_build_repo_context_for_prompt_includes_file_and_symbol(monkeypatch, tmp_path):

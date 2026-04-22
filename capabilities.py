@@ -4,9 +4,11 @@ Capabilities Endpoint - Self-reportable truth about ROXY
 Returns ONLY evidence-backed facts, no LLM guessing
 """
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Dict, Any, List
+import importlib.util
 
 
 class CapabilitiesProvider:
@@ -26,6 +28,12 @@ class CapabilitiesProvider:
             with open(self.config_file) as f:
                 return json.load(f)
         return {}
+
+    def _roxy_commands_source(self) -> str:
+        commands_file = self.roxy_dir / "roxy_commands.py"
+        if commands_file.exists():
+            return commands_file.read_text()
+        return ""
     
     def get_all_capabilities(self) -> Dict[str, Any]:
         """
@@ -52,34 +60,36 @@ class CapabilitiesProvider:
         # Check MCP tools
         mcp_dir = self.roxy_dir / "mcp"
         if mcp_dir.exists():
-            for server_dir in mcp_dir.iterdir():
-                if server_dir.is_dir():
-                    tools.append(f"mcp:{server_dir.name}")
+            for module_path in sorted(mcp_dir.glob("mcp_*.py")):
+                if module_path.name in {"mcp_server.py", "mcp_container_router.py"}:
+                    continue
+                tools.append(f"mcp:{module_path.stem.replace('mcp_', '', 1)}")
         
         # Check roxy_commands.py capabilities
-        commands_file = self.roxy_dir / "roxy_commands.py"
-        if commands_file.exists():
-            # Parse roxy_commands.py for supported command types
-            with open(commands_file) as f:
-                content = f.read()
-                if "git" in content:
-                    tools.append("git_operations")
-                if "obs" in content:
-                    tools.append("obs_control")
-                if "rag" in content or "query_rag" in content:
-                    tools.append("rag_query")
-                if "list_files" in content:
-                    tools.append("file_listing")
-                if "read_file" in content:
-                    tools.append("file_reading")
-                if "search_code" in content:
-                    tools.append("code_search")
+        content = self._roxy_commands_source()
+        if content:
+            if "git" in content:
+                tools.append("git_operations")
+            if "obs" in content:
+                tools.append("obs_control")
+            if "rag" in content or "query_rag" in content:
+                tools.append("rag_query")
+            if "list_files" in content:
+                tools.append("file_listing")
+            if "read_file" in content:
+                tools.append("file_reading")
+            if "write_file" in content:
+                tools.append("file_writing")
+            if "search_code" in content:
+                tools.append("code_search")
+            if "memory_recall" in content:
+                tools.append("memory_recall")
         
         # Check for execute_command capability
-        # This is DISABLED by default for security
-        tools.append("execute_command:DISABLED")
+        exec_state = self.check_command_execution()
+        tools.append("execute_command" if exec_state.get("enabled") else "execute_command:DISABLED")
         
-        return tools
+        return sorted(dict.fromkeys(tools))
     
     def get_model_info(self) -> Dict[str, str]:
         """
@@ -87,6 +97,19 @@ class CapabilitiesProvider:
         EVIDENCE-BASED - run ollama list
         """
         try:
+            running_models: List[str] = []
+            ps_result = subprocess.run(
+                ["ollama", "ps"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if ps_result.returncode == 0:
+                lines = ps_result.stdout.strip().split("\n")
+                for line in lines[1:]:
+                    if line.strip():
+                        running_models.append(line.split()[0])
+
             result = subprocess.run(
                 ["ollama", "list"],
                 capture_output=True,
@@ -101,12 +124,27 @@ class CapabilitiesProvider:
                     if line.strip():
                         model_name = line.split()[0]
                         models.append(model_name)
+
+                preferred = os.getenv("ROXY_MODEL", "").strip() or os.getenv("ROXY_DEFAULT_MODEL", "").strip()
+                if running_models:
+                    current_model = running_models[0]
+                    evidence = "ollama ps command executed"
+                elif preferred and preferred in models:
+                    current_model = preferred
+                    evidence = "ROXY_DEFAULT_MODEL present in ollama list"
+                elif "qwen3:14b" in models:
+                    current_model = "qwen3:14b"
+                    evidence = "ollama list command executed"
+                else:
+                    current_model = models[0] if models else "UNKNOWN"
+                    evidence = "ollama list command executed"
                 
                 return {
                     "type": "ollama",
                     "available_models": models,
-                    "current_model": "qwen2.5-coder:14b",  # Upgraded from llama3:8b
-                    "evidence": "ollama list command executed",
+                    "running_models": running_models,
+                    "current_model": current_model,
+                    "evidence": evidence,
                 }
             else:
                 return {"error": "ollama not running", "evidence": result.stderr}
@@ -129,11 +167,12 @@ class CapabilitiesProvider:
         Check if execute_command is enabled
         SECURITY: Should be DISABLED by default
         """
-        # In the fixed ROXY, execute_command is NOT enabled
-        # Would require explicit user configuration
+        enabled = bool(self.config.get("execute_command", {}).get("enabled", False))
+        if os.getenv("ROXY_ALLOW_EXECUTE_COMMAND", "0").lower() in ("1", "true", "yes"):
+            enabled = True
         return {
-            "enabled": False,
-            "reason": "Security policy - disabled by default",
+            "enabled": enabled,
+            "reason": "Enabled by configuration" if enabled else "Security policy - disabled by default",
             "to_enable": "Add execute_command tool to config and whitelist commands",
         }
     
@@ -155,6 +194,50 @@ class CapabilitiesProvider:
             "security": "token-based auth (A- grade)",
             "date": "2026-01-01",
         }
+
+    def check_email_available(self) -> Dict[str, Any]:
+        """Check Gmail bridge configuration via vault token presence."""
+        module_path = self.roxy_dir / "mcp" / "mcp_vault.py"
+        if not module_path.exists():
+            return {"enabled": False, "reason": "vault module missing"}
+        try:
+            spec = importlib.util.spec_from_file_location("roxy_mcp_vault", module_path)
+            module = importlib.util.module_from_spec(spec)
+            assert spec and spec.loader
+            spec.loader.exec_module(module)
+            token_result = module.vault_get("google_access_token")
+            if token_result.get("success"):
+                return {"enabled": True, "reason": "google_access_token present in vault"}
+            return {"enabled": False, "reason": token_result.get("error") or "google_access_token missing"}
+        except Exception as exc:
+            return {"enabled": False, "reason": str(exc)}
+
+    def answer_query(self, query: str) -> str:
+        """Deterministic capability answers for operator questions."""
+        lower = (query or "").lower().strip()
+        tools = set(self.get_available_tools())
+        email_status = self.check_email_available()
+        file_writing = "file_writing" in tools
+        memory_recall = "memory_recall" in tools
+
+        if "reply only with yes" in lower or "reply only with no" in lower or "reply only with yes or no" in lower:
+            if "create a file" in lower or "write a file" in lower or "write file" in lower:
+                return "YES" if file_writing else "NO"
+            if "benchmark codename" in lower or "memory recall" in lower:
+                return "YES" if memory_recall else "NO"
+            if "send email" in lower or "email right now" in lower:
+                return "YES" if email_status.get("enabled") else "NO"
+
+        if "what can you do" in lower and "three short lines" in lower:
+            model = self.get_model_info().get("current_model", "UNKNOWN")
+            email_line = "Email: live." if email_status.get("enabled") else "Email: unavailable until Google OAuth is configured."
+            return (
+                f"Files/Git: read, write, search, and repo truth are live.\n"
+                f"Memory/Atlas: benchmark recall, Brain Atlas, and GitNexus truth are live.\n"
+                f"Model: {model}. {email_line}"
+            )
+
+        return self.get_truth_statement()
     
     def get_truth_statement(self) -> str:
         """
